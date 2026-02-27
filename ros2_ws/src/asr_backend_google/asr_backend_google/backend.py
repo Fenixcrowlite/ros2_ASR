@@ -1,3 +1,5 @@
+"""Google Cloud Speech-to-Text backend (recognize-once)."""
+
 from __future__ import annotations
 
 import os
@@ -15,6 +17,8 @@ from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabili
 
 @register_backend("google")
 class GoogleAsrBackend(AsrBackend):
+    """Google Speech backend with config/ENV-based credentials."""
+
     name = "google"
 
     @property
@@ -29,6 +33,7 @@ class GoogleAsrBackend(AsrBackend):
         )
 
     def __init__(self, config: dict | None = None, client: object | None = None) -> None:
+        """Read model/region/endpoint/credentials and lazy client handle."""
         super().__init__(config=config, client=client)
         self.model = env_or(self.config, "model", "ASR_GOOGLE_MODEL", "latest_long")
         self.region = env_or(self.config, "region", "ASR_GOOGLE_REGION", "global")
@@ -44,9 +49,11 @@ class GoogleAsrBackend(AsrBackend):
         self._client: Any = client
 
     def has_credentials(self) -> bool:
+        """Check that credential file path exists."""
         return bool(self.credentials) and Path(self.credentials).exists()
 
     def _load_client(self) -> bool:
+        """Initialize google client once (with optional endpoint override)."""
         if self._client is not None:
             return True
         try:
@@ -62,6 +69,7 @@ class GoogleAsrBackend(AsrBackend):
             return False
 
     def _request_audio(self, request: AsrRequest) -> tuple[bytes, str | None, bool]:
+        """Return `(audio_bytes, wav_path_for_metadata, cleanup_tmp)`."""
         if request.wav_path:
             with open(request.wav_path, "rb") as f:
                 return f.read(), request.wav_path, False
@@ -74,6 +82,7 @@ class GoogleAsrBackend(AsrBackend):
         raise ValueError("Either wav_path or audio_bytes must be provided")
 
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
+        """Run one-shot Google recognition and normalize fields."""
         preprocess_start = time.perf_counter()
         if not self.credentials:
             return AsrResponse(

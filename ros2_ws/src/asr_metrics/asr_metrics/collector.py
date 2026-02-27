@@ -1,3 +1,8 @@
+"""Metric aggregation layer.
+
+Converts raw ASR responses into normalized benchmark records.
+"""
+
 from __future__ import annotations
 
 import uuid
@@ -11,15 +16,20 @@ from asr_metrics.system import collect_cpu_ram, collect_gpu
 
 
 class MetricsCollector:
+    """Collect quality, latency, resource, and cost metrics."""
+
     def __init__(self, pricing_per_minute: dict[str, float] | None = None) -> None:
+        """Store backend pricing table for cost estimation."""
         self.pricing_per_minute = pricing_per_minute or {}
 
     def estimate_cost(self, backend: str, audio_duration_sec: float) -> float:
+        """Estimate request cost using configured price-per-minute."""
         ppm = self.pricing_per_minute.get(backend, 0.0)
         return (audio_duration_sec / 60.0) * ppm
 
     @staticmethod
     def _snr_from_scenario(scenario: str) -> float | None:
+        """Extract numeric SNR from labels like `snr20`."""
         if scenario.startswith("snr"):
             try:
                 return float(scenario.replace("snr", ""))
@@ -38,6 +48,7 @@ class MetricsCollector:
         response: AsrResponse,
         request_id: str | None = None,
     ) -> BenchmarkRecord:
+        """Create one `BenchmarkRecord` from ASR response + context."""
         req_id = request_id or str(uuid.uuid4())
         cpu, ram = collect_cpu_ram()
         gpu_u, gpu_m = collect_gpu()

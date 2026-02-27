@@ -1,3 +1,9 @@
+"""ROS2 audio producer node.
+
+Publishes raw PCM chunks to `/asr/audio_chunks` either from microphone
+or from WAV file fallback mode.
+"""
+
 from __future__ import annotations
 
 import queue
@@ -11,8 +17,11 @@ from std_msgs.msg import UInt8MultiArray
 
 
 class AudioCaptureNode(Node):
+    """Capture audio and publish chunked payload for ASR server."""
+
     def __init__(self) -> None:
         super().__init__("audio_capture_node")
+        # Input parameters are intentionally simple for launch/YAML usage.
         self.declare_parameter("input_mode", "auto")
         self.declare_parameter("wav_path", "data/sample/en_hello.wav")
         self.declare_parameter("sample_rate", 16000)
@@ -42,6 +51,10 @@ class AudioCaptureNode(Node):
         )
 
     def _on_timer(self) -> None:
+        """Run selected input mode on timer.
+
+        In mic mode with `continuous=true` the node re-captures periodically.
+        """
         if self._published_once:
             return
         mode = self.input_mode
@@ -60,6 +73,7 @@ class AudioCaptureNode(Node):
             self._published_once = True
 
     def _publish_from_file(self) -> None:
+        """Publish pre-recorded WAV as PCM chunks."""
         wav = Path(self.wav_path)
         if not wav.exists():
             self.get_logger().error(f"WAV not found: {wav}")
@@ -76,6 +90,12 @@ class AudioCaptureNode(Node):
         self.get_logger().info(f"Published file audio chunks from {wav}")
 
     def _publish_from_mic(self) -> bool:
+        """Capture short microphone window and publish PCM chunks.
+
+        Returns:
+            `True` when microphone stream was opened and processed.
+            `False` when microphone is unavailable (caller should fallback).
+        """
         try:
             import sounddevice as sd
         except Exception:
@@ -84,6 +104,7 @@ class AudioCaptureNode(Node):
         audio_q: queue.Queue[bytes] = queue.Queue()
 
         def callback(indata, frames, _time, status) -> None:
+            """Sounddevice callback storing chunk bytes into queue."""
             if status:
                 return
             audio_q.put(bytes(indata))

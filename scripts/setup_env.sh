@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Create local virtual environment and install Python dependencies.
 if [ ! -d .venv ]; then
   if ! python3 -m venv .venv 2>/dev/null; then
     echo "python3 -m venv failed, trying virtualenv fallback"

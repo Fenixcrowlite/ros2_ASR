@@ -1,3 +1,12 @@
+"""Main ROS2 ASR node.
+
+Responsibilities:
+1. Expose one-shot service and long-running action.
+2. Subscribe to live audio chunks and run streaming/fallback recognition.
+3. Publish normalized text + metrics topics.
+4. Provide runtime backend status and backend switching.
+"""
+
 from __future__ import annotations
 
 import threading
@@ -25,8 +34,11 @@ from asr_ros.converters import build_metrics_msg, to_asr_result_msg
 
 
 class AsrServerNode(Node):
+    """ROS2 server node that wraps provider-agnostic ASR core."""
+
     def __init__(self) -> None:
         super().__init__("asr_server_node")
+        # Generic runtime parameters; empty values mean "take from YAML config".
         self.declare_parameter("config", "configs/default.yaml")
         self.declare_parameter("backend", "")
         self.declare_parameter("language", "")
@@ -38,6 +50,7 @@ class AsrServerNode(Node):
         self.declare_parameter("live_flush_timeout_sec", 1.0)
 
         self.config_path = str(self.get_parameter("config").value)
+        # Merge default config + optional local commercial overlay.
         self.runtime_cfg = load_runtime_config(self.config_path, "configs/commercial.yaml")
         self.lock = threading.Lock()
 
@@ -74,11 +87,13 @@ class AsrServerNode(Node):
         self._live_last_chunk_ts: float = 0.0
         self._live_processing = False
 
+        # Metric collector is reused for service/action/live-topic flows.
         self.collector = MetricsCollector(
             pricing_per_minute=self.runtime_cfg.get("benchmark", {}).get("pricing", {})
         )
         self.backend = self._create_backend(self.backend_name)
 
+        # Transient local QoS keeps last message for late subscribers.
         latched_qos = QoSProfile(
             depth=10,
             reliability=ReliabilityPolicy.RELIABLE,
@@ -115,6 +130,7 @@ class AsrServerNode(Node):
         )
 
     def _backend_config(self, backend_name: str) -> dict[str, Any]:
+        """Build final backend config with runtime model/region overrides."""
         cfg = dict(self.runtime_cfg.get("backends", {}).get(backend_name, {}))
         if self.model:
             cfg["model"] = self.model
@@ -123,10 +139,12 @@ class AsrServerNode(Node):
         return cfg
 
     def _create_backend(self, backend_name: str):
+        """Instantiate backend through core factory."""
         cfg = self._backend_config(backend_name)
         return create_backend(backend_name, config=cfg)
 
     def _on_audio_chunk(self, msg: UInt8MultiArray) -> None:
+        """Collect live audio chunks from `audio_capture_node`."""
         if not self.live_stream_enabled:
             return
         payload = bytes(msg.data)
@@ -137,6 +155,10 @@ class AsrServerNode(Node):
             self._live_last_chunk_ts = time.monotonic()
 
     def _on_live_timer(self) -> None:
+        """Flush buffered live chunks after inactivity timeout.
+
+        This approximates phrase boundaries in "push-to-talk-free" mode.
+        """
         if not self.live_stream_enabled:
             return
         chunks: list[bytes] = []
@@ -154,6 +176,7 @@ class AsrServerNode(Node):
 
         try:
             with self.lock:
+                # Backend can be native streaming or simulated fallback.
                 asr_response = self.backend.streaming_recognize(
                     chunks, language=self.language, sample_rate=self.sample_rate
                 )
@@ -203,6 +226,7 @@ class AsrServerNode(Node):
         reference_text: str = "",
         request_id: str | None = None,
     ) -> str:
+        """Publish text + metrics for any ASR response path."""
         rid = request_id or str(uuid.uuid4())
         result_msg = to_asr_result_msg(response, request_id=rid, is_final=True)
         self.text_pub.publish(result_msg)
@@ -236,6 +260,7 @@ class AsrServerNode(Node):
         return rid
 
     def _on_recognize_once(self, request: RecognizeOnce.Request, response: RecognizeOnce.Response):
+        """Handle `/asr/recognize_once` service."""
         wav_path = request.wav_path or self.runtime_cfg.get("asr", {}).get("wav_path", "")
         req = AsrRequest(
             wav_path=wav_path,
@@ -249,6 +274,7 @@ class AsrServerNode(Node):
         return response
 
     def _on_set_backend(self, request: SetAsrBackend.Request, response: SetAsrBackend.Response):
+        """Handle runtime backend switch service."""
         try:
             with self.lock:
                 self.backend_name = request.backend
@@ -265,6 +291,7 @@ class AsrServerNode(Node):
         return response
 
     def _on_get_status(self, _: GetAsrStatus.Request, response: GetAsrStatus.Response):
+        """Return backend capabilities and credential availability."""
         caps = self.backend.capabilities
         response.backend = self.backend_name
         response.model = self.model
@@ -283,6 +310,11 @@ class AsrServerNode(Node):
         return response
 
     async def _execute_transcribe(self, goal_handle):
+        """Handle `/asr/transcribe` action.
+
+        - `streaming=true`: emits periodic feedback and returns final result.
+        - `streaming=false`: runs one-shot recognition.
+        """
         goal = goal_handle.request
         wav_path = goal.wav_path
         language = goal.language or self.language

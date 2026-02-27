@@ -1,3 +1,8 @@
+"""Benchmark runner.
+
+Runs configured backends over dataset scenarios and produces CSV/JSON/plots.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -19,6 +24,7 @@ from asr_benchmark.noise import add_white_noise_snr
 
 
 def _scenario_wav(item: DatasetItem, scenario: str) -> tuple[str, list[str]]:
+    """Return scenario-specific WAV path and list of temp files to cleanup."""
     temp_files: list[str] = []
     if scenario == "clean":
         return item.wav_path, temp_files
@@ -39,6 +45,7 @@ def _run_single(
     scenario: str,
     collector: MetricsCollector,
 ) -> BenchmarkRecord:
+    """Run single recognize-once benchmark sample."""
     wav_path, temp_files = _scenario_wav(item, scenario)
     try:
         response = backend.recognize_once(
@@ -65,6 +72,7 @@ def _run_streaming_sim(
     chunk_sec: float,
     collector: MetricsCollector,
 ) -> BenchmarkRecord:
+    """Run streaming simulation benchmark for one sample."""
     chunks = wav_pcm_chunks(item.wav_path, chunk_sec)
     sample_rate = 16000
     response: AsrResponse = backend.streaming_recognize(
@@ -91,6 +99,7 @@ def run_benchmark(
     output_csv: str,
     backends: list[str] | None = None,
 ) -> list[BenchmarkRecord]:
+    """Entry point for programmatic benchmark execution."""
     cfg = load_runtime_config(config_path, "configs/commercial.yaml")
     dataset = load_manifest_csv(dataset_path)
 
@@ -116,6 +125,7 @@ def run_benchmark(
 
 
 def main() -> None:
+    """CLI wrapper for benchmark runner module."""
     parser = argparse.ArgumentParser(description="Run ASR benchmark scenarios")
     parser.add_argument("--config", required=True)
     parser.add_argument("--dataset", required=True)

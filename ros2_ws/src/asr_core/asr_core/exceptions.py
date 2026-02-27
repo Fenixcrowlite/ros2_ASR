@@ -1,3 +1,5 @@
+"""Project-level custom exception hierarchy."""
+
 class AsrError(Exception):
     """Base ASR exception."""
 

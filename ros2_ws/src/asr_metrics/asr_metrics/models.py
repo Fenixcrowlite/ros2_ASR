@@ -1,3 +1,5 @@
+"""Dataclasses for benchmark result serialization."""
+
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
@@ -5,6 +7,8 @@ from dataclasses import asdict, dataclass
 
 @dataclass(slots=True)
 class BenchmarkRecord:
+    """One normalized benchmark row used in CSV/JSON reports."""
+
     request_id: str
     audio_id: str
     backend: str
@@ -34,4 +38,5 @@ class BenchmarkRecord:
     cost_estimate: float
 
     def to_dict(self) -> dict:
+        """Convert dataclass to dictionary for output writers."""
         return asdict(self)

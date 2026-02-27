@@ -1,4 +1,9 @@
 #!/usr/bin/env python3
+"""Standalone plotting entry point.
+
+Used when raw benchmark JSON already exists and only plots need regeneration.
+"""
+
 from __future__ import annotations
 
 import argparse
@@ -8,6 +13,7 @@ from asr_metrics.plotting import generate_all_plots
 
 
 def main() -> None:
+    """Parse CLI args, load JSON records, generate plot images."""
     parser = argparse.ArgumentParser(description="Generate ASR benchmark plots")
     parser.add_argument("--input-json", required=True)
     parser.add_argument("--output-dir", required=True)

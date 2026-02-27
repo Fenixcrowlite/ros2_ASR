@@ -1,3 +1,8 @@
+"""Dynamic backend registry/factory.
+
+Backends register themselves via decorator and are imported lazily on demand.
+"""
+
 from __future__ import annotations
 
 from collections.abc import Callable
@@ -19,6 +24,8 @@ _BACKEND_IMPORTS: dict[str, tuple[str, str]] = {
 
 
 def register_backend(name: str) -> Callable[[type[AsrBackend]], type[AsrBackend]]:
+    """Decorator for backend class registration."""
+
     def wrapper(cls: type[AsrBackend]) -> type[AsrBackend]:
         _REGISTRY[name] = cls
         return cls
@@ -27,10 +34,12 @@ def register_backend(name: str) -> Callable[[type[AsrBackend]], type[AsrBackend]
 
 
 def get_registered_backends() -> list[str]:
+    """Return names that are currently loaded in registry."""
     return sorted(_REGISTRY.keys())
 
 
 def _ensure_imported(name: str) -> None:
+    """Import backend module once and cache class in `_REGISTRY`."""
     if name in _REGISTRY:
         return
     if name not in _BACKEND_IMPORTS:
@@ -44,6 +53,7 @@ def _ensure_imported(name: str) -> None:
 def create_backend(
     name: str, config: dict | None = None, client: object | None = None
 ) -> AsrBackend:
+    """Instantiate backend by symbolic name (`mock`, `whisper`, etc.)."""
     _ensure_imported(name)
     backend_cls = _REGISTRY[name]
     return backend_cls(config=config or {}, client=client)

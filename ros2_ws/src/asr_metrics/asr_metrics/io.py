@@ -1,3 +1,5 @@
+"""Persistence helpers for benchmark artifacts (CSV/JSON)."""
+
 from __future__ import annotations
 
 import csv
@@ -10,6 +12,7 @@ _FIELDS = list(BenchmarkRecord.__dataclass_fields__.keys())
 
 
 def save_benchmark_csv(records: list[BenchmarkRecord], output_path: str) -> None:
+    """Save benchmark records into tabular CSV format."""
     out = Path(output_path)
     out.parent.mkdir(parents=True, exist_ok=True)
     with out.open("w", newline="", encoding="utf-8") as f:
@@ -20,6 +23,7 @@ def save_benchmark_csv(records: list[BenchmarkRecord], output_path: str) -> None
 
 
 def save_benchmark_json(records: list[BenchmarkRecord], output_path: str) -> None:
+    """Save benchmark records into pretty JSON."""
     out = Path(output_path)
     out.parent.mkdir(parents=True, exist_ok=True)
     payload = [r.to_dict() for r in records]
@@ -28,6 +32,7 @@ def save_benchmark_json(records: list[BenchmarkRecord], output_path: str) -> Non
 
 
 def load_benchmark_json(input_path: str) -> list[BenchmarkRecord]:
+    """Load JSON report back into strongly-typed benchmark records."""
     path = Path(input_path)
     if not path.exists():
         return []

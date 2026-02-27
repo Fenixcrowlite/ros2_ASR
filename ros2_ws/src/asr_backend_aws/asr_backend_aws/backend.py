@@ -1,3 +1,5 @@
+"""AWS Transcribe backend with temporary S3 upload and cleanup."""
+
 from __future__ import annotations
 
 import logging
@@ -20,6 +22,8 @@ LOGGER = logging.getLogger(__name__)
 
 @register_backend("aws")
 class AwsAsrBackend(AsrBackend):
+    """Amazon Transcribe recognize-once backend."""
+
     name = "aws"
 
     @property
@@ -34,6 +38,7 @@ class AwsAsrBackend(AsrBackend):
         )
 
     def __init__(self, config: dict | None = None, client: object | None = None) -> None:
+        """Read AWS auth/region/S3 settings and runtime behavior flags."""
         super().__init__(config=config, client=client)
         self.region = env_or(self.config, "region", "AWS_REGION", "us-east-1")
         self.s3_bucket = env_or(self.config, "s3_bucket", "ASR_AWS_S3_BUCKET", "")
@@ -55,9 +60,11 @@ class AwsAsrBackend(AsrBackend):
         self._session: Any = client
 
     def has_credentials(self) -> bool:
+        """Return `True` when profile or key pair is configured."""
         return bool(self.profile or (self.access_key_id and self.secret_access_key))
 
     def _clients(self) -> tuple[Any, Any]:
+        """Create and return `(s3_client, transcribe_client)`."""
         import boto3
 
         session: Any = self._session
@@ -77,6 +84,7 @@ class AwsAsrBackend(AsrBackend):
         return s3, transcribe
 
     def _request_to_wav_path(self, request: AsrRequest) -> tuple[str, bool]:
+        """Convert request to local WAV path, returning `(path, cleanup_needed)`."""
         if request.wav_path:
             return request.wav_path, False
         if request.audio_bytes:
@@ -95,6 +103,7 @@ class AwsAsrBackend(AsrBackend):
         object_key: str | None,
         job_name: str | None,
     ) -> None:
+        """Best-effort cleanup of transcription job and uploaded S3 object."""
         if not self.cleanup_enabled:
             return
 
@@ -117,6 +126,7 @@ class AwsAsrBackend(AsrBackend):
                 )
 
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
+        """Run end-to-end AWS transcription job and normalize response."""
         preprocess_start = time.perf_counter()
         if not self.region:
             return AsrResponse(

@@ -1,3 +1,8 @@
+"""Runtime configuration helpers.
+
+Load default YAML + optional commercial overlays and normalize ENV-backed keys.
+"""
+
 from __future__ import annotations
 
 import os
@@ -8,6 +13,7 @@ import yaml  # type: ignore[import-untyped]
 
 
 def _deep_update(base: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
+    """Recursively merge `patch` into `base`."""
     for key, value in patch.items():
         if isinstance(value, dict) and isinstance(base.get(key), dict):
             base[key] = _deep_update(base[key], value)
@@ -17,6 +23,7 @@ def _deep_update(base: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
 
 
 def load_yaml(path: str) -> dict[str, Any]:
+    """Load YAML file as dictionary, return empty dict when file is absent."""
     file_path = Path(path)
     if not file_path.exists():
         return {}
@@ -30,6 +37,13 @@ def load_yaml(path: str) -> dict[str, Any]:
 def load_runtime_config(
     default_config_path: str, commercial_config_path: str | None = None
 ) -> dict[str, Any]:
+    """Compose runtime config.
+
+    Merge order (later overrides earlier):
+    1. `default_config_path`
+    2. `commercial_config_path` argument
+    3. local `configs/commercial.yaml` if present
+    """
     cfg = load_yaml(default_config_path)
     if commercial_config_path:
         cfg = _deep_update(cfg, load_yaml(commercial_config_path))
@@ -40,6 +54,7 @@ def load_runtime_config(
 
 
 def env_or(config: dict[str, Any], key: str, env_name: str, default: str = "") -> str:
+    """Read string from ENV first, then from config key, then default."""
     value = os.getenv(env_name)
     if value:
         return value
@@ -47,6 +62,7 @@ def env_or(config: dict[str, Any], key: str, env_name: str, default: str = "") -
 
 
 def as_bool(value: Any, default: bool = False) -> bool:
+    """Normalize common bool-like values from YAML/ENV/CLI."""
     if isinstance(value, bool):
         return value
     if value is None:

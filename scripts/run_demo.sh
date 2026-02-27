@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Build workspace and start demo launch with default profile.
 set +u
 source /opt/ros/jazzy/setup.bash
 set -u

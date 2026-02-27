@@ -1,3 +1,5 @@
+"""ROS2 wrapper node for launching benchmark runner from launch files."""
+
 from __future__ import annotations
 
 import rclpy
@@ -7,6 +9,8 @@ from asr_benchmark.runner import run_benchmark
 
 
 class AsrBenchmarkNode(Node):
+    """One-shot node that executes benchmark and exits."""
+
     def __init__(self) -> None:
         super().__init__("asr_benchmark_node")
         self.declare_parameter("config", "configs/default.yaml")
@@ -19,6 +23,7 @@ class AsrBenchmarkNode(Node):
         self._done = False
 
     def _run_once(self) -> None:
+        """Timer callback executing benchmark exactly once."""
         if self._done:
             return
         config = str(self.get_parameter("config").value)
@@ -44,6 +49,7 @@ class AsrBenchmarkNode(Node):
 
 
 def main() -> None:
+    """ROS2 entry point."""
     rclpy.init()
     node = AsrBenchmarkNode()
     try:

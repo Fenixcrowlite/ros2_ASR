@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Build workspace and run benchmark runner once.
 set +u
 source /opt/ros/jazzy/setup.bash
 set -u

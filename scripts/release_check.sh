@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Release smoke-check: unit tests + benchmark + artifact existence checks.
 fail() {
   echo "FAIL: $1"
   exit 1

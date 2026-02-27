@@ -1,3 +1,5 @@
+"""Converters between core dataclasses and ROS2 message types."""
+
 from __future__ import annotations
 
 import uuid
@@ -9,6 +11,7 @@ from asr_interfaces.msg import AsrMetrics, AsrResult, WordTimestamp
 def to_asr_result_msg(
     response: AsrResponse, request_id: str | None = None, is_final: bool = True
 ) -> AsrResult:
+    """Map `AsrResponse` -> `asr_interfaces/msg/AsrResult`."""
     msg = AsrResult()
     msg.request_id = request_id or str(uuid.uuid4())
     msg.text = response.text
@@ -55,6 +58,7 @@ def build_metrics_msg(
     success: bool,
     notes: str,
 ) -> AsrMetrics:
+    """Build `AsrMetrics` ROS message from collected benchmark/telemetry values."""
     msg = AsrMetrics()
     msg.request_id = request_id
     msg.backend = backend

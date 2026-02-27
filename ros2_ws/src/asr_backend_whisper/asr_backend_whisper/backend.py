@@ -1,3 +1,5 @@
+"""Local faster-whisper backend with optional CUDA and CPU fallback."""
+
 from __future__ import annotations
 
 import os
@@ -15,6 +17,8 @@ from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabili
 
 @register_backend("whisper")
 class WhisperAsrBackend(AsrBackend):
+    """Whisper integration for high-quality local ASR."""
+
     name = "whisper"
 
     @property
@@ -29,6 +33,7 @@ class WhisperAsrBackend(AsrBackend):
         )
 
     def __init__(self, config: dict | None = None, client: object | None = None) -> None:
+        """Parse model/device/decoding parameters from config and ENV."""
         super().__init__(config=config, client=client)
         self.model_size = self.config.get("model_size", os.getenv("ASR_WHISPER_MODEL", "tiny"))
         self.device = self.config.get("device", os.getenv("ASR_WHISPER_DEVICE", "cpu"))
@@ -51,10 +56,12 @@ class WhisperAsrBackend(AsrBackend):
         self._load_error: str = ""
 
     def _is_cuda_device(self) -> bool:
+        """Return `True` when backend is configured for CUDA device."""
         return str(self.device).lower().startswith("cuda")
 
     @staticmethod
     def _clone_request_with_metadata(request: AsrRequest, metadata: dict[str, Any]) -> AsrRequest:
+        """Create request copy with updated metadata flags."""
         return AsrRequest(
             wav_path=request.wav_path,
             audio_bytes=request.audio_bytes,
@@ -65,6 +72,7 @@ class WhisperAsrBackend(AsrBackend):
         )
 
     def _try_cpu_fallback(self, request: AsrRequest, error_message: str) -> AsrResponse | None:
+        """Fallback to CPU when CUDA runtime library is unavailable."""
         if not self._is_cuda_device():
             return None
         if "libcublas.so.12" not in error_message:
@@ -96,6 +104,7 @@ class WhisperAsrBackend(AsrBackend):
         return fallback_response
 
     def _load_model(self) -> bool:
+        """Lazy-load Whisper model instance."""
         if self._model is not None:
             return True
         try:
@@ -111,6 +120,7 @@ class WhisperAsrBackend(AsrBackend):
             return False
 
     def _request_to_wav_path(self, request: AsrRequest) -> tuple[str, bool]:
+        """Convert request to local WAV path, returning `(path, cleanup_needed)`."""
         if request.wav_path:
             return request.wav_path, False
         if request.audio_bytes:
@@ -122,6 +132,7 @@ class WhisperAsrBackend(AsrBackend):
         raise ValueError("Either wav_path or audio_bytes must be provided")
 
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
+        """Run one-shot transcription and normalize into unified response."""
         preprocess_start = time.perf_counter()
         if not self._load_model():
             message = "Unable to load faster-whisper model"
@@ -232,6 +243,7 @@ class WhisperAsrBackend(AsrBackend):
         language: str,
         sample_rate: int,
     ) -> AsrResponse:
+        """Use generic base fallback for simulated streaming."""
         result = super().streaming_recognize(chunks, language=language, sample_rate=sample_rate)
         result.backend_info["streaming_fallback"] = "true"
         return result

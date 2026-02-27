@@ -1,7 +1,10 @@
+"""Text quality metrics (WER/CER) used in benchmark reports."""
+
 from __future__ import annotations
 
 
 def _levenshtein(a: list[str], b: list[str]) -> int:
+    """Classic edit-distance implementation."""
     if not a:
         return len(b)
     if not b:
@@ -23,10 +26,12 @@ def _levenshtein(a: list[str], b: list[str]) -> int:
 
 
 def normalize_text(text: str) -> str:
+    """Lowercase + whitespace normalization for robust metric comparison."""
     return " ".join(text.strip().lower().split())
 
 
 def wer(reference: str, hypothesis: str) -> float:
+    """Word Error Rate."""
     ref = normalize_text(reference).split()
     hyp = normalize_text(hypothesis).split()
     if not ref:
@@ -35,6 +40,7 @@ def wer(reference: str, hypothesis: str) -> float:
 
 
 def cer(reference: str, hypothesis: str) -> float:
+    """Character Error Rate."""
     ref = list(normalize_text(reference).replace(" ", ""))
     hyp = list(normalize_text(hypothesis).replace(" ", ""))
     if not ref:

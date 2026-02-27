@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Generate Markdown summary report from benchmark JSON artifacts."""
+
 from __future__ import annotations
 
 import argparse
@@ -9,6 +11,7 @@ from asr_metrics.io import load_benchmark_json
 
 
 def main() -> None:
+    """Parse args and write aggregated benchmark report markdown."""
     parser = argparse.ArgumentParser(description="Generate benchmark markdown report")
     parser.add_argument("--input", required=True)
     parser.add_argument("--output", required=True)

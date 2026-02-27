@@ -1,3 +1,5 @@
+"""Deterministic backend used for tests, CI, and smoke checks."""
+
 from __future__ import annotations
 
 import time
@@ -12,6 +14,8 @@ from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabili
 
 @register_backend("mock")
 class MockAsrBackend(AsrBackend):
+    """Backend that returns predictable transcripts without ML inference."""
+
     name = "mock"
 
     @property
@@ -26,11 +30,13 @@ class MockAsrBackend(AsrBackend):
         )
 
     def __init__(self, config: dict | None = None, client: object | None = None) -> None:
+        """Read deterministic latency and optional filename->transcript map."""
         super().__init__(config=config, client=client)
         self.latency_ms = float(self.config.get("deterministic_latency_ms", 25.0))
         self.transcript_map = dict(self.config.get("transcript_map", {}))
 
     def _resolve_text(self, request: AsrRequest) -> str:
+        """Pick transcript from map or fallback synthetic phrase."""
         if request.wav_path:
             key = Path(request.wav_path).name
             if key in self.transcript_map:
@@ -39,6 +45,7 @@ class MockAsrBackend(AsrBackend):
         return "mock transcript from bytes"
 
     def _duration(self, request: AsrRequest) -> float:
+        """Estimate audio duration from WAV or bytes."""
         if request.wav_path:
             return wav_duration_sec(request.wav_path)
         if request.audio_bytes:
@@ -46,6 +53,7 @@ class MockAsrBackend(AsrBackend):
         return 0.0
 
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
+        """Return deterministic one-shot ASR response."""
         text = self._resolve_text(request)
         duration = self._duration(request)
 
@@ -86,6 +94,7 @@ class MockAsrBackend(AsrBackend):
         language: str,
         sample_rate: int,
     ) -> AsrResponse:
+        """Return deterministic streaming response with synthetic partials."""
         chunks_list = list(chunks)
         partials = [f"partial_{i}" for i in range(1, len(chunks_list) + 1)]
         text = "streaming mock transcript"

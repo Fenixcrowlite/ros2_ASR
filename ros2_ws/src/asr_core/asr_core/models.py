@@ -1,3 +1,5 @@
+"""Provider-agnostic data models exchanged across core/ROS/bench layers."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass, field
@@ -6,6 +8,8 @@ from typing import Any
 
 @dataclass(slots=True)
 class WordTimestamp:
+    """Per-word alignment item returned by backend when available."""
+
     word: str
     start_sec: float
     end_sec: float
@@ -14,17 +18,31 @@ class WordTimestamp:
 
 @dataclass(slots=True)
 class AsrTimings:
+    """Latency breakdown in milliseconds."""
+
     preprocess_ms: float = 0.0
     inference_ms: float = 0.0
     postprocess_ms: float = 0.0
 
     @property
     def total_ms(self) -> float:
+        """Total latency used by metrics and ROS messages."""
         return self.preprocess_ms + self.inference_ms + self.postprocess_ms
 
 
 @dataclass(slots=True)
 class AsrRequest:
+    """Unified input request for all backends.
+
+    Fields:
+    - `wav_path`: path to WAV file.
+    - `audio_bytes`: raw WAV bytes (used by streaming fallback).
+    - `language`: requested language code.
+    - `enable_word_timestamps`: whether word-level timings are needed.
+    - `sample_rate`: required for PCM fallback conversion.
+    - `metadata`: optional flags for backend internals/fallback behavior.
+    """
+
     wav_path: str | None = None
     audio_bytes: bytes | None = None
     language: str = "en-US"
@@ -35,6 +53,8 @@ class AsrRequest:
 
 @dataclass(slots=True)
 class BackendCapabilities:
+    """Feature matrix exposed by each backend."""
+
     supports_recognize_once: bool = True
     supports_streaming: bool = False
     streaming_mode: str = "none"  # none | simulated | native
@@ -45,6 +65,8 @@ class BackendCapabilities:
 
 @dataclass(slots=True)
 class AsrResponse:
+    """Normalized output from every backend."""
+
     text: str = ""
     partials: list[str] = field(default_factory=list)
     confidence: float = 0.0
@@ -59,6 +81,7 @@ class AsrResponse:
     raw_response: Any = None
 
     def as_dict(self) -> dict[str, Any]:
+        """Serialize response for JSON reporting."""
         return {
             "text": self.text,
             "partials": self.partials,

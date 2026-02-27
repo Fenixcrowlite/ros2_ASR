@@ -1,3 +1,5 @@
+"""Matplotlib plotting helpers for benchmark reports."""
+
 from __future__ import annotations
 
 import os
@@ -13,6 +15,7 @@ from asr_metrics.models import BenchmarkRecord
 
 
 def _aggregate(records: list[BenchmarkRecord], metric: str) -> tuple[list[str], list[float]]:
+    """Aggregate metric by backend using arithmetic mean."""
     grouped: dict[str, list[float]] = defaultdict(list)
     for rec in records:
         grouped[rec.backend].append(float(getattr(rec, metric)))
@@ -22,6 +25,7 @@ def _aggregate(records: list[BenchmarkRecord], metric: str) -> tuple[list[str], 
 
 
 def _bar_plot(records: list[BenchmarkRecord], metric: str, ylabel: str, output_path: str) -> None:
+    """Generate generic backend bar chart for one metric."""
     backends, values = _aggregate(records, metric)
     fig, ax = plt.subplots(figsize=(8, 4.5))
     ax.bar(
@@ -37,6 +41,7 @@ def _bar_plot(records: list[BenchmarkRecord], metric: str, ylabel: str, output_p
 
 
 def _scenario_latency(records: list[BenchmarkRecord], output_path: str) -> None:
+    """Generate latency bar chart split by backend and scenario label."""
     grouped: dict[str, list[float]] = defaultdict(list)
     for rec in records:
         key = f"{rec.backend}:{rec.scenario}"
@@ -56,6 +61,7 @@ def _scenario_latency(records: list[BenchmarkRecord], output_path: str) -> None:
 
 
 def _wer_cer_plot(records: list[BenchmarkRecord], output_path: str) -> None:
+    """Generate combined WER/CER chart for backend comparison."""
     grouped_wer: dict[str, list[float]] = defaultdict(list)
     grouped_cer: dict[str, list[float]] = defaultdict(list)
     for rec in records:
@@ -83,6 +89,7 @@ def _wer_cer_plot(records: list[BenchmarkRecord], output_path: str) -> None:
 
 
 def generate_all_plots(records: list[BenchmarkRecord], output_dir: str) -> None:
+    """Generate full default plot set used by benchmark pipeline."""
     os.makedirs(output_dir, exist_ok=True)
     _wer_cer_plot(records, os.path.join(output_dir, "wer_cer_by_backend.png"))
     _bar_plot(records, "wer", "WER", os.path.join(output_dir, "wer_by_backend.png"))

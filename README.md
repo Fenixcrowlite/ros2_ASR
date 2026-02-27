@@ -17,6 +17,7 @@ Production-oriented modular ASR integration for ROS2 (Ubuntu 24.04, Jazzy, Pytho
 ## Repository Layout
 
 - `docs/` architecture, interfaces, benchmark methodology, reproducibility, cloud setup.
+- `docs/newbie_guide.md` plain-language "how it works" map for first-time readers.
 - `configs/` YAML configs and cloud example config.
 - `data/sample` sample WAV files and transcripts.
 - `ros2_ws/src/` ROS2 packages.

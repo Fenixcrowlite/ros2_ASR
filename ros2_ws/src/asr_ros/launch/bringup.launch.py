@@ -5,7 +5,9 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description() -> LaunchDescription:
+    # `config` points to global runtime YAML consumed by asr_server_node.
     config_arg = DeclareLaunchArgument("config", default_value="configs/default.yaml")
+    # Audio capture parameters (can override YAML quickly from CLI).
     input_mode_arg = DeclareLaunchArgument("input_mode", default_value="auto")
     wav_path_arg = DeclareLaunchArgument("wav_path", default_value="data/sample/en_hello.wav")
     sample_rate_arg = DeclareLaunchArgument("sample_rate", default_value="16000")
@@ -16,6 +18,7 @@ def generate_launch_description() -> LaunchDescription:
     live_enabled_arg = DeclareLaunchArgument("live_stream_enabled", default_value="true")
     live_flush_arg = DeclareLaunchArgument("live_flush_timeout_sec", default_value="1.0")
 
+    # ASR server node: service/action/topics + live chunk subscriber.
     asr_server = Node(
         package="asr_ros",
         executable="asr_server_node",
@@ -29,6 +32,7 @@ def generate_launch_description() -> LaunchDescription:
         ],
     )
 
+    # Audio source node: mic or file chunk publisher.
     audio_capture = Node(
         package="asr_ros",
         executable="audio_capture_node",

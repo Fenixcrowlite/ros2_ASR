@@ -1,3 +1,5 @@
+"""Audio augmentation helpers for benchmark noise scenarios."""
+
 from __future__ import annotations
 
 import wave
@@ -7,6 +9,7 @@ import numpy as np
 
 
 def add_white_noise_snr(input_wav: str, output_wav: str, snr_db: float, seed: int = 42) -> None:
+    """Create noisy copy of WAV using white noise at target SNR (dB)."""
     rng = np.random.default_rng(seed)
     with wave.open(input_wav, "rb") as wf:
         params = wf.getparams()

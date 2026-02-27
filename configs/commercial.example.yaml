@@ -1,21 +1,35 @@
 # Copy to configs/commercial.yaml and fill locally. Do not commit credentials.
+# This file documents cloud-specific parameters and their meaning.
 
 google:
+  # Path to service-account JSON file.
   credentials_json: /absolute/path/to/google-service-account.json
+  # Optional project id for quota/account traceability.
   project_id: your-gcp-project
+  # STT model id.
   model: latest_long
+  # Region/global endpoint selector.
   region: global
 
 aws:
+  # AWS region for S3 + Transcribe.
   region: us-east-1
+  # Optional profile name (if using ~/.aws/credentials).
   profile: default
+  # Explicit access keys (prefer profile/role when possible).
   access_key_id: ""
   secret_access_key: ""
+  # Optional temporary session token.
   session_token: ""
+  # S3 bucket used to upload input WAV for Transcribe jobs.
   s3_bucket: your-transcribe-bucket
+  # Delete job and uploaded object after recognition.
   cleanup: true
 
 azure:
+  # Azure Speech subscription key.
   speech_key: ""
+  # Azure region for speech service.
   region: eastus
+  # Optional custom endpoint id.
   endpoint: ""

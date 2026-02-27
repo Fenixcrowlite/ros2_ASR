@@ -5,6 +5,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description() -> LaunchDescription:
+    # Benchmark launch accepts runtime config and dataset manifest path.
     config_arg = DeclareLaunchArgument("config", default_value="configs/default.yaml")
     dataset_arg = DeclareLaunchArgument(
         "dataset", default_value="data/transcripts/sample_manifest.csv"

@@ -1,3 +1,5 @@
+"""Azure Cognitive Services Speech backend (recognize-once)."""
+
 from __future__ import annotations
 
 import json
@@ -16,6 +18,8 @@ from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabili
 
 @register_backend("azure")
 class AzureAsrBackend(AsrBackend):
+    """Azure Speech SDK integration with normalized output fields."""
+
     name = "azure"
 
     @property
@@ -30,6 +34,7 @@ class AzureAsrBackend(AsrBackend):
         )
 
     def __init__(self, config: dict | None = None, client: object | None = None) -> None:
+        """Read key/region/endpoint and lazy SDK handle."""
         super().__init__(config=config, client=client)
         self.key = env_or(self.config, "speech_key", "AZURE_SPEECH_KEY", "")
         self.region = env_or(self.config, "region", "AZURE_SPEECH_REGION", "")
@@ -37,9 +42,11 @@ class AzureAsrBackend(AsrBackend):
         self._speechsdk: Any = client
 
     def has_credentials(self) -> bool:
+        """Azure requires both key and region."""
         return bool(self.key and self.region)
 
     def _load_sdk(self) -> bool:
+        """Import Azure Speech SDK once."""
         if self._speechsdk is not None:
             return True
         try:
@@ -51,6 +58,7 @@ class AzureAsrBackend(AsrBackend):
             return False
 
     def _request_to_wav_path(self, request: AsrRequest) -> tuple[str, bool]:
+        """Convert request to local WAV path, returning `(path, cleanup_needed)`."""
         if request.wav_path:
             return request.wav_path, False
         if request.audio_bytes:
@@ -62,6 +70,7 @@ class AzureAsrBackend(AsrBackend):
         raise ValueError("Either wav_path or audio_bytes must be provided")
 
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
+        """Run one-shot Azure recognition and parse detailed JSON output."""
         preprocess_start = time.perf_counter()
         if not self.key:
             return AsrResponse(

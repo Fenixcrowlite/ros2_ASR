@@ -1,3 +1,5 @@
+"""Local Vosk backend (offline ASR, native streaming support)."""
+
 from __future__ import annotations
 
 import json
@@ -18,6 +20,8 @@ from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabili
 
 @register_backend("vosk")
 class VoskAsrBackend(AsrBackend):
+    """Vosk integration with one-shot and native chunk streaming modes."""
+
     name = "vosk"
 
     @property
@@ -32,12 +36,14 @@ class VoskAsrBackend(AsrBackend):
         )
 
     def __init__(self, config: dict | None = None, client: object | None = None) -> None:
+        """Read model path from config/ENV and lazy-load Vosk model."""
         super().__init__(config=config, client=client)
         self.model_path = self.config.get("model_path") or os.getenv("VOSK_MODEL_PATH", "")
         self._model: Any = None
         self._vosk_module: Any = None
 
     def _load_vosk(self) -> bool:
+        """Load Vosk module/model once."""
         if self._model is not None:
             return True
         if not self.model_path:
@@ -52,6 +58,7 @@ class VoskAsrBackend(AsrBackend):
             return False
 
     def _request_to_wav_path(self, request: AsrRequest) -> tuple[str, bool]:
+        """Convert request to local WAV path, returning `(path, cleanup_needed)`."""
         if request.wav_path:
             return request.wav_path, False
         if request.audio_bytes:
@@ -63,6 +70,7 @@ class VoskAsrBackend(AsrBackend):
         raise ValueError("Either wav_path or audio_bytes must be provided")
 
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
+        """Run full-file recognition with Vosk KaldiRecognizer."""
         preprocess_start = time.perf_counter()
         if not self._load_vosk():
             return AsrResponse(
@@ -162,6 +170,7 @@ class VoskAsrBackend(AsrBackend):
         language: str,
         sample_rate: int,
     ) -> AsrResponse:
+        """Run native chunk-by-chunk recognition and aggregate partials."""
         if not self._load_vosk():
             return AsrResponse(
                 success=False,

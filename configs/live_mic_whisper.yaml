@@ -1,22 +1,38 @@
+# Live microphone profile focused on high-quality Russian speech recognition.
+# Designed for manual demo: mic -> /asr/audio_chunks -> asr_server_node -> /asr/text.
+
 asr:
+  # Force backend to local whisper implementation.
   backend: whisper
+  # Recognition language code.
   language: ru-RU
   timeout_sec: 30.0
+  # Input signal format used by capture and server streaming fallback.
   sample_rate: 16000
   chunk_ms: 800
+  # Keep empty to use backend-specific model field below.
   model: ""
   region: ""
+  # Prefer microphone capture in this profile.
   input_mode: mic
+  # File fallback when microphone is unavailable.
   wav_path: data/sample/ru_privet.wav
 
 backends:
   whisper:
+    # Highest quality local model (large and slower on CPU).
     model_size: large-v3
+    # Use GPU when available. Set cpu if CUDA runtime is absent.
     device: cuda
+    # Recommended CUDA precision for speed/quality balance.
     compute_type: float16
+    # Disable long-context conditioning to reduce repeated hallucinations.
     condition_on_previous_text: false
+    # Higher threshold suppresses output on near-silence/noise.
     no_speech_threshold: 0.7
+    # Deterministic decoding.
     temperature: 0.0
+    # VAD trims non-speech segments before decoding.
     vad_filter: true
 
 benchmark:

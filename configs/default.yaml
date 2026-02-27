@@ -1,17 +1,32 @@
+# Universal baseline config.
+# This profile is safe for CI/local smoke tests because it uses `mock` backend by default.
+
 asr:
+  # Backend name resolved by asr_core.factory.create_backend(...)
+  # Available: mock, vosk, whisper, google, aws, azure
   backend: mock
+  # Default language code used by service/action/live pipeline.
   language: en-US
+  # Reserved timeout value for long operations (action/cloud usage).
   timeout_sec: 30.0
+  # Audio sample rate expected by live chunk pipeline.
   sample_rate: 16000
+  # Chunk size (milliseconds) for audio_capture_node.
   chunk_ms: 800
+  # Optional runtime override for backend model (empty -> backend default).
   model: ""
+  # Optional runtime override for cloud region (empty -> backend config/env).
   region: ""
+  # audio_capture mode: auto | mic | file
   input_mode: auto
+  # Fallback/test WAV path used by service and file-mode capture.
   wav_path: data/sample/en_hello.wav
 
 backends:
   mock:
+    # Artificial latency used to emulate deterministic backend response time.
     deterministic_latency_ms: 25.0
+    # Deterministic transcript mapping by WAV file name.
     transcript_map:
       en_hello.wav: "hello world"
       en_robot.wav: "robot start navigation"
@@ -20,29 +35,42 @@ backends:
       ru_start.wav: "zapusti manipulyator"
       pl_czesc.wav: "czesc swiecie"
   whisper:
+    # Local faster-whisper model size: tiny/base/small/medium/large-v3
     model_size: tiny
+    # Device: cpu or cuda
     device: cpu
+    # Compute type depends on device (cpu: int8, cuda: float16/int8_float16)
     compute_type: int8
   vosk:
+    # Absolute path to downloaded Vosk model directory.
     model_path: ""
   google:
+    # Google STT model name (credentials come from commercial.yaml / ENV).
     model: latest_long
   aws:
+    # AWS Transcribe settings.
     region: us-east-1
+    # S3 bucket required for job media upload.
     s3_bucket: ""
     media_format: wav
+    # Cleanup uploaded S3 object and transcription job after completion.
     cleanup: true
   azure:
+    # Azure region (key/endpoint are taken from commercial.yaml / ENV).
     region: ""
 
 benchmark:
+  # Scenario list: clean audio + synthetic white-noise variants.
   scenarios:
     - clean
     - snr20
     - snr10
     - snr0
+  # Streaming simulation chunk size (seconds).
   chunk_sec: 0.8
+  # Directory where CSV/JSON/plots are written.
   output_dir: results
+  # Price-per-minute table used only for cost estimation metric.
   pricing:
     mock: 0.0
     vosk: 0.0

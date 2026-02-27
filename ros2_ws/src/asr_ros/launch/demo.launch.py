@@ -6,6 +6,7 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description() -> LaunchDescription:
+    # Demo is a thin wrapper around full bringup launch.
     config_arg = DeclareLaunchArgument("config", default_value="configs/default.yaml")
     bringup = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
