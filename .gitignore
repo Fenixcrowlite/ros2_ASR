@@ -1,0 +1,43 @@
+# Python
+__pycache__/
+*.pyc
+*.py[cod]
+*.so
+.venv/
+.venv_*/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ROS2 / colcon
+build/
+install/
+log/
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+
+# Results
+results/*.csv
+results/*.json
+results/*.md
+results/*.html
+results/plots/*.png
+dist/
+
+# Secrets
+.env
+*.env
+configs/commercial.yaml
+configs/*.secret.yaml
+*.pem
+*.key
+*.p12
+*service-account*.json
+*credentials*.json
+!configs/commercial.example.yaml
+
+# IDE
+.vscode/
+.idea/

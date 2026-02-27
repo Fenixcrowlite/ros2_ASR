@@ -1,0 +1,21 @@
+# Copy to configs/commercial.yaml and fill locally. Do not commit credentials.
+
+google:
+  credentials_json: /absolute/path/to/google-service-account.json
+  project_id: your-gcp-project
+  model: latest_long
+  region: global
+
+aws:
+  region: us-east-1
+  profile: default
+  access_key_id: ""
+  secret_access_key: ""
+  session_token: ""
+  s3_bucket: your-transcribe-bucket
+  cleanup: true
+
+azure:
+  speech_key: ""
+  region: eastus
+  endpoint: ""

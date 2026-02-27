@@ -1,0 +1,52 @@
+asr:
+  backend: mock
+  language: en-US
+  timeout_sec: 30.0
+  sample_rate: 16000
+  chunk_ms: 800
+  model: ""
+  region: ""
+  input_mode: auto
+  wav_path: data/sample/en_hello.wav
+
+backends:
+  mock:
+    deterministic_latency_ms: 25.0
+    transcript_map:
+      en_hello.wav: "hello world"
+      en_robot.wav: "robot start navigation"
+      en_stop.wav: "stop the robot"
+      ru_privet.wav: "privet mir"
+      ru_start.wav: "zapusti manipulyator"
+      pl_czesc.wav: "czesc swiecie"
+  whisper:
+    model_size: tiny
+    device: cpu
+    compute_type: int8
+  vosk:
+    model_path: ""
+  google:
+    model: latest_long
+  aws:
+    region: us-east-1
+    s3_bucket: ""
+    media_format: wav
+    cleanup: true
+  azure:
+    region: ""
+
+benchmark:
+  scenarios:
+    - clean
+    - snr20
+    - snr10
+    - snr0
+  chunk_sec: 0.8
+  output_dir: results
+  pricing:
+    mock: 0.0
+    vosk: 0.0
+    whisper: 0.0
+    google: 0.006
+    aws: 0.0004
+    azure: 0.016

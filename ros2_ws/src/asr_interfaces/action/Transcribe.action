@@ -1,0 +1,12 @@
+# Goal
+string wav_path
+string language
+bool streaming
+float32 chunk_sec
+---
+# Result
+asr_interfaces/AsrResult result
+---
+# Feedback
+asr_interfaces/AsrResult partial_result
+asr_interfaces/AsrMetrics metrics

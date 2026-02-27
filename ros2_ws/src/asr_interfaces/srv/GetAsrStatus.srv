@@ -1,0 +1,8 @@
+---
+string backend
+string model
+string region
+string[] capabilities
+bool streaming_supported
+bool cloud_credentials_available
+string status_message

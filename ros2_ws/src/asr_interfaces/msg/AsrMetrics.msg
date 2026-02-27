@@ -1,0 +1,14 @@
+std_msgs/Header header
+string request_id
+string backend
+float32 wer
+float32 cer
+float32 rtf
+float32 latency_ms
+float32 cpu_percent
+float32 ram_mb
+float32 gpu_util_percent
+float32 gpu_mem_mb
+float32 cost_estimate
+bool success
+string notes

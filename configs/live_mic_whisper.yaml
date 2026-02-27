@@ -1,0 +1,24 @@
+asr:
+  backend: whisper
+  language: ru-RU
+  timeout_sec: 30.0
+  sample_rate: 16000
+  chunk_ms: 800
+  model: ""
+  region: ""
+  input_mode: mic
+  wav_path: data/sample/ru_privet.wav
+
+backends:
+  whisper:
+    model_size: large-v3
+    device: cuda
+    compute_type: float16
+    condition_on_previous_text: false
+    no_speech_threshold: 0.7
+    temperature: 0.0
+    vad_filter: true
+
+benchmark:
+  chunk_sec: 0.8
+  output_dir: results

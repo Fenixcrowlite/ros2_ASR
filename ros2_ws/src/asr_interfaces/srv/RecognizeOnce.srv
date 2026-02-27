@@ -1,0 +1,5 @@
+string wav_path
+string language
+bool enable_word_timestamps
+---
+asr_interfaces/AsrResult result

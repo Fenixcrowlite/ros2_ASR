@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.pytest.ini_options]
+addopts = "-q"
+testpaths = ["tests"]
+markers = [
+  "cloud: cloud integration tests (require credentials)",
+  "ros: ROS2 integration tests",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+exclude = [".venv*", "ros2_ws/build", "ros2_ws/install", "ros2_ws/log", "build", "install", "log"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "N"]
+ignore = ["N818"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_unused_configs = true
+disallow_untyped_defs = false
+ignore_missing_imports = true
+exclude = "(ros2_ws/build|ros2_ws/install|ros2_ws/log|/setup\\.py$|/launch/.*\\.launch\\.py$)"
