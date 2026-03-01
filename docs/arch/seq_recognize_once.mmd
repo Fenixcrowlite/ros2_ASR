@@ -1,0 +1,9 @@
+sequenceDiagram
+  participant Client as Recognize Client
+  participant Server as /asr_server_node
+  participant TextTopic as /asr/text
+  participant MetricsTopic as /asr/metrics
+  Client->>Server: /asr/recognize_once request (asr_interfaces/srv/RecognizeOnce)
+  Server-->>Client: RecognizeOnce response
+  Server-)TextTopic: publish AsrResult
+  Server-)MetricsTopic: publish AsrMetrics

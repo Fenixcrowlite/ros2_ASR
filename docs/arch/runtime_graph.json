@@ -1,0 +1,518 @@
+{
+  "actions": [
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/transcribe",
+      "type": "asr_interfaces/action/Transcribe"
+    }
+  ],
+  "edges": [
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/metrics",
+      "node": "/asr_server_node",
+      "type": "asr_interfaces/msg/AsrMetrics"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/text",
+      "node": "/asr_server_node",
+      "type": "asr_interfaces/msg/AsrResult"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/parameter_events",
+      "node": "/asr_server_node",
+      "type": "rcl_interfaces/msg/ParameterEvent"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/rosout",
+      "node": "/asr_server_node",
+      "type": "rcl_interfaces/msg/Log"
+    },
+    {
+      "direction": "sub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/audio_chunks",
+      "node": "/asr_server_node",
+      "type": "std_msgs/msg/UInt8MultiArray"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/get_status",
+      "node": "/asr_server_node",
+      "type": "asr_interfaces/srv/GetAsrStatus"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/recognize_once",
+      "node": "/asr_server_node",
+      "type": "asr_interfaces/srv/RecognizeOnce"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/set_backend",
+      "node": "/asr_server_node",
+      "type": "asr_interfaces/srv/SetAsrBackend"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_server_node/describe_parameters",
+      "node": "/asr_server_node",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_server_node/get_parameter_types",
+      "node": "/asr_server_node",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_server_node/get_parameters",
+      "node": "/asr_server_node",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_server_node/get_type_description",
+      "node": "/asr_server_node",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_server_node/list_parameters",
+      "node": "/asr_server_node",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_server_node/set_parameters",
+      "node": "/asr_server_node",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_server_node/set_parameters_atomically",
+      "node": "/asr_server_node",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "action",
+      "name": "/asr/transcribe",
+      "node": "/asr_server_node",
+      "type": "asr_interfaces/action/Transcribe"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/audio_chunks",
+      "node": "/audio_capture_node",
+      "type": "std_msgs/msg/UInt8MultiArray"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/parameter_events",
+      "node": "/audio_capture_node",
+      "type": "rcl_interfaces/msg/ParameterEvent"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/rosout",
+      "node": "/audio_capture_node",
+      "type": "rcl_interfaces/msg/Log"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_capture_node/describe_parameters",
+      "node": "/audio_capture_node",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_capture_node/get_parameter_types",
+      "node": "/audio_capture_node",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_capture_node/get_parameters",
+      "node": "/audio_capture_node",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_capture_node/get_type_description",
+      "node": "/audio_capture_node",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_capture_node/list_parameters",
+      "node": "/audio_capture_node",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_capture_node/set_parameters",
+      "node": "/audio_capture_node",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_capture_node/set_parameters_atomically",
+      "node": "/audio_capture_node",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    }
+  ],
+  "launches": [],
+  "meta": {
+    "generated_at": "2026-03-01T09:53:27.197430+00:00",
+    "schema_version": 1,
+    "source": "runtime",
+    "workspace": "/home/fenix/Desktop/ros2ws/ros2_ws"
+  },
+  "nodes": [
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": "unknown",
+      "id": "/asr_server_node",
+      "name": "asr_server_node",
+      "namespace": "/",
+      "package": "unknown"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": "unknown",
+      "id": "/audio_capture_node",
+      "name": "audio_capture_node",
+      "namespace": "/",
+      "package": "unknown"
+    }
+  ],
+  "packages": [],
+  "runtime_errors": [],
+  "services": [
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/get_status",
+      "type": "asr_interfaces/srv/GetAsrStatus"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/recognize_once",
+      "type": "asr_interfaces/srv/RecognizeOnce"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/set_backend",
+      "type": "asr_interfaces/srv/SetAsrBackend"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_server_node/describe_parameters",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_server_node/get_parameter_types",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_server_node/get_parameters",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_server_node/get_type_description",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_server_node/list_parameters",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_server_node/set_parameters",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_server_node/set_parameters_atomically",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_capture_node/describe_parameters",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_capture_node/get_parameter_types",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_capture_node/get_parameters",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_capture_node/get_type_description",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_capture_node/list_parameters",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_capture_node/set_parameters",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_capture_node/set_parameters_atomically",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    }
+  ],
+  "snapshots": [
+    {
+      "duration_sec": 25.072,
+      "errors": [],
+      "launch": {
+        "args": {},
+        "command": "ros2 launch asr_ros demo.launch.py",
+        "file": "demo.launch.py",
+        "package": "asr_ros",
+        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/demo.launch.py"
+      },
+      "stderr_tail": "",
+      "stdout_tail": "()\n[audio_capture_node-2] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [asr_server_node-1]: process has died [pid 180080, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/asr_server_node --ros-args -r __node:=asr_server_node --params-file /tmp/launch_params_ermpdz1n --params-file /tmp/launch_params_23a96p_0 --params-file /tmp/launch_params_nhysdtad --params-file /tmp/launch_params_ifdq1ygo'].\n[ERROR] [audio_capture_node-2]: process has died [pid 180081, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/audio_capture_node --ros-args -r __node:=audio_capture_node --params-file /tmp/launch_params_4dhvuo5p --params-file /tmp/launch_params_rjidnb7d --params-file /tmp/launch_params_tm52jzzq --params-file /tmp/launch_params_ezza1sho --params-file /tmp/launch_params_c5h3hb3a --params-file /tmp/launch_params_ke_ab36m --params-file /tmp/launch_params_xixz6meg']."
+    },
+    {
+      "duration_sec": 24.651,
+      "errors": [],
+      "launch": {
+        "args": {
+          "input_mode": "file"
+        },
+        "command": "ros2 launch asr_ros bringup.launch.py input_mode:=file",
+        "file": "bringup.launch.py",
+        "package": "asr_ros",
+        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/bringup.launch.py"
+      },
+      "stderr_tail": "",
+      "stdout_tail": "()\n[audio_capture_node-2] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [audio_capture_node-2]: process has died [pid 180270, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/audio_capture_node --ros-args -r __node:=audio_capture_node --params-file /tmp/launch_params_e0va174p --params-file /tmp/launch_params_osfmwx05 --params-file /tmp/launch_params_52f5o7ce --params-file /tmp/launch_params_a3lh_7ze --params-file /tmp/launch_params_ciaic03k --params-file /tmp/launch_params_xc_hyhrf --params-file /tmp/launch_params_x1mj2ouc'].\n[ERROR] [asr_server_node-1]: process has died [pid 180269, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/asr_server_node --ros-args -r __node:=asr_server_node --params-file /tmp/launch_params_h4k2ar9z --params-file /tmp/launch_params_3ktsjh2o --params-file /tmp/launch_params__4k2fh0n --params-file /tmp/launch_params_hyd2h4q2']."
+    },
+    {
+      "duration_sec": 22.46,
+      "errors": [],
+      "launch": {
+        "args": {},
+        "command": "ros2 launch asr_benchmark benchmark.launch.py",
+        "file": "benchmark.launch.py",
+        "package": "asr_benchmark",
+        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark/launch/benchmark.launch.py"
+      },
+      "stderr_tail": "",
+      "stdout_tail": "ark/benchmark_node.py\", line 62, in main\n[asr_benchmark_node-1]     rclpy.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py\", line 134, in shutdown\n[asr_benchmark_node-1]     _shutdown(context=context)\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py\", line 82, in shutdown\n[asr_benchmark_node-1]     context.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py\", line 129, in shutdown\n[asr_benchmark_node-1]     self.__context.shutdown()\n[asr_benchmark_node-1] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [asr_benchmark_node-1]: process has died [pid 180407, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_benchmark/lib/asr_benchmark/asr_benchmark_node --ros-args --params-file /tmp/launch_params_lvxt17v6 --params-file /tmp/launch_params_cpjnft5l']."
+    },
+    {
+      "duration_sec": 22.445,
+      "errors": [],
+      "launch": {
+        "args": {},
+        "command": "ros2 launch asr_ros benchmark.launch.py",
+        "file": "benchmark.launch.py",
+        "package": "asr_ros",
+        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/benchmark.launch.py"
+      },
+      "stderr_tail": "",
+      "stdout_tail": "ark/benchmark_node.py\", line 62, in main\n[asr_benchmark_node-1]     rclpy.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py\", line 134, in shutdown\n[asr_benchmark_node-1]     _shutdown(context=context)\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py\", line 82, in shutdown\n[asr_benchmark_node-1]     context.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py\", line 129, in shutdown\n[asr_benchmark_node-1]     self.__context.shutdown()\n[asr_benchmark_node-1] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [asr_benchmark_node-1]: process has died [pid 180541, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_benchmark/lib/asr_benchmark/asr_benchmark_node --ros-args --params-file /tmp/launch_params_qwbh_pg3 --params-file /tmp/launch_params_0sli157e']."
+    }
+  ],
+  "topics": [
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/metrics",
+      "type": "asr_interfaces/msg/AsrMetrics"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/text",
+      "type": "asr_interfaces/msg/AsrResult"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/parameter_events",
+      "type": "rcl_interfaces/msg/ParameterEvent"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/rosout",
+      "type": "rcl_interfaces/msg/Log"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/audio_chunks",
+      "type": "std_msgs/msg/UInt8MultiArray"
+    }
+  ]
+}

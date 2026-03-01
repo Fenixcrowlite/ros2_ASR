@@ -1,0 +1,18 @@
+{
+  "profiles": {
+    "smoke": {
+      "launches": [
+        {
+          "package": "asr_ros",
+          "file": "demo.launch.py",
+          "args": {
+            "input_mode": "file"
+          }
+        }
+      ]
+    },
+    "full": {
+      "launches": []
+    }
+  }
+}

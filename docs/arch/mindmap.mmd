@@ -1,0 +1,36 @@
+mindmap
+  root((ASR Architecture))
+    package:asr_benchmark
+      node:/asr_benchmark_node [expected_only]
+        timer:internal:timer:0.5:timer [expected_only]
+    package:asr_ros
+      node:/asr_server_node
+        action:server:/asr/transcribe:asr_interfaces/action/Transcribe [observed_only]
+        service:server:/asr/get_status:asr_interfaces/srv/GetAsrStatus
+        service:server:/asr/recognize_once:asr_interfaces/srv/RecognizeOnce
+        service:server:/asr/set_backend:asr_interfaces/srv/SetAsrBackend
+        service:server:/asr_server_node/describe_parameters:rcl_interfaces/srv/DescribeParameters [observed_only]
+        service:server:/asr_server_node/get_parameter_types:rcl_interfaces/srv/GetParameterTypes [observed_only]
+        service:server:/asr_server_node/get_parameters:rcl_interfaces/srv/GetParameters [observed_only]
+        service:server:/asr_server_node/get_type_description:type_description_interfaces/srv/GetTypeDescription [observed_only]
+        service:server:/asr_server_node/list_parameters:rcl_interfaces/srv/ListParameters [observed_only]
+        service:server:/asr_server_node/set_parameters:rcl_interfaces/srv/SetParameters [observed_only]
+        service:server:/asr_server_node/set_parameters_atomically:rcl_interfaces/srv/SetParametersAtomically [observed_only]
+        timer:internal:timer:0.2:timer [expected_only]
+        topic:sub:/asr/audio_chunks:std_msgs/msg/UInt8MultiArray
+        topic:pub:/asr/metrics:asr_interfaces/msg/AsrMetrics
+        topic:pub:/asr/text:asr_interfaces/msg/AsrResult
+        topic:pub:/parameter_events:rcl_interfaces/msg/ParameterEvent [observed_only]
+        topic:pub:/rosout:rcl_interfaces/msg/Log [observed_only]
+      node:/audio_capture_node
+        service:server:/audio_capture_node/describe_parameters:rcl_interfaces/srv/DescribeParameters [observed_only]
+        service:server:/audio_capture_node/get_parameter_types:rcl_interfaces/srv/GetParameterTypes [observed_only]
+        service:server:/audio_capture_node/get_parameters:rcl_interfaces/srv/GetParameters [observed_only]
+        service:server:/audio_capture_node/get_type_description:type_description_interfaces/srv/GetTypeDescription [observed_only]
+        service:server:/audio_capture_node/list_parameters:rcl_interfaces/srv/ListParameters [observed_only]
+        service:server:/audio_capture_node/set_parameters:rcl_interfaces/srv/SetParameters [observed_only]
+        service:server:/audio_capture_node/set_parameters_atomically:rcl_interfaces/srv/SetParametersAtomically [observed_only]
+        timer:internal:timer:1.0:timer [expected_only]
+        topic:pub:/asr/audio_chunks:std_msgs/msg/UInt8MultiArray
+        topic:pub:/parameter_events:rcl_interfaces/msg/ParameterEvent [observed_only]
+        topic:pub:/rosout:rcl_interfaces/msg/Log [observed_only]

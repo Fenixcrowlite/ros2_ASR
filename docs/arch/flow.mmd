@@ -1,0 +1,71 @@
+flowchart LR
+  classDef expectedOnly stroke-dasharray: 5 5,stroke:#666,fill:#fff8dc;
+  classDef observedOnly stroke:#1e88e5,fill:#e3f2fd;
+  N_asr_server_node["/asr_server_node\n[asr_ros]"]
+  A_asr_transcribe{{"/asr/transcribe"}}
+  class A_asr_transcribe observedOnly;
+  N_asr_server_node -->|"server: /asr/transcribe\nasr_interfaces/action/Transcribe"| A_asr_transcribe
+  S_asr_get_status{{"/asr/get_status"}}
+  N_asr_server_node -->|"server: /asr/get_status\nasr_interfaces/srv/GetAsrStatus"| S_asr_get_status
+  S_asr_recognize_once{{"/asr/recognize_once"}}
+  N_asr_server_node -->|"server: /asr/recognize_once\nasr_interfaces/srv/RecognizeOnce"| S_asr_recognize_once
+  S_asr_set_backend{{"/asr/set_backend"}}
+  N_asr_server_node -->|"server: /asr/set_backend\nasr_interfaces/srv/SetAsrBackend"| S_asr_set_backend
+  S_asr_server_node_describe_parameters{{"/asr_server_node/describe_parameters"}}
+  class S_asr_server_node_describe_parameters observedOnly;
+  N_asr_server_node -->|"server: /asr_server_node/describe_parameters\nrcl_interfaces/srv/DescribeParameters"| S_asr_server_node_describe_parameters
+  S_asr_server_node_get_parameter_types{{"/asr_server_node/get_parameter_types"}}
+  class S_asr_server_node_get_parameter_types observedOnly;
+  N_asr_server_node -->|"server: /asr_server_node/get_parameter_types\nrcl_interfaces/srv/GetParameterTypes"| S_asr_server_node_get_parameter_types
+  S_asr_server_node_get_parameters{{"/asr_server_node/get_parameters"}}
+  class S_asr_server_node_get_parameters observedOnly;
+  N_asr_server_node -->|"server: /asr_server_node/get_parameters\nrcl_interfaces/srv/GetParameters"| S_asr_server_node_get_parameters
+  S_asr_server_node_get_type_description{{"/asr_server_node/get_type_description"}}
+  class S_asr_server_node_get_type_description observedOnly;
+  N_asr_server_node -->|"server: /asr_server_node/get_type_description\ntype_description_interfaces/srv/GetTypeDescription"| S_asr_server_node_get_type_description
+  S_asr_server_node_list_parameters{{"/asr_server_node/list_parameters"}}
+  class S_asr_server_node_list_parameters observedOnly;
+  N_asr_server_node -->|"server: /asr_server_node/list_parameters\nrcl_interfaces/srv/ListParameters"| S_asr_server_node_list_parameters
+  S_asr_server_node_set_parameters{{"/asr_server_node/set_parameters"}}
+  class S_asr_server_node_set_parameters observedOnly;
+  N_asr_server_node -->|"server: /asr_server_node/set_parameters\nrcl_interfaces/srv/SetParameters"| S_asr_server_node_set_parameters
+  S_asr_server_node_set_parameters_atomically{{"/asr_server_node/set_parameters_atomically"}}
+  class S_asr_server_node_set_parameters_atomically observedOnly;
+  N_asr_server_node -->|"server: /asr_server_node/set_parameters_atomically\nrcl_interfaces/srv/SetParametersAtomically"| S_asr_server_node_set_parameters_atomically
+  N_audio_capture_node["/audio_capture_node\n[asr_ros]"]
+  S_audio_capture_node_describe_parameters{{"/audio_capture_node/describe_parameters"}}
+  class S_audio_capture_node_describe_parameters observedOnly;
+  N_audio_capture_node -->|"server: /audio_capture_node/describe_parameters\nrcl_interfaces/srv/DescribeParameters"| S_audio_capture_node_describe_parameters
+  S_audio_capture_node_get_parameter_types{{"/audio_capture_node/get_parameter_types"}}
+  class S_audio_capture_node_get_parameter_types observedOnly;
+  N_audio_capture_node -->|"server: /audio_capture_node/get_parameter_types\nrcl_interfaces/srv/GetParameterTypes"| S_audio_capture_node_get_parameter_types
+  S_audio_capture_node_get_parameters{{"/audio_capture_node/get_parameters"}}
+  class S_audio_capture_node_get_parameters observedOnly;
+  N_audio_capture_node -->|"server: /audio_capture_node/get_parameters\nrcl_interfaces/srv/GetParameters"| S_audio_capture_node_get_parameters
+  S_audio_capture_node_get_type_description{{"/audio_capture_node/get_type_description"}}
+  class S_audio_capture_node_get_type_description observedOnly;
+  N_audio_capture_node -->|"server: /audio_capture_node/get_type_description\ntype_description_interfaces/srv/GetTypeDescription"| S_audio_capture_node_get_type_description
+  S_audio_capture_node_list_parameters{{"/audio_capture_node/list_parameters"}}
+  class S_audio_capture_node_list_parameters observedOnly;
+  N_audio_capture_node -->|"server: /audio_capture_node/list_parameters\nrcl_interfaces/srv/ListParameters"| S_audio_capture_node_list_parameters
+  S_audio_capture_node_set_parameters{{"/audio_capture_node/set_parameters"}}
+  class S_audio_capture_node_set_parameters observedOnly;
+  N_audio_capture_node -->|"server: /audio_capture_node/set_parameters\nrcl_interfaces/srv/SetParameters"| S_audio_capture_node_set_parameters
+  S_audio_capture_node_set_parameters_atomically{{"/audio_capture_node/set_parameters_atomically"}}
+  class S_audio_capture_node_set_parameters_atomically observedOnly;
+  N_audio_capture_node -->|"server: /audio_capture_node/set_parameters_atomically\nrcl_interfaces/srv/SetParametersAtomically"| S_audio_capture_node_set_parameters_atomically
+  T_asr_audio_chunks(["/asr/audio_chunks"])
+  N_audio_capture_node -->|"pub: /asr/audio_chunks\nstd_msgs/msg/UInt8MultiArray"| T_asr_audio_chunks
+  T_asr_audio_chunks -->|"sub: /asr/audio_chunks\nstd_msgs/msg/UInt8MultiArray"| N_asr_server_node
+  T_asr_metrics(["/asr/metrics"])
+  N_asr_server_node -->|"pub: /asr/metrics\nasr_interfaces/msg/AsrMetrics"| T_asr_metrics
+  T_asr_text(["/asr/text"])
+  N_asr_server_node -->|"pub: /asr/text\nasr_interfaces/msg/AsrResult"| T_asr_text
+  T_parameter_events(["/parameter_events"])
+  class T_parameter_events observedOnly;
+  N_asr_server_node -->|"pub: /parameter_events\nrcl_interfaces/msg/ParameterEvent"| T_parameter_events
+  N_audio_capture_node -->|"pub: /parameter_events\nrcl_interfaces/msg/ParameterEvent"| T_parameter_events
+  T_rosout(["/rosout"])
+  class T_rosout observedOnly;
+  N_asr_server_node -->|"pub: /rosout\nrcl_interfaces/msg/Log"| T_rosout
+  N_audio_capture_node -->|"pub: /rosout\nrcl_interfaces/msg/Log"| T_rosout

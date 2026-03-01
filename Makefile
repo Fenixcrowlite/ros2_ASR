@@ -3,8 +3,9 @@ VENV := .venv
 PY := $(VENV)/bin/python
 ROS_SETUP := /opt/ros/jazzy/setup.bash
 SRC_PY_PATH := $(shell find $(PWD)/ros2_ws/src -mindepth 1 -maxdepth 1 -type d | tr '\n' ':')
+ARCHVIZ := ./archviz
 
-.PHONY: setup build test test-unit test-ros test-colcon run bench report lint format clean dist
+.PHONY: setup build test test-unit test-ros test-colcon run bench report arch-static arch-runtime arch arch-diff lint format clean dist
 
 setup:
 	bash scripts/setup_env.sh
@@ -31,6 +32,18 @@ bench:
 
 report:
 	bash -lc "source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(SRC_PY_PATH) $(PY) scripts/generate_report.py --input results/benchmark_results.json --output results/report.md"
+
+arch-static:
+	bash -lc "source $(VENV)/bin/activate && $(ARCHVIZ) static --ws ros2_ws --out docs/arch"
+
+arch-runtime:
+	bash -lc "source $(VENV)/bin/activate && if [ -f $(ROS_SETUP) ]; then source $(ROS_SETUP); [ -f install/setup.bash ] && source install/setup.bash || true; else echo 'ROS2 Jazzy setup not found at $(ROS_SETUP); runtime extractor will record it as runtime error.'; fi; $(ARCHVIZ) runtime --ws ros2_ws --out docs/arch --profile full --timeout-sec 20"
+
+arch:
+	bash -lc "source $(VENV)/bin/activate && if [ -f $(ROS_SETUP) ]; then source $(ROS_SETUP); [ -f install/setup.bash ] && source install/setup.bash || true; else echo 'ROS2 Jazzy setup not found at $(ROS_SETUP); runtime extractor will record it as runtime error.'; fi; $(ARCHVIZ) all --ws ros2_ws --out docs/arch --profile full --timeout-sec 20"
+
+arch-diff:
+	bash -lc "source $(VENV)/bin/activate && $(ARCHVIZ) diff --a docs/arch/merged_graph_prev.json --b docs/arch/merged_graph.json --out docs/arch/CHANGELOG_ARCH.md"
 
 lint:
 	bash -lc "source $(VENV)/bin/activate && ruff check ."

@@ -18,6 +18,7 @@ Production-oriented modular ASR integration for ROS2 (Ubuntu 24.04, Jazzy, Pytho
 
 - `docs/` architecture, interfaces, benchmark methodology, reproducibility, cloud setup.
 - `docs/newbie_guide.md` plain-language "how it works" map for first-time readers.
+- `docs/run_guide.md` step-by-step launch/runbook (live mic, topics, tests, troubleshooting).
 - `configs/` YAML configs and cloud example config.
 - `data/sample` sample WAV files and transcripts.
 - `ros2_ws/src/` ROS2 packages.
@@ -36,6 +37,7 @@ make test
 make run
 make bench
 make report
+make arch
 bash scripts/release_check.sh
 ```
 
@@ -70,6 +72,42 @@ Excluded from release package:
 - caches and bytecode: `__pycache__/`, `*.pyc`, `.pytest_cache/`, `.ruff_cache/`, `.mypy_cache/`
 - environments and VCS: `.venv*/`, `.git/`
 - secrets: `configs/commercial.yaml`, `.env`, key/cert files
+
+## Architecture Diagrams
+
+Architecture diagrams are generated automatically from:
+
+- static source analysis (`package.xml`, `setup.py`, launch files, Python AST),
+- runtime ROS2 inspection (`ros2 node/topic/service` commands),
+- anti-gap merge policy (everything from static is always retained, missing runtime evidence is marked `expected_only`).
+
+Run pipeline:
+
+```bash
+make build
+make arch-static
+make arch-runtime
+make arch
+make arch-diff
+```
+
+Direct CLI:
+
+```bash
+source .venv/bin/activate
+archviz static --ws ros2_ws --out docs/arch
+archviz runtime --ws ros2_ws --out docs/arch --profile full --timeout-sec 20
+archviz merge --static docs/arch/static_graph.json --runtime docs/arch/runtime_graph.json --out docs/arch/merged_graph.json
+archviz render --in docs/arch/merged_graph.json --out docs/arch --format mermaid
+archviz diff --a docs/arch/merged_graph_prev.json --b docs/arch/merged_graph.json --out docs/arch/CHANGELOG_ARCH.md
+archviz all --ws ros2_ws --out docs/arch --profile full --timeout-sec 20
+```
+
+Generated artifacts in `docs/arch/`:
+
+- `static_graph.json`, `runtime_graph.json`, `merged_graph.json`
+- `mindmap.mmd`, `flow.mmd`, `seq_recognize_once.mmd`
+- `CHANGELOG_ARCH.md`, `runtime_errors.md`
 
 ## ROS2 Demo
 
