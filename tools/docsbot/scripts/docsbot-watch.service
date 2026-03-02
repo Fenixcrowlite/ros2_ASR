@@ -1,0 +1,13 @@
+[Unit]
+Description=docsbot Obsidian wiki watcher
+After=default.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/Desktop/ros2ws
+ExecStart=%h/Desktop/ros2ws/tools/docsbot/.venv/bin/docsbot watch --repo-root %h/Desktop/ros2ws
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

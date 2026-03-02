@@ -1,36 +1,95 @@
-mindmap
-  root((ASR Architecture))
-    package:asr_benchmark
-      node:/asr_benchmark_node [expected_only]
-        timer:internal:timer:0.5:timer [expected_only]
-    package:asr_ros
-      node:/asr_server_node
-        action:server:/asr/transcribe:asr_interfaces/action/Transcribe [observed_only]
-        service:server:/asr/get_status:asr_interfaces/srv/GetAsrStatus
-        service:server:/asr/recognize_once:asr_interfaces/srv/RecognizeOnce
-        service:server:/asr/set_backend:asr_interfaces/srv/SetAsrBackend
-        service:server:/asr_server_node/describe_parameters:rcl_interfaces/srv/DescribeParameters [observed_only]
-        service:server:/asr_server_node/get_parameter_types:rcl_interfaces/srv/GetParameterTypes [observed_only]
-        service:server:/asr_server_node/get_parameters:rcl_interfaces/srv/GetParameters [observed_only]
-        service:server:/asr_server_node/get_type_description:type_description_interfaces/srv/GetTypeDescription [observed_only]
-        service:server:/asr_server_node/list_parameters:rcl_interfaces/srv/ListParameters [observed_only]
-        service:server:/asr_server_node/set_parameters:rcl_interfaces/srv/SetParameters [observed_only]
-        service:server:/asr_server_node/set_parameters_atomically:rcl_interfaces/srv/SetParametersAtomically [observed_only]
-        timer:internal:timer:0.2:timer [expected_only]
-        topic:sub:/asr/audio_chunks:std_msgs/msg/UInt8MultiArray
-        topic:pub:/asr/metrics:asr_interfaces/msg/AsrMetrics
-        topic:pub:/asr/text:asr_interfaces/msg/AsrResult
-        topic:pub:/parameter_events:rcl_interfaces/msg/ParameterEvent [observed_only]
-        topic:pub:/rosout:rcl_interfaces/msg/Log [observed_only]
-      node:/audio_capture_node
-        service:server:/audio_capture_node/describe_parameters:rcl_interfaces/srv/DescribeParameters [observed_only]
-        service:server:/audio_capture_node/get_parameter_types:rcl_interfaces/srv/GetParameterTypes [observed_only]
-        service:server:/audio_capture_node/get_parameters:rcl_interfaces/srv/GetParameters [observed_only]
-        service:server:/audio_capture_node/get_type_description:type_description_interfaces/srv/GetTypeDescription [observed_only]
-        service:server:/audio_capture_node/list_parameters:rcl_interfaces/srv/ListParameters [observed_only]
-        service:server:/audio_capture_node/set_parameters:rcl_interfaces/srv/SetParameters [observed_only]
-        service:server:/audio_capture_node/set_parameters_atomically:rcl_interfaces/srv/SetParametersAtomically [observed_only]
-        timer:internal:timer:1.0:timer [expected_only]
-        topic:pub:/asr/audio_chunks:std_msgs/msg/UInt8MultiArray
-        topic:pub:/parameter_events:rcl_interfaces/msg/ParameterEvent [observed_only]
-        topic:pub:/rosout:rcl_interfaces/msg/Log [observed_only]
+flowchart TB
+  classDef expectedOnly stroke-dasharray: 5 5,stroke:#666,fill:#fff8dc;
+  classDef observedOnly stroke:#1e88e5,fill:#e3f2fd;
+  ROOT(["ASR Architecture"])
+  P_asr_benchmark["package: asr_benchmark"]
+  ROOT --> P_asr_benchmark
+  N_asr_benchmark_node["node: /asr_benchmark_node / state=expected_only"]
+  P_asr_benchmark --> N_asr_benchmark_node
+  class N_asr_benchmark_node expectedOnly;
+  M_asr_benchmark_node_timer_internal_timer_0_5["timer internal: timer:0.5 / timer / state=expected_only"]
+  N_asr_benchmark_node --> M_asr_benchmark_node_timer_internal_timer_0_5
+  class M_asr_benchmark_node_timer_internal_timer_0_5 expectedOnly;
+  P_asr_ros["package: asr_ros"]
+  ROOT --> P_asr_ros
+  N_asr_server_node["node: /asr_server_node / state=both"]
+  P_asr_ros --> N_asr_server_node
+  M_asr_server_node_action_server__asr_transcribe["action server: /asr/transcribe / asr_interfaces/action/Transcribe / state=observed_only"]
+  N_asr_server_node --> M_asr_server_node_action_server__asr_transcribe
+  class M_asr_server_node_action_server__asr_transcribe observedOnly;
+  M_asr_server_node_service_server__asr_get_status["service server: /asr/get_status / asr_interfaces/srv/GetAsrStatus / state=both"]
+  N_asr_server_node --> M_asr_server_node_service_server__asr_get_status
+  M_asr_server_node_service_server__asr_recognize_once["service server: /asr/recognize_once / asr_interfaces/srv/RecognizeOnce / state=both"]
+  N_asr_server_node --> M_asr_server_node_service_server__asr_recognize_once
+  M_asr_server_node_service_server__asr_set_backend["service server: /asr/set_backend / asr_interfaces/srv/SetAsrBackend / state=both"]
+  N_asr_server_node --> M_asr_server_node_service_server__asr_set_backend
+  M_asr_server_node_service_server__asr_server_node_describe_parameters["service server: /asr_server_node/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]
+  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_describe_parameters
+  class M_asr_server_node_service_server__asr_server_node_describe_parameters observedOnly;
+  M_asr_server_node_service_server__asr_server_node_get_parameter_types["service server: /asr_server_node/get_parameter_types / rcl_interfaces/srv/GetParameterTypes / state=observed_only"]
+  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_get_parameter_types
+  class M_asr_server_node_service_server__asr_server_node_get_parameter_types observedOnly;
+  M_asr_server_node_service_server__asr_server_node_get_parameters["service server: /asr_server_node/get_parameters / rcl_interfaces/srv/GetParameters / state=observed_only"]
+  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_get_parameters
+  class M_asr_server_node_service_server__asr_server_node_get_parameters observedOnly;
+  M_asr_server_node_service_server__asr_server_node_get_type_description["service server: /asr_server_node/get_type_description / type_description_interfaces/srv/GetTypeDescription / state=observed_only"]
+  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_get_type_description
+  class M_asr_server_node_service_server__asr_server_node_get_type_description observedOnly;
+  M_asr_server_node_service_server__asr_server_node_list_parameters["service server: /asr_server_node/list_parameters / rcl_interfaces/srv/ListParameters / state=observed_only"]
+  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_list_parameters
+  class M_asr_server_node_service_server__asr_server_node_list_parameters observedOnly;
+  M_asr_server_node_service_server__asr_server_node_set_parameters["service server: /asr_server_node/set_parameters / rcl_interfaces/srv/SetParameters / state=observed_only"]
+  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_set_parameters
+  class M_asr_server_node_service_server__asr_server_node_set_parameters observedOnly;
+  M_asr_server_node_service_server__asr_server_node_set_parameters_atomically["service server: /asr_server_node/set_parameters_atomically / rcl_interfaces/srv/SetParametersAtomically / state=observed_only"]
+  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_set_parameters_atomically
+  class M_asr_server_node_service_server__asr_server_node_set_parameters_atomically observedOnly;
+  M_asr_server_node_timer_internal_timer_0_2["timer internal: timer:0.2 / timer / state=expected_only"]
+  N_asr_server_node --> M_asr_server_node_timer_internal_timer_0_2
+  class M_asr_server_node_timer_internal_timer_0_2 expectedOnly;
+  M_asr_server_node_topic_sub__asr_audio_chunks["topic sub: /asr/audio_chunks / std_msgs/msg/UInt8MultiArray / state=both"]
+  N_asr_server_node --> M_asr_server_node_topic_sub__asr_audio_chunks
+  M_asr_server_node_topic_pub__asr_metrics["topic pub: /asr/metrics / asr_interfaces/msg/AsrMetrics / state=both"]
+  N_asr_server_node --> M_asr_server_node_topic_pub__asr_metrics
+  M_asr_server_node_topic_pub__asr_text["topic pub: /asr/text / asr_interfaces/msg/AsrResult / state=both"]
+  N_asr_server_node --> M_asr_server_node_topic_pub__asr_text
+  M_asr_server_node_topic_pub__parameter_events["topic pub: /parameter_events / rcl_interfaces/msg/ParameterEvent / state=observed_only"]
+  N_asr_server_node --> M_asr_server_node_topic_pub__parameter_events
+  class M_asr_server_node_topic_pub__parameter_events observedOnly;
+  M_asr_server_node_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
+  N_asr_server_node --> M_asr_server_node_topic_pub__rosout
+  class M_asr_server_node_topic_pub__rosout observedOnly;
+  N_audio_capture_node["node: /audio_capture_node / state=both"]
+  P_asr_ros --> N_audio_capture_node
+  M_audio_capture_node_service_server__audio_capture_node_describe_parameters["service server: /audio_capture_node/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]
+  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_describe_parameters
+  class M_audio_capture_node_service_server__audio_capture_node_describe_parameters observedOnly;
+  M_audio_capture_node_service_server__audio_capture_node_get_parameter_types["service server: /audio_capture_node/get_parameter_types / rcl_interfaces/srv/GetParameterTypes / state=observed_only"]
+  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_get_parameter_types
+  class M_audio_capture_node_service_server__audio_capture_node_get_parameter_types observedOnly;
+  M_audio_capture_node_service_server__audio_capture_node_get_parameters["service server: /audio_capture_node/get_parameters / rcl_interfaces/srv/GetParameters / state=observed_only"]
+  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_get_parameters
+  class M_audio_capture_node_service_server__audio_capture_node_get_parameters observedOnly;
+  M_audio_capture_node_service_server__audio_capture_node_get_type_description["service server: /audio_capture_node/get_type_description / type_description_interfaces/srv/GetTypeDescription / state=observed_only"]
+  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_get_type_description
+  class M_audio_capture_node_service_server__audio_capture_node_get_type_description observedOnly;
+  M_audio_capture_node_service_server__audio_capture_node_list_parameters["service server: /audio_capture_node/list_parameters / rcl_interfaces/srv/ListParameters / state=observed_only"]
+  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_list_parameters
+  class M_audio_capture_node_service_server__audio_capture_node_list_parameters observedOnly;
+  M_audio_capture_node_service_server__audio_capture_node_set_parameters["service server: /audio_capture_node/set_parameters / rcl_interfaces/srv/SetParameters / state=observed_only"]
+  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_set_parameters
+  class M_audio_capture_node_service_server__audio_capture_node_set_parameters observedOnly;
+  M_audio_capture_node_service_server__audio_capture_node_set_parameters_atomically["service server: /audio_capture_node/set_parameters_atomically / rcl_interfaces/srv/SetParametersAtomically / state=observed_only"]
+  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_set_parameters_atomically
+  class M_audio_capture_node_service_server__audio_capture_node_set_parameters_atomically observedOnly;
+  M_audio_capture_node_timer_internal_timer_1_0["timer internal: timer:1.0 / timer / state=expected_only"]
+  N_audio_capture_node --> M_audio_capture_node_timer_internal_timer_1_0
+  class M_audio_capture_node_timer_internal_timer_1_0 expectedOnly;
+  M_audio_capture_node_topic_pub__asr_audio_chunks["topic pub: /asr/audio_chunks / std_msgs/msg/UInt8MultiArray / state=both"]
+  N_audio_capture_node --> M_audio_capture_node_topic_pub__asr_audio_chunks
+  M_audio_capture_node_topic_pub__parameter_events["topic pub: /parameter_events / rcl_interfaces/msg/ParameterEvent / state=observed_only"]
+  N_audio_capture_node --> M_audio_capture_node_topic_pub__parameter_events
+  class M_audio_capture_node_topic_pub__parameter_events observedOnly;
+  M_audio_capture_node_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
+  N_audio_capture_node --> M_audio_capture_node_topic_pub__rosout
+  class M_audio_capture_node_topic_pub__rosout observedOnly;

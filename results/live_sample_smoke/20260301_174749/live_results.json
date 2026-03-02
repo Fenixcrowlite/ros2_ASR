@@ -1,0 +1,31 @@
+[
+  {
+    "request_id": "a614135d-d7c4-405d-ac98-320be292febe",
+    "audio_id": "google_test_digit",
+    "backend": "google",
+    "scenario": "live_core",
+    "snr_db": null,
+    "wav_path": "/tmp/google_test_digit.wav",
+    "language": "en-US",
+    "duration_sec": 0.0,
+    "text": "",
+    "transcript_ref": "",
+    "transcript_hyp": "",
+    "wer": -1.0,
+    "cer": -1.0,
+    "latency_ms": 0.0,
+    "preprocess_ms": 0.0,
+    "inference_ms": 0.0,
+    "postprocess_ms": 0.0,
+    "audio_duration_sec": 0.0,
+    "rtf": 0.0,
+    "cpu_percent": 3.7,
+    "ram_mb": 65.54296875,
+    "gpu_util_percent": 18.0,
+    "gpu_mem_mb": 582.0,
+    "success": false,
+    "error_code": "config_missing",
+    "error_message": "Google credentials file not found: /home/fenix/Desktop/creditionals/strong-minutia-419022-0614f3cb1ae2.json",
+    "cost_estimate": 0.0
+  }
+]

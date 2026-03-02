@@ -1,0 +1,79 @@
+[INFO] [launch]: All log files can be found below /home/fenix/.ros/log/2026-03-01-17-47-33-537179-fenixmachine-36251
+[INFO] [launch]: Default logging verbosity is set to INFO
+[INFO] [asr_server_node-1]: process started with pid [36255]
+[INFO] [audio_capture_node-2]: process started with pid [36256]
+[audio_capture_node-2] [INFO] [1772383653.899985254] [audio_capture_node]: Audio capture initialized with mode=file, continuous=False, mic_capture_sec=4.0
+[asr_server_node-1] [INFO] [1772383653.942037333] [asr_server_node]: ASR server started with backend=mock, live_stream_enabled=True, sample_rate=16000
+[audio_capture_node-2] [INFO] [1772383654.890370935] [audio_capture_node]: Published file audio chunks from /tmp/google_test_digit.wav
+[asr_server_node-1] [INFO] [1772383656.038463714] [asr_server_node]: Live transcription published (device=unknown, request_id=4938beee-9016-4f3c-919b-1530cc65a461, text='streaming mock transcript')
+[asr_server_node-1] [INFO] [1772383658.815496063] [asr_server_node]: Backend switched to mock
+[asr_server_node-1] [INFO] [1772383659.010896714] [asr_server_node]: Backend switched to mock
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [audio_capture_node-2]: sending signal 'SIGINT' to process[audio_capture_node-2]
+[INFO] [asr_server_node-1]: sending signal 'SIGINT' to process[asr_server_node-1]
+[asr_server_node-1] Traceback (most recent call last):
+[asr_server_node-1]   File "/home/fenix/Desktop/ros2ws/build/asr_ros/asr_ros/asr_server_node.py", line 397, in main
+[asr_server_node-1]     rclpy.spin(node)
+[asr_server_node-1]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[asr_server_node-1]     executor.spin_once()
+[asr_server_node-1]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 923, in spin_once
+[asr_server_node-1]     self._spin_once_impl(timeout_sec)
+[asr_server_node-1]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 904, in _spin_once_impl
+[asr_server_node-1]     handler, entity, node = self.wait_for_ready_callbacks(
+[asr_server_node-1]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[asr_server_node-1]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 874, in wait_for_ready_callbacks
+[audio_capture_node-2] Traceback (most recent call last):
+[audio_capture_node-2]   File "/home/fenix/Desktop/ros2ws/build/asr_ros/asr_ros/audio_capture_node.py", line 141, in main
+[audio_capture_node-2]     rclpy.spin(node)
+[audio_capture_node-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 247, in spin
+[asr_server_node-1]     return next(self._cb_iter)
+[asr_server_node-1]            ^^^^^^^^^^^^^^^^^^^
+[asr_server_node-1]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 778, in _wait_for_ready_callbacks
+[asr_server_node-1]     wait_set.wait(timeout_nsec)
+[asr_server_node-1] KeyboardInterrupt
+[asr_server_node-1] 
+[asr_server_node-1] During handling of the above exception, another exception occurred:
+[asr_server_node-1] 
+[asr_server_node-1] Traceback (most recent call last):
+[asr_server_node-1]   File "/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/asr_server_node", line 33, in <module>
+[asr_server_node-1]     sys.exit(load_entry_point('asr-ros', 'console_scripts', 'asr_server_node')())
+[asr_server_node-1]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[asr_server_node-1]   File "/home/fenix/Desktop/ros2ws/build/asr_ros/asr_ros/asr_server_node.py", line 400, in main
+[asr_server_node-1]     rclpy.shutdown()
+[asr_server_node-1]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 134, in shutdown
+[asr_server_node-1]     _shutdown(context=context)
+[asr_server_node-1]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py", line 82, in shutdown
+[asr_server_node-1]     context.shutdown()
+[asr_server_node-1]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py", line 129, in shutdown
+[asr_server_node-1]     self.__context.shutdown()
+[asr_server_node-1] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333
+[audio_capture_node-2]     executor.spin_once()
+[audio_capture_node-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 923, in spin_once
+[audio_capture_node-2]     self._spin_once_impl(timeout_sec)
+[audio_capture_node-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 904, in _spin_once_impl
+[audio_capture_node-2]     handler, entity, node = self.wait_for_ready_callbacks(
+[audio_capture_node-2]                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[audio_capture_node-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 874, in wait_for_ready_callbacks
+[audio_capture_node-2]     return next(self._cb_iter)
+[audio_capture_node-2]            ^^^^^^^^^^^^^^^^^^^
+[audio_capture_node-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/executors.py", line 778, in _wait_for_ready_callbacks
+[audio_capture_node-2]     wait_set.wait(timeout_nsec)
+[audio_capture_node-2] KeyboardInterrupt
+[audio_capture_node-2] 
+[audio_capture_node-2] During handling of the above exception, another exception occurred:
+[audio_capture_node-2] 
+[audio_capture_node-2] Traceback (most recent call last):
+[audio_capture_node-2]   File "/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/audio_capture_node", line 33, in <module>
+[audio_capture_node-2]     sys.exit(load_entry_point('asr-ros', 'console_scripts', 'audio_capture_node')())
+[audio_capture_node-2]              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+[audio_capture_node-2]   File "/home/fenix/Desktop/ros2ws/build/asr_ros/asr_ros/audio_capture_node.py", line 144, in main
+[audio_capture_node-2]     rclpy.shutdown()
+[audio_capture_node-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py", line 134, in shutdown
+[audio_capture_node-2]     _shutdown(context=context)
+[audio_capture_node-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py", line 82, in shutdown
+[audio_capture_node-2]     context.shutdown()
+[audio_capture_node-2]   File "/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py", line 129, in shutdown
+[audio_capture_node-2]     self.__context.shutdown()
+[audio_capture_node-2] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333
+[ERROR] [audio_capture_node-2]: process has died [pid 36256, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/audio_capture_node --ros-args -r __node:=audio_capture_node --params-file /tmp/launch_params_4a1vqsvg --params-file /tmp/launch_params_8o5fuoyj --params-file /tmp/launch_params_jvaec7z9 --params-file /tmp/launch_params_12j2mbr0 --params-file /tmp/launch_params_uq4xuhsv --params-file /tmp/launch_params_am3inwvr --params-file /tmp/launch_params_53uq2fn_'].
+[ERROR] [asr_server_node-1]: process has died [pid 36255, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/asr_server_node --ros-args -r __node:=asr_server_node --params-file /tmp/launch_params_cl4vcsmk --params-file /tmp/launch_params_c3c7urc8 --params-file /tmp/launch_params_a_qxyl_g --params-file /tmp/launch_params_6bcj86ud'].

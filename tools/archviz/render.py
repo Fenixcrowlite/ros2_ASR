@@ -11,11 +11,14 @@ def _sanitize(identifier: str) -> str:
     return re.sub(r"[^a-zA-Z0-9_]", "_", identifier.strip("/")) or "root"
 
 
-def _state_suffix(item: dict[str, Any]) -> str:
-    state = str(item.get("state", "both"))
-    if state == "both":
-        return ""
-    return f" [{state}]"
+def _state_text(item: dict[str, Any]) -> str:
+    return str(item.get("state", "both"))
+
+
+def _escape_text(value: str) -> str:
+    escaped = value.replace('"', "'").replace("|", "/").strip()
+    escaped = escaped.replace("<", "&lt;").replace(">", "&gt;")
+    return escaped
 
 
 def _edge_arrow(state: str, direction: str) -> str:
@@ -27,7 +30,12 @@ def _edge_arrow(state: str, direction: str) -> str:
 
 
 def render_mindmap(graph: dict[str, Any], out_path: Path) -> None:
-    """Render package -> nodes -> channels mindmap."""
+    """Render package -> nodes -> channels hierarchy in broadly compatible Mermaid syntax.
+
+    Note: some Mermaid renderers/extensions do not support native `mindmap` syntax.
+    We intentionally render the "mind-map layer" as a top-down flowchart tree
+    to maximize compatibility across VS Code plugins and CI renderers.
+    """
     nodes_by_package: dict[str, list[dict[str, Any]]] = {}
     for node in graph.get("nodes", []):
         pkg = str(node.get("package", "unknown"))
@@ -37,12 +45,32 @@ def render_mindmap(graph: dict[str, Any], out_path: Path) -> None:
     for edge in graph.get("edges", []):
         edges_by_node.setdefault(str(edge.get("node", "")), []).append(edge)
 
-    lines: list[str] = ["mindmap", "  root((ASR Architecture))"]
+    lines: list[str] = [
+        "flowchart TB",
+        "  classDef expectedOnly stroke-dasharray: 5 5,stroke:#666,fill:#fff8dc;",
+        "  classDef observedOnly stroke:#1e88e5,fill:#e3f2fd;",
+        '  ROOT(["ASR Architecture"])',
+    ]
+
+    def apply_state_class(node_id: str, state: str) -> None:
+        if state == "expected_only":
+            lines.append(f"  class {node_id} expectedOnly;")
+        elif state == "observed_only":
+            lines.append(f"  class {node_id} observedOnly;")
+
     for package_name in sorted(nodes_by_package):
-        lines.append(f"    package:{package_name}")
+        package_id = f"P_{_sanitize(package_name)}"
+        package_label = _escape_text(f"package: {package_name}")
+        lines.append(f'  {package_id}["{package_label}"]')
+        lines.append(f"  ROOT --> {package_id}")
         for node in sorted(nodes_by_package[package_name], key=lambda n: str(n.get("id", ""))):
             node_id = str(node.get("id", ""))
-            lines.append(f"      node:{node_id}{_state_suffix(node)}")
+            node_mermaid_id = f"N_{_sanitize(node_id)}"
+            node_label = _escape_text(f"node: {node_id} / state={_state_text(node)}")
+            lines.append(f'  {node_mermaid_id}["{node_label}"]')
+            lines.append(f"  {package_id} --> {node_mermaid_id}")
+            apply_state_class(node_mermaid_id, _state_text(node))
+
             for edge in sorted(
                 edges_by_node.get(node_id, []),
                 key=lambda e: (str(e.get("kind", "")), str(e.get("name", ""))),
@@ -51,10 +79,14 @@ def render_mindmap(graph: dict[str, Any], out_path: Path) -> None:
                 direction = str(edge.get("direction", "unknown"))
                 edge_kind = str(edge.get("kind", "unknown"))
                 edge_type = str(edge.get("type", "unknown"))
-                lines.append(
-                    "        "
-                    f"{edge_kind}:{direction}:{channel_name}:{edge_type}{_state_suffix(edge)}"
+                edge_id = f"M_{_sanitize(f'{node_id}_{edge_kind}_{direction}_{channel_name}')}"
+                edge_state = _state_text(edge)
+                edge_label = _escape_text(
+                    f"{edge_kind} {direction}: {channel_name} / {edge_type} / state={edge_state}"
                 )
+                lines.append(f'  {edge_id}["{edge_label}"]')
+                lines.append(f"  {node_mermaid_id} --> {edge_id}")
+                apply_state_class(edge_id, edge_state)
 
     out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -75,7 +107,7 @@ def render_flow(graph: dict[str, Any], out_path: Path) -> None:
         mermaid_id = f"N_{_sanitize(node_name)}"
         if mermaid_id in node_declared:
             return mermaid_id
-        label = f"{node_name}\\n[{item.get('package', 'unknown')}]"
+        label = _escape_text(f"{node_name}<br/>[{item.get('package', 'unknown')}]")
         lines.append(f'  {mermaid_id}["{label}"]')
         state = str(item.get("state", "both"))
         if state == "expected_only":
@@ -90,7 +122,8 @@ def render_flow(graph: dict[str, Any], out_path: Path) -> None:
         channel_id = f"{prefix}_{_sanitize(name)}"
         if channel_id in channel_declared:
             return channel_id
-        shape = '(["' + name + '"])' if kind == "topic" else '{{"' + name + '"}}'
+        label = _escape_text(name)
+        shape = '(["' + label + '"])' if kind == "topic" else '{{"' + label + '"}}'
         lines.append(f"  {channel_id}{shape}")
         if state == "expected_only":
             lines.append(f"  class {channel_id} expectedOnly;")
@@ -143,13 +176,13 @@ def render_flow(graph: dict[str, Any], out_path: Path) -> None:
         channel_id = declare_channel(kind, channel_name, channel_state)
 
         arrow = _edge_arrow(edge_state, direction)
-        label = f"{direction}: {channel_name}\\n{channel_type}"
+        label = _escape_text(f"{direction}: {channel_name}<br/>{channel_type}")
         if kind == "topic" and direction == "sub":
-            lines.append(f'  {channel_id} {arrow}|"{label}"| {node_id}')
+            lines.append(f"  {channel_id} {arrow}|{label}| {node_id}")
         elif kind in {"service", "action"} and direction == "client":
-            lines.append(f'  {channel_id} {arrow}|"{label}"| {node_id}')
+            lines.append(f"  {channel_id} {arrow}|{label}| {node_id}")
         else:
-            lines.append(f'  {node_id} {arrow}|"{label}"| {channel_id}')
+            lines.append(f"  {node_id} {arrow}|{label}| {channel_id}")
 
     out_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
@@ -186,11 +219,11 @@ def render_sequence_recognize_once(graph: dict[str, Any], out_path: Path) -> Non
 
     lines = [
         "sequenceDiagram",
-        "  participant Client as Recognize Client",
-        f"  participant Server as {server_node}",
-        "  participant TextTopic as /asr/text",
-        "  participant MetricsTopic as /asr/metrics",
-        f"  Client->>Server: /asr/recognize_once request ({service_type})",
+        '  participant Client as "Recognize Client"',
+        f'  participant Server as "{_escape_text(server_node)}"',
+        '  participant TextTopic as "/asr/text"',
+        '  participant MetricsTopic as "/asr/metrics"',
+        f"  Client->>Server: {_escape_text(f'/asr/recognize_once request ({service_type})')}",
         "  Server-->>Client: RecognizeOnce response",
     ]
 

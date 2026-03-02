@@ -272,7 +272,7 @@
   ],
   "launches": [],
   "meta": {
-    "generated_at": "2026-03-01T09:53:27.197430+00:00",
+    "generated_at": "2026-03-01T10:19:16.591161+00:00",
     "schema_version": 1,
     "source": "runtime",
     "workspace": "/home/fenix/Desktop/ros2ws/ros2_ws"
@@ -424,7 +424,7 @@
   ],
   "snapshots": [
     {
-      "duration_sec": 25.072,
+      "duration_sec": 25.617,
       "errors": [],
       "launch": {
         "args": {},
@@ -434,10 +434,10 @@
         "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/demo.launch.py"
       },
       "stderr_tail": "",
-      "stdout_tail": "()\n[audio_capture_node-2] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [asr_server_node-1]: process has died [pid 180080, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/asr_server_node --ros-args -r __node:=asr_server_node --params-file /tmp/launch_params_ermpdz1n --params-file /tmp/launch_params_23a96p_0 --params-file /tmp/launch_params_nhysdtad --params-file /tmp/launch_params_ifdq1ygo'].\n[ERROR] [audio_capture_node-2]: process has died [pid 180081, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/audio_capture_node --ros-args -r __node:=audio_capture_node --params-file /tmp/launch_params_4dhvuo5p --params-file /tmp/launch_params_rjidnb7d --params-file /tmp/launch_params_tm52jzzq --params-file /tmp/launch_params_ezza1sho --params-file /tmp/launch_params_c5h3hb3a --params-file /tmp/launch_params_ke_ab36m --params-file /tmp/launch_params_xixz6meg']."
+      "stdout_tail": " _shutdown(context=context)\n[audio_capture_node-2]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py\", line 82, in shutdown\n[audio_capture_node-2]     context.shutdown()\n[audio_capture_node-2]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py\", line 129, in shutdown\n[audio_capture_node-2]     self.__context.shutdown()\n[audio_capture_node-2] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [audio_capture_node-2]: process has died [pid 184616, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/audio_capture_node --ros-args -r __node:=audio_capture_node --params-file /tmp/launch_params_lmn406e6 --params-file /tmp/launch_params_wnu8ss6j --params-file /tmp/launch_params_l7706d23 --params-file /tmp/launch_params_3tb0796q --params-file /tmp/launch_params_ihz3t86p --params-file /tmp/launch_params_pmnrc2t0 --params-file /tmp/launch_params_5wcnekjv']."
     },
     {
-      "duration_sec": 24.651,
+      "duration_sec": 24.198,
       "errors": [],
       "launch": {
         "args": {
@@ -449,10 +449,10 @@
         "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/bringup.launch.py"
       },
       "stderr_tail": "",
-      "stdout_tail": "()\n[audio_capture_node-2] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [audio_capture_node-2]: process has died [pid 180270, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/audio_capture_node --ros-args -r __node:=audio_capture_node --params-file /tmp/launch_params_e0va174p --params-file /tmp/launch_params_osfmwx05 --params-file /tmp/launch_params_52f5o7ce --params-file /tmp/launch_params_a3lh_7ze --params-file /tmp/launch_params_ciaic03k --params-file /tmp/launch_params_xc_hyhrf --params-file /tmp/launch_params_x1mj2ouc'].\n[ERROR] [asr_server_node-1]: process has died [pid 180269, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/asr_server_node --ros-args -r __node:=asr_server_node --params-file /tmp/launch_params_h4k2ar9z --params-file /tmp/launch_params_3ktsjh2o --params-file /tmp/launch_params__4k2fh0n --params-file /tmp/launch_params_hyd2h4q2']."
+      "stdout_tail": "own()\n[asr_server_node-1] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [audio_capture_node-2]: process has died [pid 184807, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/audio_capture_node --ros-args -r __node:=audio_capture_node --params-file /tmp/launch_params_ywhrv4me --params-file /tmp/launch_params_87oucdc1 --params-file /tmp/launch_params_c6c1ztp7 --params-file /tmp/launch_params_chv53ixs --params-file /tmp/launch_params_zk1hljn5 --params-file /tmp/launch_params_sfpduny6 --params-file /tmp/launch_params_wshgjspn'].\n[ERROR] [asr_server_node-1]: process has died [pid 184806, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/asr_server_node --ros-args -r __node:=asr_server_node --params-file /tmp/launch_params_zygebq0n --params-file /tmp/launch_params_ryqxsubl --params-file /tmp/launch_params_ez9rgofr --params-file /tmp/launch_params_w1l3kceq']."
     },
     {
-      "duration_sec": 22.46,
+      "duration_sec": 22.284,
       "errors": [],
       "launch": {
         "args": {},
@@ -462,10 +462,10 @@
         "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark/launch/benchmark.launch.py"
       },
       "stderr_tail": "",
-      "stdout_tail": "ark/benchmark_node.py\", line 62, in main\n[asr_benchmark_node-1]     rclpy.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py\", line 134, in shutdown\n[asr_benchmark_node-1]     _shutdown(context=context)\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py\", line 82, in shutdown\n[asr_benchmark_node-1]     context.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py\", line 129, in shutdown\n[asr_benchmark_node-1]     self.__context.shutdown()\n[asr_benchmark_node-1] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [asr_benchmark_node-1]: process has died [pid 180407, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_benchmark/lib/asr_benchmark/asr_benchmark_node --ros-args --params-file /tmp/launch_params_lvxt17v6 --params-file /tmp/launch_params_cpjnft5l']."
+      "stdout_tail": "ark/benchmark_node.py\", line 62, in main\n[asr_benchmark_node-1]     rclpy.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py\", line 134, in shutdown\n[asr_benchmark_node-1]     _shutdown(context=context)\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py\", line 82, in shutdown\n[asr_benchmark_node-1]     context.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py\", line 129, in shutdown\n[asr_benchmark_node-1]     self.__context.shutdown()\n[asr_benchmark_node-1] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [asr_benchmark_node-1]: process has died [pid 184898, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_benchmark/lib/asr_benchmark/asr_benchmark_node --ros-args --params-file /tmp/launch_params_2k44yi55 --params-file /tmp/launch_params_g_41l218']."
     },
     {
-      "duration_sec": 22.445,
+      "duration_sec": 22.338,
       "errors": [],
       "launch": {
         "args": {},
@@ -475,7 +475,7 @@
         "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/benchmark.launch.py"
       },
       "stderr_tail": "",
-      "stdout_tail": "ark/benchmark_node.py\", line 62, in main\n[asr_benchmark_node-1]     rclpy.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py\", line 134, in shutdown\n[asr_benchmark_node-1]     _shutdown(context=context)\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py\", line 82, in shutdown\n[asr_benchmark_node-1]     context.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py\", line 129, in shutdown\n[asr_benchmark_node-1]     self.__context.shutdown()\n[asr_benchmark_node-1] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [asr_benchmark_node-1]: process has died [pid 180541, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_benchmark/lib/asr_benchmark/asr_benchmark_node --ros-args --params-file /tmp/launch_params_qwbh_pg3 --params-file /tmp/launch_params_0sli157e']."
+      "stdout_tail": "ark/benchmark_node.py\", line 62, in main\n[asr_benchmark_node-1]     rclpy.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py\", line 134, in shutdown\n[asr_benchmark_node-1]     _shutdown(context=context)\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py\", line 82, in shutdown\n[asr_benchmark_node-1]     context.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py\", line 129, in shutdown\n[asr_benchmark_node-1]     self.__context.shutdown()\n[asr_benchmark_node-1] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [asr_benchmark_node-1]: process has died [pid 185018, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_benchmark/lib/asr_benchmark/asr_benchmark_node --ros-args --params-file /tmp/launch_params_5fcgmaa6 --params-file /tmp/launch_params_8sndntu3']."
     }
   ],
   "topics": [

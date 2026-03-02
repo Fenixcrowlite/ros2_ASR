@@ -1,0 +1,30 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "docsbot"
+version = "0.1.0"
+description = "Self-updating Obsidian wiki generator for ROS2 repositories"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "pydantic>=2.7,<3",
+  "watchdog>=4.0,<5",
+  "rich>=13.7,<14",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=8.2,<9",
+  "ruff>=0.5",
+]
+
+[project.scripts]
+docsbot = "docsbot.cli:main"
+
+[tool.setuptools]
+packages = ["docsbot", "docsbot.runtime", "docsbot.indexer", "docsbot.planner", "docsbot.writer", "docsbot.qa", "docsbot.llm"]
+
+[tool.pytest.ini_options]
+addopts = "-q"
