@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ROS2 ASR Control Center</title>
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <header class="hero">
+    <div>
+      <h1>ROS2 ASR Control Center</h1>
+      <p>Полный веб-контур для live/benchmark, моделей, языков, авторизаций, шумов и ROS2 launch.</p>
+    </div>
+    <div class="hero-actions">
+      <button id="run-preflight" class="btn btn-secondary">Preflight</button>
+      <button id="refresh-all" class="btn btn-secondary">Refresh</button>
+      <span id="status-pill" class="pill">Idle</span>
+    </div>
+  </header>
+
+  <main class="layout">
+    <section class="panel panel-config">
+      <h2>Runtime Setup</h2>
+      <div class="grid two">
+        <label>Profile name
+          <input id="profile-name" type="text" placeholder="lab_ru_whisper">
+        </label>
+        <label>Base config
+          <select id="base-config"></select>
+        </label>
+      </div>
+      <div class="row-actions">
+        <button id="save-profile" class="btn">Save Profile</button>
+        <button id="load-profile" class="btn btn-secondary">Load Profile</button>
+      </div>
+
+      <h3>ASR Global</h3>
+      <div class="grid three">
+        <label>Backend
+          <select id="asr-backend"></select>
+        </label>
+        <label>Language mode
+          <select id="language-mode">
+            <option value="manual">manual</option>
+            <option value="auto">auto-detect</option>
+            <option value="config" selected>config</option>
+          </select>
+        </label>
+        <label>Language
+          <input id="language" type="text" placeholder="ru-RU">
+        </label>
+        <label>Input mode
+          <select id="input-mode">
+            <option value="mic">mic</option>
+            <option value="file">file</option>
+            <option value="auto">auto</option>
+          </select>
+        </label>
+        <label>Sample rate
+          <input id="sample-rate" type="number" value="16000" step="1000">
+        </label>
+        <label>Chunk ms
+          <input id="chunk-ms" type="number" value="800" step="50">
+        </label>
+      </div>
+
+      <h3>Interfaces & Model Runs</h3>
+      <div id="interfaces" class="checkboxes"></div>
+      <label>Model runs `backend[:model][@region]`
+        <input id="model-runs" type="text" value="whisper:tiny,mock">
+      </label>
+
+      <h3>Backend Details</h3>
+      <div class="grid three">
+        <label>Whisper model
+          <input id="whisper-model" type="text" value="tiny">
+        </label>
+        <label>Whisper device
+          <input id="whisper-device" type="text" value="cpu">
+        </label>
+        <label>Whisper compute
+          <input id="whisper-compute" type="text" value="int8">
+        </label>
+        <label>Vosk model path
+          <input id="vosk-model-path" type="text" placeholder="/abs/path/to/vosk/model">
+        </label>
+        <label>Google model
+          <input id="google-model" type="text" value="latest_long">
+        </label>
+        <label>AWS region
+          <input id="aws-region" type="text" value="us-east-1">
+        </label>
+        <label>AWS bucket
+          <input id="aws-bucket" type="text" placeholder="my-transcribe-bucket">
+        </label>
+        <label>Azure region
+          <input id="azure-region" type="text" placeholder="westeurope">
+        </label>
+        <label>Azure endpoint
+          <input id="azure-endpoint" type="text" placeholder="optional endpoint id">
+        </label>
+      </div>
+
+      <h3>Cloud Auth (tokens/keys)</h3>
+      <div class="grid three">
+        <label>Google credentials JSON path
+          <input id="secret-google-cred" type="password" autocomplete="off">
+        </label>
+        <label>Google project id
+          <input id="secret-google-project" type="password" autocomplete="off">
+        </label>
+        <label>AWS access key id
+          <input id="secret-aws-id" type="password" autocomplete="off">
+        </label>
+        <label>AWS secret access key
+          <input id="secret-aws-secret" type="password" autocomplete="off">
+        </label>
+        <label>AWS session token
+          <input id="secret-aws-token" type="password" autocomplete="off">
+        </label>
+        <label>Azure speech key
+          <input id="secret-azure-key" type="password" autocomplete="off">
+        </label>
+      </div>
+
+      <h3>Benchmark Controls</h3>
+      <div class="grid three">
+        <label>Dataset CSV
+          <input id="dataset" type="text" value="data/transcripts/sample_manifest.csv">
+        </label>
+        <label>Backends list
+          <input id="bench-backends" type="text" value="mock,whisper">
+        </label>
+        <label>Chunk sec
+          <input id="bench-chunk-sec" type="number" value="0.8" step="0.1">
+        </label>
+      </div>
+      <label>Scenarios (comma-separated)
+        <input id="bench-scenarios" type="text" value="clean,snr20,snr10,snr0">
+      </label>
+      <div id="metric-select" class="checkboxes"></div>
+    </section>
+
+    <section class="panel panel-runner">
+      <h2>Samples, Noise, Runs</h2>
+
+      <h3>Upload</h3>
+      <form id="upload-form" class="row-actions">
+        <input id="upload-file" type="file">
+        <button class="btn" type="submit">Upload</button>
+      </form>
+
+      <h3>Noise Overlay</h3>
+      <div class="grid two">
+        <label>Source WAV
+          <select id="noise-source"></select>
+        </label>
+        <label>SNR levels
+          <input id="noise-levels" type="text" value="30,20,10,0">
+        </label>
+      </div>
+      <button id="apply-noise" class="btn btn-secondary">Generate Noisy Samples</button>
+
+      <h3>Live Run</h3>
+      <div class="grid three">
+        <label>Reference text
+          <input id="reference-text" type="text" placeholder="optional ground truth">
+        </label>
+        <label>Record sec
+          <input id="record-sec" type="number" value="5" step="0.5">
+        </label>
+        <label>Use WAV (optional)
+          <select id="use-wav"></select>
+        </label>
+        <label>Audio device
+          <input id="audio-device" type="text" placeholder="empty=default">
+        </label>
+        <label>Action chunk sec
+          <input id="action-chunk-sec" type="number" value="0.8" step="0.1">
+        </label>
+        <label>Timeout sec
+          <input id="request-timeout" type="number" value="25" step="1">
+        </label>
+      </div>
+      <div class="checkboxes inline">
+        <label><input id="ros-auto-launch" type="checkbox" checked> ROS auto launch in live eval</label>
+        <label><input id="action-streaming" type="checkbox"> Action streaming mode</label>
+      </div>
+      <div class="row-actions">
+        <button id="run-live" class="btn btn-accent">Run Live Sample Eval</button>
+      </div>
+
+      <h3>ROS2 Bringup</h3>
+      <div class="grid three">
+        <label>Bringup input mode
+          <select id="bringup-input-mode">
+            <option value="mic">mic</option>
+            <option value="file">file</option>
+            <option value="auto">auto</option>
+          </select>
+        </label>
+        <label>Bringup WAV
+          <select id="bringup-wav"></select>
+        </label>
+        <label>Mic capture sec
+          <input id="bringup-mic-sec" type="number" value="4.0" step="0.5">
+        </label>
+      </div>
+      <div class="checkboxes inline">
+        <label><input id="bringup-continuous" type="checkbox" checked> Continuous</label>
+        <label><input id="bringup-live-enabled" type="checkbox" checked> Live stream enabled</label>
+        <label><input id="bringup-text-enabled" type="checkbox" checked> Plain-text node enabled</label>
+      </div>
+      <div class="row-actions">
+        <button id="run-benchmark" class="btn">Run Benchmark</button>
+        <button id="start-bringup" class="btn btn-secondary">Start ROS Bringup</button>
+      </div>
+
+      <h3>Jobs</h3>
+      <table id="jobs-table">
+        <thead>
+          <tr>
+            <th>Job</th>
+            <th>Kind</th>
+            <th>Status</th>
+            <th>Started</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+
+      <h3>Logs</h3>
+      <textarea id="log-viewer" readonly></textarea>
+
+      <h3>Artifacts</h3>
+      <div id="artifact-list" class="artifact-list"></div>
+      <div id="artifact-preview" class="artifact-preview"></div>
+    </section>
+  </main>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

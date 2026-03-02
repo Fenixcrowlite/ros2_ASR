@@ -203,3 +203,26 @@ make arch
 
 - Закрой терминалы с `ros2 launch` / `ros2 topic echo`.
 - Либо нажми `Ctrl+C` в каждом активном ROS2 процессе.
+
+## 12. Web GUI (полный control center)
+
+Запуск:
+
+```bash
+make web-gui
+```
+
+Адрес:
+
+```text
+http://localhost:8765
+```
+
+Возможности GUI:
+
+- настройка языков/моделей/backend параметров,
+- ввод cloud token/key/credentials,
+- upload собственных семплов и dataset,
+- генерация noisy-семплов по SNR,
+- запуск live sample eval / benchmark / ROS2 bringup,
+- мониторинг jobs, логов и артефактов.

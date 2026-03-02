@@ -22,3 +22,7 @@
 ## Терминология
 
 - [[00_Start/Glossary]]
+
+## Потоки по файлам
+
+- [[99_Maps/File_Flows_Mermaid]]

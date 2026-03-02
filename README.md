@@ -39,6 +39,7 @@ make run
 make live-sample
 make bench
 make report
+make web-gui
 make arch
 bash scripts/release_check.sh
 ```
@@ -249,6 +250,24 @@ Useful options:
 - `--language en-US`
 - `--use-wav /path/to/existing.wav`
 - `--action-streaming`
+
+## Web GUI Control Center
+
+Run full browser control center (configs/models/languages/secrets/upload/noise/live/benchmark/ROS bringup):
+
+```bash
+make web-gui
+```
+
+Then open:
+
+```text
+http://localhost:8765
+```
+
+Module docs:
+
+- `web_gui/README.md`
 
 ## Cloud Credentials
 

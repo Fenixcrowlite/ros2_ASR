@@ -11,6 +11,7 @@
 - [[99_Maps/Project_Map]]
 - [[99_Maps/Runtime_Map]]
 - [[99_Maps/Code_Map]]
+- [[99_Maps/File_Flows_Mermaid]]
 
 ## Основные разделы
 

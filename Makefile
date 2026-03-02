@@ -5,7 +5,7 @@ ROS_SETUP := /opt/ros/jazzy/setup.bash
 SRC_PY_PATH := $(shell find $(PWD)/ros2_ws/src -mindepth 1 -maxdepth 1 -type d | tr '\n' ':')
 ARCHVIZ := ./archviz
 
-.PHONY: setup build test test-unit test-ros test-colcon run live-sample bench report arch-static arch-runtime arch arch-diff lint format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
+.PHONY: setup build test test-unit test-ros test-colcon run live-sample bench report web-gui arch-static arch-runtime arch arch-diff lint format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
 
 setup:
 	bash scripts/setup_env.sh
@@ -35,6 +35,9 @@ bench:
 
 report:
 	bash -lc "source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(SRC_PY_PATH) $(PY) scripts/generate_report.py --input results/benchmark_results.json --output results/report.md"
+
+web-gui:
+	bash web_gui/run_web_gui.sh
 
 arch-static:
 	bash -lc "source $(VENV)/bin/activate && $(ARCHVIZ) static --ws ros2_ws --out docs/arch"

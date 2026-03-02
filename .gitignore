@@ -26,7 +26,15 @@ results/*.json
 results/*.md
 results/*.html
 results/plots/*.png
+results/web_gui/
 dist/
+
+# Web GUI runtime artifacts
+web_gui/runtime_configs/
+web_gui/uploads/
+web_gui/noisy/
+web_gui/logs/
+web_gui/profiles/
 
 # Secrets
 .env
