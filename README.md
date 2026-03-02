@@ -19,6 +19,7 @@ Production-oriented modular ASR integration for ROS2 (Ubuntu 24.04, Jazzy, Pytho
 - `docs/` architecture, interfaces, benchmark methodology, reproducibility, cloud setup.
 - `docs/newbie_guide.md` plain-language "how it works" map for first-time readers.
 - `docs/run_guide.md` step-by-step launch/runbook (live mic, topics, tests, troubleshooting).
+- `docs/wiki/` Obsidian-ready wiki network (modular pages + cross-links).
 - `configs/` YAML configs and cloud example config.
 - `data/sample` sample WAV files and transcripts.
 - `ros2_ws/src/` ROS2 packages.
@@ -35,6 +36,7 @@ make test-ros
 make test-colcon
 make test
 make run
+make live-sample
 make bench
 make report
 make arch
@@ -43,6 +45,48 @@ bash scripts/release_check.sh
 
 `make bench` runs the benchmark runner and generates `results/*.csv`, `results/*.json`,
 and `results/plots/*.png` in a single pass (no duplicate plotting step).
+
+## Obsidian Wiki
+
+Project wiki vault is available in `docs/wiki`.
+
+Open `docs/wiki` as an Obsidian vault and start from:
+
+- `docs/wiki/00_Start/Wiki_Home.md`
+
+## Docsbot (Auto Obsidian Wiki)
+
+Autonomous wiki generator/updater is available in `tools/docsbot`.
+It auto-detects repo root and Obsidian vault (priority includes `~/Desktop`), then writes all generated content into one vault subfolder `Wiki-ASR`.
+
+Quick commands:
+
+```bash
+make docsbot-detect
+make docsbot-snapshot
+make docsbot-generate
+make docsbot-validate
+make docsbot-watch
+make docsbot-install-hooks
+```
+
+Direct CLI (from tool venv):
+
+```bash
+tools/docsbot/.venv/bin/docsbot detect
+tools/docsbot/.venv/bin/docsbot generate
+tools/docsbot/.venv/bin/docsbot validate
+tools/docsbot/.venv/bin/docsbot watch
+```
+
+Generated structure in vault subfolder:
+
+- `00_Home.md`
+- `01_Project/Overview.md`, `01_Project/Glossary.md`
+- `02_Architecture/Layered Architecture.md`, `Dataflow.md`, `ROS Graph.md`, `Module Map.md`
+- `03_API/{Services,Topics,Messages,Parameters}/...`
+- `04_Modules/<module>/<module>.md`
+- `90_Auto/_Index.md`, `_Changelog.md`, `_Errors.md`, `_Generated Graph.md`
 
 ## Release Build
 
@@ -142,13 +186,13 @@ Where to view recognized text:
 ```bash
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
-ros2 topic echo /asr/text --qos-durability transient_local
+ros2 topic echo /asr/text/plain --qos-durability transient_local
 ```
 
 If your DDS reports QoS incompatibility, use:
 
 ```bash
-ros2 topic echo /asr/text --once --qos-durability transient_local --qos-reliability reliable
+ros2 topic echo /asr/text/plain --once --qos-durability transient_local --qos-reliability reliable
 ```
 
 Optional telemetry view:
@@ -158,10 +202,53 @@ ros2 topic echo /asr/metrics
 ```
 
 Notes:
+- `asr_text_output_node` is started in bringup by default and republishes plain text to `/asr/text/plain`.
+- Structured result message remains available on `/asr/text`.
 - `input_mode:=mic` records from microphone; if microphone is unavailable, `audio_capture_node` falls back to file mode.
 - Microphone mode is continuous by default; new recognition results are published repeatedly while you speak.
 - For deterministic/local smoke checks without ML models, switch to mock backend:
   `ros2 service call /asr/set_backend asr_interfaces/srv/SetAsrBackend "{backend: mock, model: '', region: ''}"`.
+
+## Live Sample Evaluation (Record + Compare Interfaces)
+
+Record one microphone sample and run it through selected interfaces/backends
+with metrics collection:
+
+Interactive mode (record first, then choose language mode and model runs):
+
+```bash
+bash scripts/run_live_sample_eval.sh
+```
+
+Direct non-interactive example:
+
+```bash
+bash scripts/run_live_sample_eval.sh \
+  --interfaces core,ros_service,ros_action \
+  --model-runs whisper:tiny,whisper:large-v3,mock \
+  --language-mode auto \
+  --ros-auto-launch \
+  --reference-text "hello world"
+```
+
+Artifacts are written to `results/live_sample/<timestamp>/`:
+
+- recorded wav (`live_sample.wav`)
+- `live_results.json`
+- `live_results.csv`
+- `summary.md`
+- `plots/*.png`
+
+Useful options:
+
+- `--interfaces core,ros_service,ros_action`
+- `--backends mock,vosk,whisper,google,aws,azure`
+- `--model-runs whisper:tiny,whisper:large-v3,mock`
+- `--record-sec 5.0`
+- `--language-mode manual|auto|config`
+- `--language en-US`
+- `--use-wav /path/to/existing.wav`
+- `--action-streaming`
 
 ## Cloud Credentials
 

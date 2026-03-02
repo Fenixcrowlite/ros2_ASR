@@ -24,3 +24,9 @@ def test_metrics_collector_record() -> None:
     assert rec.cer == 0.0
     assert rec.latency_ms == 22.0
     assert rec.rtf > 0.0
+
+
+def test_metrics_collector_estimate_cost_uses_base_backend() -> None:
+    collector = MetricsCollector(pricing_per_minute={"whisper": 0.2})
+    # 30 sec with 0.2/minute -> 0.1
+    assert collector.estimate_cost("whisper:large-v3", 30.0) == 0.1

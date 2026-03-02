@@ -43,7 +43,7 @@ make test-unit
 Скрипт откроет 2 окна:
 
 1. `ASR Recognition` — запуск `bringup.launch.py`.
-2. `ASR Text Topic` — `ros2 topic echo /asr/text`.
+2. `ASR Text Topic` — `ros2 topic echo /asr/text/plain`.
 
 По умолчанию используется конфиг `configs/live_mic_whisper.yaml`.
 
@@ -66,7 +66,7 @@ ros2 launch asr_ros bringup.launch.py config:=configs/live_mic_whisper.yaml inpu
 cd /home/fenix/Desktop/ros2ws
 source /opt/ros/jazzy/setup.bash
 source install/setup.bash
-ros2 topic echo /asr/text --qos-durability transient_local --qos-reliability reliable
+ros2 topic echo /asr/text/plain --qos-durability transient_local --qos-reliability reliable
 ```
 
 Терминал 3 (метрики, опционально):
@@ -80,7 +80,8 @@ ros2 topic echo /asr/metrics
 
 ## 5. Где смотреть результат
 
-- Основной текст: `/asr/text`
+- Основной plain-text: `/asr/text/plain` (отдельная нода `asr_text_output_node`)
+- Структурный результат: `/asr/text`
 - Метрики: `/asr/metrics`
 - One-shot сервис: `/asr/recognize_once`
 
@@ -112,7 +113,51 @@ make bench
 make report
 ```
 
-## 8. Архитектурные диаграммы
+## 8. Запись live-семпла и прогон по выбранным интерфейсам
+
+Интерактивный режим (запись, затем выбор языка и моделей):
+
+```bash
+bash scripts/run_live_sample_eval.sh
+```
+
+Non-interactive режим:
+
+```bash
+bash scripts/run_live_sample_eval.sh \
+  --interfaces core,ros_service,ros_action \
+  --model-runs whisper:tiny,whisper:large-v3,mock \
+  --language-mode auto \
+  --ros-auto-launch \
+  --reference-text "hello world"
+```
+
+Что делает:
+
+1. Пишет микрофон в WAV.
+2. Прогоняет один и тот же WAV через выбранные интерфейсы:
+   - `core`
+   - `ros_service`
+   - `ros_action`
+3. Для каждого прогона сохраняет метрики.
+
+Артефакты:
+
+- `results/live_sample/<timestamp>/live_results.csv`
+- `results/live_sample/<timestamp>/live_results.json`
+- `results/live_sample/<timestamp>/summary.md`
+- `results/live_sample/<timestamp>/plots/*.png`
+
+Полезные флаги:
+
+- `--record-sec 5.0`
+- `--model-runs whisper:tiny,whisper:large-v3,mock`
+- `--language-mode manual|auto|config`
+- `--language ru-RU`
+- `--use-wav /path/to/file.wav`
+- `--action-streaming`
+
+## 9. Архитектурные диаграммы
 
 ```bash
 make arch
@@ -126,7 +171,7 @@ make arch
 - `mindmap.mmd`, `flow.mmd`, `seq_recognize_once.mmd`
 - `CHANGELOG_ARCH.md`
 
-## 9. Типовые проблемы
+## 10. Типовые проблемы
 
 ### 9.1 `libcublas.so.12 is not found`
 
@@ -135,12 +180,13 @@ make arch
 1. В `configs/live_mic_whisper.yaml` сменить `device: cuda` на `device: cpu`.
 2. Перезапустить `bringup.launch.py`.
 
-### 9.2 В `/asr/text` пусто
+### 9.2 В `/asr/text/plain` пусто
 
 Проверь:
 
 - в первом терминале есть логи `Live transcription published`;
 - совпадает QoS (`--qos-durability transient_local --qos-reliability reliable`);
+- в `ros2 node list` есть `asr_text_output_node`;
 - микрофон доступен (иначе узел уйдёт в file fallback).
 
 ### 9.3 Распознавание "галлюцинирует" на тишине
@@ -153,7 +199,7 @@ make arch
 
 Если всё ещё шумно, увеличь `no_speech_threshold` (например до `0.8`).
 
-## 10. Остановка
+## 11. Остановка
 
 - Закрой терминалы с `ros2 launch` / `ros2 topic echo`.
 - Либо нажми `Ctrl+C` в каждом активном ROS2 процессе.

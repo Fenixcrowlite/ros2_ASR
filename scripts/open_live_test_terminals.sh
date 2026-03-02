@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Opens two terminals for live ASR testing:
 # 1) ASR pipeline launch (mic/file -> backend -> topics)
-# 2) Topic echo for recognized text (/asr/text)
+# 2) Topic echo for plain recognized text (/asr/text/plain)
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
@@ -36,7 +36,7 @@ if ! command -v gnome-terminal >/dev/null 2>&1; then
   echo "ERROR: gnome-terminal is not installed."
   echo "Run these two commands manually in separate terminals:"
   echo "  1) ros2 launch asr_ros bringup.launch.py config:=$CONFIG input_mode:=$INPUT_MODE continuous:=$CONTINUOUS mic_capture_sec:=$MIC_CAPTURE_SEC"
-  echo "  2) ros2 topic echo /asr/text --qos-durability transient_local --qos-reliability reliable"
+  echo "  2) ros2 topic echo /asr/text/plain --qos-durability transient_local --qos-reliability reliable"
   exit 1
 fi
 
@@ -67,7 +67,7 @@ RECOGNITION_CMD="$COMMON_SETUP
 ros2 launch asr_ros bringup.launch.py config:=\"$CONFIG\" input_mode:=\"$INPUT_MODE\" continuous:=\"$CONTINUOUS\" mic_capture_sec:=\"$MIC_CAPTURE_SEC\""
 
 TOPIC_CMD="$COMMON_SETUP
-ros2 topic echo /asr/text --qos-durability transient_local --qos-reliability reliable"
+ros2 topic echo /asr/text/plain --qos-durability transient_local --qos-reliability reliable"
 
 if [ "$DRY_RUN" = "true" ]; then
   echo "===== Terminal 1 (recognition) ====="

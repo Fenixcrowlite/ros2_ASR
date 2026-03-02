@@ -29,6 +29,7 @@ setup(
         "console_scripts": [
             "asr_server_node = asr_ros.asr_server_node:main",
             "audio_capture_node = asr_ros.audio_capture_node:main",
+            "asr_text_output_node = asr_ros.asr_text_output_node:main",
         ],
     },
 )

@@ -1,5 +1,6 @@
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
+from launch.conditions import IfCondition
 from launch.substitutions import LaunchConfiguration
 from launch_ros.actions import Node
 
@@ -17,6 +18,7 @@ def generate_launch_description() -> LaunchDescription:
     mic_capture_sec_arg = DeclareLaunchArgument("mic_capture_sec", default_value="4.0")
     live_enabled_arg = DeclareLaunchArgument("live_stream_enabled", default_value="true")
     live_flush_arg = DeclareLaunchArgument("live_flush_timeout_sec", default_value="1.0")
+    text_output_enabled_arg = DeclareLaunchArgument("text_output_enabled", default_value="true")
 
     # ASR server node: service/action/topics + live chunk subscriber.
     asr_server = Node(
@@ -49,6 +51,14 @@ def generate_launch_description() -> LaunchDescription:
         ],
     )
 
+    text_output = Node(
+        package="asr_ros",
+        executable="asr_text_output_node",
+        name="asr_text_output_node",
+        output="screen",
+        condition=IfCondition(LaunchConfiguration("text_output_enabled")),
+    )
+
     return LaunchDescription(
         [
             config_arg,
@@ -61,7 +71,9 @@ def generate_launch_description() -> LaunchDescription:
             mic_capture_sec_arg,
             live_enabled_arg,
             live_flush_arg,
+            text_output_enabled_arg,
             asr_server,
             audio_capture,
+            text_output,
         ]
     )

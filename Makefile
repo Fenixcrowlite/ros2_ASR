@@ -5,7 +5,7 @@ ROS_SETUP := /opt/ros/jazzy/setup.bash
 SRC_PY_PATH := $(shell find $(PWD)/ros2_ws/src -mindepth 1 -maxdepth 1 -type d | tr '\n' ':')
 ARCHVIZ := ./archviz
 
-.PHONY: setup build test test-unit test-ros test-colcon run bench report arch-static arch-runtime arch arch-diff lint format clean dist
+.PHONY: setup build test test-unit test-ros test-colcon run live-sample bench report arch-static arch-runtime arch arch-diff lint format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
 
 setup:
 	bash scripts/setup_env.sh
@@ -26,6 +26,9 @@ test: test-unit test-ros test-colcon
 
 run:
 	bash scripts/run_demo.sh
+
+live-sample:
+	bash scripts/run_live_sample_eval.sh
 
 bench:
 	bash scripts/run_benchmarks.sh
@@ -65,3 +68,24 @@ dist:
 	bash scripts/release_check.sh
 	bash scripts/secret_scan.sh
 	bash scripts/make_dist.sh
+
+docsbot-setup:
+	bash tools/docsbot/scripts/run_docsbot.sh detect > /dev/null || true
+
+docsbot-detect:
+	bash tools/docsbot/scripts/run_docsbot.sh detect --repo-root $(PWD)
+
+docsbot-snapshot:
+	bash tools/docsbot/scripts/run_docsbot.sh snapshot --repo-root $(PWD)
+
+docsbot-generate:
+	bash tools/docsbot/scripts/run_docsbot.sh generate --repo-root $(PWD)
+
+docsbot-validate:
+	bash tools/docsbot/scripts/run_docsbot.sh validate --repo-root $(PWD)
+
+docsbot-watch:
+	bash tools/docsbot/scripts/run_docsbot.sh watch --repo-root $(PWD)
+
+docsbot-install-hooks:
+	bash tools/docsbot/scripts/run_docsbot.sh install-hooks --repo-root $(PWD)

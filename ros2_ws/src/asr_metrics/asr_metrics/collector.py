@@ -24,7 +24,10 @@ class MetricsCollector:
 
     def estimate_cost(self, backend: str, audio_duration_sec: float) -> float:
         """Estimate request cost using configured price-per-minute."""
-        ppm = self.pricing_per_minute.get(backend, 0.0)
+        ppm = self.pricing_per_minute.get(backend)
+        if ppm is None:
+            base = backend.split(":", 1)[0].split("@", 1)[0]
+            ppm = self.pricing_per_minute.get(base, 0.0)
         return (audio_duration_sec / 60.0) * ppm
 
     @staticmethod
