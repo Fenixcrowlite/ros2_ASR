@@ -19,6 +19,7 @@ import rclpy
 from asr_core.audio import wav_pcm_chunks
 from asr_core.config import load_runtime_config
 from asr_core.factory import create_backend
+from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse
 from asr_interfaces.action import Transcribe
 from asr_interfaces.msg import AsrMetrics, AsrResult
@@ -62,6 +63,7 @@ class AsrServerNode(Node):
             self.get_parameter("language").value
             or self.runtime_cfg.get("asr", {}).get("language", "en-US")
         )
+        self.language = normalize_language_code(self.language, fallback="en-US")
         self.model = str(
             self.get_parameter("model").value or self.runtime_cfg.get("asr", {}).get("model", "")
         )
@@ -264,7 +266,7 @@ class AsrServerNode(Node):
         wav_path = request.wav_path or self.runtime_cfg.get("asr", {}).get("wav_path", "")
         req = AsrRequest(
             wav_path=wav_path,
-            language=request.language or self.language,
+            language=normalize_language_code(request.language or self.language, fallback=self.language),
             enable_word_timestamps=bool(request.enable_word_timestamps),
         )
         with self.lock:
@@ -317,7 +319,7 @@ class AsrServerNode(Node):
         """
         goal = goal_handle.request
         wav_path = goal.wav_path
-        language = goal.language or self.language
+        language = normalize_language_code(goal.language or self.language, fallback=self.language)
         chunk_sec = goal.chunk_sec if goal.chunk_sec > 0 else self.chunk_sec
 
         if not wav_path or not Path(wav_path).exists():

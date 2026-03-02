@@ -2,6 +2,7 @@
 
 from asr_core.backend import AsrBackend
 from asr_core.factory import create_backend
+from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabilities, WordTimestamp
 
 __all__ = [
@@ -12,4 +13,5 @@ __all__ = [
     "BackendCapabilities",
     "WordTimestamp",
     "create_backend",
+    "normalize_language_code",
 ]

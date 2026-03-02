@@ -12,6 +12,7 @@ from asr_core.audio import wav_duration_sec, wav_info
 from asr_core.backend import AsrBackend
 from asr_core.config import env_or
 from asr_core.factory import register_backend
+from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabilities, WordTimestamp
 
 
@@ -84,6 +85,7 @@ class GoogleAsrBackend(AsrBackend):
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
         """Run one-shot Google recognition and normalize fields."""
         preprocess_start = time.perf_counter()
+        language = normalize_language_code(request.language, fallback="en-US")
         if not self.credentials:
             return AsrResponse(
                 success=False,
@@ -93,7 +95,7 @@ class GoogleAsrBackend(AsrBackend):
                     "backends.google.credentials_json."
                 ),
                 backend_info={"provider": "google", "model": self.model, "region": self.region},
-                language=request.language,
+                language=language,
             )
         if not Path(self.credentials).exists():
             return AsrResponse(
@@ -101,7 +103,7 @@ class GoogleAsrBackend(AsrBackend):
                 error_code="config_missing",
                 error_message=f"Google credentials file not found: {self.credentials}",
                 backend_info={"provider": "google", "model": self.model, "region": self.region},
-                language=request.language,
+                language=language,
             )
         if not self._load_client():
             return AsrResponse(
@@ -109,7 +111,7 @@ class GoogleAsrBackend(AsrBackend):
                 error_code="client_init_error",
                 error_message="Unable to initialize google-cloud-speech client",
                 backend_info={"provider": "google", "model": self.model, "region": self.region},
-                language=request.language,
+                language=language,
             )
 
         tmp_wav: str | None = None
@@ -124,7 +126,7 @@ class GoogleAsrBackend(AsrBackend):
             config = self._speech.RecognitionConfig(
                 encoding=self._speech.RecognitionConfig.AudioEncoding.LINEAR16,
                 sample_rate_hertz=sample_rate,
-                language_code=request.language,
+                language_code=language,
                 enable_word_time_offsets=bool(request.enable_word_timestamps),
                 model=self.model,
             )
@@ -164,7 +166,7 @@ class GoogleAsrBackend(AsrBackend):
                 partials=[],
                 confidence=avg_conf,
                 word_timestamps=words if request.enable_word_timestamps else [],
-                language=request.language,
+                language=language,
                 backend_info={"provider": "google", "model": self.model, "region": self.region},
                 timings=AsrTimings(
                     preprocess_ms=preprocess_ms,
@@ -181,7 +183,7 @@ class GoogleAsrBackend(AsrBackend):
                 error_code="google_runtime_error",
                 error_message=str(exc),
                 backend_info={"provider": "google", "model": self.model, "region": self.region},
-                language=request.language,
+                language=language,
             )
         finally:
             if tmp_wav and Path(tmp_wav).exists():

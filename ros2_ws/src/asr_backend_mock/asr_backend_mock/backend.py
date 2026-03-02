@@ -9,6 +9,7 @@ from pathlib import Path
 from asr_core.audio import wav_duration_sec
 from asr_core.backend import AsrBackend
 from asr_core.factory import register_backend
+from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabilities, WordTimestamp
 
 
@@ -56,6 +57,7 @@ class MockAsrBackend(AsrBackend):
         """Return deterministic one-shot ASR response."""
         text = self._resolve_text(request)
         duration = self._duration(request)
+        language = normalize_language_code(request.language, fallback="en-US")
 
         start = time.perf_counter()
         time.sleep(self.latency_ms / 1000.0)
@@ -80,7 +82,7 @@ class MockAsrBackend(AsrBackend):
             partials=words[:-1] if len(words) > 1 else words,
             confidence=0.99,
             word_timestamps=wts if request.enable_word_timestamps else [],
-            language=request.language,
+            language=language,
             backend_info={"provider": "mock", "model": "deterministic", "region": "local"},
             timings=AsrTimings(preprocess_ms=1.0, inference_ms=inference_ms, postprocess_ms=1.0),
             audio_duration_sec=duration,
@@ -98,6 +100,7 @@ class MockAsrBackend(AsrBackend):
         chunks_list = list(chunks)
         partials = [f"partial_{i}" for i in range(1, len(chunks_list) + 1)]
         text = "streaming mock transcript"
+        normalized_language = normalize_language_code(language, fallback="en-US")
         duration = sum(len(c) for c in chunks_list) / float(max(sample_rate * 2, 1))
         time.sleep(self.latency_ms / 1000.0)
         return AsrResponse(
@@ -105,7 +108,7 @@ class MockAsrBackend(AsrBackend):
             partials=partials,
             confidence=0.98,
             word_timestamps=[],
-            language=language,
+            language=normalized_language,
             backend_info={"provider": "mock", "model": "deterministic", "region": "local"},
             timings=AsrTimings(preprocess_ms=1.0, inference_ms=self.latency_ms, postprocess_ms=1.0),
             audio_duration_sec=duration,

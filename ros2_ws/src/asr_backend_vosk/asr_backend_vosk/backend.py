@@ -15,6 +15,7 @@ from typing import Any
 from asr_core.audio import wav_duration_sec
 from asr_core.backend import AsrBackend
 from asr_core.factory import register_backend
+from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabilities, WordTimestamp
 
 
@@ -72,13 +73,14 @@ class VoskAsrBackend(AsrBackend):
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
         """Run full-file recognition with Vosk KaldiRecognizer."""
         preprocess_start = time.perf_counter()
+        language = normalize_language_code(request.language, fallback="en-US")
         if not self._load_vosk():
             return AsrResponse(
                 success=False,
                 error_code="vosk_model_missing",
                 error_message="Vosk model is not configured or failed to load",
                 backend_info={"provider": "vosk", "model": str(self.model_path), "region": "local"},
-                language=request.language,
+                language=language,
             )
 
         wav_path = ""
@@ -100,7 +102,7 @@ class VoskAsrBackend(AsrBackend):
                             "model": str(self.model_path),
                             "region": "local",
                         },
-                        language=request.language,
+                        language=language,
                     )
                 sample_rate = wf.getframerate()
                 rec = self._vosk_module.KaldiRecognizer(self._model, sample_rate)
@@ -141,7 +143,7 @@ class VoskAsrBackend(AsrBackend):
                 partials=partials,
                 confidence=avg_conf,
                 word_timestamps=words if request.enable_word_timestamps else [],
-                language=request.language,
+                language=language,
                 backend_info={"provider": "vosk", "model": str(self.model_path), "region": "local"},
                 timings=AsrTimings(
                     preprocess_ms=preprocess_ms,
@@ -157,7 +159,7 @@ class VoskAsrBackend(AsrBackend):
                 error_code="vosk_runtime_error",
                 error_message=str(exc),
                 backend_info={"provider": "vosk", "model": str(self.model_path), "region": "local"},
-                language=request.language,
+                language=language,
             )
         finally:
             if cleanup and wav_path and Path(wav_path).exists():
@@ -171,13 +173,14 @@ class VoskAsrBackend(AsrBackend):
         sample_rate: int,
     ) -> AsrResponse:
         """Run native chunk-by-chunk recognition and aggregate partials."""
+        normalized_language = normalize_language_code(language, fallback="en-US")
         if not self._load_vosk():
             return AsrResponse(
                 success=False,
                 error_code="vosk_model_missing",
                 error_message="Vosk model is not configured or failed to load",
                 backend_info={"provider": "vosk", "model": str(self.model_path), "region": "local"},
-                language=language,
+                language=normalized_language,
             )
         start = time.perf_counter()
         rec = self._vosk_module.KaldiRecognizer(self._model, sample_rate)
@@ -210,7 +213,7 @@ class VoskAsrBackend(AsrBackend):
             partials=partials,
             confidence=avg_conf,
             word_timestamps=words,
-            language=language,
+            language=normalized_language,
             backend_info={"provider": "vosk", "model": str(self.model_path), "region": "local"},
             timings=AsrTimings(preprocess_ms=0.0, inference_ms=elapsed_ms, postprocess_ms=1.0),
             audio_duration_sec=duration,

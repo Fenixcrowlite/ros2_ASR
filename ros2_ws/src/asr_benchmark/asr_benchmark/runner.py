@@ -13,6 +13,7 @@ from pathlib import Path
 from asr_core.audio import wav_pcm_chunks
 from asr_core.config import load_runtime_config
 from asr_core.factory import create_backend
+from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse
 from asr_metrics.collector import MetricsCollector
 from asr_metrics.io import save_benchmark_csv, save_benchmark_json
@@ -49,13 +50,17 @@ def _run_single(
     wav_path, temp_files = _scenario_wav(item, scenario)
     try:
         response = backend.recognize_once(
-            AsrRequest(wav_path=wav_path, language=item.language, enable_word_timestamps=True)
+            AsrRequest(
+                wav_path=wav_path,
+                language=normalize_language_code(item.language, fallback="en-US"),
+                enable_word_timestamps=True,
+            )
         )
         return collector.record(
             backend=backend_name,
             scenario=scenario,
             wav_path=item.wav_path,
-            language=item.language,
+            language=normalize_language_code(item.language, fallback="en-US"),
             reference_text=item.transcript,
             response=response,
             request_id=str(uuid.uuid4()),
@@ -77,14 +82,14 @@ def _run_streaming_sim(
     sample_rate = 16000
     response: AsrResponse = backend.streaming_recognize(
         chunks,
-        language=item.language,
+        language=normalize_language_code(item.language, fallback="en-US"),
         sample_rate=sample_rate,
     )
     return collector.record(
         backend=backend_name,
         scenario="streaming_sim",
         wav_path=item.wav_path,
-        language=item.language,
+        language=normalize_language_code(item.language, fallback="en-US"),
         reference_text=item.transcript,
         response=response,
         request_id=str(uuid.uuid4()),

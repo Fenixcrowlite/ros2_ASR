@@ -12,6 +12,7 @@ from typing import Any
 from asr_core.audio import wav_duration_sec
 from asr_core.backend import AsrBackend
 from asr_core.factory import register_backend
+from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabilities, WordTimestamp
 
 
@@ -134,6 +135,7 @@ class WhisperAsrBackend(AsrBackend):
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
         """Run one-shot transcription and normalize into unified response."""
         preprocess_start = time.perf_counter()
+        language = normalize_language_code(request.language, fallback="en-US")
         if not self._load_model():
             message = "Unable to load faster-whisper model"
             if self._load_error:
@@ -149,7 +151,7 @@ class WhisperAsrBackend(AsrBackend):
                     "compute_device": str(self.device),
                     "compute_type": str(self.compute_type),
                 },
-                language=request.language,
+                language=language,
             )
 
         wav_path = ""
@@ -157,7 +159,7 @@ class WhisperAsrBackend(AsrBackend):
         try:
             wav_path, cleanup = self._request_to_wav_path(request)
             preprocess_ms = (time.perf_counter() - preprocess_start) * 1000.0
-            lang_code = (request.language or "en").split("-")[0]
+            lang_code = (language or "en").split("-")[0]
             inference_start = time.perf_counter()
             segments, _ = self._model.transcribe(
                 wav_path,
@@ -199,7 +201,7 @@ class WhisperAsrBackend(AsrBackend):
                 partials=[],
                 confidence=avg_conf,
                 word_timestamps=words if request.enable_word_timestamps else [],
-                language=request.language,
+                language=language,
                 backend_info={
                     "provider": "whisper",
                     "model": self.model_size,
@@ -230,7 +232,7 @@ class WhisperAsrBackend(AsrBackend):
                     "compute_device": str(self.device),
                     "compute_type": str(self.compute_type),
                 },
-                language=request.language,
+                language=language,
             )
         finally:
             if cleanup and wav_path and Path(wav_path).exists():
@@ -244,6 +246,10 @@ class WhisperAsrBackend(AsrBackend):
         sample_rate: int,
     ) -> AsrResponse:
         """Use generic base fallback for simulated streaming."""
-        result = super().streaming_recognize(chunks, language=language, sample_rate=sample_rate)
+        result = super().streaming_recognize(
+            chunks,
+            language=normalize_language_code(language, fallback="en-US"),
+            sample_rate=sample_rate,
+        )
         result.backend_info["streaming_fallback"] = "true"
         return result

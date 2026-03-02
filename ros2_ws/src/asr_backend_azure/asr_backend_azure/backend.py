@@ -13,6 +13,7 @@ from asr_core.audio import wav_duration_sec
 from asr_core.backend import AsrBackend
 from asr_core.config import env_or
 from asr_core.factory import register_backend
+from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabilities, WordTimestamp
 
 
@@ -72,6 +73,7 @@ class AzureAsrBackend(AsrBackend):
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
         """Run one-shot Azure recognition and parse detailed JSON output."""
         preprocess_start = time.perf_counter()
+        language = normalize_language_code(request.language, fallback="en-US")
         if not self.key:
             return AsrResponse(
                 success=False,
@@ -80,7 +82,7 @@ class AzureAsrBackend(AsrBackend):
                     "Missing Azure key. Set AZURE_SPEECH_KEY or backends.azure.speech_key."
                 ),
                 backend_info={"provider": "azure", "model": "speech", "region": self.region},
-                language=request.language,
+                language=language,
             )
         if not self.region:
             return AsrResponse(
@@ -90,7 +92,7 @@ class AzureAsrBackend(AsrBackend):
                     "Missing Azure region. Set AZURE_SPEECH_REGION or backends.azure.region."
                 ),
                 backend_info={"provider": "azure", "model": "speech", "region": ""},
-                language=request.language,
+                language=language,
             )
         if not self._load_sdk():
             return AsrResponse(
@@ -98,7 +100,7 @@ class AzureAsrBackend(AsrBackend):
                 error_code="client_init_error",
                 error_message="Unable to initialize Azure speech SDK",
                 backend_info={"provider": "azure", "model": "speech", "region": self.region},
-                language=request.language,
+                language=language,
             )
 
         tmp_file: str | None = None
@@ -111,7 +113,7 @@ class AzureAsrBackend(AsrBackend):
             speech_config = self._speechsdk.SpeechConfig(subscription=self.key, region=self.region)
             if self.endpoint:
                 speech_config.endpoint_id = self.endpoint
-            speech_config.speech_recognition_language = request.language or "en-US"
+            speech_config.speech_recognition_language = language or "en-US"
             speech_config.output_format = self._speechsdk.OutputFormat.Detailed
             speech_config.request_word_level_timestamps()
 
@@ -131,7 +133,7 @@ class AzureAsrBackend(AsrBackend):
                     error_code="no_match",
                     error_message="Azure returned no match",
                     backend_info={"provider": "azure", "model": "speech", "region": self.region},
-                    language=request.language,
+                    language=language,
                 )
             if result.reason == self._speechsdk.ResultReason.Canceled:
                 details = self._speechsdk.CancellationDetails.from_result(result)
@@ -140,7 +142,7 @@ class AzureAsrBackend(AsrBackend):
                     error_code="azure_canceled",
                     error_message=details.error_details,
                     backend_info={"provider": "azure", "model": "speech", "region": self.region},
-                    language=request.language,
+                    language=language,
                 )
 
             detailed_json = result.properties.get(
@@ -172,7 +174,7 @@ class AzureAsrBackend(AsrBackend):
                 partials=[],
                 confidence=confidence,
                 word_timestamps=words if request.enable_word_timestamps else [],
-                language=request.language,
+                language=language,
                 backend_info={"provider": "azure", "model": "speech", "region": self.region},
                 timings=AsrTimings(
                     preprocess_ms=preprocess_ms,
@@ -188,7 +190,7 @@ class AzureAsrBackend(AsrBackend):
                 error_code="azure_runtime_error",
                 error_message=str(exc),
                 backend_info={"provider": "azure", "model": "speech", "region": self.region},
-                language=request.language,
+                language=language,
             )
         finally:
             if tmp_file and Path(tmp_file).exists():

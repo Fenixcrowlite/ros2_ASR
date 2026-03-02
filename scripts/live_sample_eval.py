@@ -32,6 +32,7 @@ for package_root in SRC_ROOT.iterdir():
 
 from asr_core.config import load_runtime_config  # noqa: E402
 from asr_core.factory import create_backend  # noqa: E402
+from asr_core.language import normalize_language_code as core_normalize_language_code  # noqa: E402
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings, WordTimestamp  # noqa: E402
 from asr_metrics.collector import MetricsCollector  # noqa: E402
 from asr_metrics.io import save_benchmark_csv, save_benchmark_json  # noqa: E402
@@ -40,26 +41,6 @@ from asr_metrics.plotting import generate_all_plots  # noqa: E402
 
 KNOWN_BACKENDS = {"mock", "vosk", "whisper", "google", "aws", "azure"}
 AUTO_LANGUAGE_VALUES = {"auto", "detect", "auto-detect"}
-LANGUAGE_CODE_MAP = {
-    "ar": "ar-SA",
-    "cs": "cs-CZ",
-    "de": "de-DE",
-    "en": "en-US",
-    "es": "es-ES",
-    "fr": "fr-FR",
-    "hi": "hi-IN",
-    "it": "it-IT",
-    "ja": "ja-JP",
-    "ko": "ko-KR",
-    "nl": "nl-NL",
-    "pl": "pl-PL",
-    "pt": "pt-PT",
-    "ru": "ru-RU",
-    "sk": "sk-SK",
-    "tr": "tr-TR",
-    "uk": "uk-UA",
-    "zh": "zh-CN",
-}
 
 
 def parse_csv_values(raw: str) -> list[str]:
@@ -156,16 +137,7 @@ def normalize_language_code(raw: str, fallback: str) -> str:
     lowered = value.lower()
     if lowered in AUTO_LANGUAGE_VALUES:
         return fallback
-    if "-" in value:
-        prefix, suffix = value.split("-", 1)
-        return f"{prefix.lower()}-{suffix.upper()}"
-
-    mapped = LANGUAGE_CODE_MAP.get(lowered)
-    if mapped:
-        return mapped
-    if fallback.lower().startswith(f"{lowered}-"):
-        return fallback
-    return value
+    return core_normalize_language_code(value, fallback=fallback)
 
 
 def detect_language(cfg: dict[str, Any], override: str) -> str:

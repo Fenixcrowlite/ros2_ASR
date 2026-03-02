@@ -15,6 +15,7 @@ from asr_core.audio import wav_duration_sec
 from asr_core.backend import AsrBackend
 from asr_core.config import as_bool, env_or
 from asr_core.factory import register_backend
+from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabilities, WordTimestamp
 
 LOGGER = logging.getLogger(__name__)
@@ -128,13 +129,14 @@ class AwsAsrBackend(AsrBackend):
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
         """Run end-to-end AWS transcription job and normalize response."""
         preprocess_start = time.perf_counter()
+        language = normalize_language_code(request.language, fallback="en-US")
         if not self.region:
             return AsrResponse(
                 success=False,
                 error_code="config_missing",
                 error_message="Missing AWS region. Set AWS_REGION or backends.aws.region.",
                 backend_info={"provider": "aws", "model": "transcribe", "region": ""},
-                language=request.language,
+                language=language,
             )
         if not self.has_credentials():
             return AsrResponse(
@@ -145,7 +147,7 @@ class AwsAsrBackend(AsrBackend):
                     "AWS_SECRET_ACCESS_KEY."
                 ),
                 backend_info={"provider": "aws", "model": "transcribe", "region": self.region},
-                language=request.language,
+                language=language,
             )
         if not self.s3_bucket:
             return AsrResponse(
@@ -153,7 +155,7 @@ class AwsAsrBackend(AsrBackend):
                 error_code="config_missing",
                 error_message="Missing S3 bucket. Set ASR_AWS_S3_BUCKET or backends.aws.s3_bucket.",
                 backend_info={"provider": "aws", "model": "transcribe", "region": self.region},
-                language=request.language,
+                language=language,
             )
 
         tmp_file: str | None = None
@@ -173,7 +175,7 @@ class AwsAsrBackend(AsrBackend):
             s3_client.upload_file(wav_path, self.s3_bucket, object_key)
             media_uri = f"s3://{self.s3_bucket}/{object_key}"
             job_name = f"asr-job-{uuid.uuid4().hex[:20]}"
-            language_code = request.language or "en-US"
+            language_code = language or "en-US"
 
             inf_start = time.perf_counter()
             transcribe_client.start_transcription_job(
@@ -280,7 +282,7 @@ class AwsAsrBackend(AsrBackend):
                 error_code="aws_runtime_error",
                 error_message=str(exc),
                 backend_info={"provider": "aws", "model": "transcribe", "region": self.region},
-                language=request.language,
+                language=language,
             )
         finally:
             self._cleanup_resources(
