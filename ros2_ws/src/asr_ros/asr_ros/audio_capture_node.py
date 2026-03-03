@@ -10,10 +10,62 @@ import queue
 import time
 import wave
 from pathlib import Path
+from typing import Any
 
 import rclpy
+from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.node import Node
 from std_msgs.msg import UInt8MultiArray
+
+
+def _coerce_int_param(
+    raw: Any,
+    *,
+    name: str,
+    default: int,
+    min_value: int,
+    logger: Any,
+) -> int:
+    try:
+        value = int(float(raw))
+    except (TypeError, ValueError):
+        logger.warning(
+            f"Invalid parameter '{name}={raw}', expected integer >= {min_value}. "
+            f"Using default {default}."
+        )
+        return default
+    if value < min_value:
+        logger.warning(
+            f"Out-of-range parameter '{name}={value}', expected >= {min_value}. "
+            f"Using default {default}."
+        )
+        return default
+    return value
+
+
+def _coerce_float_param(
+    raw: Any,
+    *,
+    name: str,
+    default: float,
+    min_value: float,
+    logger: Any,
+) -> float:
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        logger.warning(
+            f"Invalid parameter '{name}={raw}', expected float >= {min_value}. "
+            f"Using default {default}."
+        )
+        return default
+    if value < min_value:
+        logger.warning(
+            f"Out-of-range parameter '{name}={value}', expected >= {min_value}. "
+            f"Using default {default}."
+        )
+        return default
+    return value
 
 
 class AudioCaptureNode(Node):
@@ -21,27 +73,46 @@ class AudioCaptureNode(Node):
 
     def __init__(self) -> None:
         super().__init__("audio_capture_node")
+        numeric_descriptor = ParameterDescriptor(dynamic_typing=True)
         # Input parameters are intentionally simple for launch/YAML usage.
         self.declare_parameter("input_mode", "auto")
         self.declare_parameter("wav_path", "data/sample/en_hello.wav")
-        self.declare_parameter("sample_rate", 16000)
-        self.declare_parameter("chunk_ms", 800)
+        self.declare_parameter("sample_rate", 16000, descriptor=numeric_descriptor)
+        self.declare_parameter("chunk_ms", 800, descriptor=numeric_descriptor)
         self.declare_parameter("device", "")
         self.declare_parameter("continuous", True)
-        self.declare_parameter("mic_capture_sec", 4.0)
+        self.declare_parameter("mic_capture_sec", 4.0, descriptor=numeric_descriptor)
 
         self.publisher = self.create_publisher(UInt8MultiArray, "/asr/audio_chunks", 10)
         self.input_mode = str(self.get_parameter("input_mode").value)
         self.wav_path = str(self.get_parameter("wav_path").value)
-        self.sample_rate = int(self.get_parameter("sample_rate").value)
-        self.chunk_ms = int(self.get_parameter("chunk_ms").value)
+        self.sample_rate = _coerce_int_param(
+            self.get_parameter("sample_rate").value,
+            name="sample_rate",
+            default=16000,
+            min_value=8000,
+            logger=self.get_logger(),
+        )
+        self.chunk_ms = _coerce_int_param(
+            self.get_parameter("chunk_ms").value,
+            name="chunk_ms",
+            default=800,
+            min_value=1,
+            logger=self.get_logger(),
+        )
         self.device = str(self.get_parameter("device").value)
         continuous_raw = self.get_parameter("continuous").value
         if isinstance(continuous_raw, str):
             self.continuous = continuous_raw.lower() in {"1", "true", "yes", "on"}
         else:
             self.continuous = bool(continuous_raw)
-        self.mic_capture_sec = float(self.get_parameter("mic_capture_sec").value)
+        self.mic_capture_sec = _coerce_float_param(
+            self.get_parameter("mic_capture_sec").value,
+            name="mic_capture_sec",
+            default=4.0,
+            min_value=0.1,
+            logger=self.get_logger(),
+        )
 
         self._timer = self.create_timer(1.0, self._on_timer)
         self._published_once = False

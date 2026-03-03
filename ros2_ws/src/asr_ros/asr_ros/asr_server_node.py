@@ -26,6 +26,7 @@ from asr_interfaces.msg import AsrMetrics, AsrResult
 from asr_interfaces.srv import GetAsrStatus, RecognizeOnce, SetAsrBackend
 from asr_metrics.collector import MetricsCollector
 from asr_metrics.system import collect_cpu_ram, collect_gpu
+from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.action import ActionServer
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
@@ -34,21 +35,72 @@ from std_msgs.msg import UInt8MultiArray
 from asr_ros.converters import build_metrics_msg, to_asr_result_msg
 
 
+def _coerce_int_param(
+    raw: Any,
+    *,
+    name: str,
+    default: int,
+    min_value: int,
+    logger: Any,
+) -> int:
+    try:
+        value = int(float(raw))
+    except (TypeError, ValueError):
+        logger.warning(
+            f"Invalid parameter '{name}={raw}', expected integer >= {min_value}. "
+            f"Using default {default}."
+        )
+        return default
+    if value < min_value:
+        logger.warning(
+            f"Out-of-range parameter '{name}={value}', expected >= {min_value}. "
+            f"Using default {default}."
+        )
+        return default
+    return value
+
+
+def _coerce_float_param(
+    raw: Any,
+    *,
+    name: str,
+    default: float,
+    min_value: float,
+    logger: Any,
+) -> float:
+    try:
+        value = float(raw)
+    except (TypeError, ValueError):
+        logger.warning(
+            f"Invalid parameter '{name}={raw}', expected float >= {min_value}. "
+            f"Using default {default}."
+        )
+        return default
+    if value < min_value:
+        logger.warning(
+            f"Out-of-range parameter '{name}={value}', expected >= {min_value}. "
+            f"Using default {default}."
+        )
+        return default
+    return value
+
+
 class AsrServerNode(Node):
     """ROS2 server node that wraps provider-agnostic ASR core."""
 
     def __init__(self) -> None:
         super().__init__("asr_server_node")
+        numeric_descriptor = ParameterDescriptor(dynamic_typing=True)
         # Generic runtime parameters; empty values mean "take from YAML config".
         self.declare_parameter("config", "configs/default.yaml")
         self.declare_parameter("backend", "")
         self.declare_parameter("language", "")
         self.declare_parameter("model", "")
         self.declare_parameter("region", "")
-        self.declare_parameter("chunk_sec", 0.0)
-        self.declare_parameter("sample_rate", 0)
+        self.declare_parameter("chunk_sec", 0.0, descriptor=numeric_descriptor)
+        self.declare_parameter("sample_rate", 0, descriptor=numeric_descriptor)
         self.declare_parameter("live_stream_enabled", True)
-        self.declare_parameter("live_flush_timeout_sec", 1.0)
+        self.declare_parameter("live_flush_timeout_sec", 1.0, descriptor=numeric_descriptor)
 
         self.config_path = str(self.get_parameter("config").value)
         # Merge default config + optional local commercial overlay.
@@ -70,20 +122,48 @@ class AsrServerNode(Node):
         self.region = str(
             self.get_parameter("region").value or self.runtime_cfg.get("asr", {}).get("region", "")
         )
-        self.chunk_sec = float(
-            self.get_parameter("chunk_sec").value
-            or self.runtime_cfg.get("benchmark", {}).get("chunk_sec", 0.8)
+        chunk_cfg_default = _coerce_float_param(
+            self.runtime_cfg.get("benchmark", {}).get("chunk_sec", 0.8),
+            name="benchmark.chunk_sec",
+            default=0.8,
+            min_value=0.1,
+            logger=self.get_logger(),
         )
-        self.sample_rate = int(
-            self.get_parameter("sample_rate").value
-            or self.runtime_cfg.get("asr", {}).get("sample_rate", 16000)
+        chunk_param = _coerce_float_param(
+            self.get_parameter("chunk_sec").value,
+            name="chunk_sec",
+            default=0.0,
+            min_value=0.0,
+            logger=self.get_logger(),
         )
+        self.chunk_sec = chunk_param if chunk_param > 0 else chunk_cfg_default
+        sample_rate_cfg_default = _coerce_int_param(
+            self.runtime_cfg.get("asr", {}).get("sample_rate", 16000),
+            name="asr.sample_rate",
+            default=16000,
+            min_value=8000,
+            logger=self.get_logger(),
+        )
+        sample_rate_param = _coerce_int_param(
+            self.get_parameter("sample_rate").value,
+            name="sample_rate",
+            default=0,
+            min_value=0,
+            logger=self.get_logger(),
+        )
+        self.sample_rate = sample_rate_param if sample_rate_param > 0 else sample_rate_cfg_default
         live_raw = self.get_parameter("live_stream_enabled").value
         if isinstance(live_raw, str):
             self.live_stream_enabled = live_raw.lower() in {"1", "true", "yes", "on"}
         else:
             self.live_stream_enabled = bool(live_raw)
-        self.live_flush_timeout_sec = float(self.get_parameter("live_flush_timeout_sec").value)
+        self.live_flush_timeout_sec = _coerce_float_param(
+            self.get_parameter("live_flush_timeout_sec").value,
+            name="live_flush_timeout_sec",
+            default=1.0,
+            min_value=0.0,
+            logger=self.get_logger(),
+        )
         self._live_lock = threading.Lock()
         self._live_chunks: list[bytes] = []
         self._live_last_chunk_ts: float = 0.0

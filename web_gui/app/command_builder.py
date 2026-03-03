@@ -5,6 +5,7 @@ from __future__ import annotations
 import shlex
 from dataclasses import dataclass, field
 from datetime import datetime
+import math
 from pathlib import Path
 from typing import Any
 
@@ -22,6 +23,33 @@ class CommandSpec:
 
 def _quoted_cmd(parts: list[str]) -> str:
     return " ".join(shlex.quote(item) for item in parts)
+
+
+def _float_literal(value: Any, default: float) -> str:
+    """Return numeric literal with decimal point to keep ROS launch type DOUBLE."""
+    raw = default if value in {None, ""} else value
+    try:
+        numeric = float(raw)
+    except (TypeError, ValueError):
+        numeric = float(default)
+    if not math.isfinite(numeric):
+        numeric = float(default)
+    text = str(numeric)
+    if "." in text or "e" in text.lower():
+        return text
+    return f"{text}.0"
+
+
+def _int_literal(value: Any, default: int) -> str:
+    """Return integer literal for CLI/launch args that expect INT values."""
+    raw = default if value in {None, ""} else value
+    try:
+        numeric = float(raw)
+        if not math.isfinite(numeric):
+            raise ValueError("non-finite integer literal")
+    except (TypeError, ValueError):
+        numeric = float(default)
+    return str(int(numeric))
 
 
 def _shell_preamble(*, include_ros: bool) -> str:
@@ -48,6 +76,7 @@ def _shell_preamble(*, include_ros: bool) -> str:
 
 def build_live_sample_command(runtime_config: Path, payload: dict[str, Any]) -> CommandSpec:
     """Build live-sample evaluator command."""
+    sample_rate_literal = _int_literal(payload.get("sample_rate"), 16000)
     args = [
         "python3",
         "scripts/live_sample_eval.py",
@@ -62,7 +91,7 @@ def build_live_sample_command(runtime_config: Path, payload: dict[str, Any]) -> 
         "--record-sec",
         str(payload.get("record_sec") or 5.0),
         "--sample-rate",
-        str(payload.get("sample_rate") or 16000),
+        sample_rate_literal,
         "--output-dir",
         str(payload.get("output_dir") or (RESULTS_ROOT / "live_sample")),
         "--sample-name",
@@ -156,6 +185,9 @@ def build_benchmark_command(runtime_config: Path, payload: dict[str, Any]) -> Co
 
 def build_ros_bringup_command(runtime_config: Path, payload: dict[str, Any]) -> CommandSpec:
     """Build long-running ROS2 bringup command."""
+    sample_rate_literal = _int_literal(payload.get("sample_rate"), 16000)
+    chunk_ms_literal = _int_literal(payload.get("chunk_ms"), 800)
+    mic_capture_sec_literal = _float_literal(payload.get("mic_capture_sec"), 4.0)
     args = [
         "ros2",
         "launch",
@@ -164,9 +196,9 @@ def build_ros_bringup_command(runtime_config: Path, payload: dict[str, Any]) -> 
         f"config:={runtime_config}",
         f"input_mode:={payload.get('input_mode') or 'mic'}",
         f"continuous:={str(payload.get('continuous', True)).lower()}",
-        f"sample_rate:={payload.get('sample_rate') or 16000}",
-        f"chunk_ms:={payload.get('chunk_ms') or 800}",
-        f"mic_capture_sec:={payload.get('mic_capture_sec') or 4.0}",
+        f"sample_rate:={sample_rate_literal}",
+        f"chunk_ms:={chunk_ms_literal}",
+        f"mic_capture_sec:={mic_capture_sec_literal}",
         f"live_stream_enabled:={str(payload.get('live_stream_enabled', True)).lower()}",
         f"text_output_enabled:={str(payload.get('text_output_enabled', True)).lower()}",
     ]

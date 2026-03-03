@@ -13,6 +13,10 @@ CONTINUOUS="${3:-true}"
 MIC_CAPTURE_SEC="${4:-6.0}"
 DRY_RUN="${DRY_RUN:-false}"
 
+if [[ "$MIC_CAPTURE_SEC" =~ ^-?[0-9]+$ ]]; then
+  MIC_CAPTURE_SEC="${MIC_CAPTURE_SEC}.0"
+fi
+
 if [ ! -f "$ROOT_DIR/.venv/bin/activate" ]; then
   echo "ERROR: .venv is missing. Run: make setup"
   exit 1

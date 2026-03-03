@@ -27,6 +27,16 @@ def test_build_live_sample_command_contains_essential_flags() -> None:
     assert "--language-mode" in cmd.display_command
 
 
+def test_build_live_sample_command_normalizes_sample_rate_integer_literal() -> None:
+    cmd = build_live_sample_command(
+        Path("configs/default.yaml"),
+        {
+            "sample_rate": "16000.9",
+        },
+    )
+    assert "--sample-rate 16000" in cmd.display_command
+
+
 def test_build_benchmark_command_outputs_metadata_paths() -> None:
     cmd = build_benchmark_command(
         Path("configs/default.yaml"),
@@ -50,3 +60,26 @@ def test_build_ros_bringup_command_contains_launch_args() -> None:
     assert "ros2" in cmd.display_command
     assert "bringup.launch.py" in cmd.display_command
     assert "text_output_enabled:=true" in cmd.display_command
+
+
+def test_build_ros_bringup_command_keeps_mic_capture_sec_double_literal() -> None:
+    cmd = build_ros_bringup_command(
+        Path("configs/default.yaml"),
+        {
+            "input_mode": "mic",
+            "mic_capture_sec": 4,
+        },
+    )
+    assert "mic_capture_sec:=4.0" in cmd.display_command
+
+
+def test_build_ros_bringup_command_normalizes_integer_launch_literals() -> None:
+    cmd = build_ros_bringup_command(
+        Path("configs/default.yaml"),
+        {
+            "sample_rate": "16000.9",
+            "chunk_ms": 800.7,
+        },
+    )
+    assert "sample_rate:=16000" in cmd.display_command
+    assert "chunk_ms:=800" in cmd.display_command
