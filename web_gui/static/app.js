@@ -658,9 +658,10 @@ function attachHelpTrigger(target, helpKey) {
   if (!HELP_CONTENT[helpKey]) {
     return;
   }
-  const existing = target.parentElement?.querySelector(
-    `.help-trigger[data-help-key="${helpKey}"]`
-  );
+  const parent = target.parentElement;
+  const existing = parent
+    ? parent.querySelector(`.help-trigger[data-help-key="${helpKey}"]`)
+    : null;
   if (existing) {
     return;
   }
