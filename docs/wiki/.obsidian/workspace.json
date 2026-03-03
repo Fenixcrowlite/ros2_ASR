@@ -225,9 +225,10 @@
   },
   "active": "fb81f6c86b26c211",
   "lastOpenFiles": [
-    "99_Maps/Runtime_Map.md",
-    "99_Maps/File_Flows_Mermaid.md",
     "99_Maps/Project_Map.md",
+    "06_Operations/Operations_Index.md",
+    "99_Maps/File_Flows_Mermaid.md",
+    "99_Maps/Runtime_Map.md",
     "00_Start/Wiki_Home.md",
     "02_ROS2/Node_ASR_Text_Output.md",
     "02_ROS2/Topic_Asr_Metrics.md",

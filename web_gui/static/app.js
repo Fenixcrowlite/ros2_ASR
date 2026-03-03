@@ -2,6 +2,7 @@ const state = {
   options: null,
   files: null,
   selectedJobId: null,
+  helpLanguage: "ru",
   help: {
     key: "",
     anchor: null,
@@ -9,6 +10,8 @@ const state = {
 };
 
 const $ = (id) => document.getElementById(id);
+
+const HELP_LANGUAGE_STORAGE_KEY = "web_gui_help_lang";
 
 const DOCS = {
   guiReadme: { label: "Web GUI README", path: "web_gui/README.md" },
@@ -50,7 +53,7 @@ const DOCS = {
 const docs = (...keys) => keys.map((key) => DOCS[key]).filter(Boolean);
 const docUrl = (path) => `/api/artifacts?path=${encodeURIComponent(path)}`;
 
-const HELP_CONTENT = {
+const HELP_CONTENT_RU = {
   section_runtime_setup: {
     title: "Runtime Setup",
     summary: "Блок базовых настроек запуска и профилей.",
@@ -564,6 +567,520 @@ const HELP_CONTENT = {
   },
 };
 
+const HELP_CONTENT_EN = {
+  section_runtime_setup: {
+    title: "Runtime Setup",
+    summary: "Core run/profile settings.",
+    what: "This section selects the base YAML and builds runtime overrides for each launch.",
+    how: "Choose a base config, adjust fields, and save a profile if you want to reuse the setup.",
+    links: docs("guiReadme", "defaultConfig", "liveConfig"),
+  },
+  section_asr_global: {
+    title: "ASR Global",
+    summary: "Global ASR runtime parameters.",
+    what: "Controls default backend, language, sample rate, chunk size, and input mode.",
+    how: "For a stable baseline keep sample rate at 16000 and chunk ms around 800.",
+    links: docs("backendsWiki", "defaultConfig"),
+  },
+  section_interfaces_model_runs: {
+    title: "Interfaces & Model Runs",
+    summary: "Select interfaces and backend/model targets.",
+    what: "Live eval runs selected interfaces against each target from model-runs.",
+    how: "Use format backend[:model][@region], for example whisper:tiny,mock,google:latest_long@global.",
+    links: docs("liveScript", "backendsWiki"),
+  },
+  section_backend_details: {
+    title: "Backend Details",
+    summary: "Backend-specific advanced options.",
+    what: "Values are written into runtime config under backends.*.",
+    how: "Only fill providers you actually use; leave the rest at defaults.",
+    links: docs("backendsWiki", "defaultConfig"),
+  },
+  section_cloud_auth: {
+    title: "Cloud Auth",
+    summary: "Provider secrets and auth fields.",
+    what: "Secrets are injected into runtime config and process environment for each job.",
+    how: "Fill only the provider you need and verify credentials in job logs if something fails.",
+    links: docs("secretsWiki", "backendsWiki"),
+  },
+  section_benchmark_controls: {
+    title: "Benchmark Controls",
+    summary: "Benchmark-specific inputs.",
+    what: "Dataset and backend list go to benchmark command; scenarios/chunk settings go into runtime config.",
+    how: "Use an existing CSV manifest and a comma-separated backend list.",
+    links: docs("benchmarkWiki", "runGuide"),
+  },
+  section_samples_noise_runs: {
+    title: "Samples, Noise, Runs",
+    summary: "Assets and execution controls.",
+    what: "This panel starts upload, noisy sample generation, live eval, benchmark, and ROS bringup jobs.",
+    how: "After starting any job, monitor Jobs/Logs/Artifacts to verify progress and output.",
+    links: docs("guiReadme", "runGuide"),
+  },
+  section_upload: {
+    title: "Upload",
+    summary: "Upload local assets for GUI runs.",
+    what: "Uploaded files are saved into web_gui/uploads and become selectable in dropdowns.",
+    how: "Upload WAV for live/noise flows, or CSV for benchmark dataset input.",
+    links: docs("guiReadme"),
+  },
+  section_noise_overlay: {
+    title: "Noise Overlay",
+    summary: "Generate noisy WAV variants.",
+    what: "Creates copies of a source WAV at requested SNR levels.",
+    how: "Provide SNR list like 30,20,10,0 and run generation.",
+    links: docs("benchmarkWiki", "guiReadme"),
+  },
+  section_live_run: {
+    title: "Live Run",
+    summary: "Run scripts/live_sample_eval.py from UI.",
+    what: "Uses microphone or an existing WAV and executes core/ros_service/ros_action scenarios.",
+    how: "If ROS interfaces are selected, enable ROS auto launch or run bringup manually first.",
+    links: docs("liveScript", "runGuide"),
+  },
+  section_ros2_bringup: {
+    title: "ROS2 Bringup",
+    summary: "Launch ROS runtime pipeline.",
+    what: "Starts asr_server_node, audio_capture_node, and optional text output node.",
+    how: "For file mode you must provide WAV path; workspace must be built before launch.",
+    links: docs("bringupWiki", "runGuide"),
+  },
+  section_jobs: {
+    title: "Jobs",
+    summary: "Background process tracking.",
+    what: "Each run creates a job with id, status, logs, and discovered artifacts.",
+    how: "Select a row to inspect details; stop a running job with Stop.",
+    links: docs("guiReadme"),
+  },
+  section_logs: {
+    title: "Logs",
+    summary: "Tail view of selected job logs.",
+    what: "Shows recent lines from the process log file.",
+    how: "Use this first for troubleshooting command/config/runtime errors.",
+    links: docs("runGuide"),
+  },
+  section_artifacts: {
+    title: "Artifacts",
+    summary: "Output files from completed jobs.",
+    what: "Contains runtime config, json/csv/md, and plots; png supports inline preview.",
+    how: "Open summary/report files first, then drill into raw json/csv.",
+    links: docs("benchmarkWiki", "liveScript"),
+  },
+  run_preflight: {
+    title: "Preflight Button",
+    summary: "Environment readiness check.",
+    what: "Checks Python dependencies, microphone stack, ROS setup/build, and expected binaries.",
+    how: "Run this before first launch after environment changes.",
+    links: docs("runGuide", "guiReadme"),
+  },
+  refresh_all: {
+    title: "Refresh Button",
+    summary: "Manual full UI refresh.",
+    what: "Reloads files, jobs, selected-job logs, and artifacts.",
+    how: "Use when you want immediate sync instead of waiting for polling.",
+    links: docs("guiReadme"),
+  },
+  profile_name: {
+    title: "Profile Name",
+    summary: "Name used for save/load profile.",
+    what: "Also used as suffix in generated runtime config filename.",
+    how: "Use short stable names like lab_ru_whisper.",
+    links: docs("guiReadme"),
+  },
+  base_config: {
+    title: "Base Config",
+    summary: "Base YAML file for merge.",
+    what: "Runtime config is built from this file plus overrides from UI.",
+    how: "Use default.yaml for generic runs, live_mic_whisper.yaml for microphone-focused runs.",
+    links: docs("defaultConfig", "liveConfig"),
+  },
+  save_profile: {
+    title: "Save Profile Button",
+    summary: "Persist current UI setup.",
+    what: "Stores runtime overrides and payload values into web_gui/profiles/*.yaml.",
+    how: "Set profile name and click Save Profile.",
+    links: docs("guiReadme"),
+  },
+  load_profile: {
+    title: "Load Profile Button",
+    summary: "Load saved UI setup.",
+    what: "Applies stored runtime/payload values back into form fields.",
+    how: "Enter existing profile name and click Load Profile.",
+    links: docs("guiReadme"),
+  },
+  asr_backend: {
+    title: "Backend",
+    summary: "Default backend in runtime config.",
+    what: "Allowed values: mock, vosk, whisper, google, aws, azure.",
+    how: "Pick default backend here; model-runs can still override per target in live eval.",
+    links: docs("backendsWiki"),
+  },
+  language_mode: {
+    title: "Language Mode",
+    summary: "Language source for live eval.",
+    what: "manual uses Language field, auto uses detection, config uses YAML value.",
+    how: "If unsure, use config mode first.",
+    links: docs("liveScript", "runGuide"),
+  },
+  language: {
+    title: "Language",
+    summary: "Recognition language code.",
+    what: "Typical values: en-US, ru-RU, de-DE.",
+    how: "Use xx-YY format for best compatibility.",
+    links: docs("runGuide"),
+  },
+  input_mode: {
+    title: "Input Mode",
+    summary: "Audio source mode.",
+    what: "mic = microphone, file = WAV file, auto = fallback strategy.",
+    how: "Use file for reproducible experiments.",
+    links: docs("bringupWiki"),
+  },
+  sample_rate: {
+    title: "Sample Rate",
+    summary: "Audio sampling rate.",
+    what: "Used by live recording, runtime pipeline, and bringup payload.",
+    how: "16000 is the safest default for this project.",
+    links: docs("runGuide"),
+  },
+  chunk_ms: {
+    title: "Chunk ms",
+    summary: "Audio chunk size in milliseconds.",
+    what: "Affects chunk publish cadence and latency trade-offs.",
+    how: "Start with 800 and tune only if needed.",
+    links: docs("bringupWiki"),
+  },
+  interfaces: {
+    title: "Interfaces",
+    summary: "Live eval interface selection.",
+    what: "Available: core, ros_service, ros_action.",
+    how: "Use core for quick smoke tests; add ROS interfaces for end-to-end checks.",
+    links: docs("liveScript"),
+  },
+  model_runs: {
+    title: "Model Runs",
+    summary: "Target list for live eval.",
+    what: "Each token defines backend/model/region target.",
+    how: "Format backend[:model][@region], for example whisper:tiny,mock.",
+    links: docs("liveScript", "backendsWiki"),
+  },
+  whisper_model: {
+    title: "Whisper Model",
+    summary: "faster-whisper model size.",
+    what: "Written to backends.whisper.model_size in runtime config.",
+    how: "Use tiny/base for speed, large-v3 for quality.",
+    links: docs("backendsWiki", "liveConfig"),
+  },
+  whisper_device: {
+    title: "Whisper Device",
+    summary: "Compute device for whisper backend.",
+    what: "Typically cpu or cuda.",
+    how: "Use cpu unless CUDA runtime is configured and verified.",
+    links: docs("runGuide", "backendsWiki"),
+  },
+  whisper_compute: {
+    title: "Whisper Compute",
+    summary: "Compute type for whisper runtime.",
+    what: "Examples: int8 (cpu), float16 (cuda).",
+    how: "For CPU deployments, int8 is usually best.",
+    links: docs("backendsWiki"),
+  },
+  vosk_model_path: {
+    title: "Vosk Model Path",
+    summary: "Path to Vosk model directory.",
+    what: "Vosk backend requires a valid model directory.",
+    how: "Set an absolute path to downloaded model files.",
+    links: docs("backendsWiki"),
+  },
+  google_model: {
+    title: "Google Model",
+    summary: "Google Speech model name.",
+    what: "Used by google backend recognize flow.",
+    how: "Common values: latest_long, latest_short, chirp_2.",
+    links: docs("backendsWiki", "secretsWiki"),
+  },
+  aws_region: {
+    title: "AWS Region",
+    summary: "Region for AWS backend services.",
+    what: "Used by Transcribe and S3 operations.",
+    how: "Typical value: us-east-1.",
+    links: docs("backendsWiki", "secretsWiki"),
+  },
+  aws_bucket: {
+    title: "AWS Bucket",
+    summary: "S3 bucket for AWS transcription flow.",
+    what: "Required for uploading input audio to AWS pipeline.",
+    how: "Provide an existing bucket with proper IAM permissions.",
+    links: docs("backendsWiki", "secretsWiki"),
+  },
+  azure_region: {
+    title: "Azure Region",
+    summary: "Azure Speech region setting.",
+    what: "Used by azure backend and env-secrets mapping.",
+    how: "Use your Speech resource region, e.g. westeurope.",
+    links: docs("backendsWiki", "secretsWiki"),
+  },
+  azure_endpoint: {
+    title: "Azure Endpoint",
+    summary: "Optional endpoint id for Azure Speech.",
+    what: "Advanced override for endpoint configuration.",
+    how: "Leave empty unless your deployment requires custom endpoint id.",
+    links: docs("backendsWiki"),
+  },
+  secret_google_cred: {
+    title: "Google Credentials JSON Path",
+    summary: "Path to Google service account JSON key.",
+    what: "Mapped to runtime config and GOOGLE_APPLICATION_CREDENTIALS.",
+    how: "Use absolute local path to credentials file.",
+    links: docs("secretsWiki"),
+  },
+  secret_google_project: {
+    title: "Google Project ID",
+    summary: "Google Cloud project identifier.",
+    what: "Mapped to runtime config and GOOGLE_CLOUD_PROJECT.",
+    how: "Use the exact project id from GCP console.",
+    links: docs("secretsWiki"),
+  },
+  secret_aws_id: {
+    title: "AWS Access Key ID",
+    summary: "AWS access key for programmatic auth.",
+    what: "Mapped to runtime config and AWS_ACCESS_KEY_ID.",
+    how: "Use with matching AWS secret access key.",
+    links: docs("secretsWiki"),
+  },
+  secret_aws_secret: {
+    title: "AWS Secret Access Key",
+    summary: "Secret part of AWS key pair.",
+    what: "Mapped to runtime config and AWS_SECRET_ACCESS_KEY.",
+    how: "Verify IAM permissions for S3 and Transcribe APIs.",
+    links: docs("secretsWiki"),
+  },
+  secret_aws_token: {
+    title: "AWS Session Token",
+    summary: "Temporary AWS session token.",
+    what: "Mapped to runtime config and AWS_SESSION_TOKEN.",
+    how: "Leave empty for long-lived key pairs without STS session.",
+    links: docs("secretsWiki"),
+  },
+  secret_azure_key: {
+    title: "Azure Speech Key",
+    summary: "Azure Speech resource key.",
+    what: "Mapped to runtime config and AZURE_SPEECH_KEY.",
+    how: "Use together with correct Azure region.",
+    links: docs("secretsWiki"),
+  },
+  dataset: {
+    title: "Dataset CSV",
+    summary: "Benchmark dataset manifest path.",
+    what: "Must be existing CSV file.",
+    how: "Default sample is data/transcripts/sample_manifest.csv.",
+    links: docs("benchmarkWiki"),
+  },
+  bench_backends: {
+    title: "Backends List",
+    summary: "Backend list for benchmark run.",
+    what: "Passed as --backends argument to benchmark runner.",
+    how: "Comma-separated list, e.g. mock,whisper,vosk.",
+    links: docs("benchmarkWiki"),
+  },
+  bench_chunk_sec: {
+    title: "Chunk sec",
+    summary: "Streaming simulation chunk size.",
+    what: "Written into benchmark.chunk_sec runtime option.",
+    how: "0.8 is a good default starting point.",
+    links: docs("benchmarkWiki"),
+  },
+  bench_scenarios: {
+    title: "Scenarios",
+    summary: "Benchmark scenarios list.",
+    what: "Written into benchmark.scenarios.",
+    how: "Comma-separated values, e.g. clean,snr20,snr10,snr0.",
+    links: docs("benchmarkWiki"),
+  },
+  metric_select: {
+    title: "Metrics",
+    summary: "Preferred metrics selection list.",
+    what: "Saved in runtime/profile as selected_metrics.",
+    how: "Use for profile organization even if runner does not hard-filter by this list.",
+    links: docs("benchmarkWiki"),
+  },
+  upload_file: {
+    title: "Upload File",
+    summary: "Local file selector.",
+    what: "Supports wav/csv/yaml/json/txt.",
+    how: "Choose file then press Upload.",
+    links: docs("guiReadme"),
+  },
+  upload_btn: {
+    title: "Upload Button",
+    summary: "Upload selected file to GUI storage.",
+    what: "Stores file in web_gui/uploads.",
+    how: "After upload it appears in source/use-wav/bringup-wav dropdowns.",
+    links: docs("guiReadme"),
+  },
+  noise_source: {
+    title: "Source WAV",
+    summary: "Noise generation source file.",
+    what: "Dropdown built from uploads and generated noisy files.",
+    how: "Upload WAV first if list is empty.",
+    links: docs("guiReadme"),
+  },
+  noise_levels: {
+    title: "SNR Levels",
+    summary: "Noise level list for generation.",
+    what: "Each numeric level creates one noisy WAV.",
+    how: "Use comma-separated values like 30,20,10,0.",
+    links: docs("benchmarkWiki"),
+  },
+  apply_noise: {
+    title: "Generate Noisy Samples Button",
+    summary: "Create noisy WAV variants.",
+    what: "Runs noise overlay service for selected source and SNR levels.",
+    how: "Refresh is automatic; generated files show up in dropdowns.",
+    links: docs("benchmarkWiki", "guiReadme"),
+  },
+  reference_text: {
+    title: "Reference Text",
+    summary: "Ground truth phrase for WER/CER.",
+    what: "If empty, WER/CER are set to -1 for live records.",
+    how: "Provide exact expected phrase only when you have reliable reference.",
+    links: docs("liveScript"),
+  },
+  record_sec: {
+    title: "Record sec",
+    summary: "Microphone recording duration.",
+    what: "Used only when Use WAV is empty.",
+    how: "Typical range is 3 to 8 seconds.",
+    links: docs("liveScript"),
+  },
+  use_wav: {
+    title: "Use WAV",
+    summary: "Use existing WAV instead of recording.",
+    what: "Skips microphone capture and uses selected file directly.",
+    how: "Select uploaded/noisy WAV for reproducible runs.",
+    links: docs("liveScript"),
+  },
+  audio_device: {
+    title: "Audio Device",
+    summary: "sounddevice input target.",
+    what: "Passed to live recorder and bringup audio capture node.",
+    how: "Leave empty to use system default input device.",
+    links: docs("runGuide"),
+  },
+  action_chunk_sec: {
+    title: "Action chunk sec",
+    summary: "Chunk parameter for ros_action streaming mode.",
+    what: "Used when action_streaming flag is enabled.",
+    how: "Start with 0.8 unless testing chunk sensitivity.",
+    links: docs("liveScript"),
+  },
+  request_timeout: {
+    title: "Timeout sec",
+    summary: "ROS request timeout.",
+    what: "Timeout for service/action calls in live eval.",
+    how: "Increase for cloud backends if requests exceed default time.",
+    links: docs("liveScript", "runGuide"),
+  },
+  ros_auto_launch: {
+    title: "ROS auto launch",
+    summary: "Auto-start ROS bringup for live eval.",
+    what: "Useful when ros_service/ros_action are selected and pipeline is not running.",
+    how: "Disable if you already run bringup manually.",
+    links: docs("liveScript", "bringupWiki"),
+  },
+  action_streaming: {
+    title: "Action streaming mode",
+    summary: "Enable streaming=true for action calls.",
+    what: "Switches ros_action path to streaming branch.",
+    how: "Enable only when you need action streaming behavior in test.",
+    links: docs("liveScript"),
+  },
+  run_live: {
+    title: "Run Live Sample Eval Button",
+    summary: "Start live evaluation background job.",
+    what: "Builds runtime config and starts live_sample_eval.py command.",
+    how: "Open job logs after start to monitor progress and errors.",
+    links: docs("liveScript", "runGuide"),
+  },
+  bringup_input_mode: {
+    title: "Bringup input mode",
+    summary: "Audio mode passed to bringup launch.",
+    what: "Allowed: mic, file, auto.",
+    how: "If file mode is selected, provide Bringup WAV.",
+    links: docs("bringupWiki"),
+  },
+  bringup_wav: {
+    title: "Bringup WAV",
+    summary: "WAV path for file mode bringup.",
+    what: "Forwarded as wav_path launch argument.",
+    how: "Pick existing valid WAV when input mode is file.",
+    links: docs("bringupWiki"),
+  },
+  bringup_mic_sec: {
+    title: "Mic capture sec",
+    summary: "Capture duration parameter for bringup.",
+    what: "Forwarded as mic_capture_sec launch argument.",
+    how: "Use 3-5 seconds for practical live loops.",
+    links: docs("bringupWiki"),
+  },
+  bringup_continuous: {
+    title: "Continuous",
+    summary: "Continuous capture toggle.",
+    what: "Forwarded as continuous true/false.",
+    how: "Disable for single-shot style processing.",
+    links: docs("bringupWiki"),
+  },
+  bringup_live_enabled: {
+    title: "Live stream enabled",
+    summary: "Enable live chunk handling in ASR server.",
+    what: "Forwarded as live_stream_enabled launch arg.",
+    how: "Disable when you only need service/action testing.",
+    links: docs("bringupWiki"),
+  },
+  bringup_text_enabled: {
+    title: "Plain-text node enabled",
+    summary: "Start asr_text_output_node.",
+    what: "Provides plain text topic /asr/text/plain.",
+    how: "Disable if you only need structured /asr/text output.",
+    links: docs("bringupWiki", "runGuide"),
+  },
+  run_benchmark: {
+    title: "Run Benchmark Button",
+    summary: "Start benchmark and report generation.",
+    what: "Runs benchmark runner and then scripts/generate_report.py.",
+    how: "Validate dataset path and backend list before launch.",
+    links: docs("benchmarkWiki", "runGuide"),
+  },
+  start_bringup: {
+    title: "Start ROS Bringup Button",
+    summary: "Start long-running ROS launch job.",
+    what: "Validates mode/build and starts ros2 launch asr_ros bringup.launch.py.",
+    how: "If you see build-related errors, run make build first.",
+    links: docs("bringupWiki", "runGuide"),
+  },
+  jobs_table: {
+    title: "Jobs Table",
+    summary: "List of all started jobs.",
+    what: "Click a row to load details; running rows expose Stop button.",
+    how: "Use with Logs and Artifacts panels for diagnostics.",
+    links: docs("guiReadme"),
+  },
+  log_viewer: {
+    title: "Logs Viewer",
+    summary: "Tail view for selected job log.",
+    what: "Shows latest lines from process output log.",
+    how: "Start here when a job fails or hangs unexpectedly.",
+    links: docs("runGuide"),
+  },
+  artifact_list: {
+    title: "Artifacts List",
+    summary: "Output files of selected job.",
+    what: "Links open files via API; PNG entries support inline preview.",
+    how: "Review summary/report markdown first, then inspect detailed files.",
+    links: docs("benchmarkWiki", "liveScript"),
+  },
+};
+
 const HELP_TARGETS = {
   "runtime-setup-title": "section_runtime_setup",
   "asr-global-title": "section_asr_global",
@@ -640,12 +1157,58 @@ const HELP_TARGETS = {
   "artifact-list": "artifact_list",
 };
 
+function normalizeHelpLanguage(value) {
+  return value === "en" ? "en" : "ru";
+}
+
+function getHelpEntry(helpKey) {
+  const primary = state.helpLanguage === "en" ? HELP_CONTENT_EN : HELP_CONTENT_RU;
+  const fallback = state.helpLanguage === "en" ? HELP_CONTENT_RU : HELP_CONTENT_EN;
+  return primary[helpKey] || fallback[helpKey] || null;
+}
+
+function updateHelpLanguageUI() {
+  const langBtn = $("help-lang-toggle");
+  if (langBtn) {
+    langBtn.textContent = state.helpLanguage === "en" ? "Help: EN" : "Help: RU";
+  }
+
+  const closeBtn = $("help-close");
+  if (closeBtn) {
+    closeBtn.textContent = state.helpLanguage === "en" ? "Close" : "Закрыть";
+  }
+
+  const triggerTitle = state.helpLanguage === "en" ? "Show help" : "Показать справку";
+  document.querySelectorAll(".help-trigger").forEach((el) => {
+    el.title = triggerTitle;
+  });
+}
+
+function setHelpLanguage(language, { persist = true, rerender = true } = {}) {
+  state.helpLanguage = normalizeHelpLanguage(language);
+  if (persist) {
+    try {
+      localStorage.setItem(HELP_LANGUAGE_STORAGE_KEY, state.helpLanguage);
+    } catch (_err) {
+      // Ignore storage errors.
+    }
+  }
+  updateHelpLanguageUI();
+  if (rerender && state.help.key) {
+    openHelpAt(state.help.key, state.help.anchor);
+  }
+}
+
+function toggleHelpLanguage() {
+  setHelpLanguage(state.helpLanguage === "en" ? "ru" : "en");
+}
+
 function buildHelpTrigger(helpKey) {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "help-trigger help-inline";
   button.textContent = "?";
-  button.title = "Показать справку";
+  button.title = state.helpLanguage === "en" ? "Show help" : "Показать справку";
   button.dataset.helpKey = helpKey;
   button.onclick = (event) => {
     event.preventDefault();
@@ -659,7 +1222,7 @@ function attachHelpTrigger(target, helpKey) {
   if (!target || !helpKey) {
     return;
   }
-  if (!HELP_CONTENT[helpKey]) {
+  if (!getHelpEntry(helpKey)) {
     return;
   }
   const parent = target.parentElement;
@@ -767,16 +1330,18 @@ function positionHelpCard(anchor) {
 }
 
 function openHelpAt(helpKey, anchor) {
-  const entry = HELP_CONTENT[helpKey];
+  const entry = getHelpEntry(helpKey);
   if (!entry) {
     return;
   }
   state.help.key = helpKey;
   state.help.anchor = anchor || null;
-  $("help-title").textContent = entry.title || "Справка";
+  const whatLabel = state.helpLanguage === "en" ? "What it is" : "Что это";
+  const howLabel = state.helpLanguage === "en" ? "How to use" : "Как использовать";
+  $("help-title").textContent = entry.title || (state.helpLanguage === "en" ? "Help" : "Справка");
   $("help-summary").textContent = entry.summary || "";
-  $("help-what").textContent = entry.what ? `Что это: ${entry.what}` : "";
-  $("help-how").textContent = entry.how ? `Как использовать: ${entry.how}` : "";
+  $("help-what").textContent = entry.what ? `${whatLabel}: ${entry.what}` : "";
+  $("help-how").textContent = entry.how ? `${howLabel}: ${entry.how}` : "";
   renderHelpLinks(entry.links || []);
   $("help-modal").classList.remove("hidden");
   positionHelpCard(state.help.anchor);
@@ -789,10 +1354,24 @@ function closeHelp() {
 }
 
 function initializeHelpSystem() {
+  let savedLang = "ru";
+  try {
+    savedLang = normalizeHelpLanguage(localStorage.getItem(HELP_LANGUAGE_STORAGE_KEY) || "ru");
+  } catch (_err) {
+    savedLang = "ru";
+  }
+  setHelpLanguage(savedLang, { persist: false, rerender: false });
+
   Object.entries(HELP_TARGETS).forEach(([id, helpKey]) => {
     const target = $(id);
     attachHelpTrigger(target, helpKey);
   });
+  updateHelpLanguageUI();
+
+  const langToggle = $("help-lang-toggle");
+  if (langToggle) {
+    langToggle.onclick = () => toggleHelpLanguage();
+  }
 
   $("help-close").onclick = () => closeHelp();
   $("help-modal").onclick = (event) => {
