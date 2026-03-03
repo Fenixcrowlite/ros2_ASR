@@ -2,6 +2,10 @@ const state = {
   options: null,
   files: null,
   selectedJobId: null,
+  help: {
+    key: "",
+    anchor: null,
+  },
 };
 
 const $ = (id) => document.getElementById(id);
@@ -646,7 +650,7 @@ function buildHelpTrigger(helpKey) {
   button.onclick = (event) => {
     event.preventDefault();
     event.stopPropagation();
-    openHelp(helpKey);
+    openHelpAt(helpKey, button);
   };
   return button;
 }
@@ -705,20 +709,83 @@ function renderHelpLinks(items) {
 }
 
 function openHelp(helpKey) {
+  openHelpAt(helpKey, null);
+}
+
+function positionHelpCard(anchor) {
+  const card = document.querySelector("#help-modal .help-card");
+  if (!card) {
+    return;
+  }
+
+  card.classList.remove("side");
+  card.style.left = "";
+  card.style.top = "";
+  card.style.right = "";
+  card.style.bottom = "";
+
+  if (!anchor) {
+    card.classList.add("side");
+    return;
+  }
+
+  card.style.visibility = "hidden";
+  card.style.left = "0px";
+  card.style.top = "0px";
+  const cardRect = card.getBoundingClientRect();
+  card.style.visibility = "";
+
+  const width = cardRect.width || 420;
+  const height = cardRect.height || 360;
+  const gap = 10;
+  const margin = 12;
+  const anchorRect = anchor.getBoundingClientRect();
+
+  let left = anchorRect.right + gap;
+  const topBase = anchorRect.top - 8;
+  const fitsRight = left + width + margin <= window.innerWidth;
+  const fitsLeft = anchorRect.left - gap - width >= margin;
+
+  if (!fitsRight && fitsLeft) {
+    left = anchorRect.left - width - gap;
+  } else if (!fitsRight) {
+    card.classList.add("side");
+    return;
+  }
+
+  let top = topBase;
+  const maxTop = window.innerHeight - height - margin;
+  if (top > maxTop) {
+    top = maxTop;
+  }
+  if (top < margin) {
+    top = margin;
+  }
+
+  card.style.left = `${Math.round(left)}px`;
+  card.style.top = `${Math.round(top)}px`;
+}
+
+function openHelpAt(helpKey, anchor) {
   const entry = HELP_CONTENT[helpKey];
   if (!entry) {
     return;
   }
+  state.help.key = helpKey;
+  state.help.anchor = anchor || null;
   $("help-title").textContent = entry.title || "Справка";
   $("help-summary").textContent = entry.summary || "";
   $("help-what").textContent = entry.what ? `Что это: ${entry.what}` : "";
   $("help-how").textContent = entry.how ? `Как использовать: ${entry.how}` : "";
   renderHelpLinks(entry.links || []);
   $("help-modal").classList.remove("hidden");
+  positionHelpCard(state.help.anchor);
 }
 
 function closeHelp() {
   $("help-modal").classList.add("hidden");
+  state.help.key = "";
+  state.help.anchor = null;
 }
 
 function initializeHelpSystem() {
@@ -734,10 +801,37 @@ function initializeHelpSystem() {
     }
   };
 
+  document.addEventListener("mousedown", (event) => {
+    const modal = $("help-modal");
+    if (modal.classList.contains("hidden")) {
+      return;
+    }
+    const card = modal.querySelector(".help-card");
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+    if (card && card.contains(target)) {
+      return;
+    }
+    if (target.closest(".help-trigger")) {
+      return;
+    }
+    closeHelp();
+  });
+
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeHelp();
     }
+  });
+
+  window.addEventListener("resize", () => {
+    const modal = $("help-modal");
+    if (modal.classList.contains("hidden")) {
+      return;
+    }
+    positionHelpCard(state.help.anchor);
   });
 }
 
