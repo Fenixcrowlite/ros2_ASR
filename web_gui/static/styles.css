@@ -68,6 +68,13 @@ h2, h3 {
   margin: 0.25rem 0 0.75rem;
 }
 
+h2,
+h3 {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
 h3 {
   margin-top: 1.1rem;
   font-size: 1rem;
@@ -132,6 +139,30 @@ textarea#log-viewer {
 
 .btn:hover {
   filter: brightness(1.05);
+}
+
+.help-trigger {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8fafc;
+  color: #0f172a;
+  font-size: 0.76rem;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+}
+
+.help-trigger:hover {
+  background: #e2e8f0;
+}
+
+.help-inline {
+  margin-left: 0.35rem;
 }
 
 .btn-secondary {
@@ -203,6 +234,58 @@ textarea#log-viewer {
   border-radius: 10px;
   border: 1px solid var(--line);
   margin-top: 0.6rem;
+}
+
+.help-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  z-index: 50;
+}
+
+.help-modal.hidden {
+  display: none;
+}
+
+.help-card {
+  width: min(780px, 100%);
+  max-height: 90vh;
+  overflow: auto;
+  border-radius: 12px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.24);
+}
+
+.help-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.help-head h3 {
+  margin: 0;
+}
+
+.help-block {
+  margin-top: 0.65rem;
+  color: #334155;
+  white-space: pre-wrap;
+}
+
+.help-links {
+  margin-top: 0.9rem;
+  padding-left: 1.2rem;
+}
+
+.help-links li {
+  margin-bottom: 0.35rem;
 }
 
 @media (max-width: 1180px) {

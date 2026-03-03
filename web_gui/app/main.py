@@ -54,6 +54,8 @@ JOBS = JobManager()
 ALLOWED_ARTIFACT_ROOTS = [
     REPO_ROOT / "results",
     REPO_ROOT / "web_gui",
+    REPO_ROOT / "docs",
+    REPO_ROOT / "configs",
     REPO_ROOT / "data",
     RUNTIME_CONFIGS_DIR,
     UPLOADS_DIR,

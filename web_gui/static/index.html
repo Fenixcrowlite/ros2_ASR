@@ -21,7 +21,7 @@
 
   <main class="layout">
     <section class="panel panel-config">
-      <h2>Runtime Setup</h2>
+      <h2 id="runtime-setup-title">Runtime Setup</h2>
       <div class="grid two">
         <label>Profile name
           <input id="profile-name" type="text" placeholder="lab_ru_whisper">
@@ -35,7 +35,7 @@
         <button id="load-profile" class="btn btn-secondary">Load Profile</button>
       </div>
 
-      <h3>ASR Global</h3>
+      <h3 id="asr-global-title">ASR Global</h3>
       <div class="grid three">
         <label>Backend
           <select id="asr-backend"></select>
@@ -65,13 +65,13 @@
         </label>
       </div>
 
-      <h3>Interfaces & Model Runs</h3>
+      <h3 id="interfaces-model-runs-title">Interfaces & Model Runs</h3>
       <div id="interfaces" class="checkboxes"></div>
       <label>Model runs `backend[:model][@region]`
         <input id="model-runs" type="text" value="whisper:tiny,mock">
       </label>
 
-      <h3>Backend Details</h3>
+      <h3 id="backend-details-title">Backend Details</h3>
       <div class="grid three">
         <label>Whisper model
           <input id="whisper-model" type="text" value="tiny">
@@ -102,7 +102,7 @@
         </label>
       </div>
 
-      <h3>Cloud Auth (tokens/keys)</h3>
+      <h3 id="cloud-auth-title">Cloud Auth (tokens/keys)</h3>
       <div class="grid three">
         <label>Google credentials JSON path
           <input id="secret-google-cred" type="password" autocomplete="off">
@@ -124,7 +124,7 @@
         </label>
       </div>
 
-      <h3>Benchmark Controls</h3>
+      <h3 id="benchmark-controls-title">Benchmark Controls</h3>
       <div class="grid three">
         <label>Dataset CSV
           <input id="dataset" type="text" value="data/transcripts/sample_manifest.csv">
@@ -143,15 +143,15 @@
     </section>
 
     <section class="panel panel-runner">
-      <h2>Samples, Noise, Runs</h2>
+      <h2 id="samples-noise-runs-title">Samples, Noise, Runs</h2>
 
-      <h3>Upload</h3>
+      <h3 id="upload-title">Upload</h3>
       <form id="upload-form" class="row-actions">
         <input id="upload-file" type="file">
-        <button class="btn" type="submit">Upload</button>
+        <button id="upload-btn" class="btn" type="submit">Upload</button>
       </form>
 
-      <h3>Noise Overlay</h3>
+      <h3 id="noise-overlay-title">Noise Overlay</h3>
       <div class="grid two">
         <label>Source WAV
           <select id="noise-source"></select>
@@ -162,7 +162,7 @@
       </div>
       <button id="apply-noise" class="btn btn-secondary">Generate Noisy Samples</button>
 
-      <h3>Live Run</h3>
+      <h3 id="live-run-title">Live Run</h3>
       <div class="grid three">
         <label>Reference text
           <input id="reference-text" type="text" placeholder="optional ground truth">
@@ -191,7 +191,7 @@
         <button id="run-live" class="btn btn-accent">Run Live Sample Eval</button>
       </div>
 
-      <h3>ROS2 Bringup</h3>
+      <h3 id="ros2-bringup-title">ROS2 Bringup</h3>
       <div class="grid three">
         <label>Bringup input mode
           <select id="bringup-input-mode">
@@ -217,7 +217,7 @@
         <button id="start-bringup" class="btn btn-secondary">Start ROS Bringup</button>
       </div>
 
-      <h3>Jobs</h3>
+      <h3 id="jobs-title">Jobs</h3>
       <table id="jobs-table">
         <thead>
           <tr>
@@ -231,14 +231,27 @@
         <tbody></tbody>
       </table>
 
-      <h3>Logs</h3>
+      <h3 id="logs-title">Logs</h3>
       <textarea id="log-viewer" readonly></textarea>
 
-      <h3>Artifacts</h3>
+      <h3 id="artifacts-title">Artifacts</h3>
       <div id="artifact-list" class="artifact-list"></div>
       <div id="artifact-preview" class="artifact-preview"></div>
     </section>
   </main>
+
+  <div id="help-modal" class="help-modal hidden" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="help-card">
+      <div class="help-head">
+        <h3 id="help-title">Справка</h3>
+        <button id="help-close" class="btn btn-secondary" type="button">Close</button>
+      </div>
+      <p id="help-summary"></p>
+      <div id="help-what" class="help-block"></div>
+      <div id="help-how" class="help-block"></div>
+      <ul id="help-links" class="help-links"></ul>
+    </div>
+  </div>
 
   <script src="/static/app.js"></script>
 </body>

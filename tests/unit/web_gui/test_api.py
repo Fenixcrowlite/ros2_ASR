@@ -64,3 +64,10 @@ def test_api_live_job_start_with_monkeypatched_builder(monkeypatch) -> None:
         logs = client.get(f"/api/jobs/{job_id}/logs")
         assert logs.status_code == 200
         assert "api-live-run" in logs.json()["log"]
+
+
+def test_api_artifacts_allows_docs_file() -> None:
+    with TestClient(app) as client:
+        response = client.get("/api/artifacts", params={"path": "docs/run_guide.md"})
+        assert response.status_code == 200
+        assert "Практическая инструкция" in response.text
