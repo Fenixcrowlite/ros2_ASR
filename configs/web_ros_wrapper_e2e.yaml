@@ -1,0 +1,86 @@
+# Web GUI scenario: end-to-end ROS wrapper validation with model variations.
+
+asr:
+  backend: whisper
+  language: en-US
+  timeout_sec: 40.0
+  sample_rate: 16000
+  chunk_ms: 800
+  model: ""
+  region: ""
+  input_mode: mic
+  wav_path: data/sample/en_hello.wav
+
+backends:
+  mock:
+    deterministic_latency_ms: 25.0
+  whisper:
+    model_size: small
+    device: cpu
+    compute_type: int8
+    condition_on_previous_text: false
+    no_speech_threshold: 0.6
+    temperature: 0.0
+    vad_filter: true
+  vosk:
+    model_path: ""
+  google:
+    model: latest_long
+    region: global
+  aws:
+    region: us-east-1
+    s3_bucket: ""
+    media_format: wav
+    cleanup: true
+  azure:
+    region: eastus
+
+benchmark:
+  scenarios:
+    - clean
+    - snr20
+    - snr10
+    - snr0
+  chunk_sec: 0.8
+  output_dir: results
+  selected_metrics:
+    - wer
+    - cer
+    - latency_ms
+    - rtf
+    - cpu_percent
+    - ram_mb
+    - gpu_util_percent
+    - gpu_mem_mb
+    - cost_estimate
+    - success_rate
+  pricing:
+    mock: 0.0
+    vosk: 0.0
+    whisper: 0.0
+    google: 0.006
+    aws: 0.0004
+    azure: 0.016
+
+web:
+  scenario_label: "Web: ROS Wrapper E2E"
+  scenario_description: "E2E matrix for core + ros_service + ros_action in one profile."
+  interfaces:
+    - core
+    - ros_service
+    - ros_action
+  model_runs: "mock,whisper:tiny,whisper:small,whisper:large-v3"
+  benchmark_backends: "mock,whisper"
+  dataset: "data/transcripts/sample_manifest.csv"
+  language_mode: config
+  record_sec: 5.0
+  action_chunk_sec: 0.8
+  request_timeout_sec: 40.0
+  ros_auto_launch: true
+  action_streaming: true
+  bringup_input_mode: mic
+  bringup_mic_capture_sec: 4.0
+  bringup_continuous: true
+  bringup_live_stream_enabled: true
+  bringup_text_output_enabled: true
+  noise_levels: "20,10,0"

@@ -6,6 +6,7 @@ import uuid
 
 from asr_core.models import AsrResponse
 from asr_interfaces.msg import AsrMetrics, AsrResult, WordTimestamp
+from builtin_interfaces.msg import Time as RosTime
 
 
 def to_asr_result_msg(
@@ -56,7 +57,10 @@ def build_metrics_msg(
     gpu_mem_mb: float,
     cost_estimate: float,
     success: bool,
-    notes: str,
+    notes: str = "",
+    capture_start: RosTime | None = None,
+    capture_end: RosTime | None = None,
+    text_preview: str = "",
 ) -> AsrMetrics:
     """Build `AsrMetrics` ROS message from collected benchmark/telemetry values."""
     msg = AsrMetrics()
@@ -72,5 +76,8 @@ def build_metrics_msg(
     msg.gpu_mem_mb = float(gpu_mem_mb)
     msg.cost_estimate = float(cost_estimate)
     msg.success = bool(success)
+    msg.capture_start = capture_start if capture_start is not None else RosTime()
+    msg.capture_end = capture_end if capture_end is not None else RosTime()
+    msg.text_preview = text_preview
     msg.notes = notes
     return msg

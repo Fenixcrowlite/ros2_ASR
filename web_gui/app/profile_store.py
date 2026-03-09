@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from web_gui.app.paths import PROFILES_DIR
 

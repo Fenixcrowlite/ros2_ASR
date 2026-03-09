@@ -16,6 +16,13 @@ from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabilities, WordTimestamp
 
 
+def _as_bool(raw: Any) -> bool:
+    """Parse bool-like config values from YAML/ENV."""
+    if isinstance(raw, str):
+        return raw.strip().lower() in {"1", "true", "yes", "on"}
+    return bool(raw)
+
+
 @register_backend("whisper")
 class WhisperAsrBackend(AsrBackend):
     """Whisper integration for high-quality local ASR."""
@@ -38,6 +45,13 @@ class WhisperAsrBackend(AsrBackend):
         super().__init__(config=config, client=client)
         self.model_size = self.config.get("model_size", os.getenv("ASR_WHISPER_MODEL", "tiny"))
         self.device = self.config.get("device", os.getenv("ASR_WHISPER_DEVICE", "cpu"))
+        default_cpu_fallback = "0" if str(self.device).lower().startswith("cuda") else "1"
+        self.allow_cpu_fallback = _as_bool(
+            self.config.get(
+                "allow_cpu_fallback",
+                os.getenv("ASR_WHISPER_ALLOW_CPU_FALLBACK", default_cpu_fallback),
+            )
+        )
         self.compute_type = self.config.get(
             "compute_type", os.getenv("ASR_WHISPER_COMPUTE_TYPE", "int8")
         )
@@ -74,6 +88,8 @@ class WhisperAsrBackend(AsrBackend):
 
     def _try_cpu_fallback(self, request: AsrRequest, error_message: str) -> AsrResponse | None:
         """Fallback to CPU when CUDA runtime library is unavailable."""
+        if not self.allow_cpu_fallback:
+            return None
         if not self._is_cuda_device():
             return None
         if "libcublas.so.12" not in error_message:

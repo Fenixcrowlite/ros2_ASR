@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
+import math
 import shlex
 from dataclasses import dataclass, field
 from datetime import datetime
-import math
 from pathlib import Path
 from typing import Any
 
@@ -53,24 +53,19 @@ def _int_literal(value: Any, default: int) -> str:
 
 
 def _shell_preamble(*, include_ros: bool) -> str:
+    env_script = REPO_ROOT / "scripts" / "source_runtime_env.sh"
+    env_mode = "--with-ros" if include_ros else "--without-ros"
     base = [
         "set -euo pipefail",
         f"cd {shlex.quote(str(REPO_ROOT))}",
-        "if [ -f .venv/bin/activate ]; then source .venv/bin/activate; fi",
         (
-            "export PYTHONPATH=\"${PYTHONPATH:-}:"
-            f"$(find {shlex.quote(str(REPO_ROOT / 'ros2_ws' / 'src'))} "
-            "-mindepth 1 -maxdepth 1 -type d | tr '\\n' ':')\""
+            f"if [ -f {shlex.quote(str(env_script))} ]; then "
+            f"source {shlex.quote(str(env_script))} {env_mode}; "
+            f"else echo '[web-gui] WARN: {env_script} not found'; fi"
         ),
     ]
     if include_ros:
-        base.append(
-            "if [ -f /opt/ros/jazzy/setup.bash ]; then "
-            "set +u; source /opt/ros/jazzy/setup.bash; "
-            "[ -f install/setup.bash ] && source install/setup.bash || true; "
-            "set -u; "
-            "else echo '[web-gui] WARN: /opt/ros/jazzy/setup.bash not found'; fi"
-        )
+        base.append("command -v ros2 >/dev/null || echo '[web-gui] WARN: ros2 is not in PATH'")
     return " ; ".join(base)
 
 

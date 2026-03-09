@@ -26,6 +26,7 @@ from asr_interfaces.msg import AsrMetrics, AsrResult
 from asr_interfaces.srv import GetAsrStatus, RecognizeOnce, SetAsrBackend
 from asr_metrics.collector import MetricsCollector
 from asr_metrics.system import collect_cpu_ram, collect_gpu
+from builtin_interfaces.msg import Time as RosTime
 from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.action import ActionServer
 from rclpy.node import Node
@@ -83,6 +84,14 @@ def _coerce_float_param(
         )
         return default
     return value
+
+
+def _preview_text(value: str, limit: int = 160) -> str:
+    """Return compact one-line preview used in metrics payload."""
+    compact = " ".join(value.strip().split())
+    if len(compact) <= limit:
+        return compact
+    return compact[: max(limit - 3, 0)] + "..."
 
 
 class AsrServerNode(Node):
@@ -167,6 +176,8 @@ class AsrServerNode(Node):
         self._live_lock = threading.Lock()
         self._live_chunks: list[bytes] = []
         self._live_last_chunk_ts: float = 0.0
+        self._live_capture_start: RosTime | None = None
+        self._live_capture_end: RosTime | None = None
         self._live_processing = False
 
         # Metric collector is reused for service/action/live-topic flows.
@@ -232,9 +243,13 @@ class AsrServerNode(Node):
         payload = bytes(msg.data)
         if not payload:
             return
+        now_msg = self.get_clock().now().to_msg()
         with self._live_lock:
+            if not self._live_chunks:
+                self._live_capture_start = now_msg
             self._live_chunks.append(payload)
             self._live_last_chunk_ts = time.monotonic()
+            self._live_capture_end = now_msg
 
     def _on_live_timer(self) -> None:
         """Flush buffered live chunks after inactivity timeout.
@@ -244,6 +259,8 @@ class AsrServerNode(Node):
         if not self.live_stream_enabled:
             return
         chunks: list[bytes] = []
+        capture_start: RosTime | None = None
+        capture_end: RosTime | None = None
         with self._live_lock:
             if self._live_processing or not self._live_chunks:
                 return
@@ -252,8 +269,12 @@ class AsrServerNode(Node):
             if (time.monotonic() - self._live_last_chunk_ts) < self.live_flush_timeout_sec:
                 return
             chunks = list(self._live_chunks)
+            capture_start = self._live_capture_start
+            capture_end = self._live_capture_end
             self._live_chunks.clear()
             self._live_last_chunk_ts = 0.0
+            self._live_capture_start = None
+            self._live_capture_end = None
             self._live_processing = True
 
         try:
@@ -266,6 +287,8 @@ class AsrServerNode(Node):
                 asr_response,
                 wav_path="live_input.wav",
                 scenario="topic_streaming",
+                capture_start=capture_start,
+                capture_end=capture_end,
             )
             if asr_response.success:
                 preview_text = asr_response.text[:120]
@@ -294,6 +317,8 @@ class AsrServerNode(Node):
                 error_response,
                 wav_path="live_input.wav",
                 scenario="topic_streaming",
+                capture_start=capture_start,
+                capture_end=capture_end,
             )
         finally:
             with self._live_lock:
@@ -307,6 +332,8 @@ class AsrServerNode(Node):
         scenario: str,
         reference_text: str = "",
         request_id: str | None = None,
+        capture_start: RosTime | None = None,
+        capture_end: RosTime | None = None,
     ) -> str:
         """Publish text + metrics for any ASR response path."""
         rid = request_id or str(uuid.uuid4())
@@ -336,8 +363,12 @@ class AsrServerNode(Node):
             gpu_mem_mb=rec.gpu_mem_mb,
             cost_estimate=rec.cost_estimate,
             success=rec.success,
+            capture_start=capture_start,
+            capture_end=capture_end,
+            text_preview=_preview_text(response.text),
             notes=f"scenario={scenario}" + (f",device={compute_device}" if compute_device else ""),
         )
+        metrics_msg.header.stamp = self.get_clock().now().to_msg()
         self.metrics_pub.publish(metrics_msg)
         return rid
 
@@ -346,7 +377,10 @@ class AsrServerNode(Node):
         wav_path = request.wav_path or self.runtime_cfg.get("asr", {}).get("wav_path", "")
         req = AsrRequest(
             wav_path=wav_path,
-            language=normalize_language_code(request.language or self.language, fallback=self.language),
+            language=normalize_language_code(
+                request.language or self.language,
+                fallback=self.language,
+            ),
             enable_word_timestamps=bool(request.enable_word_timestamps),
         )
         with self.lock:
@@ -453,6 +487,7 @@ class AsrServerNode(Node):
                         success=True,
                         notes="streaming_feedback",
                     )
+                    feedback.metrics.header.stamp = self.get_clock().now().to_msg()
                     goal_handle.publish_feedback(feedback)
                 asr_response = self.backend.streaming_recognize(
                     chunks,

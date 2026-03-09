@@ -38,7 +38,12 @@ def _run_cmd(cmd: list[str], timeout_sec: int = 10) -> tuple[int, str, str]:
         )
         return proc.returncode, proc.stdout, proc.stderr
     except subprocess.TimeoutExpired as exc:
-        return 124, exc.stdout or "", f"command timed out: {' '.join(cmd)}"
+        timed_out_stdout = exc.stdout
+        if isinstance(timed_out_stdout, bytes):
+            decoded_stdout = timed_out_stdout.decode("utf-8", errors="replace")
+        else:
+            decoded_stdout = timed_out_stdout or ""
+        return 124, decoded_stdout, f"command timed out: {' '.join(cmd)}"
 
 
 def _load_profiles_yaml(path: Path) -> dict[str, Any]:

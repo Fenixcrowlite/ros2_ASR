@@ -35,13 +35,25 @@ def test_vosk_backend_normalizes_slovak_when_model_missing(sample_wav: str) -> N
 def test_whisper_backend_normalizes_slovak_on_model_error(
     sample_wav: str, monkeypatch
 ) -> None:
-    backend = WhisperAsrBackend(config={"model_size": "tiny", "device": "cpu", "compute_type": "int8"})
+    backend = WhisperAsrBackend(
+        config={"model_size": "tiny", "device": "cpu", "compute_type": "int8"}
+    )
     monkeypatch.setattr(backend, "_load_model", lambda: False)
     backend._load_error = "test_error"
     response = backend.recognize_once(AsrRequest(wav_path=sample_wav, language="sk"))
     assert not response.success
     assert response.error_code == "whisper_model_error"
     assert response.language == "sk-SK"
+
+
+def test_whisper_cuda_defaults_to_strict_gpu_mode() -> None:
+    backend = WhisperAsrBackend(config={"device": "cuda"})
+    assert backend.allow_cpu_fallback is False
+
+
+def test_whisper_cuda_can_enable_cpu_fallback_explicitly() -> None:
+    backend = WhisperAsrBackend(config={"device": "cuda", "allow_cpu_fallback": True})
+    assert backend.allow_cpu_fallback is True
 
 
 def test_google_backend_normalizes_slovak_on_credential_error(

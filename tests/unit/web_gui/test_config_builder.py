@@ -16,6 +16,7 @@ def test_build_runtime_config_injects_secrets() -> None:
         runtime_overrides={"asr": {"backend": "google"}},
         secrets={
             "google_credentials_json": "/tmp/gcp.json",
+            "aws_profile": "ros2ws",
             "aws_access_key_id": "AKIA123",
             "aws_secret_access_key": "SECRET",
             "azure_speech_key": "AZKEY",
@@ -25,7 +26,9 @@ def test_build_runtime_config_injects_secrets() -> None:
 
     assert path.exists()
     assert merged["backends"]["google"]["credentials_json"] == "/tmp/gcp.json"
+    assert merged["backends"]["aws"]["profile"] == "ros2ws"
     assert merged["backends"]["aws"]["access_key_id"] == "AKIA123"
     assert merged["backends"]["azure"]["speech_key"] == "AZKEY"
     assert env["GOOGLE_APPLICATION_CREDENTIALS"] == "/tmp/gcp.json"
+    assert env["AWS_PROFILE"] == "ros2ws"
     assert env["AWS_ACCESS_KEY_ID"] == "AKIA123"

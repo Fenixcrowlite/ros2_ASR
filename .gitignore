@@ -35,6 +35,8 @@ web_gui/uploads/
 web_gui/noisy/
 web_gui/logs/
 web_gui/profiles/
+web_gui/auth_profiles/
+web_gui/runtime_aws/
 
 # Secrets
 .env

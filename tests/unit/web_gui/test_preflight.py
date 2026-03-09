@@ -12,3 +12,5 @@ def test_preflight_shape() -> None:
     assert "microphone" in checks
     assert "ros" in checks
     assert "fastapi" in checks["modules"]
+    assert "asr_server_python" in checks["ros"]
+    assert "asr_server_faster_whisper" in checks["ros"]

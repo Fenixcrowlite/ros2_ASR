@@ -41,16 +41,44 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "99_Maps/File_Flows_Mermaid.md",
-                "mode": "preview",
+                "file": "02_ROS2/Interfaces_Overview.md",
+                "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "File_Flows_Mermaid"
+              "title": "Interfaces_Overview"
+            }
+          },
+          {
+            "id": "d11e2d13e91f59ea",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "01_Architecture/System_Overview.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "System_Overview"
+            }
+          },
+          {
+            "id": "257cbf216fe7d80b",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "03_Core/Backend_Interface.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Backend_Interface"
             }
           }
         ],
-        "currentTab": 2
+        "currentTab": 4
       }
     ],
     "direction": "vertical"
@@ -123,7 +151,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "99_Maps/File_Flows_Mermaid.md",
+                "file": "03_Core/Backend_Interface.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -133,7 +161,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for File_Flows_Mermaid"
+              "title": "Backlinks for Backend_Interface"
             }
           },
           {
@@ -177,13 +205,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "99_Maps/File_Flows_Mermaid.md",
+                "file": "03_Core/Backend_Interface.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of File_Flows_Mermaid"
+              "title": "Outline of Backend_Interface"
             }
           }
         ]
@@ -198,12 +226,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "99_Maps/File_Flows_Mermaid.md",
+                "file": "03_Core/Backend_Interface.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from File_Flows_Mermaid"
+              "title": "Outgoing links from Backend_Interface"
             }
           }
         ]
@@ -223,29 +251,33 @@
       "bases:Create new base": false
     }
   },
-  "active": "fb81f6c86b26c211",
+  "active": "257cbf216fe7d80b",
   "lastOpenFiles": [
-    "99_Maps/Project_Map.md",
-    "06_Operations/Operations_Index.md",
-    "99_Maps/File_Flows_Mermaid.md",
-    "99_Maps/Runtime_Map.md",
+    "03_Core/Audio_Utilities.md",
+    "03_Core/Config_Loading.md",
+    "03_Core/Backend_Interface.md",
+    "01_Architecture/Dependency_Graph.md",
+    "00_Start/Glossary.md",
+    "06_Operations/Live_Run_Playbook.md",
     "00_Start/Wiki_Home.md",
+    "README.md",
     "02_ROS2/Node_ASR_Text_Output.md",
+    "01_Architecture/System_Overview.md",
+    "01_Architecture/Architecture_Index.md",
+    "01_Architecture/Failure_Model.md",
+    "02_ROS2/Topic_Asr_Text.md",
+    "02_ROS2/Interfaces_Overview.md",
+    "01_Architecture/Layered_Architecture.md",
+    "99_Maps/Project_Map.md",
+    "99_Maps/File_Flows_Mermaid.md",
+    "06_Operations/Operations_Index.md",
+    "99_Maps/Runtime_Map.md",
     "02_ROS2/Topic_Asr_Metrics.md",
     "02_ROS2/Node_Audio_Capture.md",
     "00_Start/How_To_Read_This_Wiki.md",
     "02_ROS2/Service_Get_Status.md",
     "07_Tooling/Web_GUI_Control_Center.md",
-    "00_Start/Glossary.md",
     "02_ROS2/Node_ASR_Server.md",
-    "02_ROS2/Action_Transcribe.md",
-    "01_Architecture/Dependency_Graph.md",
-    "02_ROS2/Runtime_Flow.md",
-    "01_Architecture/Architecture_Index.md",
-    "03_Core/Backend_Factory.md",
-    "03_Core/Audio_Utilities.md",
-    "01_Architecture/System_Overview.md",
-    "00_Start/Quick_Start_Commands.md",
-    "00_Start/Obsidian_Setup.md"
+    "02_ROS2/Action_Transcribe.md"
   ]
 }

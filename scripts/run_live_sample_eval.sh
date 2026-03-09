@@ -9,8 +9,7 @@ if [ ! -f .venv/bin/activate ]; then
   exit 1
 fi
 
-source .venv/bin/activate
-export PYTHONPATH="${PYTHONPATH:-}:$(find "$ROOT_DIR/ros2_ws/src" -mindepth 1 -maxdepth 1 -type d | tr '\n' ':')"
+source "$ROOT_DIR/scripts/source_runtime_env.sh" --without-ros
 
 if [ -f /opt/ros/jazzy/setup.bash ]; then
   set +u

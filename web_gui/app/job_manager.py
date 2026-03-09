@@ -214,8 +214,8 @@ class JobManager:
         run_dir = Path(str(record.metadata.get("run_dir", "")))
         if run_dir.exists():
             for pattern in ["*.json", "*.csv", "*.md", "plots/*.png"]:
-                for item in run_dir.glob(pattern):
-                    artifacts.append(str(item.resolve()))
+                for candidate in run_dir.glob(pattern):
+                    artifacts.append(str(candidate.resolve()))
 
         output_dir = Path(str(record.metadata.get("output_dir", "")))
         if output_dir.exists():
@@ -223,14 +223,14 @@ class JobManager:
             if subdirs:
                 latest = sorted(subdirs)[-1]
                 for pattern in ["*.json", "*.csv", "*.md", "*.wav", "plots/*.png"]:
-                    for item in latest.glob(pattern):
-                        artifacts.append(str(item.resolve()))
+                    for candidate in latest.glob(pattern):
+                        artifacts.append(str(candidate.resolve()))
 
-        unique = []
+        unique: list[str] = []
         seen: set[str] = set()
-        for item in artifacts:
-            if item in seen:
+        for artifact_path in artifacts:
+            if artifact_path in seen:
                 continue
-            seen.add(item)
-            unique.append(item)
+            seen.add(artifact_path)
+            unique.append(artifact_path)
         return unique

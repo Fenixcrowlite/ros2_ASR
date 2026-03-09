@@ -24,8 +24,9 @@
     <section class="panel panel-config">
       <h2 id="runtime-setup-title">Runtime Setup</h2>
       <div class="grid two">
-        <label>Profile name
-          <input id="profile-name" type="text" placeholder="lab_ru_whisper">
+        <label class="profile-name-field">Profile name
+          <input id="profile-name" type="text" placeholder="lab_ru_whisper" autocomplete="off" spellcheck="false">
+          <div id="profile-name-suggestions" class="profile-suggestions hidden" role="listbox" aria-label="Saved profile suggestions"></div>
         </label>
         <label>Base config
           <select id="base-config"></select>
@@ -49,7 +50,7 @@
           </select>
         </label>
         <label>Language
-          <input id="language" type="text" placeholder="ru-RU">
+          <input id="language" type="text" placeholder="ru-RU" list="language-options">
         </label>
         <label>Input mode
           <select id="input-mode">
@@ -59,86 +60,108 @@
           </select>
         </label>
         <label>Sample rate
-          <input id="sample-rate" type="number" value="16000" step="1000">
+          <input id="sample-rate" type="number" value="16000" step="1000" list="sample-rate-options">
         </label>
         <label>Chunk ms
-          <input id="chunk-ms" type="number" value="800" step="50">
+          <input id="chunk-ms" type="number" value="800" step="50" list="chunk-ms-options">
         </label>
       </div>
 
       <h3 id="interfaces-model-runs-title">Interfaces & Model Runs</h3>
       <div id="interfaces" class="checkboxes"></div>
       <label>Model runs `backend[:model][@region]`
-        <input id="model-runs" type="text" value="whisper:tiny,mock">
+        <input id="model-runs" type="text" value="whisper:tiny,mock" list="model-runs-options">
       </label>
 
       <h3 id="backend-details-title">Backend Details</h3>
       <div class="grid three">
         <label>Whisper model
-          <input id="whisper-model" type="text" value="tiny">
+          <input id="whisper-model" type="text" value="tiny" list="whisper-model-options">
         </label>
         <label>Whisper device
-          <input id="whisper-device" type="text" value="cpu">
+          <input id="whisper-device" type="text" value="cpu" list="whisper-device-options">
         </label>
         <label>Whisper compute
-          <input id="whisper-compute" type="text" value="int8">
+          <input id="whisper-compute" type="text" value="int8" list="whisper-compute-options">
         </label>
         <label>Vosk model path
-          <input id="vosk-model-path" type="text" placeholder="/abs/path/to/vosk/model">
+          <input id="vosk-model-path" type="text" placeholder="/abs/path/to/vosk/model" list="vosk-model-path-options">
         </label>
         <label>Google model
-          <input id="google-model" type="text" value="latest_long">
+          <input id="google-model" type="text" value="latest_long" list="google-model-options">
         </label>
         <label>AWS region
-          <input id="aws-region" type="text" value="us-east-1">
+          <input id="aws-region" type="text" value="us-east-1" list="aws-region-options">
         </label>
         <label>AWS bucket
-          <input id="aws-bucket" type="text" placeholder="my-transcribe-bucket">
+          <input id="aws-bucket" type="text" placeholder="my-transcribe-bucket" list="aws-bucket-options">
         </label>
         <label>Azure region
-          <input id="azure-region" type="text" placeholder="westeurope">
+          <input id="azure-region" type="text" placeholder="westeurope" list="azure-region-options">
         </label>
         <label>Azure endpoint
-          <input id="azure-endpoint" type="text" placeholder="optional endpoint id">
+          <input id="azure-endpoint" type="text" placeholder="optional endpoint id" list="azure-endpoint-options">
         </label>
       </div>
 
       <h3 id="cloud-auth-title">Cloud Auth (tokens/keys)</h3>
       <div class="grid three">
-        <label>Google credentials JSON path
-          <input id="secret-google-cred" type="password" autocomplete="off">
+        <label>AWS SSO start URL
+          <input
+            id="secret-aws-sso-start-url"
+            type="text"
+            autocomplete="off"
+            list="aws-sso-start-url-options"
+            placeholder="https://d-xxxxxxxxxx.awsapps.com/start"
+          >
         </label>
-        <label>Google project id
-          <input id="secret-google-project" type="password" autocomplete="off">
-        </label>
-        <label>AWS access key id
-          <input id="secret-aws-id" type="password" autocomplete="off">
-        </label>
-        <label>AWS secret access key
-          <input id="secret-aws-secret" type="password" autocomplete="off">
-        </label>
-        <label>AWS session token
-          <input id="secret-aws-token" type="password" autocomplete="off">
-        </label>
-        <label>Azure speech key
-          <input id="secret-azure-key" type="password" autocomplete="off">
+        <label>AWS SSO region
+          <input
+            id="secret-aws-sso-region"
+            type="text"
+            autocomplete="off"
+            list="aws-sso-region-options"
+            placeholder="eu-north-1"
+          >
         </label>
       </div>
+      <div class="grid three">
+        <label>AWS auth profile file
+          <select id="aws-auth-profile"></select>
+        </label>
+        <label>AWS auth profile name
+          <input id="aws-auth-name" type="text" placeholder="aws_lab_sso" autocomplete="off" spellcheck="false">
+        </label>
+        <div class="row-actions">
+          <button id="build-aws-auth" class="btn btn-secondary" type="button">Build AWS Auth File</button>
+          <button id="load-aws-auth" class="btn btn-secondary" type="button">Load AWS Auth File</button>
+          <button id="save-aws-auth" class="btn btn-secondary" type="button">Save AWS Auth File</button>
+          <button id="aws-sso-login" class="btn" type="button">AWS SSO Login</button>
+        </div>
+      </div>
+      <label>AWS auth text file (portable KEY=VALUE)
+        <textarea
+          id="aws-auth-text"
+          rows="9"
+          spellcheck="false"
+          placeholder="AWS_AUTH_TYPE=sso&#10;AWS_PROFILE=ros2ws&#10;AWS_REGION=eu-north-1&#10;AWS_SSO_START_URL=https://d-xxxxxxxxxx.awsapps.com/start&#10;AWS_SSO_REGION=eu-north-1"
+        ></textarea>
+      </label>
 
       <h3 id="benchmark-controls-title">Benchmark Controls</h3>
       <div class="grid three">
         <label>Dataset CSV
-          <input id="dataset" type="text" value="data/transcripts/sample_manifest.csv">
+          <input id="dataset" type="text" value="data/transcripts/sample_manifest.csv" list="dataset-options">
         </label>
         <label>Backends list
-          <input id="bench-backends" type="text" value="mock,whisper">
+          <input id="bench-backends" type="text" value="mock,whisper" list="bench-backends-options">
         </label>
         <label>Chunk sec
-          <input id="bench-chunk-sec" type="number" value="0.8" step="0.1">
+          <input id="bench-chunk-sec" type="number" value="0.8" step="0.1" list="bench-chunk-sec-options">
         </label>
       </div>
       <label>Scenarios (comma-separated)
-        <input id="bench-scenarios" type="text" value="clean,snr20,snr10,snr0">
+        <input id="bench-scenarios" type="text" value="clean,snr20,snr10,snr0" list="bench-scenarios-options">
       </label>
       <div id="metric-select" class="checkboxes"></div>
     </section>
@@ -158,7 +181,7 @@
           <select id="noise-source"></select>
         </label>
         <label>SNR levels
-          <input id="noise-levels" type="text" value="30,20,10,0">
+          <input id="noise-levels" type="text" value="30,20,10,0" list="noise-levels-options">
         </label>
       </div>
       <button id="apply-noise" class="btn btn-secondary">Generate Noisy Samples</button>
@@ -166,22 +189,22 @@
       <h3 id="live-run-title">Live Run</h3>
       <div class="grid three">
         <label>Reference text
-          <input id="reference-text" type="text" placeholder="optional ground truth">
+          <input id="reference-text" type="text" placeholder="optional ground truth" list="reference-text-options">
         </label>
         <label>Record sec
-          <input id="record-sec" type="number" value="5" step="0.5">
+          <input id="record-sec" type="number" value="5" step="0.5" list="record-sec-options">
         </label>
         <label>Use WAV (optional)
           <select id="use-wav"></select>
         </label>
         <label>Audio device
-          <input id="audio-device" type="text" placeholder="empty=default">
+          <input id="audio-device" type="text" placeholder="empty=default" list="audio-device-options">
         </label>
         <label>Action chunk sec
-          <input id="action-chunk-sec" type="number" value="0.8" step="0.1">
+          <input id="action-chunk-sec" type="number" value="0.8" step="0.1" list="action-chunk-sec-options">
         </label>
         <label>Timeout sec
-          <input id="request-timeout" type="number" value="25" step="1">
+          <input id="request-timeout" type="number" value="25" step="1" list="request-timeout-options">
         </label>
       </div>
       <div class="checkboxes inline">
@@ -205,7 +228,7 @@
           <select id="bringup-wav"></select>
         </label>
         <label>Mic capture sec
-          <input id="bringup-mic-sec" type="number" value="4.0" step="0.5">
+          <input id="bringup-mic-sec" type="number" value="4.0" step="0.5" list="bringup-mic-sec-options">
         </label>
       </div>
       <div class="checkboxes inline">
@@ -253,6 +276,33 @@
       <ul id="help-links" class="help-links"></ul>
     </div>
   </div>
+
+  <datalist id="language-options"></datalist>
+  <datalist id="sample-rate-options"></datalist>
+  <datalist id="chunk-ms-options"></datalist>
+  <datalist id="model-runs-options"></datalist>
+  <datalist id="whisper-model-options"></datalist>
+  <datalist id="whisper-device-options"></datalist>
+  <datalist id="whisper-compute-options"></datalist>
+  <datalist id="vosk-model-path-options"></datalist>
+  <datalist id="google-model-options"></datalist>
+  <datalist id="aws-region-options"></datalist>
+  <datalist id="aws-sso-start-url-options"></datalist>
+  <datalist id="aws-sso-region-options"></datalist>
+  <datalist id="aws-bucket-options"></datalist>
+  <datalist id="azure-region-options"></datalist>
+  <datalist id="azure-endpoint-options"></datalist>
+  <datalist id="dataset-options"></datalist>
+  <datalist id="bench-backends-options"></datalist>
+  <datalist id="bench-chunk-sec-options"></datalist>
+  <datalist id="bench-scenarios-options"></datalist>
+  <datalist id="noise-levels-options"></datalist>
+  <datalist id="reference-text-options"></datalist>
+  <datalist id="record-sec-options"></datalist>
+  <datalist id="audio-device-options"></datalist>
+  <datalist id="action-chunk-sec-options"></datalist>
+  <datalist id="request-timeout-options"></datalist>
+  <datalist id="bringup-mic-sec-options"></datalist>
 
   <script src="/static/app.js"></script>
 </body>

@@ -3,6 +3,7 @@ VENV := .venv
 PY := $(VENV)/bin/python
 ROS_SETUP := /opt/ros/jazzy/setup.bash
 SRC_PY_PATH := $(shell find $(PWD)/ros2_ws/src -mindepth 1 -maxdepth 1 -type d | tr '\n' ':')
+PY_PATH := $(PWD):$(SRC_PY_PATH)
 ARCHVIZ := ./archviz
 
 .PHONY: setup build test test-unit test-ros test-colcon run live-sample bench report web-gui arch-static arch-runtime arch arch-diff lint format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
@@ -11,16 +12,16 @@ setup:
 	bash scripts/setup_env.sh
 
 build:
-	bash -lc "if [ ! -f $(ROS_SETUP) ]; then echo 'ROS2 Jazzy not found at $(ROS_SETUP).'; exit 1; fi; source $(ROS_SETUP) && colcon build --base-paths ros2_ws/src --symlink-install"
+	bash -lc "if [ ! -f $(ROS_SETUP) ]; then echo 'ROS2 Jazzy not found at $(ROS_SETUP).'; exit 1; fi; if [ ! -f $(VENV)/bin/activate ]; then echo '.venv missing. Run make setup first.'; exit 1; fi; source $(VENV)/bin/activate && source $(ROS_SETUP) && colcon build --base-paths ros2_ws/src --symlink-install"
 
 test-unit:
-	bash -lc "source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(SRC_PY_PATH) pytest -q -m 'not ros'"
+	bash -lc "source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(PY_PATH) pytest -q -m 'not ros'"
 
 test-ros:
-	bash -lc "if [ ! -f $(ROS_SETUP) ]; then echo 'ROS2 Jazzy not found at $(ROS_SETUP), skipping ROS tests.'; exit 0; fi; source $(ROS_SETUP) && colcon build --base-paths ros2_ws/src --symlink-install && source install/setup.bash && source $(VENV)/bin/activate && PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 pytest -q -m ros"
+	bash -lc "if [ ! -f $(ROS_SETUP) ]; then echo 'ROS2 Jazzy not found at $(ROS_SETUP), skipping ROS tests.'; exit 0; fi; if [ ! -f $(VENV)/bin/activate ]; then echo '.venv missing. Run make setup first.'; exit 1; fi; source $(VENV)/bin/activate && source $(ROS_SETUP) && colcon build --base-paths ros2_ws/src --symlink-install && source install/setup.bash && PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=$$PYTHONPATH:$(PY_PATH) pytest -q -m ros tests/integration"
 
 test-colcon:
-	bash -lc "if [ ! -f $(ROS_SETUP) ]; then echo 'ROS2 Jazzy not found at $(ROS_SETUP), skipping colcon tests.'; exit 0; fi; source $(ROS_SETUP) && colcon build --base-paths ros2_ws/src --symlink-install && source install/setup.bash && colcon test --base-paths ros2_ws/src --event-handlers console_cohesion+ && colcon test-result --verbose"
+	bash -lc "if [ ! -f $(ROS_SETUP) ]; then echo 'ROS2 Jazzy not found at $(ROS_SETUP), skipping colcon tests.'; exit 0; fi; if [ ! -f $(VENV)/bin/activate ]; then echo '.venv missing. Run make setup first.'; exit 1; fi; source $(VENV)/bin/activate && source $(ROS_SETUP) && colcon build --base-paths ros2_ws/src --symlink-install && source install/setup.bash && colcon test --base-paths ros2_ws/src --event-handlers console_cohesion+ && colcon test-result --verbose"
 
 test: test-unit test-ros test-colcon
 
@@ -34,7 +35,7 @@ bench:
 	bash scripts/run_benchmarks.sh
 
 report:
-	bash -lc "source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(SRC_PY_PATH) $(PY) scripts/generate_report.py --input results/benchmark_results.json --output results/report.md"
+	bash -lc "source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(PY_PATH) $(PY) scripts/generate_report.py --input results/benchmark_results.json --output results/report.md"
 
 web-gui:
 	bash web_gui/run_web_gui.sh
@@ -53,7 +54,7 @@ arch-diff:
 
 lint:
 	bash -lc "source $(VENV)/bin/activate && ruff check ."
-	bash -lc "source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(SRC_PY_PATH) mypy ros2_ws/src tests"
+	bash -lc "source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(PY_PATH) mypy ros2_ws/src tests web_gui scripts tools/archviz"
 
 format:
 	bash -lc "source $(VENV)/bin/activate && ruff format ."

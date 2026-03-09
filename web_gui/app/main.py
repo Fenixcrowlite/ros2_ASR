@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import shlex
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import Any
@@ -11,7 +12,16 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from web_gui.app.aws_auth_store import (
+    auth_profile_path,
+    dump_env_like_text,
+    list_auth_profiles,
+    load_auth_profile,
+    resolve_auth_context,
+    save_auth_profile,
+)
 from web_gui.app.command_builder import (
+    CommandSpec,
     build_benchmark_command,
     build_live_sample_command,
     build_ros_bringup_command,
@@ -72,6 +82,7 @@ class RunRequest(BaseModel):
     runtime_overrides: dict[str, Any] = Field(default_factory=dict)
     payload: dict[str, Any] = Field(default_factory=dict)
     secrets: dict[str, str] = Field(default_factory=dict)
+    aws_auth_profile: str = ""
 
 
 class SaveProfileRequest(BaseModel):
@@ -88,14 +99,44 @@ class NoiseRequest(BaseModel):
     snr_levels: list[float] = Field(default_factory=lambda: [20.0, 10.0, 0.0])
 
 
+class SaveAwsAuthProfileRequest(BaseModel):
+    """AWS auth profile persistence request."""
+
+    name: str
+    content: str = ""
+    values: dict[str, str] = Field(default_factory=dict)
+
+
+class AwsSsoLoginRequest(BaseModel):
+    """AWS SSO login job request."""
+
+    auth_profile: str
+    use_device_code: bool = True
+    no_browser: bool = True
+
+
 def _prepare_runtime(req: RunRequest) -> tuple[Path, dict[str, Any], dict[str, str]]:
+    merged_secrets = {str(k): str(v) for k, v in req.secrets.items() if str(v).strip()}
+    env_from_auth: dict[str, str] = {}
+    if req.aws_auth_profile.strip():
+        try:
+            auth_ctx = resolve_auth_context(req.aws_auth_profile.strip())
+        except (FileNotFoundError, ValueError) as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        for key, value in auth_ctx.runtime_secrets.items():
+            merged_secrets.setdefault(key, value)
+        env_from_auth.update(auth_ctx.env_extra)
+
     try:
-        return build_runtime_config(
+        runtime_path, merged_cfg, env_secrets = build_runtime_config(
             base_config_path=req.base_config,
             runtime_overrides=req.runtime_overrides,
-            secrets=req.secrets,
+            secrets=merged_secrets,
             profile_name=req.profile_name,
         )
+        env_merged = dict(env_secrets)
+        env_merged.update(env_from_auth)
+        return runtime_path, merged_cfg, env_merged
     except (ConfigBuildError, ValueError, FileNotFoundError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -110,6 +151,72 @@ def root() -> FileResponse:
 def api_options() -> dict[str, Any]:
     """Return static option catalogs and default configs."""
     return get_options_payload()
+
+
+@app.get("/api/aws-auth-profiles")
+def api_aws_auth_profiles() -> dict[str, Any]:
+    """List available text AWS auth profiles."""
+    return {"profiles": list_auth_profiles()}
+
+
+@app.get("/api/aws-auth-profiles/{name}")
+def api_aws_auth_profile(name: str) -> dict[str, Any]:
+    """Load one AWS auth profile from text file."""
+    try:
+        content, values = load_auth_profile(name)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {"name": name, "content": content, "values": values}
+
+
+@app.post("/api/aws-auth-profiles")
+def api_save_aws_auth_profile(req: SaveAwsAuthProfileRequest) -> dict[str, Any]:
+    """Save/update one AWS auth profile text file."""
+    try:
+        path = save_auth_profile(req.name, content=req.content, values=req.values)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return {
+        "path": str(path.resolve()),
+        "profiles": list_auth_profiles(),
+        "content": path.read_text(encoding="utf-8"),
+    }
+
+
+@app.post("/api/aws-sso-login")
+def api_aws_sso_login(req: AwsSsoLoginRequest) -> dict[str, Any]:
+    """Start AWS SSO login as background job for selected auth profile."""
+    try:
+        ctx = resolve_auth_context(req.auth_profile, for_login=True)
+    except FileNotFoundError as exc:
+        raise HTTPException(status_code=404, detail=str(exc)) from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    # SSO login requires AWS CLI profile and local AWS_CONFIG_FILE prepared by context resolver.
+    args = ["aws", "sso", "login", "--profile", ctx.profile_name]
+    if req.no_browser:
+        args.append("--no-browser")
+    if req.use_device_code:
+        args.append("--use-device-code")
+    login_cmd = " ".join(shlex.quote(item) for item in args)
+    shell = f"set -euo pipefail ; cd {shlex.quote(str(REPO_ROOT))} ; {login_cmd}"
+    command = CommandSpec(
+        shell_command=shell,
+        display_command=login_cmd,
+        metadata={
+            "aws_auth_profile": req.auth_profile,
+            "aws_auth_file": str(auth_profile_path(req.auth_profile)),
+        },
+    )
+    job = JOBS.start_job(kind="aws_sso_login", command=command, env_extra=ctx.env_extra)
+    return {
+        "job": job.to_dict(),
+        "profile": req.auth_profile,
+        "content": dump_env_like_text(ctx.values),
+    }
 
 
 @app.get("/api/files")

@@ -101,6 +101,44 @@ label {
   color: #374151;
 }
 
+.profile-name-field {
+  position: relative;
+}
+
+.profile-suggestions {
+  position: absolute;
+  top: calc(100% + 0.2rem);
+  left: 0;
+  right: 0;
+  max-height: 12rem;
+  overflow-y: auto;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 10px 22px rgba(15, 35, 58, 0.12);
+  z-index: 15;
+}
+
+.profile-suggestions.hidden {
+  display: none;
+}
+
+.profile-suggestion-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #111827;
+  text-align: left;
+  padding: 0.45rem 0.55rem;
+  font: inherit;
+  cursor: pointer;
+}
+
+.profile-suggestion-item:hover,
+.profile-suggestion-item.active {
+  background: #eaf2ff;
+}
+
 input,
 select,
 textarea {
@@ -118,6 +156,12 @@ textarea#log-viewer {
   color: #dbeafe;
   border-color: #1e3a5f;
   font-family: "JetBrains Mono", "Fira Code", monospace;
+}
+
+textarea#aws-auth-text {
+  min-height: 10rem;
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  resize: vertical;
 }
 
 .row-actions {

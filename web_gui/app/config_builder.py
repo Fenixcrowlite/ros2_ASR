@@ -8,7 +8,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import yaml
+import yaml  # type: ignore[import-untyped]
 
 from web_gui.app.paths import REPO_ROOT, RUNTIME_CONFIGS_DIR
 
@@ -78,6 +78,8 @@ def _apply_secrets(runtime_cfg: dict[str, Any], secrets: dict[str, str]) -> None
         aws_cfg["secret_access_key"] = secrets["aws_secret_access_key"]
     if secrets.get("aws_session_token"):
         aws_cfg["session_token"] = secrets["aws_session_token"]
+    if secrets.get("aws_profile"):
+        aws_cfg["profile"] = secrets["aws_profile"]
     if secrets.get("aws_region"):
         aws_cfg["region"] = secrets["aws_region"]
     if secrets.get("aws_s3_bucket"):
@@ -99,6 +101,7 @@ def _extract_env_secrets(secrets: dict[str, str]) -> dict[str, str]:
         "aws_access_key_id": "AWS_ACCESS_KEY_ID",
         "aws_secret_access_key": "AWS_SECRET_ACCESS_KEY",
         "aws_session_token": "AWS_SESSION_TOKEN",
+        "aws_profile": "AWS_PROFILE",
         "aws_region": "AWS_REGION",
         "azure_speech_key": "AZURE_SPEECH_KEY",
         "azure_region": "AZURE_SPEECH_REGION",

@@ -1,0 +1,8 @@
+# Copy this file into web_gui/auth_profiles/<name>.txt (local, untracked)
+# and edit values for your AWS account/profile.
+
+AWS_AUTH_TYPE=sso
+AWS_PROFILE=ros2ws
+AWS_REGION=eu-north-1
+AWS_SSO_START_URL=https://d-xxxxxxxxxx.awsapps.com/start
+AWS_SSO_REGION=eu-north-1

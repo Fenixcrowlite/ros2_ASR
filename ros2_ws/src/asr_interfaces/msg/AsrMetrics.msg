@@ -11,4 +11,7 @@ float32 gpu_util_percent
 float32 gpu_mem_mb
 float32 cost_estimate
 bool success
+builtin_interfaces/Time capture_start
+builtin_interfaces/Time capture_end
+string text_preview
 string notes

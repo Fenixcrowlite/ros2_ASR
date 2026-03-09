@@ -2,6 +2,11 @@ const state = {
   options: null,
   files: null,
   selectedJobId: null,
+  profileAutocomplete: {
+    open: false,
+    items: [],
+    activeIndex: -1,
+  },
   helpLanguage: "ru",
   help: {
     key: "",
@@ -191,7 +196,7 @@ const HELP_CONTENT_RU = {
     title: "Кнопка Load Profile",
     summary: "Загружает профиль по имени в форму.",
     what: "Применяются сохранённые поля runtime/payload.",
-    how: "Сначала введите Profile name существующего профиля.",
+    how: "Начните вводить имя в Profile name, при желании выберите подсказку и нажмите Load Profile.",
     links: docs("guiReadme"),
   },
   asr_backend: {
@@ -705,7 +710,7 @@ const HELP_CONTENT_EN = {
     title: "Load Profile Button",
     summary: "Load saved UI setup.",
     what: "Applies stored runtime/payload values back into form fields.",
-    how: "Enter existing profile name and click Load Profile.",
+    how: "Type in Profile Name, optionally pick a suggestion, then click Load Profile.",
     links: docs("guiReadme"),
   },
   asr_backend: {
@@ -1119,12 +1124,6 @@ const HELP_TARGETS = {
   "aws-bucket": "aws_bucket",
   "azure-region": "azure_region",
   "azure-endpoint": "azure_endpoint",
-  "secret-google-cred": "secret_google_cred",
-  "secret-google-project": "secret_google_project",
-  "secret-aws-id": "secret_aws_id",
-  "secret-aws-secret": "secret_aws_secret",
-  "secret-aws-token": "secret_aws_token",
-  "secret-azure-key": "secret_azure_key",
   dataset: "dataset",
   "bench-backends": "bench_backends",
   "bench-chunk-sec": "bench_chunk_sec",
@@ -1476,15 +1475,555 @@ function checkedValues(containerId) {
 
 function populateSelect(selectId, values, selected = "") {
   const select = $(selectId);
+  const normalized = Array.from(
+    new Set(
+      (values || [])
+        .map((value) => String(value ?? "").trim())
+        .filter(Boolean),
+    ),
+  );
   select.innerHTML = "";
-  values.forEach((value) => {
+  normalized.forEach((value) => {
     const option = document.createElement("option");
     option.value = value;
     option.textContent = value;
     select.appendChild(option);
   });
-  if (selected && values.includes(selected)) {
+  if (selected && normalized.includes(selected)) {
     select.value = selected;
+  }
+}
+
+function populateDatalist(listId, values) {
+  const datalist = $(listId);
+  if (!datalist) {
+    return;
+  }
+  const normalized = Array.from(
+    new Set(
+      (values || [])
+        .map((value) => String(value ?? "").trim())
+        .filter(Boolean),
+    ),
+  );
+  datalist.innerHTML = "";
+  normalized.forEach((value) => {
+    const option = document.createElement("option");
+    option.value = value;
+    datalist.appendChild(option);
+  });
+}
+
+function splitCsvOrArray(raw) {
+  if (Array.isArray(raw)) {
+    return raw
+      .map((item) => String(item ?? "").trim())
+      .filter(Boolean);
+  }
+  return splitCsv(raw);
+}
+
+function csvFromAny(raw) {
+  if (Array.isArray(raw)) {
+    return raw
+      .map((item) => String(item ?? "").trim())
+      .filter(Boolean)
+      .join(",");
+  }
+  return String(raw ?? "").trim();
+}
+
+function setCheckboxGroup(containerId, values, fallback = []) {
+  const selectedValues = splitCsvOrArray(values);
+  const selected = new Set(selectedValues.length ? selectedValues : splitCsvOrArray(fallback));
+  const nodes = $(containerId).querySelectorAll("input[type='checkbox']");
+  nodes.forEach((item) => {
+    item.checked = selected.has(item.value);
+  });
+}
+
+function setSelectValueIfPresent(selectId, value) {
+  const select = $(selectId);
+  const normalized = String(value ?? "").trim();
+  if (!normalized) {
+    return;
+  }
+  const options = Array.from(select.options).map((item) => item.value);
+  if (options.includes(normalized)) {
+    select.value = normalized;
+  }
+}
+
+function setFieldValue(inputId, value) {
+  if (value === undefined || value === null || value === "") {
+    return;
+  }
+  $(inputId).value = String(value);
+}
+
+const AWS_AUTH_TEXT_KEY_ORDER = [
+  "AWS_AUTH_TYPE",
+  "AWS_PROFILE",
+  "AWS_REGION",
+  "AWS_SSO_START_URL",
+  "AWS_SSO_REGION",
+  "AWS_SSO_ACCOUNT_ID",
+  "AWS_SSO_ROLE_NAME",
+  "AWS_SSO_SESSION_NAME",
+  "AWS_S3_BUCKET",
+];
+
+function parseEnvLikeText(raw) {
+  const values = {};
+  const lines = String(raw || "").split(/\r?\n/);
+  for (const lineRaw of lines) {
+    const line = lineRaw.trim();
+    if (!line || line.startsWith("#")) {
+      continue;
+    }
+    const eq = line.indexOf("=");
+    if (eq <= 0) {
+      continue;
+    }
+    const key = line.slice(0, eq).trim();
+    let value = line.slice(eq + 1).trim();
+    if (
+      (value.startsWith("\"") && value.endsWith("\"")) ||
+      (value.startsWith("'") && value.endsWith("'"))
+    ) {
+      value = value.slice(1, -1);
+    }
+    if (key) {
+      values[key] = value;
+    }
+  }
+  return values;
+}
+
+function renderEnvLikeText(values) {
+  const rows = [];
+  const used = new Set();
+  for (const key of AWS_AUTH_TEXT_KEY_ORDER) {
+    const value = String(values?.[key] || "").trim();
+    if (!value) {
+      continue;
+    }
+    rows.push(`${key}=${value}`);
+    used.add(key);
+  }
+  const leftovers = Object.keys(values || {})
+    .filter((key) => !used.has(key))
+    .sort((left, right) => left.localeCompare(right));
+  for (const key of leftovers) {
+    const value = String(values[key] || "").trim();
+    if (!value) {
+      continue;
+    }
+    rows.push(`${key}=${value}`);
+  }
+  return rows.join("\n") + (rows.length ? "\n" : "");
+}
+
+function buildAwsAuthTextFromForm() {
+  const values = parseEnvLikeText($("aws-auth-text").value);
+  const ssoStartUrl = $("secret-aws-sso-start-url").value.trim();
+  const ssoRegion = $("secret-aws-sso-region").value.trim();
+  const region = $("aws-region").value.trim() || values.AWS_REGION || ssoRegion;
+  const bucket = $("aws-bucket").value.trim();
+
+  if (!ssoStartUrl) {
+    throw new Error("Set AWS SSO start URL");
+  }
+  if (!ssoRegion) {
+    throw new Error("Set AWS SSO region");
+  }
+
+  values.AWS_AUTH_TYPE = "sso";
+  values.AWS_PROFILE = values.AWS_PROFILE || "ros2ws";
+  if (region) {
+    values.AWS_REGION = region;
+  }
+  values.AWS_SSO_START_URL = ssoStartUrl;
+  values.AWS_SSO_REGION = ssoRegion;
+  if (bucket) {
+    values.AWS_S3_BUCKET = bucket;
+  } else {
+    delete values.AWS_S3_BUCKET;
+  }
+  delete values.AWS_ACCESS_KEY_ID;
+  delete values.AWS_SECRET_ACCESS_KEY;
+  delete values.AWS_SESSION_TOKEN;
+
+  const rendered = renderEnvLikeText(values);
+  $("aws-auth-text").value = rendered;
+  return values;
+}
+
+function normalizeAwsAuthProfileNames(values) {
+  const collator = new Intl.Collator(undefined, { sensitivity: "base", numeric: true });
+  return Array.from(
+    new Set(
+      (values || [])
+        .map((value) => String(value || "").trim())
+        .filter(Boolean),
+    ),
+  ).sort((left, right) => collator.compare(left, right));
+}
+
+function selectedAwsAuthProfile() {
+  const select = $("aws-auth-profile");
+  if (!select) {
+    return "";
+  }
+  return String(select.value || "").trim();
+}
+
+function safeAwsAuthName(raw) {
+  return String(raw || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9._-]+/g, "-")
+    .replace(/^[._-]+|[._-]+$/g, "") || "aws-sso";
+}
+
+function defaultAwsAuthProfileName() {
+  const ssoStartUrl = $("secret-aws-sso-start-url").value.trim();
+  const ssoRegion = $("secret-aws-sso-region").value.trim();
+  let host = "";
+  if (ssoStartUrl) {
+    try {
+      host = new URL(ssoStartUrl).host;
+    } catch (_error) {
+      host = ssoStartUrl
+        .replace(/^https?:\/\//i, "")
+        .split("/")[0];
+    }
+  }
+  const base = [host, ssoRegion].filter(Boolean).join("-");
+  return safeAwsAuthName(base ? `sso-${base}` : "aws-sso");
+}
+
+function applyAwsAuthValues(values) {
+  const region = String(values.AWS_REGION || "").trim();
+  const bucket = String(values.AWS_S3_BUCKET || "").trim();
+  const ssoStartUrl = String(values.AWS_SSO_START_URL || "").trim();
+  const ssoRegion = String(values.AWS_SSO_REGION || "").trim();
+
+  if (region) {
+    $("aws-region").value = region;
+  }
+  if (bucket) {
+    $("aws-bucket").value = bucket;
+  }
+  $("secret-aws-sso-start-url").value = ssoStartUrl;
+  $("secret-aws-sso-region").value = ssoRegion;
+}
+
+function normalizeProfileNames(values) {
+  const collator = new Intl.Collator(undefined, { sensitivity: "base", numeric: true });
+  return Array.from(
+    new Set(
+      (values || [])
+        .map((value) => String(value || "").trim())
+        .filter(Boolean),
+    ),
+  ).sort((left, right) => collator.compare(left, right));
+}
+
+function setKnownProfiles(values) {
+  const names = normalizeProfileNames(values);
+  if (state.options) {
+    state.options = { ...state.options, profiles: names };
+  } else {
+    state.options = { profiles: names };
+  }
+  return names;
+}
+
+function filterProfileSuggestions(rawQuery) {
+  const names = normalizeProfileNames(state.options?.profiles || []);
+  const query = String(rawQuery || "").trim().toLowerCase();
+  if (!query) {
+    return names;
+  }
+
+  const startsWith = [];
+  const includes = [];
+  names.forEach((name) => {
+    const lower = name.toLowerCase();
+    if (lower.startsWith(query)) {
+      startsWith.push(name);
+    } else if (lower.includes(query)) {
+      includes.push(name);
+    }
+  });
+  return [...startsWith, ...includes];
+}
+
+function hideProfileSuggestions() {
+  const panel = $("profile-name-suggestions");
+  if (!panel) {
+    return;
+  }
+  panel.classList.add("hidden");
+  panel.innerHTML = "";
+  state.profileAutocomplete.open = false;
+  state.profileAutocomplete.items = [];
+  state.profileAutocomplete.activeIndex = -1;
+}
+
+function setActiveProfileSuggestion(index) {
+  state.profileAutocomplete.activeIndex = index;
+  const panel = $("profile-name-suggestions");
+  if (!panel) {
+    return;
+  }
+  const options = panel.querySelectorAll(".profile-suggestion-item");
+  options.forEach((node, nodeIndex) => {
+    node.classList.toggle("active", nodeIndex === index);
+  });
+}
+
+function chooseProfileSuggestion(name) {
+  const input = $("profile-name");
+  input.value = name;
+  hideProfileSuggestions();
+  input.focus();
+  input.setSelectionRange(name.length, name.length);
+}
+
+function renderProfileSuggestions(items) {
+  const panel = $("profile-name-suggestions");
+  if (!panel) {
+    return;
+  }
+
+  panel.innerHTML = "";
+  state.profileAutocomplete.items = items;
+  state.profileAutocomplete.activeIndex = -1;
+
+  if (!items.length) {
+    hideProfileSuggestions();
+    return;
+  }
+
+  items.forEach((name, index) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "profile-suggestion-item";
+    button.setAttribute("role", "option");
+    button.textContent = name;
+    button.onmousedown = (event) => {
+      event.preventDefault();
+      chooseProfileSuggestion(name);
+    };
+    button.onmouseenter = () => {
+      setActiveProfileSuggestion(index);
+    };
+    panel.appendChild(button);
+  });
+
+  panel.classList.remove("hidden");
+  state.profileAutocomplete.open = true;
+}
+
+function showProfileSuggestions() {
+  const input = $("profile-name");
+  const items = filterProfileSuggestions(input.value);
+  renderProfileSuggestions(items);
+}
+
+function moveProfileSuggestion(step) {
+  if (!state.profileAutocomplete.open) {
+    showProfileSuggestions();
+  }
+  const { items, activeIndex } = state.profileAutocomplete;
+  if (!items.length) {
+    return;
+  }
+  const next = (activeIndex + step + items.length) % items.length;
+  setActiveProfileSuggestion(next);
+}
+
+function selectActiveProfileSuggestion() {
+  if (!state.profileAutocomplete.open) {
+    return false;
+  }
+  const { items, activeIndex } = state.profileAutocomplete;
+  if (!items.length) {
+    return false;
+  }
+  const index = activeIndex >= 0 ? activeIndex : 0;
+  chooseProfileSuggestion(items[index]);
+  return true;
+}
+
+async function refreshSavedProfiles() {
+  const options = await fetchJSON("/api/options");
+  const names = setKnownProfiles(options.profiles || []);
+  populateDatalist("aws-sso-start-url-options", options.aws_sso_start_urls || []);
+  populateDatalist("aws-sso-region-options", options.aws_sso_regions || options.aws_regions || []);
+  if (state.options) {
+    state.options = { ...state.options, profiles: names };
+  } else {
+    state.options = { ...options, profiles: names };
+  }
+  if (document.activeElement === $("profile-name")) {
+    showProfileSuggestions();
+  }
+}
+
+function deriveModelRunsFromConfig(config) {
+  const webCfg = config.web || {};
+  if (webCfg.model_runs) {
+    return String(webCfg.model_runs).trim();
+  }
+
+  const asr = config.asr || {};
+  const backend = String(asr.backend || "").trim();
+  if (!backend) {
+    return "";
+  }
+  const backendCfg = (config.backends || {})[backend] || {};
+  const model = String(backendCfg.model || backendCfg.model_size || asr.model || "").trim();
+  const region = String(backendCfg.region || asr.region || "").trim();
+  let token = backend;
+  if (model) {
+    token += `:${model}`;
+  }
+  if (region && region !== "local") {
+    token += `@${region}`;
+  }
+  return token;
+}
+
+function populateStaticDatalists(options) {
+  populateDatalist("language-options", options.languages || []);
+  populateDatalist("sample-rate-options", options.sample_rates || [16000]);
+  populateDatalist("chunk-ms-options", options.chunk_ms_values || [800]);
+  populateDatalist("model-runs-options", options.model_run_presets || []);
+  populateDatalist("whisper-model-options", options.backend_models?.whisper || []);
+  populateDatalist("whisper-device-options", options.whisper_devices || ["cpu", "cuda"]);
+  populateDatalist("whisper-compute-options", options.whisper_compute_types || ["int8"]);
+  populateDatalist("vosk-model-path-options", options.vosk_model_paths || []);
+  populateDatalist("google-model-options", options.backend_models?.google || []);
+  populateDatalist("aws-region-options", options.aws_regions || ["us-east-1"]);
+  populateDatalist("aws-sso-start-url-options", options.aws_sso_start_urls || []);
+  populateDatalist("aws-sso-region-options", options.aws_sso_regions || options.aws_regions || []);
+  populateDatalist("azure-region-options", options.azure_regions || ["eastus"]);
+  populateDatalist("aws-bucket-options", options.aws_bucket_hints || []);
+  populateDatalist("azure-endpoint-options", options.azure_endpoint_hints || []);
+  populateDatalist("dataset-options", options.datasets || []);
+  populateDatalist("bench-backends-options", options.benchmark_backend_presets || []);
+  populateDatalist("bench-chunk-sec-options", options.benchmark_chunk_sec_values || [0.8]);
+  populateDatalist("bench-scenarios-options", options.benchmark_scenario_presets || []);
+  populateDatalist("noise-levels-options", options.noise_level_presets || ["30,20,10,0"]);
+  populateDatalist("reference-text-options", options.reference_texts || []);
+  populateDatalist("record-sec-options", options.record_sec_values || [5.0]);
+  populateDatalist("audio-device-options", options.audio_device_hints || ["default", "0", "1"]);
+  populateDatalist("action-chunk-sec-options", options.action_chunk_sec_values || [0.8]);
+  populateDatalist("request-timeout-options", options.request_timeout_values || [25.0]);
+  populateDatalist("bringup-mic-sec-options", options.mic_capture_sec_values || [4.0]);
+}
+
+function applyBaseConfigDefaults(configPath, { announce = false } = {}) {
+  const catalog = state.options?.defaults_by_config || {};
+  const cfg = catalog[configPath];
+  if (!cfg || typeof cfg !== "object") {
+    return;
+  }
+
+  const asr = cfg.asr || {};
+  const benchmark = cfg.benchmark || {};
+  const backends = cfg.backends || {};
+  const webCfg = cfg.web || {};
+
+  setFieldValue("asr-backend", asr.backend);
+  setFieldValue("language", asr.language);
+  setFieldValue("sample-rate", asr.sample_rate);
+  setFieldValue("chunk-ms", asr.chunk_ms);
+  setFieldValue("input-mode", asr.input_mode);
+
+  if (benchmark.scenarios) {
+    $("bench-scenarios").value = csvFromAny(benchmark.scenarios);
+  }
+  setFieldValue("bench-chunk-sec", benchmark.chunk_sec);
+  setCheckboxGroup("metric-select", benchmark.selected_metrics, state.options?.metrics || []);
+
+  const whisper = backends.whisper || {};
+  setFieldValue("whisper-model", whisper.model_size || whisper.model);
+  setFieldValue("whisper-device", whisper.device);
+  setFieldValue("whisper-compute", whisper.compute_type);
+
+  const vosk = backends.vosk || {};
+  setFieldValue("vosk-model-path", vosk.model_path);
+
+  const google = backends.google || {};
+  setFieldValue("google-model", google.model);
+
+  const aws = backends.aws || {};
+  setFieldValue("aws-region", aws.region);
+  setFieldValue("aws-bucket", aws.s3_bucket);
+  setFieldValue("secret-aws-sso-region", aws.region);
+
+  const azure = backends.azure || {};
+  setFieldValue("azure-region", azure.region);
+  setFieldValue("azure-endpoint", azure.endpoint);
+
+  setFieldValue("language-mode", webCfg.language_mode);
+  setFieldValue("reference-text", webCfg.reference_text);
+  setFieldValue("record-sec", webCfg.record_sec);
+  setFieldValue("action-chunk-sec", webCfg.action_chunk_sec);
+  setFieldValue("request-timeout", webCfg.request_timeout_sec);
+  setFieldValue("noise-levels", webCfg.noise_levels);
+
+  if (webCfg.interfaces) {
+    setCheckboxGroup("interfaces", webCfg.interfaces, ["core"]);
+  } else {
+    setCheckboxGroup("interfaces", ["core"], ["core"]);
+  }
+
+  const modelRuns = deriveModelRunsFromConfig(cfg);
+  if (modelRuns) {
+    $("model-runs").value = modelRuns;
+  }
+
+  if (webCfg.benchmark_backends || webCfg.backends) {
+    $("bench-backends").value = csvFromAny(webCfg.benchmark_backends || webCfg.backends);
+  } else if (asr.backend) {
+    $("bench-backends").value = String(asr.backend);
+  }
+  setFieldValue("dataset", webCfg.dataset);
+
+  if (webCfg.ros_auto_launch !== undefined) {
+    $("ros-auto-launch").checked = Boolean(webCfg.ros_auto_launch);
+  }
+  if (webCfg.action_streaming !== undefined) {
+    $("action-streaming").checked = Boolean(webCfg.action_streaming);
+  }
+
+  if (webCfg.bringup_input_mode) {
+    $("bringup-input-mode").value = String(webCfg.bringup_input_mode);
+  }
+  setFieldValue("bringup-mic-sec", webCfg.bringup_mic_capture_sec);
+  if (webCfg.bringup_continuous !== undefined) {
+    $("bringup-continuous").checked = Boolean(webCfg.bringup_continuous);
+  }
+  if (webCfg.bringup_live_stream_enabled !== undefined) {
+    $("bringup-live-enabled").checked = Boolean(webCfg.bringup_live_stream_enabled);
+  }
+  if (webCfg.bringup_text_output_enabled !== undefined) {
+    $("bringup-text-enabled").checked = Boolean(webCfg.bringup_text_output_enabled);
+  }
+
+  const preferredWav = String(webCfg.use_wav || asr.wav_path || "").trim();
+  setSelectValueIfPresent("use-wav", preferredWav);
+  setSelectValueIfPresent("noise-source", preferredWav);
+  setSelectValueIfPresent("bringup-wav", String(webCfg.bringup_wav || preferredWav));
+
+  if (announce) {
+    const label = webCfg.scenario_label ? `${webCfg.scenario_label} (${configPath})` : configPath;
+    setStatus(`Applied config preset: ${label}`);
   }
 }
 
@@ -1532,16 +2071,11 @@ function collectRuntimeOverrides() {
 }
 
 function collectSecrets() {
-  return {
-    google_credentials_json: $("secret-google-cred").value.trim(),
-    google_project_id: $("secret-google-project").value.trim(),
-    aws_access_key_id: $("secret-aws-id").value.trim(),
-    aws_secret_access_key: $("secret-aws-secret").value.trim(),
-    aws_session_token: $("secret-aws-token").value.trim(),
-    aws_region: $("aws-region").value.trim(),
-    azure_speech_key: $("secret-azure-key").value.trim(),
-    azure_region: $("azure-region").value.trim(),
-  };
+  const region = $("aws-region").value.trim();
+  if (!region) {
+    return {};
+  }
+  return { aws_region: region };
 }
 
 function commonRequestEnvelope(payload) {
@@ -1549,6 +2083,7 @@ function commonRequestEnvelope(payload) {
     profile_name: $("profile-name").value.trim(),
     base_config: $("base-config").value,
     runtime_overrides: collectRuntimeOverrides(),
+    aws_auth_profile: selectedAwsAuthProfile(),
     secrets: collectSecrets(),
     payload,
   };
@@ -1734,11 +2269,21 @@ async function runPreflight() {
 async function refreshFiles() {
   const payload = await fetchJSON("/api/files");
   state.files = payload;
-  const sourceValues = ["", ...(payload.uploads || []), ...(payload.noisy || [])];
+  const sourceValues = Array.from(
+    new Set([
+      "",
+      ...(state.options?.sample_wavs || []),
+      ...(payload.uploads || []),
+      ...(payload.noisy || []),
+    ]),
+  );
   const displayValues = sourceValues.map((item) => item || "(none)");
+  const defaultCfg = (state.options?.defaults_by_config || {})[$("base-config").value] || {};
+  const fallbackWav = String(defaultCfg?.web?.use_wav || defaultCfg?.asr?.wav_path || "").trim();
 
   const mapForSelect = (id) => {
     const select = $(id);
+    const previous = select.value;
     select.innerHTML = "";
     sourceValues.forEach((value, idx) => {
       const option = document.createElement("option");
@@ -1746,11 +2291,24 @@ async function refreshFiles() {
       option.textContent = displayValues[idx];
       select.appendChild(option);
     });
+    if (sourceValues.includes(previous)) {
+      select.value = previous;
+      return;
+    }
+    if (fallbackWav && sourceValues.includes(fallbackWav)) {
+      select.value = fallbackWav;
+    }
   };
 
   mapForSelect("noise-source");
   mapForSelect("use-wav");
   mapForSelect("bringup-wav");
+
+  const uploadedCsv = (payload.uploads || []).filter((item) =>
+    String(item).toLowerCase().endsWith(".csv"),
+  );
+  const datasets = [...(state.options?.datasets || []), ...uploadedCsv];
+  populateDatalist("dataset-options", datasets);
 }
 
 async function uploadFile(event) {
@@ -1793,6 +2351,9 @@ function exportCurrentProfilePayload() {
   return {
     profile_name: $("profile-name").value.trim(),
     base_config: $("base-config").value,
+    aws_auth_profile: selectedAwsAuthProfile(),
+    aws_sso_start_url: $("secret-aws-sso-start-url").value.trim(),
+    aws_sso_region: $("secret-aws-sso-region").value.trim(),
     runtime_overrides: collectRuntimeOverrides(),
     payload: {
       interfaces: checkedValues("interfaces").join(","),
@@ -1802,6 +2363,8 @@ function exportCurrentProfilePayload() {
       reference_text: $("reference-text").value.trim(),
       record_sec: asNumber($("record-sec").value, 5),
       sample_rate: asNumber($("sample-rate").value, 16000),
+      use_wav: selectedFileOrEmpty("use-wav"),
+      device: $("audio-device").value.trim(),
       action_chunk_sec: asNumber($("action-chunk-sec").value, 0.8),
       request_timeout_sec: asNumber($("request-timeout").value, 25),
       ros_auto_launch: $("ros-auto-launch").checked,
@@ -1809,14 +2372,28 @@ function exportCurrentProfilePayload() {
       dataset: $("dataset").value.trim(),
       backends: $("bench-backends").value.trim(),
       scenarios: $("bench-scenarios").value.trim(),
+      bringup_input_mode: $("bringup-input-mode").value,
+      bringup_wav: selectedFileOrEmpty("bringup-wav"),
+      bringup_mic_sec: asNumber($("bringup-mic-sec").value, 4.0),
+      bringup_continuous: $("bringup-continuous").checked,
+      bringup_live_enabled: $("bringup-live-enabled").checked,
+      bringup_text_enabled: $("bringup-text-enabled").checked,
+      noise_levels: $("noise-levels").value.trim(),
     },
   };
 }
 
 function applyProfilePayload(payload) {
   $("profile-name").value = payload.profile_name || "";
+  setFieldValue("secret-aws-sso-start-url", payload.aws_sso_start_url);
+  setFieldValue("secret-aws-sso-region", payload.aws_sso_region);
+  if (payload.aws_auth_profile) {
+    setSelectValueIfPresent("aws-auth-profile", payload.aws_auth_profile);
+    $("aws-auth-name").value = String(payload.aws_auth_profile);
+  }
   if (payload.base_config) {
     $("base-config").value = payload.base_config;
+    applyBaseConfigDefaults(payload.base_config);
   }
 
   const runtime = payload.runtime_overrides || {};
@@ -1824,51 +2401,83 @@ function applyProfilePayload(payload) {
   const benchmark = runtime.benchmark || {};
   const backends = runtime.backends || {};
 
-  if (asr.backend) $("asr-backend").value = asr.backend;
-  if (asr.language) $("language").value = asr.language;
-  if (asr.sample_rate) $("sample-rate").value = asr.sample_rate;
-  if (asr.chunk_ms) $("chunk-ms").value = asr.chunk_ms;
-  if (asr.input_mode) $("input-mode").value = asr.input_mode;
+  setFieldValue("asr-backend", asr.backend);
+  setFieldValue("language", asr.language);
+  setFieldValue("sample-rate", asr.sample_rate);
+  setFieldValue("chunk-ms", asr.chunk_ms);
+  setFieldValue("input-mode", asr.input_mode);
 
-  if (benchmark.chunk_sec) $("bench-chunk-sec").value = benchmark.chunk_sec;
-  if (benchmark.scenarios) $("bench-scenarios").value = benchmark.scenarios.join(",");
+  setFieldValue("bench-chunk-sec", benchmark.chunk_sec);
+  if (benchmark.scenarios) {
+    $("bench-scenarios").value = csvFromAny(benchmark.scenarios);
+  }
+  if (benchmark.selected_metrics) {
+    setCheckboxGroup("metric-select", benchmark.selected_metrics, state.options?.metrics || []);
+  }
 
   const whisper = backends.whisper || {};
-  if (whisper.model_size) $("whisper-model").value = whisper.model_size;
-  if (whisper.device) $("whisper-device").value = whisper.device;
-  if (whisper.compute_type) $("whisper-compute").value = whisper.compute_type;
+  setFieldValue("whisper-model", whisper.model_size || whisper.model);
+  setFieldValue("whisper-device", whisper.device);
+  setFieldValue("whisper-compute", whisper.compute_type);
 
   const vosk = backends.vosk || {};
-  if (vosk.model_path) $("vosk-model-path").value = vosk.model_path;
+  setFieldValue("vosk-model-path", vosk.model_path);
 
   const google = backends.google || {};
-  if (google.model) $("google-model").value = google.model;
+  setFieldValue("google-model", google.model);
 
   const aws = backends.aws || {};
-  if (aws.region) $("aws-region").value = aws.region;
-  if (aws.s3_bucket) $("aws-bucket").value = aws.s3_bucket;
+  setFieldValue("aws-region", aws.region);
+  setFieldValue("aws-bucket", aws.s3_bucket);
+  setFieldValue("secret-aws-sso-region", aws.region);
 
   const azure = backends.azure || {};
-  if (azure.region) $("azure-region").value = azure.region;
-  if (azure.endpoint) $("azure-endpoint").value = azure.endpoint;
+  setFieldValue("azure-region", azure.region);
+  setFieldValue("azure-endpoint", azure.endpoint);
 
   const run = payload.payload || {};
-  if (run.model_runs) $("model-runs").value = run.model_runs;
-  if (run.language_mode) $("language-mode").value = run.language_mode;
-  if (run.reference_text) $("reference-text").value = run.reference_text;
-  if (run.record_sec) $("record-sec").value = run.record_sec;
-  if (run.action_chunk_sec) $("action-chunk-sec").value = run.action_chunk_sec;
-  if (run.request_timeout_sec) $("request-timeout").value = run.request_timeout_sec;
-  if (run.dataset) $("dataset").value = run.dataset;
-  if (run.backends) $("bench-backends").value = run.backends;
-  if (run.scenarios) $("bench-scenarios").value = run.scenarios;
+  setFieldValue("model-runs", run.model_runs);
+  setFieldValue("language-mode", run.language_mode);
+  setFieldValue("language", run.language);
+  setFieldValue("reference-text", run.reference_text);
+  setFieldValue("record-sec", run.record_sec);
+  setFieldValue("action-chunk-sec", run.action_chunk_sec);
+  setFieldValue("request-timeout", run.request_timeout_sec);
+  setFieldValue("dataset", run.dataset);
+  setFieldValue("bench-backends", run.backends);
+  setFieldValue("bench-scenarios", run.scenarios);
+  setFieldValue("audio-device", run.device);
+  setFieldValue("noise-levels", run.noise_levels);
 
   if (run.interfaces) {
-    const selected = splitCsv(run.interfaces);
-    const nodes = $("interfaces").querySelectorAll("input[type='checkbox']");
-    nodes.forEach((item) => {
-      item.checked = selected.includes(item.value);
-    });
+    setCheckboxGroup("interfaces", run.interfaces, ["core"]);
+  }
+
+  if (run.ros_auto_launch !== undefined) {
+    $("ros-auto-launch").checked = Boolean(run.ros_auto_launch);
+  }
+  if (run.action_streaming !== undefined) {
+    $("action-streaming").checked = Boolean(run.action_streaming);
+  }
+  if (run.use_wav) {
+    setSelectValueIfPresent("use-wav", run.use_wav);
+  }
+
+  if (run.bringup_input_mode) {
+    $("bringup-input-mode").value = String(run.bringup_input_mode);
+  }
+  setFieldValue("bringup-mic-sec", run.bringup_mic_sec);
+  if (run.bringup_wav) {
+    setSelectValueIfPresent("bringup-wav", run.bringup_wav);
+  }
+  if (run.bringup_continuous !== undefined) {
+    $("bringup-continuous").checked = Boolean(run.bringup_continuous);
+  }
+  if (run.bringup_live_enabled !== undefined) {
+    $("bringup-live-enabled").checked = Boolean(run.bringup_live_enabled);
+  }
+  if (run.bringup_text_enabled !== undefined) {
+    $("bringup-text-enabled").checked = Boolean(run.bringup_text_enabled);
   }
 }
 
@@ -1877,10 +2486,14 @@ async function saveProfile() {
   if (!name) {
     throw new Error("Set profile name first");
   }
-  await postJSON("/api/profiles", {
+  const response = await postJSON("/api/profiles", {
     name,
     payload: exportCurrentProfilePayload(),
   });
+  setKnownProfiles(response.profiles || []);
+  if (document.activeElement === $("profile-name")) {
+    showProfileSuggestions();
+  }
   setStatus(`Profile saved: ${name}`);
 }
 
@@ -1891,7 +2504,85 @@ async function loadProfile() {
   }
   const response = await fetchJSON(`/api/profiles/${encodeURIComponent(name)}`);
   applyProfilePayload(response.payload || {});
+  if (!$("profile-name").value.trim()) {
+    $("profile-name").value = response.name || name;
+  }
+  hideProfileSuggestions();
   setStatus(`Profile loaded: ${name}`);
+}
+
+async function refreshAwsAuthProfiles({ keepSelection = true } = {}) {
+  const [payload, options] = await Promise.all([
+    fetchJSON("/api/aws-auth-profiles"),
+    fetchJSON("/api/options"),
+  ]);
+  const names = normalizeAwsAuthProfileNames(payload.profiles || []);
+  const selectValues = ["", ...names];
+  const previous = keepSelection ? selectedAwsAuthProfile() : "";
+  populateSelect("aws-auth-profile", selectValues, previous);
+  populateDatalist("aws-sso-start-url-options", options.aws_sso_start_urls || []);
+  populateDatalist("aws-sso-region-options", options.aws_sso_regions || options.aws_regions || []);
+}
+
+async function loadAwsAuthProfile() {
+  const selected = selectedAwsAuthProfile() || $("aws-auth-name").value.trim();
+  if (!selected) {
+    throw new Error("Select AWS auth profile first");
+  }
+  const payload = await fetchJSON(`/api/aws-auth-profiles/${encodeURIComponent(selected)}`);
+  $("aws-auth-name").value = payload.name || selected;
+  $("aws-auth-text").value = payload.content || "";
+  setSelectValueIfPresent("aws-auth-profile", payload.name || selected);
+  applyAwsAuthValues(payload.values || {});
+  setStatus(`AWS auth profile loaded: ${payload.name || selected}`);
+}
+
+async function saveAwsAuthProfile() {
+  buildAwsAuthTextFromForm();
+  const computedName = defaultAwsAuthProfileName();
+  const name =
+    $("aws-auth-name").value.trim() || selectedAwsAuthProfile() || computedName;
+  if (!name) {
+    throw new Error("Set AWS auth profile name first");
+  }
+  const content = $("aws-auth-text").value.trim();
+  if (!content) {
+    throw new Error("AWS auth text is empty");
+  }
+  const payload = await postJSON("/api/aws-auth-profiles", { name, content });
+  await refreshAwsAuthProfiles({ keepSelection: false });
+  setSelectValueIfPresent("aws-auth-profile", name);
+  $("aws-auth-name").value = name;
+  $("aws-auth-text").value = payload.content || `${content}\n`;
+  setStatus(`AWS auth profile saved: ${name}`);
+}
+
+async function runAwsSsoLogin() {
+  let authProfile =
+    selectedAwsAuthProfile() || $("aws-auth-name").value.trim() || defaultAwsAuthProfileName();
+  if (!selectedAwsAuthProfile()) {
+    if (!$("aws-auth-text").value.trim()) {
+      buildAwsAuthTextFromForm();
+    }
+    if (!$("aws-auth-name").value.trim()) {
+      $("aws-auth-name").value = authProfile;
+    }
+    await saveAwsAuthProfile();
+    authProfile = selectedAwsAuthProfile() || authProfile;
+  }
+  if (!authProfile) {
+    throw new Error("Select AWS auth profile first");
+  }
+  setStatus(`Starting AWS SSO login: ${authProfile}`);
+  const response = await postJSON("/api/aws-sso-login", {
+    auth_profile: authProfile,
+    use_device_code: true,
+    no_browser: true,
+  });
+  state.selectedJobId = response.job.job_id;
+  await refreshJobs();
+  await loadSelectedJob();
+  setStatus(`AWS SSO login started: ${response.job.job_id}. Open Logs and follow URL/code.`);
 }
 
 async function bootstrap() {
@@ -1899,18 +2590,26 @@ async function bootstrap() {
   const options = await fetchJSON("/api/options");
   state.options = options;
 
-  populateSelect("base-config", options.base_configs || ["configs/default.yaml"], "configs/default.yaml");
+  const baseConfigs = options.base_configs || ["configs/default.yaml"];
+  const defaultBase = baseConfigs.includes("configs/default.yaml")
+    ? "configs/default.yaml"
+    : baseConfigs[0];
+  populateSelect("base-config", baseConfigs, defaultBase);
+
   populateSelect("asr-backend", options.backends || ["mock"], "mock");
+  populateSelect("language-mode", options.language_modes || ["config", "manual", "auto"], "config");
+  populateSelect("input-mode", options.input_modes || ["auto", "mic", "file"], "auto");
+  populateSelect("bringup-input-mode", options.input_modes || ["auto", "mic", "file"], "mic");
+  populateSelect("aws-auth-profile", ["", ...(options.aws_auth_profiles || [])], "");
+  setKnownProfiles(options.profiles || []);
+  populateStaticDatalists(options);
 
   renderCheckboxGroup($("interfaces"), options.interfaces || [], "iface", ["core"]);
-  renderCheckboxGroup($("metric-select"), options.metrics || [], "metric", [
-    "wer",
-    "cer",
-    "latency_ms",
-    "rtf",
-  ]);
+  renderCheckboxGroup($("metric-select"), options.metrics || [], "metric", options.metrics || []);
 
   await refreshFiles();
+  await refreshAwsAuthProfiles();
+  applyBaseConfigDefaults($("base-config").value);
   await refreshJobs();
   setStatus("Ready");
 }
@@ -1925,11 +2624,60 @@ function bindEvents() {
   };
 
   $("refresh-all").onclick = async () => {
+    await refreshSavedProfiles();
+    await refreshAwsAuthProfiles();
     await refreshFiles();
     await refreshJobs();
     await loadSelectedJob();
     setStatus("Refreshed");
   };
+
+  $("base-config").addEventListener("change", () => {
+    applyBaseConfigDefaults($("base-config").value, { announce: true });
+  });
+
+  $("profile-name").addEventListener("focus", () => {
+    showProfileSuggestions();
+  });
+
+  $("profile-name").addEventListener("input", () => {
+    showProfileSuggestions();
+  });
+
+  $("profile-name").addEventListener("keydown", (event) => {
+    if (event.key === "ArrowDown") {
+      event.preventDefault();
+      moveProfileSuggestion(1);
+      return;
+    }
+    if (event.key === "ArrowUp") {
+      event.preventDefault();
+      moveProfileSuggestion(-1);
+      return;
+    }
+    if (event.key === "Enter" && state.profileAutocomplete.open) {
+      if (selectActiveProfileSuggestion()) {
+        event.preventDefault();
+      }
+      return;
+    }
+    if (event.key === "Escape") {
+      hideProfileSuggestions();
+    }
+  });
+
+  document.addEventListener("mousedown", (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) {
+      return;
+    }
+    const input = $("profile-name");
+    const panel = $("profile-name-suggestions");
+    if (target === input || panel.contains(target)) {
+      return;
+    }
+    hideProfileSuggestions();
+  });
 
   $("run-live").onclick = async () => {
     try {
@@ -1986,6 +2734,49 @@ function bindEvents() {
       setStatus(`Load profile failed: ${error.message}`);
     }
   };
+
+  $("load-aws-auth").onclick = async () => {
+    try {
+      await loadAwsAuthProfile();
+    } catch (error) {
+      setStatus(`Load AWS auth failed: ${error.message}`);
+    }
+  };
+
+  $("build-aws-auth").onclick = async () => {
+    try {
+      buildAwsAuthTextFromForm();
+      if (!$("aws-auth-name").value.trim()) {
+        $("aws-auth-name").value = defaultAwsAuthProfileName();
+      }
+      setStatus("AWS auth text built from GUI fields");
+    } catch (error) {
+      setStatus(`Build AWS auth failed: ${error.message}`);
+    }
+  };
+
+  $("save-aws-auth").onclick = async () => {
+    try {
+      await saveAwsAuthProfile();
+    } catch (error) {
+      setStatus(`Save AWS auth failed: ${error.message}`);
+    }
+  };
+
+  $("aws-sso-login").onclick = async () => {
+    try {
+      await runAwsSsoLogin();
+    } catch (error) {
+      setStatus(`AWS SSO login failed: ${error.message}`);
+    }
+  };
+
+  $("aws-auth-profile").addEventListener("change", () => {
+    const selected = selectedAwsAuthProfile();
+    if (selected) {
+      $("aws-auth-name").value = selected;
+    }
+  });
 }
 
 window.addEventListener("DOMContentLoaded", async () => {

@@ -10,6 +10,8 @@ RUNTIME_CONFIGS_DIR = WEB_GUI_ROOT / "runtime_configs"
 UPLOADS_DIR = WEB_GUI_ROOT / "uploads"
 NOISY_DIR = WEB_GUI_ROOT / "noisy"
 PROFILES_DIR = WEB_GUI_ROOT / "profiles"
+AWS_AUTH_PROFILES_DIR = WEB_GUI_ROOT / "auth_profiles"
+RUNTIME_AWS_DIR = WEB_GUI_ROOT / "runtime_aws"
 LOGS_DIR = WEB_GUI_ROOT / "logs"
 RESULTS_ROOT = REPO_ROOT / "results" / "web_gui"
 
@@ -22,6 +24,8 @@ def ensure_directories() -> None:
         UPLOADS_DIR,
         NOISY_DIR,
         PROFILES_DIR,
+        AWS_AUTH_PROFILES_DIR,
+        RUNTIME_AWS_DIR,
         LOGS_DIR,
         RESULTS_ROOT,
     ]:

@@ -29,11 +29,15 @@ fi
 
 if [ ! -f "$ROOT_DIR/install/setup.bash" ]; then
   echo "install/setup.bash not found. Building workspace first..."
-  set +u
-  source /opt/ros/jazzy/setup.bash
-  set -u
+  source "$ROOT_DIR/scripts/source_runtime_env.sh" --with-ros
   cd "$ROOT_DIR"
-  colcon build --base-paths ros2_ws/src --symlink-install
+  COLCON_PYTHONPATH="${PYTHONPATH-}"
+  PYTHONPATH="" colcon build --base-paths ros2_ws/src --symlink-install
+  if [ -n "${COLCON_PYTHONPATH}" ]; then
+    export PYTHONPATH="${COLCON_PYTHONPATH}"
+  else
+    unset PYTHONPATH
+  fi
 fi
 
 if ! command -v gnome-terminal >/dev/null 2>&1; then
@@ -46,8 +50,7 @@ fi
 
 COMMON_SETUP=$(cat <<EOF_SETUP
 cd "$ROOT_DIR"
-source .venv/bin/activate
-export PYTHONPATH="\$(python -c 'import site; print(site.getsitepackages()[0])'):\${PYTHONPATH:-}"
+source scripts/source_runtime_env.sh --with-ros
 export LD_LIBRARY_PATH="\$(
 python - <<'PY'
 import glob
@@ -60,10 +63,6 @@ for base in site.getsitepackages():
 print(":".join(paths))
 PY
 ):\${LD_LIBRARY_PATH:-}"
-set +u
-source /opt/ros/jazzy/setup.bash
-source install/setup.bash
-set -u
 EOF_SETUP
 )
 
