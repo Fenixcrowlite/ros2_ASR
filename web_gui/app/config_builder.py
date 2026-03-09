@@ -57,7 +57,11 @@ def _ensure_backend(runtime_cfg: dict[str, Any], backend: str) -> dict[str, Any]
 
 
 def _apply_secrets(runtime_cfg: dict[str, Any], secrets: dict[str, str]) -> None:
-    """Inject secrets into runtime config payload."""
+    """Inject non-sensitive cloud overrides into runtime config payload.
+
+    Sensitive credentials (keys/tokens/credential file paths) are passed via
+    process environment only to reduce persistence in runtime YAML artifacts.
+    """
     if not secrets:
         return
 
@@ -65,19 +69,11 @@ def _apply_secrets(runtime_cfg: dict[str, Any], secrets: dict[str, str]) -> None
     aws_cfg = _ensure_backend(runtime_cfg, "aws")
     azure_cfg = _ensure_backend(runtime_cfg, "azure")
 
-    if secrets.get("google_credentials_json"):
-        google_cfg["credentials_json"] = secrets["google_credentials_json"]
     if secrets.get("google_project_id"):
         google_cfg["project_id"] = secrets["google_project_id"]
     if secrets.get("google_region"):
         google_cfg["region"] = secrets["google_region"]
 
-    if secrets.get("aws_access_key_id"):
-        aws_cfg["access_key_id"] = secrets["aws_access_key_id"]
-    if secrets.get("aws_secret_access_key"):
-        aws_cfg["secret_access_key"] = secrets["aws_secret_access_key"]
-    if secrets.get("aws_session_token"):
-        aws_cfg["session_token"] = secrets["aws_session_token"]
     if secrets.get("aws_profile"):
         aws_cfg["profile"] = secrets["aws_profile"]
     if secrets.get("aws_region"):
@@ -85,8 +81,6 @@ def _apply_secrets(runtime_cfg: dict[str, Any], secrets: dict[str, str]) -> None
     if secrets.get("aws_s3_bucket"):
         aws_cfg["s3_bucket"] = secrets["aws_s3_bucket"]
 
-    if secrets.get("azure_speech_key"):
-        azure_cfg["speech_key"] = secrets["azure_speech_key"]
     if secrets.get("azure_region"):
         azure_cfg["region"] = secrets["azure_region"]
     if secrets.get("azure_endpoint"):
@@ -98,13 +92,16 @@ def _extract_env_secrets(secrets: dict[str, str]) -> dict[str, str]:
     mapping = {
         "google_credentials_json": "GOOGLE_APPLICATION_CREDENTIALS",
         "google_project_id": "GOOGLE_CLOUD_PROJECT",
+        "google_region": "ASR_GOOGLE_REGION",
         "aws_access_key_id": "AWS_ACCESS_KEY_ID",
         "aws_secret_access_key": "AWS_SECRET_ACCESS_KEY",
         "aws_session_token": "AWS_SESSION_TOKEN",
         "aws_profile": "AWS_PROFILE",
         "aws_region": "AWS_REGION",
+        "aws_s3_bucket": "ASR_AWS_S3_BUCKET",
         "azure_speech_key": "AZURE_SPEECH_KEY",
         "azure_region": "AZURE_SPEECH_REGION",
+        "azure_endpoint": "ASR_AZURE_ENDPOINT",
     }
     env: dict[str, str] = {}
     for key, env_name in mapping.items():

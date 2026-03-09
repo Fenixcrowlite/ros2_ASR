@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+import wave
 from collections.abc import Iterable
 from pathlib import Path
 
@@ -55,9 +56,34 @@ class MockAsrBackend(AsrBackend):
 
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
         """Return deterministic one-shot ASR response."""
-        text = self._resolve_text(request)
-        duration = self._duration(request)
         language = normalize_language_code(request.language, fallback="en-US")
+        try:
+            text = self._resolve_text(request)
+            duration = self._duration(request)
+        except FileNotFoundError as exc:
+            return AsrResponse(
+                success=False,
+                error_code="file_missing",
+                error_message=str(exc),
+                language=language,
+                backend_info={"provider": "mock", "model": "deterministic", "region": "local"},
+            )
+        except wave.Error as exc:
+            return AsrResponse(
+                success=False,
+                error_code="invalid_audio",
+                error_message=str(exc),
+                language=language,
+                backend_info={"provider": "mock", "model": "deterministic", "region": "local"},
+            )
+        except Exception as exc:
+            return AsrResponse(
+                success=False,
+                error_code="mock_runtime_error",
+                error_message=str(exc),
+                language=language,
+                backend_info={"provider": "mock", "model": "deterministic", "region": "local"},
+            )
 
         start = time.perf_counter()
         time.sleep(self.latency_ms / 1000.0)

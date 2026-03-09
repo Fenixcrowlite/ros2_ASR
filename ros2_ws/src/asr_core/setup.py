@@ -16,5 +16,4 @@ setup(
     maintainer_email="maintainer@example.com",
     description="Core ASR API and backend abstractions",
     license="MIT",
-    tests_require=["pytest"],
 )

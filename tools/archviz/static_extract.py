@@ -8,10 +8,11 @@ from __future__ import annotations
 import ast
 import configparser
 import re
-import xml.etree.ElementTree as ET
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
+
+from defusedxml import ElementTree
 
 from tools.archviz.graph import GraphBuilder, dedupe_sorted, new_graph, normalize_node_name
 
@@ -55,7 +56,7 @@ def _package_dirs(ws_path: Path) -> list[Path]:
 
 
 def _parse_package_xml(package_xml: Path) -> tuple[str, list[str]]:
-    root = ET.parse(package_xml).getroot()
+    root = ElementTree.parse(package_xml).getroot()
     name = (root.findtext("name") or package_xml.parent.name).strip()
     deps: list[str] = []
     for child in root:

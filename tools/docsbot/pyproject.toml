@@ -12,6 +12,7 @@ dependencies = [
   "pydantic>=2.7,<3",
   "watchdog>=4.0,<5",
   "rich>=13.7,<14",
+  "defusedxml>=0.7.1,<1",
 ]
 
 [project.optional-dependencies]

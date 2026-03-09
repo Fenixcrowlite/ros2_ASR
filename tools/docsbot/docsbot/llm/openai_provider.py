@@ -48,7 +48,8 @@ class OpenAIProvider(LLMProvider):
             method="POST",
         )
         try:
-            with urllib.request.urlopen(req, timeout=60) as response:
+            # Constant HTTPS endpoint; request URL is not user-controlled.
+            with urllib.request.urlopen(req, timeout=60) as response:  # nosec B310
                 payload = json.loads(response.read().decode("utf-8"))
         except urllib.error.URLError as exc:
             raise RuntimeError(f"openai request failed: {exc}") from exc

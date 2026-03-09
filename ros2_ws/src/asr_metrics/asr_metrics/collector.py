@@ -56,8 +56,8 @@ class MetricsCollector:
         cpu, ram = collect_cpu_ram()
         gpu_u, gpu_m = collect_gpu()
         latency_ms = response.timings.total_ms
-        duration = response.audio_duration_sec if response.audio_duration_sec > 0 else 1e-6
-        rtf = latency_ms / 1000.0 / duration
+        duration = response.audio_duration_sec if response.audio_duration_sec > 0 else 0.0
+        rtf = (latency_ms / 1000.0 / duration) if duration > 0 else 0.0
         return BenchmarkRecord(
             request_id=req_id,
             audio_id=Path(wav_path).stem,

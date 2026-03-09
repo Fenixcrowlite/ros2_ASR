@@ -11,7 +11,7 @@ from .models import DiffBucket, DiffResult
 
 def _hash_obj(data: dict) -> str:
     payload = json.dumps(data, sort_keys=True, ensure_ascii=False)
-    return hashlib.sha1(payload.encode("utf-8")).hexdigest()
+    return hashlib.sha256(payload.encode("utf-8")).hexdigest()
 
 
 def _map_entities(items: list, key_fn: Callable, dump_fn: Callable) -> dict[str, str]:

@@ -90,6 +90,8 @@ def _wer_cer_plot(records: list[BenchmarkRecord], output_path: str) -> None:
 
 def generate_all_plots(records: list[BenchmarkRecord], output_dir: str) -> None:
     """Generate full default plot set used by benchmark pipeline."""
+    if not records:
+        raise ValueError("No benchmark records provided for plotting")
     os.makedirs(output_dir, exist_ok=True)
     _wer_cer_plot(records, os.path.join(output_dir, "wer_cer_by_backend.png"))
     _bar_plot(records, "wer", "WER", os.path.join(output_dir, "wer_by_backend.png"))

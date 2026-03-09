@@ -17,7 +17,6 @@ setup(
     maintainer_email="maintainer@example.com",
     description="ASR benchmark toolkit",
     license="MIT",
-    tests_require=["pytest"],
     entry_points={
         "console_scripts": [
             "asr_benchmark_node = asr_benchmark.benchmark_node:main",

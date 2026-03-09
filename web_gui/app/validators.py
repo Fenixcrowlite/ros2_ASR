@@ -3,12 +3,11 @@
 from __future__ import annotations
 
 import re
-from pathlib import Path
 from typing import Any
 
 from fastapi import HTTPException
 
-from web_gui.app.paths import REPO_ROOT
+from web_gui.app.paths import REPO_ROOT, resolve_under_roots
 
 _LANGUAGE_RE = re.compile(r"^[a-z]{2,3}(-[A-Z]{2})?$")
 
@@ -54,10 +53,14 @@ def _validate_sample_rate(payload: dict[str, Any], runtime_overrides: dict[str, 
 
 def _validate_dataset(payload: dict[str, Any]) -> None:
     dataset = str(payload.get("dataset") or "data/transcripts/sample_manifest.csv")
-    path = Path(dataset)
-    if not path.is_absolute():
-        path = REPO_ROOT / path
-    if not path.exists():
+    try:
+        path = resolve_under_roots(
+            dataset,
+            roots=[REPO_ROOT / "data", REPO_ROOT / "web_gui", REPO_ROOT / "results"],
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not path.exists() or not path.is_file():
         raise HTTPException(status_code=400, detail=f"Dataset not found: {path}")
     if path.suffix.lower() != ".csv":
         raise HTTPException(status_code=400, detail=f"Dataset must be CSV: {path}")
@@ -67,10 +70,14 @@ def _validate_wav_if_provided(payload: dict[str, Any], *, key: str) -> None:
     raw = str(payload.get(key) or "").strip()
     if not raw:
         return
-    path = Path(raw)
-    if not path.is_absolute():
-        path = REPO_ROOT / path
-    if not path.exists():
+    try:
+        path = resolve_under_roots(
+            raw,
+            roots=[REPO_ROOT / "data", REPO_ROOT / "web_gui", REPO_ROOT / "results"],
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    if not path.exists() or not path.is_file():
         raise HTTPException(status_code=400, detail=f"WAV not found: {path}")
     if path.suffix.lower() != ".wav":
         raise HTTPException(status_code=400, detail=f"File must be WAV: {path}")

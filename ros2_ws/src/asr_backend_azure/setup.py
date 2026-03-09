@@ -16,5 +16,4 @@ setup(
     maintainer_email="maintainer@example.com",
     description="Azure backend",
     license="MIT",
-    tests_require=["pytest"],
 )

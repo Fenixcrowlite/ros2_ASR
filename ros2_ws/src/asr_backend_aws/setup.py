@@ -16,5 +16,4 @@ setup(
     maintainer_email="maintainer@example.com",
     description="AWS backend",
     license="MIT",
-    tests_require=["pytest"],
 )

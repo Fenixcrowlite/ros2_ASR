@@ -24,7 +24,6 @@ setup(
     maintainer_email="maintainer@example.com",
     description="ROS2 nodes for ASR services and actions",
     license="MIT",
-    tests_require=["pytest"],
     entry_points={
         "console_scripts": [
             "asr_server_node = asr_ros.asr_server_node:main",

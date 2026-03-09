@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import ast
 import re
-import xml.etree.ElementTree as ET
 from pathlib import Path
+
+from defusedxml import ElementTree
 
 from .models import DependencyInfo, LaunchNode, PackageInfo
 
@@ -108,8 +109,8 @@ def scan_packages(workspace_root: Path) -> tuple[list[PackageInfo], dict[str, Pa
     for package_xml in sorted(workspace_root.glob("src/**/package.xml")):
         package_path = package_xml.parent
         try:
-            root = ET.fromstring(package_xml.read_text(encoding="utf-8"))
-        except ET.ParseError:
+            root = ElementTree.fromstring(package_xml.read_text(encoding="utf-8"))
+        except ElementTree.ParseError:
             continue
 
         name = root.findtext("name", default=package_path.name).strip()

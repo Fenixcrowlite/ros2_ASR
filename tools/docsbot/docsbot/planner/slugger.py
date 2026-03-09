@@ -13,7 +13,7 @@ def slugify(value: str) -> str:
 
 
 def stable_id(prefix: str, value: str) -> str:
-    digest = hashlib.sha1(f"{prefix}:{value}".encode()).hexdigest()[:12]
+    digest = hashlib.sha256(f"{prefix}:{value}".encode()).hexdigest()[:12]
     return f"{prefix}-{digest}"
 
 

@@ -10,7 +10,7 @@ import tempfile
 import uuid
 from pathlib import Path
 
-from asr_core.audio import wav_pcm_chunks
+from asr_core.audio import wav_info, wav_pcm_chunks
 from asr_core.config import load_runtime_config
 from asr_core.factory import create_backend
 from asr_core.language import normalize_language_code
@@ -26,14 +26,18 @@ from asr_benchmark.noise import add_white_noise_snr
 
 def _scenario_wav(item: DatasetItem, scenario: str) -> tuple[str, list[str]]:
     """Return scenario-specific WAV path and list of temp files to cleanup."""
+    source_wav = item.resolved_wav_path or item.wav_path
     temp_files: list[str] = []
     if scenario == "clean":
-        return item.wav_path, temp_files
+        return source_wav, temp_files
     if scenario.startswith("snr"):
-        snr = float(scenario.replace("snr", ""))
+        try:
+            snr = float(scenario.replace("snr", ""))
+        except ValueError as exc:
+            raise ValueError(f"Invalid SNR scenario format: {scenario}") from exc
         tmp = tempfile.NamedTemporaryFile(suffix=".wav", prefix=f"noise_{int(snr)}_", delete=False)
         tmp.close()
-        add_white_noise_snr(item.wav_path, tmp.name, snr_db=snr)
+        add_white_noise_snr(source_wav, tmp.name, snr_db=snr)
         temp_files.append(tmp.name)
         return tmp.name, temp_files
     raise ValueError(f"Unsupported scenario: {scenario}")
@@ -78,8 +82,9 @@ def _run_streaming_sim(
     collector: MetricsCollector,
 ) -> BenchmarkRecord:
     """Run streaming simulation benchmark for one sample."""
-    chunks = wav_pcm_chunks(item.wav_path, chunk_sec)
-    sample_rate = 16000
+    source_wav = item.resolved_wav_path or item.wav_path
+    chunks = wav_pcm_chunks(source_wav, chunk_sec)
+    sample_rate, _, _, _ = wav_info(source_wav)
     response: AsrResponse = backend.streaming_recognize(
         chunks,
         language=normalize_language_code(item.language, fallback="en-US"),
@@ -107,17 +112,31 @@ def run_benchmark(
     """Entry point for programmatic benchmark execution."""
     cfg = load_runtime_config(config_path, "configs/commercial.yaml")
     dataset = load_manifest_csv(dataset_path)
+    if not dataset:
+        raise ValueError(f"Dataset manifest is empty: {dataset_path}")
 
-    selected_backends = backends or [cfg.get("asr", {}).get("backend", "mock")]
+    selected_backends = [str(item).strip() for item in (backends or []) if str(item).strip()]
+    if not selected_backends:
+        selected_backends = [str(cfg.get("asr", {}).get("backend", "mock")).strip()]
+    if not selected_backends or any(not backend for backend in selected_backends):
+        raise ValueError("No backend selected for benchmark run")
+
     scenarios = list(cfg.get("benchmark", {}).get("scenarios", ["clean"]))
+    if not scenarios:
+        raise ValueError("No benchmark scenarios configured")
     chunk_sec = float(cfg.get("benchmark", {}).get("chunk_sec", 0.8))
+    if chunk_sec <= 0:
+        raise ValueError("benchmark.chunk_sec must be > 0")
     collector = MetricsCollector(pricing_per_minute=cfg.get("benchmark", {}).get("pricing", {}))
 
     records: list[BenchmarkRecord] = []
 
     for backend_name in selected_backends:
         backend_cfg = cfg.get("backends", {}).get(backend_name, {})
-        backend = create_backend(backend_name, config=backend_cfg)
+        try:
+            backend = create_backend(backend_name, config=backend_cfg)
+        except Exception as exc:
+            raise ValueError(f"Unable to create backend '{backend_name}': {exc}") from exc
         for item in dataset:
             for scenario in scenarios:
                 records.append(_run_single(backend, backend_name, item, scenario, collector))

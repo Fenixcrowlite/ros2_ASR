@@ -222,18 +222,36 @@ class AsrServerNode(Node):
             f"sample_rate={self.sample_rate}"
         )
 
-    def _backend_config(self, backend_name: str) -> dict[str, Any]:
+    def _backend_config(
+        self,
+        backend_name: str,
+        *,
+        model_override: str | None = None,
+        region_override: str | None = None,
+    ) -> dict[str, Any]:
         """Build final backend config with runtime model/region overrides."""
         cfg = dict(self.runtime_cfg.get("backends", {}).get(backend_name, {}))
-        if self.model:
-            cfg["model"] = self.model
-        if self.region:
-            cfg["region"] = self.region
+        model_value = self.model if model_override is None else model_override
+        region_value = self.region if region_override is None else region_override
+        if model_value:
+            cfg["model"] = model_value
+        if region_value:
+            cfg["region"] = region_value
         return cfg
 
-    def _create_backend(self, backend_name: str):
+    def _create_backend(
+        self,
+        backend_name: str,
+        *,
+        model_override: str | None = None,
+        region_override: str | None = None,
+    ):
         """Instantiate backend through core factory."""
-        cfg = self._backend_config(backend_name)
+        cfg = self._backend_config(
+            backend_name,
+            model_override=model_override,
+            region_override=region_override,
+        )
         return create_backend(backend_name, config=cfg)
 
     def _on_audio_chunk(self, msg: UInt8MultiArray) -> None:
@@ -375,12 +393,33 @@ class AsrServerNode(Node):
     def _on_recognize_once(self, request: RecognizeOnce.Request, response: RecognizeOnce.Response):
         """Handle `/asr/recognize_once` service."""
         wav_path = request.wav_path or self.runtime_cfg.get("asr", {}).get("wav_path", "")
+        language = normalize_language_code(
+            request.language or self.language,
+            fallback=self.language,
+        )
+        if not wav_path or not Path(wav_path).exists():
+            result = AsrResponse(
+                success=False,
+                error_code="file_missing",
+                error_message=f"WAV file not found: {wav_path}",
+                language=language,
+                backend_info={
+                    "provider": self.backend_name,
+                    "model": self.model,
+                    "region": self.region,
+                },
+            )
+            rid = self._publish_response_and_metrics(
+                result,
+                wav_path=str(wav_path),
+                scenario="service",
+            )
+            response.result = to_asr_result_msg(result, request_id=rid, is_final=True)
+            return response
+
         req = AsrRequest(
             wav_path=wav_path,
-            language=normalize_language_code(
-                request.language or self.language,
-                fallback=self.language,
-            ),
+            language=language,
             enable_word_timestamps=bool(request.enable_word_timestamps),
         )
         with self.lock:
@@ -391,12 +430,25 @@ class AsrServerNode(Node):
 
     def _on_set_backend(self, request: SetAsrBackend.Request, response: SetAsrBackend.Response):
         """Handle runtime backend switch service."""
+        requested_backend = str(request.backend or "").strip()
+        if not requested_backend:
+            response.success = False
+            response.message = "Backend name must be non-empty"
+            return response
+
+        requested_model = str(request.model or self.model)
+        requested_region = str(request.region or self.region)
         try:
+            new_backend = self._create_backend(
+                requested_backend,
+                model_override=requested_model,
+                region_override=requested_region,
+            )
             with self.lock:
-                self.backend_name = request.backend
-                self.model = request.model or self.model
-                self.region = request.region or self.region
-                self.backend = self._create_backend(self.backend_name)
+                self.backend_name = requested_backend
+                self.model = requested_model
+                self.region = requested_region
+                self.backend = new_backend
             response.success = True
             response.message = f"Backend switched to {self.backend_name}"
             self.get_logger().info(response.message)
@@ -453,7 +505,7 @@ class AsrServerNode(Node):
             action_result.result = to_asr_result_msg(result)
             return action_result
 
-        with self.lock:
+        try:
             if goal.streaming:
                 chunks = wav_pcm_chunks(wav_path, chunk_sec)
                 for idx in range(len(chunks)):
@@ -489,16 +541,31 @@ class AsrServerNode(Node):
                     )
                     feedback.metrics.header.stamp = self.get_clock().now().to_msg()
                     goal_handle.publish_feedback(feedback)
-                asr_response = self.backend.streaming_recognize(
-                    chunks,
-                    language=language,
-                    sample_rate=self.sample_rate,
-                )
+                with self.lock:
+                    asr_response = self.backend.streaming_recognize(
+                        chunks,
+                        language=language,
+                        sample_rate=self.sample_rate,
+                    )
                 scenario = "action_streaming"
             else:
                 req = AsrRequest(wav_path=wav_path, language=language, enable_word_timestamps=True)
-                asr_response = self.backend.recognize_once(req)
+                with self.lock:
+                    asr_response = self.backend.recognize_once(req)
                 scenario = "action_once"
+        except Exception as exc:
+            asr_response = AsrResponse(
+                success=False,
+                error_code="action_runtime_error",
+                error_message=str(exc),
+                language=language,
+                backend_info={
+                    "provider": self.backend_name,
+                    "model": self.model,
+                    "region": self.region,
+                },
+            )
+            scenario = "action_error"
 
         rid = self._publish_response_and_metrics(asr_response, wav_path=wav_path, scenario=scenario)
         goal_handle.succeed()

@@ -119,6 +119,10 @@ def save_auth_profile(
     path = auth_profile_path(name)
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(dump_env_like_text(payload_values), encoding="utf-8")
+    try:
+        path.chmod(0o600)
+    except OSError:
+        pass
     return path
 
 
@@ -201,6 +205,11 @@ def _write_runtime_aws_config(name: str, values: dict[str, str]) -> dict[str, st
         lines.append(f"sso_role_name = {role_name}")
     lines.extend([f"region = {region}", "output = json", ""])
     config_path.write_text("\n".join(lines), encoding="utf-8")
+    for file_path in (config_path, credentials_path):
+        try:
+            file_path.chmod(0o600)
+        except OSError:
+            pass
 
     return {
         "AWS_CONFIG_FILE": str(config_path),

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import logging
 import shlex
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -72,6 +73,7 @@ ALLOWED_ARTIFACT_ROOTS = [
     NOISY_DIR,
     LOGS_DIR,
 ]
+LOGGER = logging.getLogger(__name__)
 
 
 class RunRequest(BaseModel):
@@ -372,4 +374,5 @@ def api_artifact(path: str = Query(...)) -> FileResponse:
 @app.exception_handler(Exception)
 def api_unhandled(_: Any, exc: Exception) -> JSONResponse:
     """Generic fallback for unhandled errors."""
-    return JSONResponse(status_code=500, content={"detail": str(exc)})
+    LOGGER.exception("Unhandled API exception: %s", exc)
+    return JSONResponse(status_code=500, content={"detail": "Internal server error"})

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import os
+import shutil
 import signal
 import subprocess
 import threading
@@ -62,6 +63,7 @@ class JobManager:
         self._lock = threading.Lock()
         self._jobs: dict[str, JobRecord] = {}
         self._procs: dict[str, subprocess.Popen[str]] = {}
+        self._bash_path = shutil.which("bash") or "/bin/bash"
 
     def start_job(
         self,
@@ -89,7 +91,7 @@ class JobManager:
 
         stdout_handle = log_path.open("a", encoding="utf-8")
         process = subprocess.Popen(
-            ["bash", "-lc", command.shell_command],
+            [self._bash_path, "-lc", command.shell_command],
             stdout=stdout_handle,
             stderr=subprocess.STDOUT,
             text=True,

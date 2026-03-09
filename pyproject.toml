@@ -24,4 +24,4 @@ python_version = "3.12"
 warn_unused_configs = true
 disallow_untyped_defs = false
 ignore_missing_imports = true
-exclude = "(ros2_ws/build|ros2_ws/install|ros2_ws/log|/setup\\.py$|/launch/.*\\.launch\\.py$)"
+exclude = "(ros2_ws/build|ros2_ws/install|ros2_ws/log|ros2_ws/src/.*/test/.*|/setup\\.py$|/launch/.*\\.launch\\.py$)"

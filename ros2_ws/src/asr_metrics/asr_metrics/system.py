@@ -20,12 +20,13 @@ def collect_gpu() -> tuple[float, float]:
 
     Returns `(0.0, 0.0)` when `nvidia-smi` is unavailable.
     """
-    if shutil.which("nvidia-smi") is None:
+    nvidia_smi = shutil.which("nvidia-smi")
+    if nvidia_smi is None:
         return 0.0, 0.0
     try:
         out = subprocess.check_output(
             [
-                "nvidia-smi",
+                nvidia_smi,
                 "--query-gpu=utilization.gpu,memory.used",
                 "--format=csv,noheader,nounits",
             ],
