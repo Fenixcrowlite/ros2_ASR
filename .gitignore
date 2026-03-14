@@ -9,6 +9,8 @@ venv/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.coverage
+coverage.xml
 .docsbot/
 *.egg-info/
 
@@ -19,12 +21,14 @@ log/
 ros2_ws/build/
 ros2_ws/install/
 ros2_ws/log/
+.colcon.lock
 
 # Results
 results/*.csv
 results/*.json
 results/*.md
 results/*.html
+results/coverage.xml
 results/plots/*.png
 results/web_gui/
 dist/
@@ -43,12 +47,59 @@ web_gui/runtime_aws/
 *.env
 configs/commercial.yaml
 configs/*.secret.yaml
+configs/resolved/*.json
 *.pem
 *.key
 *.p12
 *service-account*.json
 *credentials*.json
 !configs/commercial.example.yaml
+
+# New profile/secrets layout
+secrets/azure/*
+secrets/google/*
+secrets/aws/*
+secrets/local/*
+!secrets/azure/.gitkeep
+!secrets/google/.gitkeep
+!secrets/aws/.gitkeep
+!secrets/local/.gitkeep
+
+# Models and dataset payloads
+models/whisper/*
+models/vosk/*
+models/cache/*
+!models/whisper/.gitkeep
+!models/vosk/.gitkeep
+!models/cache/.gitkeep
+datasets/raw/*
+datasets/imported/*
+datasets/processed/*
+datasets/noise_assets/*
+!datasets/raw/.gitkeep
+!datasets/imported/.gitkeep
+!datasets/processed/.gitkeep
+!datasets/noise_assets/.gitkeep
+
+# Artifact/log roots
+artifacts/runtime_sessions/*
+artifacts/benchmark_runs/*
+artifacts/comparisons/*
+artifacts/exports/*
+artifacts/temp/*
+logs/runtime/*
+logs/benchmark/*
+logs/gateway/*
+logs/gui/*
+!artifacts/runtime_sessions/.gitkeep
+!artifacts/benchmark_runs/.gitkeep
+!artifacts/comparisons/.gitkeep
+!artifacts/exports/.gitkeep
+!artifacts/temp/.gitkeep
+!logs/runtime/.gitkeep
+!logs/benchmark/.gitkeep
+!logs/gateway/.gitkeep
+!logs/gui/.gitkeep
 
 # IDE
 .vscode/

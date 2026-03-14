@@ -1,10 +1,10 @@
 # Universal baseline config.
-# This profile is safe for CI/local smoke tests because it uses `mock` backend by default.
+# Default path must reflect a real backend outcome, not synthetic mock output.
 
 asr:
   # Backend name resolved by asr_core.factory.create_backend(...)
   # Available: mock, vosk, whisper, google, aws, azure
-  backend: mock
+  backend: whisper
   # Default language code used by service/action/live pipeline.
   language: en-US
   # Reserved timeout value for long operations (action/cloud usage).
@@ -20,7 +20,11 @@ asr:
   # audio_capture mode: auto | mic | file
   input_mode: auto
   # Fallback/test WAV path used by service and file-mode capture.
-  wav_path: data/sample/en_hello.wav
+  wav_path: data/sample/en_zero.wav
+  # Cloud fallback is disabled by default to keep runtime behavior honest.
+  cloud_fallback_enabled: false
+  # Local fallback backend used only when explicitly enabled.
+  cloud_fallback_backend: whisper
 
 backends:
   mock:
@@ -28,8 +32,8 @@ backends:
     deterministic_latency_ms: 25.0
     # Deterministic transcript mapping by WAV file name.
     transcript_map:
-      en_hello.wav: "hello world"
-      en_robot.wav: "robot start navigation"
+      en_zero.wav: "zero"
+      en_one.wav: "one"
       en_stop.wav: "stop the robot"
       ru_privet.wav: "privet mir"
       ru_start.wav: "zapusti manipulyator"

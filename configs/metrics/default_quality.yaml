@@ -1,0 +1,6 @@
+profile_id: metrics/default_quality
+inherits: []
+metrics:
+  - wer
+  - cer
+  - sample_accuracy

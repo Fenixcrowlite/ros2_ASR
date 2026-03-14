@@ -1,0 +1,88 @@
+# Web GUI scenario: Slovak ROS wrapper profile for local Whisper CUDA.
+
+asr:
+  backend: whisper
+  language: sk-SK
+  timeout_sec: 45.0
+  sample_rate: 16000
+  chunk_ms: 800
+  model: ""
+  region: ""
+  input_mode: mic
+  wav_path: data/sample/en_zero.wav
+
+backends:
+  mock:
+    deterministic_latency_ms: 25.0
+  whisper:
+    model_size: large-v3
+    device: cuda
+    compute_type: float16
+    allow_cpu_fallback: true
+    condition_on_previous_text: false
+    no_speech_threshold: 0.7
+    temperature: 0.0
+    vad_filter: true
+  vosk:
+    model_path: ""
+  google:
+    model: chirp_2
+    region: global
+  aws:
+    region: eu-central-1
+    s3_bucket: ""
+    media_format: wav
+    cleanup: true
+  azure:
+    region: westeurope
+    endpoint: ""
+
+benchmark:
+  scenarios:
+    - clean
+    - snr20
+    - snr10
+    - snr0
+  chunk_sec: 0.8
+  output_dir: results
+  selected_metrics:
+    - wer
+    - cer
+    - latency_ms
+    - rtf
+    - cpu_percent
+    - ram_mb
+    - gpu_util_percent
+    - gpu_mem_mb
+    - success_rate
+  pricing:
+    mock: 0.0
+    vosk: 0.0
+    whisper: 0.0
+    google: 0.006
+    aws: 0.0004
+    azure: 0.016
+
+web:
+  scenario_label: "Web: ROS Wrapper sk-SK Whisper CUDA (latest)"
+  scenario_description: "Slovak ROS wrapper preset for Whisper large-v3 on CUDA with topic text/metrics enabled."
+  interfaces:
+    - core
+    - ros_service
+    - ros_action
+  model_runs: "whisper:large-v3"
+  benchmark_backends: "whisper"
+  dataset: "data/transcripts/sample_manifest.csv"
+  language_mode: config
+  record_sec: 6.0
+  action_chunk_sec: 0.8
+  request_timeout_sec: 45.0
+  ros_auto_launch: true
+  action_streaming: true
+  bringup_input_mode: mic
+  bringup_wav: data/sample/en_zero.wav
+  bringup_mic_capture_sec: 5.0
+  bringup_continuous: true
+  bringup_live_stream_enabled: true
+  bringup_text_output_enabled: true
+  noise_levels: "20,10,0"

@@ -17,3 +17,15 @@ bool is_final
 bool success
 string error_code
 string error_message
+string session_id
+string provider_id
+bool is_partial
+bool confidence_available
+bool timestamps_available
+builtin_interfaces/Time utterance_start
+builtin_interfaces/Time utterance_end
+float32 first_partial_latency_ms
+float32 finalization_latency_ms
+string raw_metadata_ref
+bool degraded
+string[] tags

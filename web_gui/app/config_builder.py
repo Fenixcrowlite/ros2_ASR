@@ -111,6 +111,34 @@ def _extract_env_secrets(secrets: dict[str, str]) -> dict[str, str]:
     return env
 
 
+def _validate_secret_consistency(secrets: dict[str, str]) -> None:
+    """Validate cloud secret combinations before writing runtime artifacts."""
+    aws_key = secrets.get("aws_access_key_id", "")
+    aws_secret = secrets.get("aws_secret_access_key", "")
+    aws_token = secrets.get("aws_session_token", "")
+    if bool(aws_key) != bool(aws_secret):
+        raise ConfigBuildError(
+            "AWS access-key auth must include both aws_access_key_id and aws_secret_access_key."
+        )
+    if aws_token and not (aws_key and aws_secret):
+        raise ConfigBuildError(
+            "aws_session_token requires aws_access_key_id and aws_secret_access_key."
+        )
+
+    azure_key = secrets.get("azure_speech_key", "")
+    azure_region = secrets.get("azure_region", "")
+    if bool(azure_key) != bool(azure_region):
+        raise ConfigBuildError(
+            "Azure auth must include both azure_speech_key and azure_region."
+        )
+
+    google_creds = secrets.get("google_credentials_json", "")
+    if google_creds:
+        creds_path = Path(google_creds).expanduser()
+        if not creds_path.exists() or not creds_path.is_file():
+            raise ConfigBuildError(f"Google credentials file not found: {creds_path}")
+
+
 def build_runtime_config(
     *,
     base_config_path: str,
@@ -123,6 +151,7 @@ def build_runtime_config(
     base_cfg = _load_yaml(base_path)
     merged = deep_merge(base_cfg, runtime_overrides)
     cleaned_secrets = {k: str(v).strip() for k, v in (secrets or {}).items() if str(v).strip()}
+    _validate_secret_consistency(cleaned_secrets)
     _apply_secrets(merged, cleaned_secrets)
     env_secrets = _extract_env_secrets(cleaned_secrets)
 

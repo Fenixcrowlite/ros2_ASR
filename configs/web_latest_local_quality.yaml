@@ -71,8 +71,8 @@ web:
     - core
     - ros_service
     - ros_action
-  model_runs: "mock,whisper:small,whisper:medium,whisper:large-v3"
-  benchmark_backends: "mock,whisper"
+  model_runs: "whisper:small,whisper:medium,whisper:large-v3"
+  benchmark_backends: "whisper"
   dataset: "data/transcripts/sample_manifest.csv"
   language_mode: config
   reference_text: "privet mir"

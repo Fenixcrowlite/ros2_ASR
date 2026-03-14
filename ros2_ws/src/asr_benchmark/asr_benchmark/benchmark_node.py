@@ -59,7 +59,8 @@ def main() -> None:
     finally:
         if node.context.ok():
             node.destroy_node()
-        rclpy.shutdown()
+        if rclpy.ok(context=node.context):
+            rclpy.shutdown(context=node.context)
 
 
 if __name__ == "__main__":

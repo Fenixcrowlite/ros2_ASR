@@ -1,0 +1,7 @@
+profile_id: metrics/default_timing
+inherits: []
+metrics:
+  - total_latency_ms
+  - per_utterance_latency_ms
+  - success_rate
+  - failure_rate

@@ -8,6 +8,7 @@
   - backend, language, sample rate, chunk size, input mode;
   - backend-specific параметры (Whisper/Vosk/Google/AWS/Azure);
   - cloud credentials/tokens/keys.
+  - автоматический draft restore формы между перезапусками GUI (localStorage).
   - переносимые AWS auth-файлы (`web_gui/auth_profiles/*.txt`) c выбором из dropdown.
 - Live pipeline:
   - запись с микрофона или выбор собственного WAV;
@@ -29,7 +30,9 @@
   - просмотр логов,
   - просмотр артефактов (CSV/JSON/MD/PNG/WAV),
   - остановка задач.
-  - AWS SSO login как отдельный job прямо из GUI (device-code flow).
+  - неактивные `restored`-job из прошлых сессий скрываются в сворачиваемом dropdown-блоке (активные остаются в основной таблице).
+  - AWS SSO login как отдельный job прямо из GUI (device-code flow, browser-first).
+  - logs/artifacts панель активируется только после явного выбора job (без авто-всплытия).
 
 ## Запуск
 
@@ -53,6 +56,7 @@ bash web_gui/run_web_gui.sh
 ## Замечания по безопасности
 
 - Поля секретов UI передаются только в runtime config/env конкретного запуска.
+- Draft persistence не сохраняет чувствительные credential-поля (`AWS secret/token`, `Azure key`, raw AWS auth-text).
 - Не храните production-секреты в git.
 - `web_gui/runtime_configs/`, `web_gui/uploads/`, `web_gui/noisy/`, `web_gui/logs/`, `web_gui/auth_profiles/`, `web_gui/runtime_aws/` рекомендуется держать в `.gitignore`.
 
@@ -66,6 +70,16 @@ bash web_gui/run_web_gui.sh
 4. Выбирать ранее введённые URL/region из выпадающих подсказок (берутся из сохранённых auth/profile конфигов).
 5. Сохранить в `AWS auth profile file` (значения останутся как константы на будущее).
 6. Запустить `AWS SSO Login` из GUI и пройти авторизацию по URL+code из логов job.
+
+Важно:
+
+- Для runtime SSO-профиля обязательны `AWS_SSO_ACCOUNT_ID` и `AWS_SSO_ROLE_NAME`.
+- Перед запуском job с backend `aws` GUI делает fail-fast STS preflight (boto3-first, CLI fallback to `aws sts get-caller-identity`).
+- Preflight можно отключить только осознанно: `export WEB_GUI_SKIP_AWS_STS_PREFLIGHT=1`.
+- Для backend `google` путь `GOOGLE_APPLICATION_CREDENTIALS` проверяется до запуска.
+- Для backend `google` credential файл также валидируется как JSON object до запуска.
+- Для backend `azure` проверяется пара `AZURE_SPEECH_KEY + AZURE_SPEECH_REGION`.
+- Для backend `aws` успешный STS preflight кешируется на короткий TTL (по умолчанию 120с), чтобы не дергать одинаковую проверку на каждом старте.
 
 Пример содержимого файла:
 
@@ -94,5 +108,16 @@ AWS_SSO_ROLE_NAME=AdministratorAccess
 - `configs/web_latest_local_quality.yaml` — quality-набор для сравнения `whisper:small/medium/large-v3`.
 - `configs/web_latest_cloud_matrix.yaml` — вариации последних cloud-моделей (`google latest_* + chirp_2`, `aws`, `azure`) + локальный baseline.
 - `configs/web_ros_wrapper_e2e.yaml` — end-to-end сценарий для `core + ros_service + ros_action`.
+- `configs/web_ros_wrapper_sk_google_latest.yaml` — ROS wrapper профиль `sk-SK` для Google `chirp_2`.
+- `configs/web_ros_wrapper_sk_aws_latest.yaml` — ROS wrapper профиль `sk-SK` для AWS `transcribe`.
+- `configs/web_ros_wrapper_sk_whisper_cuda_latest.yaml` — ROS wrapper профиль `sk-SK` для Whisper `large-v3` на `cuda`.
 
 В GUI эти конфиги появляются в `Base config`; при выборе автоматически применяются значения из YAML (`asr/backends/benchmark/web`).
+
+## Готовые GUI-профили в `web_gui/profiles/`
+
+- `sk-google-latest`
+- `sk-aws-latest`
+- `sk-whisper-cuda-latest`
+
+Эти профили уже включают `language=sk-SK`, запуск ROS wrapper (`ros_auto_launch`) и публикацию plain-text топика (`bringup_text_enabled=true`).

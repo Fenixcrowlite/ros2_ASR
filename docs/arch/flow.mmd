@@ -32,6 +32,28 @@ flowchart LR
   S_asr_server_node_set_parameters_atomically{{"/asr_server_node/set_parameters_atomically"}}
   class S_asr_server_node_set_parameters_atomically observedOnly;
   N_asr_server_node -->|server: /asr_server_node/set_parameters_atomically&lt;br/&gt;rcl_interfaces/srv/SetParametersAtomically| S_asr_server_node_set_parameters_atomically
+  N_asr_text_output_node["/asr_text_output_node&lt;br/&gt;[asr_ros]"]
+  S_asr_text_output_node_describe_parameters{{"/asr_text_output_node/describe_parameters"}}
+  class S_asr_text_output_node_describe_parameters observedOnly;
+  N_asr_text_output_node -->|server: /asr_text_output_node/describe_parameters&lt;br/&gt;rcl_interfaces/srv/DescribeParameters| S_asr_text_output_node_describe_parameters
+  S_asr_text_output_node_get_parameter_types{{"/asr_text_output_node/get_parameter_types"}}
+  class S_asr_text_output_node_get_parameter_types observedOnly;
+  N_asr_text_output_node -->|server: /asr_text_output_node/get_parameter_types&lt;br/&gt;rcl_interfaces/srv/GetParameterTypes| S_asr_text_output_node_get_parameter_types
+  S_asr_text_output_node_get_parameters{{"/asr_text_output_node/get_parameters"}}
+  class S_asr_text_output_node_get_parameters observedOnly;
+  N_asr_text_output_node -->|server: /asr_text_output_node/get_parameters&lt;br/&gt;rcl_interfaces/srv/GetParameters| S_asr_text_output_node_get_parameters
+  S_asr_text_output_node_get_type_description{{"/asr_text_output_node/get_type_description"}}
+  class S_asr_text_output_node_get_type_description observedOnly;
+  N_asr_text_output_node -->|server: /asr_text_output_node/get_type_description&lt;br/&gt;type_description_interfaces/srv/GetTypeDescription| S_asr_text_output_node_get_type_description
+  S_asr_text_output_node_list_parameters{{"/asr_text_output_node/list_parameters"}}
+  class S_asr_text_output_node_list_parameters observedOnly;
+  N_asr_text_output_node -->|server: /asr_text_output_node/list_parameters&lt;br/&gt;rcl_interfaces/srv/ListParameters| S_asr_text_output_node_list_parameters
+  S_asr_text_output_node_set_parameters{{"/asr_text_output_node/set_parameters"}}
+  class S_asr_text_output_node_set_parameters observedOnly;
+  N_asr_text_output_node -->|server: /asr_text_output_node/set_parameters&lt;br/&gt;rcl_interfaces/srv/SetParameters| S_asr_text_output_node_set_parameters
+  S_asr_text_output_node_set_parameters_atomically{{"/asr_text_output_node/set_parameters_atomically"}}
+  class S_asr_text_output_node_set_parameters_atomically observedOnly;
+  N_asr_text_output_node -->|server: /asr_text_output_node/set_parameters_atomically&lt;br/&gt;rcl_interfaces/srv/SetParametersAtomically| S_asr_text_output_node_set_parameters_atomically
   N_audio_capture_node["/audio_capture_node&lt;br/&gt;[asr_ros]"]
   S_audio_capture_node_describe_parameters{{"/audio_capture_node/describe_parameters"}}
   class S_audio_capture_node_describe_parameters observedOnly;
@@ -61,11 +83,23 @@ flowchart LR
   N_asr_server_node -->|pub: /asr/metrics&lt;br/&gt;asr_interfaces/msg/AsrMetrics| T_asr_metrics
   T_asr_text(["/asr/text"])
   N_asr_server_node -->|pub: /asr/text&lt;br/&gt;asr_interfaces/msg/AsrResult| T_asr_text
+  T_asr_text -->|sub: /asr/text&lt;br/&gt;asr_interfaces/msg/AsrResult| N_asr_text_output_node
+  T_asr_text_plain(["/asr/text/plain"])
+  class T_asr_text_plain observedOnly;
+  N_asr_text_output_node -->|pub: /asr/text/plain&lt;br/&gt;std_msgs/msg/String| T_asr_text_plain
   T_parameter_events(["/parameter_events"])
   class T_parameter_events observedOnly;
   N_asr_server_node -->|pub: /parameter_events&lt;br/&gt;rcl_interfaces/msg/ParameterEvent| T_parameter_events
+  N_asr_text_output_node -->|pub: /parameter_events&lt;br/&gt;rcl_interfaces/msg/ParameterEvent| T_parameter_events
   N_audio_capture_node -->|pub: /parameter_events&lt;br/&gt;rcl_interfaces/msg/ParameterEvent| T_parameter_events
   T_rosout(["/rosout"])
   class T_rosout observedOnly;
   N_asr_server_node -->|pub: /rosout&lt;br/&gt;rcl_interfaces/msg/Log| T_rosout
+  N_asr_text_output_node -->|pub: /rosout&lt;br/&gt;rcl_interfaces/msg/Log| T_rosout
   N_audio_capture_node -->|pub: /rosout&lt;br/&gt;rcl_interfaces/msg/Log| T_rosout
+  T_unknown__topic__pub(["unknown::topic::pub"])
+  class T_unknown__topic__pub expectedOnly;
+  N_asr_text_output_node -.->|pub: unknown::topic::pub&lt;br/&gt;String| T_unknown__topic__pub
+  T_unknown__topic__sub(["unknown::topic::sub"])
+  class T_unknown__topic__sub expectedOnly;
+  T_unknown__topic__sub -.->|sub: unknown::topic::sub&lt;br/&gt;AsrResult| N_asr_text_output_node

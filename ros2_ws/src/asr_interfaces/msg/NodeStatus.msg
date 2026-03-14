@@ -1,0 +1,9 @@
+std_msgs/Header header
+string node_name
+string lifecycle_state
+string health
+string status_message
+bool ready
+string last_error_code
+string last_error_message
+builtin_interfaces/Time last_update

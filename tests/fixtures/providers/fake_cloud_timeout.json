@@ -1,0 +1,5 @@
+{
+  "provider_id": "azure",
+  "error_code": "timeout",
+  "error_message": "simulated timeout for contract tests"
+}

@@ -1,0 +1,11 @@
+std_msgs/Header header
+string session_id
+string state
+string provider_id
+string profile_id
+builtin_interfaces/Time started_at
+builtin_interfaces/Time updated_at
+builtin_interfaces/Time ended_at
+string status_message
+string error_code
+string error_message

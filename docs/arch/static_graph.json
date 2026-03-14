@@ -104,6 +104,28 @@
         "static_ast"
       ],
       "kind": "topic",
+      "name": "unknown::topic::pub",
+      "node": "/asr_text_output_node",
+      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_text_output_node.py",
+      "type": "String"
+    },
+    {
+      "direction": "sub",
+      "evidence": [
+        "static_ast"
+      ],
+      "kind": "topic",
+      "name": "unknown::topic::sub",
+      "node": "/asr_text_output_node",
+      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_text_output_node.py",
+      "type": "AsrResult"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "static_ast"
+      ],
+      "kind": "topic",
       "name": "/asr/audio_chunks",
       "node": "/audio_capture_node",
       "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/audio_capture_node.py",
@@ -183,6 +205,7 @@
         "live_stream_enabled",
         "mic_capture_sec",
         "sample_rate",
+        "text_output_enabled",
         "wav_path"
       ],
       "evidence": [
@@ -218,6 +241,14 @@
             "wav_path"
           ],
           "remappings": []
+        },
+        {
+          "executable": "asr_text_output_node",
+          "name": "asr_text_output_node",
+          "namespace": "/",
+          "package": "asr_ros",
+          "parameters": [],
+          "remappings": []
         }
       ],
       "package": "asr_ros",
@@ -237,7 +268,7 @@
     }
   ],
   "meta": {
-    "generated_at": "2026-03-01T10:19:16.544382+00:00",
+    "generated_at": "2026-03-12T04:06:56.788829+00:00",
     "schema_version": 1,
     "source": "static",
     "workspace": "/home/fenix/Desktop/ros2ws/ros2_ws"
@@ -303,6 +334,21 @@
       ],
       "remappings": [],
       "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/audio_capture_node.py"
+    },
+    {
+      "evidence": [
+        "static_ast",
+        "static_launch"
+      ],
+      "executable": "asr_text_output_node",
+      "id": "/asr_text_output_node",
+      "launch_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/bringup.launch.py",
+      "name": "asr_text_output_node",
+      "namespace": "/",
+      "package": "asr_ros",
+      "parameters": [],
+      "remappings": [],
+      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_text_output_node.py"
     }
   ],
   "packages": [
@@ -453,6 +499,9 @@
             "float32 gpu_mem_mb",
             "float32 cost_estimate",
             "bool success",
+            "builtin_interfaces/Time capture_start",
+            "builtin_interfaces/Time capture_end",
+            "string text_preview",
             "string notes"
           ],
           "kind": "msg",
@@ -593,6 +642,7 @@
       ],
       "entry_points": [
         "asr_server_node = asr_ros.asr_server_node:main",
+        "asr_text_output_node = asr_ros.asr_text_output_node:main",
         "audio_capture_node = asr_ros.audio_capture_node:main"
       ],
       "evidence": [
@@ -702,6 +752,13 @@
       ],
       "name": "/asr/audio_chunks",
       "type": "UInt8MultiArray"
+    },
+    {
+      "evidence": [
+        "static_ast"
+      ],
+      "name": "unknown",
+      "type": "String"
     }
   ]
 }

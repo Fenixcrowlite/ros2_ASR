@@ -1,0 +1,2 @@
+{"sample_id": "sample_001", "audio_path": "data/sample/en_hello.wav", "transcript": "hello world", "language": "en-US", "split": "test", "duration_sec": 1.0}
+{"sample_id": "sample_002", "audio_path": "data/sample/en_hello.wav", "transcript": "hello world", "language": "en-US", "split": "test", "duration_sec": 1.0}

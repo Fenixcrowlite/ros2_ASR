@@ -9,7 +9,7 @@ asr:
   model: ""
   region: ""
   input_mode: file
-  wav_path: data/sample/en_robot.wav
+  wav_path: data/sample/en_one.wav
 
 backends:
   mock:
@@ -75,7 +75,7 @@ web:
   benchmark_backends: "whisper,google,aws,azure"
   dataset: "data/transcripts/sample_manifest.csv"
   language_mode: config
-  reference_text: "robot start navigation"
+  reference_text: "one"
   record_sec: 5.0
   action_chunk_sec: 0.8
   request_timeout_sec: 45.0

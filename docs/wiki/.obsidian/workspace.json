@@ -144,6 +144,7 @@
       {
         "id": "70d00c64aa483a0d",
         "type": "tabs",
+        "dimension": 33.33333333333333,
         "children": [
           {
             "id": "db10acd071943f8f",
@@ -198,6 +199,7 @@
       {
         "id": "6ea89ae8f04ffb1e",
         "type": "tabs",
+        "dimension": 30.212234706616734,
         "children": [
           {
             "id": "3ef87837f3f2f850",
@@ -219,6 +221,7 @@
       {
         "id": "20a90ed1f68648bc",
         "type": "tabs",
+        "dimension": 36.45443196004994,
         "children": [
           {
             "id": "b89febdfcce9b91a",
@@ -251,7 +254,7 @@
       "bases:Create new base": false
     }
   },
-  "active": "257cbf216fe7d80b",
+  "active": "3ef87837f3f2f850",
   "lastOpenFiles": [
     "03_Core/Audio_Utilities.md",
     "03_Core/Config_Loading.md",

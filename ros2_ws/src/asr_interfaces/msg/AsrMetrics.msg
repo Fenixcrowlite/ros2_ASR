@@ -15,3 +15,6 @@ builtin_interfaces/Time capture_start
 builtin_interfaces/Time capture_end
 string text_preview
 string notes
+string run_id
+string metric_profile
+string dataset_id

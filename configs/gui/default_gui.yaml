@@ -1,0 +1,8 @@
+profile_id: gui/default
+inherits: []
+gateway:
+  host: 0.0.0.0
+  port: 8088
+  enable_cors: true
+frontend:
+  title: ROS2 ASR Platform

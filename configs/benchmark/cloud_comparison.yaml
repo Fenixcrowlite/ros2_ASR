@@ -1,0 +1,9 @@
+profile_id: benchmark/cloud_comparison
+inherits:
+  - default_benchmark
+providers:
+  - providers/whisper_local
+  - providers/azure_cloud
+scenarios:
+  - clean_baseline
+  - provider_comparison

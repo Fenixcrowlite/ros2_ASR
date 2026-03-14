@@ -1,0 +1,180 @@
+"""Audio preprocessing node: mono conversion, resample, normalization."""
+
+from __future__ import annotations
+
+import audioop
+from collections import defaultdict
+
+import rclpy
+from asr_config import resolve_profile, validate_runtime_payload
+from asr_core.namespaces import TOPICS
+from asr_core.shutdown import safe_shutdown_node
+from asr_interfaces.msg import AudioChunk, NodeStatus
+from asr_interfaces.srv import ReconfigureRuntime
+from rclpy.node import Node
+
+
+class AudioPreprocessNode(Node):
+    def __init__(self) -> None:
+        super().__init__("audio_preprocess_node")
+        self.declare_parameter("configs_root", "configs")
+        self.declare_parameter("runtime_profile", "default_runtime")
+        self.declare_parameter("target_sample_rate_hz", 16000)
+        self.declare_parameter("normalize", True)
+        self.declare_parameter("mono", True)
+
+        self.configs_root = str(self.get_parameter("configs_root").value)
+        self.runtime_profile = str(self.get_parameter("runtime_profile").value)
+        self.target_sample_rate_hz = int(self.get_parameter("target_sample_rate_hz").value)
+        self.normalize = bool(self.get_parameter("normalize").value)
+        self.force_mono = bool(self.get_parameter("mono").value)
+
+        self.publisher = self.create_publisher(AudioChunk, TOPICS["preprocessed_audio"], 10)
+        self.node_status_pub = self.create_publisher(NodeStatus, TOPICS["node_status"], 10)
+        self.subscription = self.create_subscription(
+            AudioChunk,
+            TOPICS["raw_audio"],
+            self._on_chunk,
+            10,
+        )
+        self.reconfigure_srv = self.create_service(
+            ReconfigureRuntime,
+            "/asr/runtime/preprocess/reconfigure",
+            self._on_reconfigure,
+        )
+
+        self._last_error_code = ""
+        self._last_error_message = ""
+        self._status = "idle"
+        self._last_update = self.get_clock().now()
+        self._session_output_rate: dict[str, int] = defaultdict(lambda: self.target_sample_rate_hz)
+        self._session_output_channels: dict[str, int] = defaultdict(lambda: 1)
+        self._load_runtime_configuration(self.runtime_profile)
+        self.status_timer = self.create_timer(1.0, self._publish_status)
+
+    def _load_runtime_configuration(self, runtime_profile: str) -> str:
+        profile_id = runtime_profile
+        if profile_id.startswith("runtime/"):
+            profile_id = profile_id.split("/", 1)[1]
+
+        resolved = resolve_profile(
+            profile_type="runtime",
+            profile_id=profile_id,
+            configs_root=self.configs_root,
+        )
+        runtime_cfg = resolved.data
+        errors = validate_runtime_payload(runtime_cfg)
+        if errors:
+            raise ValueError("; ".join(errors))
+
+        preprocess_cfg = runtime_cfg.get("preprocess", {})
+        if not isinstance(preprocess_cfg, dict):
+            raise ValueError("runtime.preprocess must be an object")
+
+        self.runtime_profile = profile_id
+        self.target_sample_rate_hz = int(
+            preprocess_cfg.get("target_sample_rate_hz", self.target_sample_rate_hz) or self.target_sample_rate_hz
+        )
+        self.normalize = bool(preprocess_cfg.get("normalize", self.normalize))
+        self.force_mono = bool(preprocess_cfg.get("mono", self.force_mono))
+        self._status = "ready"
+        self._last_error_code = ""
+        self._last_error_message = ""
+        self._last_update = self.get_clock().now()
+        return resolved.snapshot_path
+
+    def _on_chunk(self, msg: AudioChunk) -> None:
+        data = bytes(msg.data)
+        out_channels = int(msg.channels) or 1
+        out_sample_rate = int(msg.sample_rate) or self.target_sample_rate_hz
+
+        if data and self.force_mono and int(msg.channels) == 2:
+            data = audioop.tomono(data, 2, 0.5, 0.5)
+            out_channels = 1
+        elif self.force_mono and out_channels > 1 and not data:
+            out_channels = 1
+
+        if data and out_sample_rate != self.target_sample_rate_hz:
+            data, _ = audioop.ratecv(
+                data,
+                2,
+                out_channels,
+                out_sample_rate,
+                self.target_sample_rate_hz,
+                None,
+            )
+            out_sample_rate = int(self.target_sample_rate_hz)
+        elif not data:
+            out_sample_rate = int(self._session_output_rate.get(msg.session_id, self.target_sample_rate_hz))
+            out_channels = int(self._session_output_channels.get(msg.session_id, out_channels or 1))
+
+        if data and self.normalize:
+            max_val = audioop.max(data, 2)
+            if max_val > 0:
+                scale = min(1.0, 0.9 * 32767.0 / float(max_val))
+                data = audioop.mul(data, 2, scale)
+
+        out = AudioChunk()
+        out.header = msg.header
+        out.session_id = msg.session_id
+        out.source_id = msg.source_id
+        out.sample_rate = out_sample_rate
+        out.channels = out_channels
+        out.encoding = msg.encoding
+        out.is_last_chunk = msg.is_last_chunk
+        out.data = list(data)
+        out.metadata_ref = msg.metadata_ref
+        self.publisher.publish(out)
+        self._session_output_rate[msg.session_id] = out_sample_rate
+        self._session_output_channels[msg.session_id] = out_channels
+        if msg.is_last_chunk:
+            self._session_output_rate.pop(msg.session_id, None)
+            self._session_output_channels.pop(msg.session_id, None)
+        self._status = "ready" if msg.is_last_chunk else "running"
+        self._last_update = self.get_clock().now()
+
+    def _on_reconfigure(self, request: ReconfigureRuntime.Request, response: ReconfigureRuntime.Response):
+        try:
+            snapshot_path = self._load_runtime_configuration(request.runtime_profile or self.runtime_profile)
+            response.success = True
+            response.message = "Audio preprocess reconfigured"
+            response.resolved_config_ref = snapshot_path
+        except Exception as exc:
+            self._status = "error"
+            self._last_error_code = "preprocess_reconfigure_failed"
+            self._last_error_message = str(exc)
+            self._last_update = self.get_clock().now()
+            response.success = False
+            response.message = str(exc)
+            response.resolved_config_ref = ""
+        return response
+
+    def _publish_status(self) -> None:
+        msg = NodeStatus()
+        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.node_name = self.get_name()
+        msg.lifecycle_state = "active"
+        msg.health = "ok" if not self._last_error_code else "degraded"
+        msg.status_message = (
+            f"{self._status} sample_rate={self.target_sample_rate_hz} normalize={self.normalize} mono={self.force_mono}"
+        )
+        msg.ready = self._status in {"ready", "running"}
+        msg.last_error_code = self._last_error_code
+        msg.last_error_message = self._last_error_message
+        msg.last_update = self._last_update.to_msg()
+        self.node_status_pub.publish(msg)
+
+
+def main() -> None:
+    rclpy.init()
+    node = AudioPreprocessNode()
+    try:
+        rclpy.spin(node)
+    except KeyboardInterrupt:
+        pass
+    finally:
+        safe_shutdown_node(node=node, rclpy_module=rclpy)
+
+
+if __name__ == "__main__":
+    main()

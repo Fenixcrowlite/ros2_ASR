@@ -1,0 +1,12 @@
+std_msgs/Header header
+string run_id
+string benchmark_profile_id
+string dataset_id
+string[] providers
+uint32 total_samples
+uint32 successful_samples
+uint32 failed_samples
+float32 mean_wer
+float32 mean_cer
+float32 mean_latency_ms
+string summary_artifact_ref

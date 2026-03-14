@@ -1,0 +1,9 @@
+std_msgs/Header header
+string session_id
+string source_id
+uint32 sample_rate
+uint8 channels
+string encoding
+bool is_last_chunk
+uint8[] data
+string metadata_ref

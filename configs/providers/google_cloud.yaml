@@ -1,0 +1,9 @@
+profile_id: providers/google_cloud
+inherits: []
+provider_id: google
+adapter: asr_provider_google.google_provider.GoogleProvider
+settings:
+  model: default
+  region: global
+  project_id: strong-minutia-419022
+credentials_ref: secrets/refs/google_service_account.yaml

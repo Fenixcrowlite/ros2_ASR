@@ -47,12 +47,13 @@ def load_manifest_csv(path: str) -> list[DatasetItem]:
             if wav_candidate.is_absolute():
                 resolved_wav = wav_candidate.resolve()
             else:
-                from_cwd = (Path.cwd() / wav_candidate).resolve()
                 from_manifest = (manifest_path.parent / wav_candidate).resolve()
-                if from_cwd.exists():
-                    resolved_wav = from_cwd
-                elif from_manifest.exists():
+                from_cwd = (Path.cwd() / wav_candidate).resolve()
+                # Prefer paths relative to manifest location for reproducible runs.
+                if from_manifest.exists():
                     resolved_wav = from_manifest
+                elif from_cwd.exists():
+                    resolved_wav = from_cwd
                 else:
                     raise ValueError(
                         "Dataset row "

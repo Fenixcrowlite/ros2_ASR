@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import tempfile
 import time
+import wave
 from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
@@ -143,8 +144,16 @@ class WhisperAsrBackend(AsrBackend):
         if request.audio_bytes:
             fd, tmp_path = tempfile.mkstemp(suffix=".wav", prefix="whisper_audio_")
             os.close(fd)
-            with open(tmp_path, "wb") as f:
-                f.write(request.audio_bytes)
+            audio_bytes = request.audio_bytes
+            if audio_bytes[:4] == b"RIFF":
+                with open(tmp_path, "wb") as f:
+                    f.write(audio_bytes)
+                return tmp_path, True
+            with wave.open(tmp_path, "wb") as wf:
+                wf.setnchannels(int(request.metadata.get("channels", 1) or 1))
+                wf.setsampwidth(int(request.metadata.get("sample_width_bytes", 2) or 2))
+                wf.setframerate(int(request.sample_rate or 16000))
+                wf.writeframes(audio_bytes)
             return tmp_path, True
         raise ValueError("Either wav_path or audio_bytes must be provided")
 

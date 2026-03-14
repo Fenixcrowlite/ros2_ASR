@@ -239,17 +239,24 @@ def resolve_auth_context(name: str, *, for_login: bool = False) -> AwsAuthContex
         "AWS_REGION": region,
     }
     if auth_type == "sso":
-        sso_env = _write_runtime_aws_config(name, values)
         has_account_and_role = bool(
             values.get("AWS_SSO_ACCOUNT_ID") and values.get("AWS_SSO_ROLE_NAME")
         )
-        # Runtime jobs should not override AWS config with a session-only profile because
-        # credentials resolution for SDK calls requires account+role bindings.
-        if for_login or has_account_and_role:
-            env_extra.update(sso_env)
+        if not for_login and not has_account_and_role:
+            raise ValueError(
+                "SSO runtime profile must include AWS_SSO_ACCOUNT_ID and AWS_SSO_ROLE_NAME."
+            )
+        sso_env = _write_runtime_aws_config(name, values)
+        env_extra.update(sso_env)
+        env_extra["AWS_SDK_LOAD_CONFIG"] = "1"
     else:
         key_id = values.get("AWS_ACCESS_KEY_ID", "")
         secret_key = values.get("AWS_SECRET_ACCESS_KEY", "")
+        if bool(key_id) != bool(secret_key):
+            raise ValueError(
+                "Access-key profile must include both AWS_ACCESS_KEY_ID and "
+                "AWS_SECRET_ACCESS_KEY."
+            )
         if key_id:
             env_extra["AWS_ACCESS_KEY_ID"] = key_id
             runtime_secrets["aws_access_key_id"] = key_id

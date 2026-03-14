@@ -44,6 +44,75 @@ def bytes_to_temp_wav(audio_bytes: bytes, suffix: str = ".wav") -> str:
     return path
 
 
+def looks_like_wav_bytes(audio_bytes: bytes) -> bool:
+    """Return `True` when payload starts with a RIFF/WAVE header."""
+    return len(audio_bytes) >= 12 and audio_bytes[:4] == b"RIFF" and audio_bytes[8:12] == b"WAVE"
+
+
+def wav_duration_bytes(audio_bytes: bytes) -> float:
+    """Return WAV duration in seconds for an in-memory RIFF/WAVE payload."""
+    with contextlib.closing(wave.open(io.BytesIO(audio_bytes), "rb")) as wf:
+        frames = wf.getnframes()
+        rate = wf.getframerate()
+        return frames / float(rate)
+
+
+def wav_info_bytes(audio_bytes: bytes) -> tuple[int, int, int, int]:
+    """Return `(sample_rate, channels, sample_width_bytes, n_frames)` for WAV bytes."""
+    with contextlib.closing(wave.open(io.BytesIO(audio_bytes), "rb")) as wf:
+        return wf.getframerate(), wf.getnchannels(), wf.getsampwidth(), wf.getnframes()
+
+
+def sample_width_from_encoding(encoding: str | None, default: int = 2) -> int:
+    """Infer sample width in bytes from an encoding label such as `pcm_s16le`."""
+    text = str(encoding or "").lower()
+    if "24" in text:
+        return 3
+    if "32" in text or "float" in text:
+        return 4
+    if "8" in text or text.endswith("u8"):
+        return 1
+    if "16" in text:
+        return 2
+    return default
+
+
+def pcm_duration_sec(
+    audio_bytes: bytes,
+    *,
+    sample_rate: int,
+    channels: int = 1,
+    sample_width: int = 2,
+) -> float:
+    """Estimate PCM duration in seconds from payload size and stream metadata."""
+    bytes_per_frame = max(int(channels or 1) * int(sample_width or 2), 1)
+    frames = len(audio_bytes) / float(bytes_per_frame)
+    return frames / float(max(int(sample_rate or 16000), 1))
+
+
+def audio_bytes_to_temp_wav(
+    audio_bytes: bytes,
+    *,
+    sample_rate: int,
+    channels: int = 1,
+    sample_width: int = 2,
+    prefix: str = "asr_audio_",
+) -> str:
+    """Persist either WAV bytes or raw PCM bytes as a valid temporary WAV file."""
+    fd, path = tempfile.mkstemp(suffix=".wav", prefix=prefix)
+    os.close(fd)
+    if looks_like_wav_bytes(audio_bytes):
+        with open(path, "wb") as f:
+            f.write(audio_bytes)
+        return path
+    with contextlib.closing(wave.open(path, "wb")) as wf:
+        wf.setnchannels(int(channels or 1))
+        wf.setsampwidth(int(sample_width or 2))
+        wf.setframerate(int(sample_rate or 16000))
+        wf.writeframes(audio_bytes)
+    return path
+
+
 def wav_pcm_chunks(wav_path: str, chunk_sec: float) -> list[bytes]:
     """Split WAV payload into PCM chunks for streaming simulation.
 

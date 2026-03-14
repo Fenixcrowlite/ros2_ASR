@@ -3,6 +3,8 @@ string wav_path
 string language
 bool streaming
 float32 chunk_sec
+string session_id
+string provider_profile
 ---
 # Result
 asr_interfaces/AsrResult result

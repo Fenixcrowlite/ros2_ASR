@@ -1,0 +1,12 @@
+std_msgs/Header header
+string run_id
+string state
+string scenario
+string[] providers
+uint32 total_samples
+uint32 processed_samples
+uint32 failed_samples
+float32 progress
+string status_message
+string error_message
+builtin_interfaces/Time updated_at

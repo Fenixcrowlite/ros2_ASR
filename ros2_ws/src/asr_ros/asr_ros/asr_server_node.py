@@ -29,11 +29,13 @@ from asr_metrics.system import collect_cpu_ram, collect_gpu
 from builtin_interfaces.msg import Time as RosTime
 from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.action import ActionServer
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from std_msgs.msg import UInt8MultiArray
 
 from asr_ros.converters import build_metrics_msg, to_asr_result_msg
+from asr_ros.shutdown import safe_shutdown_node
 
 
 def _coerce_int_param(
@@ -179,6 +181,14 @@ class AsrServerNode(Node):
         self._live_capture_start: RosTime | None = None
         self._live_capture_end: RosTime | None = None
         self._live_processing = False
+        fallback_raw = self.runtime_cfg.get("asr", {}).get("cloud_fallback_enabled", False)
+        if isinstance(fallback_raw, str):
+            self.cloud_fallback_enabled = fallback_raw.strip().lower() in {"1", "true", "yes", "on"}
+        else:
+            self.cloud_fallback_enabled = bool(fallback_raw)
+        self.cloud_fallback_backend = str(
+            self.runtime_cfg.get("asr", {}).get("cloud_fallback_backend", "whisper")
+        ).strip() or "whisper"
 
         # Metric collector is reused for service/action/live-topic flows.
         self.collector = MetricsCollector(
@@ -254,6 +264,115 @@ class AsrServerNode(Node):
         )
         return create_backend(backend_name, config=cfg)
 
+    def _should_try_cloud_fallback(self, response: AsrResponse) -> bool:
+        """Return True when primary cloud backend failed and fallback is configured."""
+        if not self.cloud_fallback_enabled:
+            return False
+        if response.success:
+            return False
+        if not bool(self.backend.capabilities.is_cloud):
+            return False
+        if not self.cloud_fallback_backend:
+            return False
+        if self.cloud_fallback_backend == self.backend_name:
+            return False
+        return True
+
+    def _fallback_backend_for_cloud_failure(self):
+        """Create fallback backend instance for current request."""
+        try:
+            # Do not reuse cloud model/region overrides for local fallback backend.
+            return self._create_backend(
+                self.cloud_fallback_backend,
+                model_override="",
+                region_override="",
+            )
+        except Exception as exc:
+            self.get_logger().warning(
+                "Cloud fallback backend creation failed "
+                f"(fallback={self.cloud_fallback_backend}): {exc}"
+            )
+            return None
+
+    def _maybe_fallback_recognize_once(
+        self,
+        primary: AsrResponse,
+        request: AsrRequest,
+    ) -> AsrResponse:
+        """Try recognize-once fallback when cloud backend failed."""
+        if not self._should_try_cloud_fallback(primary):
+            return primary
+        fallback_backend = self._fallback_backend_for_cloud_failure()
+        if fallback_backend is None:
+            return primary
+
+        fallback_response = fallback_backend.recognize_once(request)
+        if fallback_response.success:
+            fallback_response.backend_info["fallback_from"] = self.backend_name
+            fallback_response.backend_info["fallback_reason"] = (
+                f"{primary.error_code}: {primary.error_message}"
+            ).strip()
+            self.get_logger().warning(
+                "Cloud backend failed and fallback succeeded "
+                f"(from={self.backend_name}, to={self.cloud_fallback_backend}, "
+                f"error={primary.error_code})"
+            )
+            return fallback_response
+
+        primary.backend_info["fallback_attempted"] = self.cloud_fallback_backend
+        primary.backend_info["fallback_error"] = (
+            f"{fallback_response.error_code}: {fallback_response.error_message}"
+        ).strip()
+        self.get_logger().warning(
+            "Cloud backend failed and fallback failed "
+            f"(from={self.backend_name}, to={self.cloud_fallback_backend}, "
+            f"error={primary.error_code}, fallback_error={fallback_response.error_code})"
+        )
+        return primary
+
+    def _maybe_fallback_streaming(
+        self,
+        primary: AsrResponse,
+        *,
+        chunks: list[bytes],
+        language: str,
+        sample_rate: int,
+    ) -> AsrResponse:
+        """Try streaming fallback when cloud backend failed."""
+        if not self._should_try_cloud_fallback(primary):
+            return primary
+        fallback_backend = self._fallback_backend_for_cloud_failure()
+        if fallback_backend is None:
+            return primary
+
+        fallback_response = fallback_backend.streaming_recognize(
+            chunks,
+            language=language,
+            sample_rate=sample_rate,
+        )
+        if fallback_response.success:
+            fallback_response.backend_info["fallback_from"] = self.backend_name
+            fallback_response.backend_info["fallback_reason"] = (
+                f"{primary.error_code}: {primary.error_message}"
+            ).strip()
+            self.get_logger().warning(
+                "Cloud streaming failed and fallback succeeded "
+                f"(from={self.backend_name}, to={self.cloud_fallback_backend}, "
+                f"error={primary.error_code})"
+            )
+            return fallback_response
+
+        primary.backend_info["fallback_attempted"] = self.cloud_fallback_backend
+        primary.backend_info["fallback_error"] = (
+            f"{fallback_response.error_code}: {fallback_response.error_message}"
+        ).strip()
+        self.get_logger().warning(
+            "Cloud streaming failed and fallback failed "
+            f"(from={self.backend_name}, to={self.cloud_fallback_backend}, "
+            f"error={primary.error_code}, fallback_error={fallback_response.error_code})"
+        )
+        return primary
+
     def _on_audio_chunk(self, msg: UInt8MultiArray) -> None:
         """Collect live audio chunks from `audio_capture_node`."""
         if not self.live_stream_enabled:
@@ -301,6 +420,12 @@ class AsrServerNode(Node):
                 asr_response = self.backend.streaming_recognize(
                     chunks, language=self.language, sample_rate=self.sample_rate
                 )
+                asr_response = self._maybe_fallback_streaming(
+                    asr_response,
+                    chunks=chunks,
+                    language=self.language,
+                    sample_rate=self.sample_rate,
+                )
             rid = self._publish_response_and_metrics(
                 asr_response,
                 wav_path="live_input.wav",
@@ -311,9 +436,11 @@ class AsrServerNode(Node):
             if asr_response.success:
                 preview_text = asr_response.text[:120]
                 compute_device = asr_response.backend_info.get("compute_device", "unknown")
+                response_backend = asr_response.backend_info.get("provider", self.backend_name)
                 self.get_logger().info(
                     "Live transcription published "
-                    f"(device={compute_device}, request_id={rid}, text='{preview_text}')"
+                    f"(backend={response_backend}, device={compute_device}, "
+                    f"request_id={rid}, text='{preview_text}')"
                 )
             else:
                 err = f"{asr_response.error_code}: {asr_response.error_message}"
@@ -357,10 +484,11 @@ class AsrServerNode(Node):
         rid = request_id or str(uuid.uuid4())
         result_msg = to_asr_result_msg(response, request_id=rid, is_final=True)
         self.text_pub.publish(result_msg)
+        result_backend = str(response.backend_info.get("provider") or self.backend_name)
         compute_device = response.backend_info.get("compute_device", "")
 
         rec = self.collector.record(
-            backend=self.backend_name,
+            backend=result_backend,
             scenario=scenario,
             wav_path=wav_path,
             language=response.language or self.language,
@@ -370,7 +498,7 @@ class AsrServerNode(Node):
         )
         metrics_msg = build_metrics_msg(
             request_id=rid,
-            backend=self.backend_name,
+            backend=result_backend,
             wer=rec.wer,
             cer=rec.cer,
             rtf=rec.rtf,
@@ -424,6 +552,7 @@ class AsrServerNode(Node):
         )
         with self.lock:
             result = self.backend.recognize_once(req)
+            result = self._maybe_fallback_recognize_once(result, req)
         rid = self._publish_response_and_metrics(result, wav_path=wav_path, scenario="service")
         response.result = to_asr_result_msg(result, request_id=rid, is_final=True)
         return response
@@ -547,11 +676,18 @@ class AsrServerNode(Node):
                         language=language,
                         sample_rate=self.sample_rate,
                     )
+                    asr_response = self._maybe_fallback_streaming(
+                        asr_response,
+                        chunks=chunks,
+                        language=language,
+                        sample_rate=self.sample_rate,
+                    )
                 scenario = "action_streaming"
             else:
                 req = AsrRequest(wav_path=wav_path, language=language, enable_word_timestamps=True)
                 with self.lock:
                     asr_response = self.backend.recognize_once(req)
+                    asr_response = self._maybe_fallback_recognize_once(asr_response, req)
                 scenario = "action_once"
         except Exception as exc:
             asr_response = AsrResponse(
@@ -579,9 +715,10 @@ def main() -> None:
     node = AsrServerNode()
     try:
         rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
     finally:
-        node.destroy_node()
-        rclpy.shutdown()
+        safe_shutdown_node(node=node, rclpy_module=rclpy)
 
 
 if __name__ == "__main__":

@@ -7,9 +7,12 @@ from __future__ import annotations
 
 import rclpy
 from asr_interfaces.msg import AsrResult
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 from std_msgs.msg import String
+
+from asr_ros.shutdown import safe_shutdown_node
 
 
 def _as_bool(value: object) -> bool:
@@ -73,9 +76,10 @@ def main() -> None:
     node = AsrTextOutputNode()
     try:
         rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
     finally:
-        node.destroy_node()
-        rclpy.shutdown()
+        safe_shutdown_node(node=node, rclpy_module=rclpy)
 
 
 if __name__ == "__main__":

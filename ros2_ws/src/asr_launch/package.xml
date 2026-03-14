@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>asr_launch</name>
+  <version>0.1.0</version>
+  <description>Launch scenarios for runtime, benchmark, gateway and full stack</description>
+  <maintainer email="maintainer@example.com">ASR Team</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>asr_runtime_nodes</exec_depend>
+  <exec_depend>asr_benchmark_nodes</exec_depend>
+  <exec_depend>asr_gateway</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import tempfile
 import time
 import wave
 from collections.abc import Iterable
@@ -12,7 +11,7 @@ from contextlib import closing
 from pathlib import Path
 from typing import Any
 
-from asr_core.audio import wav_duration_sec
+from asr_core.audio import audio_bytes_to_temp_wav, sample_width_from_encoding, wav_duration_sec
 from asr_core.backend import AsrBackend
 from asr_core.factory import register_backend
 from asr_core.language import normalize_language_code
@@ -63,11 +62,22 @@ class VoskAsrBackend(AsrBackend):
         if request.wav_path:
             return request.wav_path, False
         if request.audio_bytes:
-            fd, tmp_path = tempfile.mkstemp(suffix=".wav", prefix="vosk_audio_")
-            os.close(fd)
-            with open(tmp_path, "wb") as f:
-                f.write(request.audio_bytes)
-            return tmp_path, True
+            return (
+                audio_bytes_to_temp_wav(
+                    request.audio_bytes,
+                    sample_rate=int(request.sample_rate or 16000),
+                    channels=int(request.metadata.get("channels", 1) or 1),
+                    sample_width=int(
+                        request.metadata.get(
+                            "sample_width_bytes",
+                            sample_width_from_encoding(request.metadata.get("encoding"), default=2),
+                        )
+                        or 2
+                    ),
+                    prefix="vosk_audio_",
+                ),
+                True,
+            )
         raise ValueError("Either wav_path or audio_bytes must be provided")
 
     def recognize_once(self, request: AsrRequest) -> AsrResponse:

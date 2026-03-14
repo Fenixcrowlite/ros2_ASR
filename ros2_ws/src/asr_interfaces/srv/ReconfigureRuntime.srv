@@ -1,0 +1,11 @@
+string session_id
+string runtime_profile
+string provider_profile
+string audio_source
+string audio_file_path
+string language
+float32 mic_capture_sec
+---
+bool success
+string message
+string resolved_config_ref

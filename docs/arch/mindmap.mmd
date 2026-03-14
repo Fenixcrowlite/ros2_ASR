@@ -59,6 +59,47 @@ flowchart TB
   M_asr_server_node_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
   N_asr_server_node --> M_asr_server_node_topic_pub__rosout
   class M_asr_server_node_topic_pub__rosout observedOnly;
+  N_asr_text_output_node["node: /asr_text_output_node / state=both"]
+  P_asr_ros --> N_asr_text_output_node
+  M_asr_text_output_node_service_server__asr_text_output_node_describe_parameters["service server: /asr_text_output_node/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]
+  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_describe_parameters
+  class M_asr_text_output_node_service_server__asr_text_output_node_describe_parameters observedOnly;
+  M_asr_text_output_node_service_server__asr_text_output_node_get_parameter_types["service server: /asr_text_output_node/get_parameter_types / rcl_interfaces/srv/GetParameterTypes / state=observed_only"]
+  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_get_parameter_types
+  class M_asr_text_output_node_service_server__asr_text_output_node_get_parameter_types observedOnly;
+  M_asr_text_output_node_service_server__asr_text_output_node_get_parameters["service server: /asr_text_output_node/get_parameters / rcl_interfaces/srv/GetParameters / state=observed_only"]
+  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_get_parameters
+  class M_asr_text_output_node_service_server__asr_text_output_node_get_parameters observedOnly;
+  M_asr_text_output_node_service_server__asr_text_output_node_get_type_description["service server: /asr_text_output_node/get_type_description / type_description_interfaces/srv/GetTypeDescription / state=observed_only"]
+  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_get_type_description
+  class M_asr_text_output_node_service_server__asr_text_output_node_get_type_description observedOnly;
+  M_asr_text_output_node_service_server__asr_text_output_node_list_parameters["service server: /asr_text_output_node/list_parameters / rcl_interfaces/srv/ListParameters / state=observed_only"]
+  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_list_parameters
+  class M_asr_text_output_node_service_server__asr_text_output_node_list_parameters observedOnly;
+  M_asr_text_output_node_service_server__asr_text_output_node_set_parameters["service server: /asr_text_output_node/set_parameters / rcl_interfaces/srv/SetParameters / state=observed_only"]
+  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_set_parameters
+  class M_asr_text_output_node_service_server__asr_text_output_node_set_parameters observedOnly;
+  M_asr_text_output_node_service_server__asr_text_output_node_set_parameters_atomically["service server: /asr_text_output_node/set_parameters_atomically / rcl_interfaces/srv/SetParametersAtomically / state=observed_only"]
+  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_set_parameters_atomically
+  class M_asr_text_output_node_service_server__asr_text_output_node_set_parameters_atomically observedOnly;
+  M_asr_text_output_node_topic_sub__asr_text["topic sub: /asr/text / asr_interfaces/msg/AsrResult / state=observed_only"]
+  N_asr_text_output_node --> M_asr_text_output_node_topic_sub__asr_text
+  class M_asr_text_output_node_topic_sub__asr_text observedOnly;
+  M_asr_text_output_node_topic_pub__asr_text_plain["topic pub: /asr/text/plain / std_msgs/msg/String / state=observed_only"]
+  N_asr_text_output_node --> M_asr_text_output_node_topic_pub__asr_text_plain
+  class M_asr_text_output_node_topic_pub__asr_text_plain observedOnly;
+  M_asr_text_output_node_topic_pub__parameter_events["topic pub: /parameter_events / rcl_interfaces/msg/ParameterEvent / state=observed_only"]
+  N_asr_text_output_node --> M_asr_text_output_node_topic_pub__parameter_events
+  class M_asr_text_output_node_topic_pub__parameter_events observedOnly;
+  M_asr_text_output_node_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
+  N_asr_text_output_node --> M_asr_text_output_node_topic_pub__rosout
+  class M_asr_text_output_node_topic_pub__rosout observedOnly;
+  M_asr_text_output_node_topic_pub_unknown__topic__pub["topic pub: unknown::topic::pub / String / state=expected_only"]
+  N_asr_text_output_node --> M_asr_text_output_node_topic_pub_unknown__topic__pub
+  class M_asr_text_output_node_topic_pub_unknown__topic__pub expectedOnly;
+  M_asr_text_output_node_topic_sub_unknown__topic__sub["topic sub: unknown::topic::sub / AsrResult / state=expected_only"]
+  N_asr_text_output_node --> M_asr_text_output_node_topic_sub_unknown__topic__sub
+  class M_asr_text_output_node_topic_sub_unknown__topic__sub expectedOnly;
   N_audio_capture_node["node: /audio_capture_node / state=both"]
   P_asr_ros --> N_audio_capture_node
   M_audio_capture_node_service_server__audio_capture_node_describe_parameters["service server: /audio_capture_node/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]

@@ -1,0 +1,8 @@
+profile_id: providers/azure_cloud
+inherits: []
+provider_id: azure
+adapter: asr_provider_azure.azure_provider.AzureProvider
+settings:
+  region: eastus
+  endpoint: ""
+credentials_ref: secrets/refs/azure_speech_key.yaml

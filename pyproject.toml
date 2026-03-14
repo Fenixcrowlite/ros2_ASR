@@ -6,6 +6,16 @@ build-backend = "setuptools.build_meta"
 addopts = "-q"
 testpaths = ["tests"]
 markers = [
+  "unit: isolated domain/unit tests",
+  "component: component-level black-box tests",
+  "contract: architectural contract tests",
+  "api: gateway/backend API tests",
+  "gui: web GUI tests",
+  "e2e: end-to-end browser/user-flow tests",
+  "integration: CLI and multi-module integration tests",
+  "regression: regression safety suite",
+  "slow: slower-running tests excluded from default fast CI",
+  "legacy: legacy coverage retained outside primary baseline",
   "cloud: cloud integration tests (require credentials)",
   "ros: ROS2 integration tests",
 ]

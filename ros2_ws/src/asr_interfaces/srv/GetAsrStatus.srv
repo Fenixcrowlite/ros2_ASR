@@ -6,3 +6,7 @@ string[] capabilities
 bool streaming_supported
 bool cloud_credentials_available
 string status_message
+string session_id
+string session_state
+string audio_source
+string runtime_profile

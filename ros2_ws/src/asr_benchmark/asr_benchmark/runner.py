@@ -43,6 +43,34 @@ def _scenario_wav(item: DatasetItem, scenario: str) -> tuple[str, list[str]]:
     raise ValueError(f"Unsupported scenario: {scenario}")
 
 
+def _normalize_scenarios(raw: object) -> list[str]:
+    """Normalize benchmark scenarios from YAML into deterministic list of labels."""
+    values: list[str] = []
+    if isinstance(raw, str):
+        values = [chunk.strip() for chunk in raw.split(",")]
+    elif isinstance(raw, list):
+        values = [str(chunk).strip() for chunk in raw]
+    elif raw is None:
+        values = []
+    else:
+        raise ValueError("benchmark.scenarios must be a list or comma-separated string")
+
+    normalized = [item for item in values if item]
+    if not normalized:
+        raise ValueError("No benchmark scenarios configured")
+    for scenario in normalized:
+        if scenario == "clean":
+            continue
+        if scenario.startswith("snr"):
+            try:
+                float(scenario.replace("snr", ""))
+                continue
+            except ValueError as exc:
+                raise ValueError(f"Invalid SNR scenario format: {scenario}") from exc
+        raise ValueError(f"Unsupported scenario: {scenario}")
+    return normalized
+
+
 def _run_single(
     backend,
     backend_name: str,
@@ -121,9 +149,7 @@ def run_benchmark(
     if not selected_backends or any(not backend for backend in selected_backends):
         raise ValueError("No backend selected for benchmark run")
 
-    scenarios = list(cfg.get("benchmark", {}).get("scenarios", ["clean"]))
-    if not scenarios:
-        raise ValueError("No benchmark scenarios configured")
+    scenarios = _normalize_scenarios(cfg.get("benchmark", {}).get("scenarios", ["clean"]))
     chunk_sec = float(cfg.get("benchmark", {}).get("chunk_sec", 0.8))
     if chunk_sec <= 0:
         raise ValueError("benchmark.chunk_sec must be > 0")

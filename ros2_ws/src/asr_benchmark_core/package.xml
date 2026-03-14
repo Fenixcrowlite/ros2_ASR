@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>asr_benchmark_core</name>
+  <version>0.1.0</version>
+  <description>Benchmark orchestration and execution core</description>
+  <maintainer email="maintainer@example.com">ASR Team</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>asr_core</exec_depend>
+  <exec_depend>asr_storage</exec_depend>
+  <exec_depend>asr_datasets</exec_depend>
+  <exec_depend>asr_metrics</exec_depend>
+  <exec_depend>asr_provider_base</exec_depend>
+  <exec_depend>asr_provider_whisper</exec_depend>
+  <exec_depend>asr_provider_vosk</exec_depend>
+  <exec_depend>asr_provider_azure</exec_depend>
+  <exec_depend>asr_provider_google</exec_depend>
+  <exec_depend>asr_provider_aws</exec_depend>
+  <exec_depend>asr_config</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

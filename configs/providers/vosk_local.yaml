@@ -1,0 +1,7 @@
+profile_id: providers/vosk_local
+inherits: []
+provider_id: vosk
+adapter: asr_provider_vosk.vosk_provider.VoskProvider
+settings:
+  model_path: models/vosk
+credentials_ref: secrets/refs/local_none.yaml

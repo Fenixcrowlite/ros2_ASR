@@ -1,0 +1,11 @@
+std_msgs/Header header
+string session_id
+string segment_id
+string source_id
+builtin_interfaces/Time start_time
+builtin_interfaces/Time end_time
+uint32 sample_rate
+uint8 channels
+string encoding
+uint8[] data
+string metadata_ref

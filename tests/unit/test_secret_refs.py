@@ -1,0 +1,119 @@
+from __future__ import annotations
+
+from pathlib import Path
+
+import pytest
+import yaml  # type: ignore[import-untyped]
+from asr_config.secrets import load_secret_ref, mask_secret_values, resolve_secret_ref
+
+
+def _write_yaml(path: Path, payload: dict) -> None:
+    path.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
+
+
+def test_env_secret_ref_resolution_requires_required_envs(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    ref_path = tmp_path / "azure.yaml"
+    _write_yaml(
+        ref_path,
+        {
+            "ref_id": "secrets/azure",
+            "provider": "azure",
+            "kind": "env",
+            "required": ["AZURE_SPEECH_KEY", "AZURE_SPEECH_REGION"],
+            "optional": ["AZURE_ENDPOINT"],
+        },
+    )
+    ref = load_secret_ref(str(ref_path))
+
+    monkeypatch.setenv("AZURE_SPEECH_KEY", "super-secret-key")
+    monkeypatch.setenv("AZURE_SPEECH_REGION", "eastus")
+    monkeypatch.setenv("AZURE_ENDPOINT", "https://example.invalid")
+
+    resolved = resolve_secret_ref(ref)
+
+    assert resolved["AZURE_SPEECH_KEY"] == "super-secret-key"
+    assert resolved["AZURE_SPEECH_REGION"] == "eastus"
+    assert resolved["AZURE_ENDPOINT"] == "https://example.invalid"
+
+
+def test_file_secret_ref_uses_env_fallback_and_checks_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    secret_file = tmp_path / "service-account.json"
+    secret_file.write_text("{}", encoding="utf-8")
+    ref_path = tmp_path / "google.yaml"
+    _write_yaml(
+        ref_path,
+        {
+            "ref_id": "secrets/google",
+            "provider": "google",
+            "kind": "file",
+            "path": "",
+            "env_fallback": "GOOGLE_APPLICATION_CREDENTIALS",
+        },
+    )
+    monkeypatch.setenv("GOOGLE_APPLICATION_CREDENTIALS", str(secret_file))
+
+    ref = load_secret_ref(str(ref_path))
+    resolved = resolve_secret_ref(ref)
+
+    assert resolved["file_path"] == str(secret_file)
+
+
+def test_file_secret_ref_resolves_relative_path_from_project_layout(tmp_path: Path) -> None:
+    project_root = tmp_path / "project"
+    refs_dir = project_root / "secrets" / "refs"
+    google_dir = project_root / "secrets" / "google"
+    refs_dir.mkdir(parents=True)
+    google_dir.mkdir(parents=True)
+    secret_file = google_dir / "service-account.json"
+    secret_file.write_text("{}", encoding="utf-8")
+    ref_path = refs_dir / "google.yaml"
+    _write_yaml(
+        ref_path,
+        {
+            "ref_id": "secrets/google",
+            "provider": "google",
+            "kind": "file",
+            "path": "secrets/google/service-account.json",
+        },
+    )
+
+    ref = load_secret_ref(str(ref_path))
+    resolved = resolve_secret_ref(ref)
+
+    assert resolved["file_path"] == str(secret_file)
+
+
+def test_secret_ref_raises_for_missing_required_env(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    ref_path = tmp_path / "aws.yaml"
+    _write_yaml(
+        ref_path,
+        {
+            "ref_id": "secrets/aws",
+            "provider": "aws",
+            "kind": "env",
+            "required": ["AWS_PROFILE"],
+        },
+    )
+
+    monkeypatch.delenv("AWS_PROFILE", raising=False)
+    ref = load_secret_ref(str(ref_path))
+    with pytest.raises(ValueError, match="AWS_PROFILE"):
+        resolve_secret_ref(ref)
+
+
+def test_mask_secret_values_never_returns_full_plaintext() -> None:
+    masked = mask_secret_values(
+        {
+            "SHORT": "abc",
+            "LONG": "supersecretvalue",
+            "EMPTY": "",
+        }
+    )
+
+    assert masked["SHORT"] == "***"
+    assert masked["LONG"].startswith("su***")
+    assert masked["LONG"] != "supersecretvalue"
+    assert masked["EMPTY"] == ""

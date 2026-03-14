@@ -1,12 +1,14 @@
 # Commercial Backends Setup
 
-Secrets must be stored in environment variables or local untracked config (`configs/commercial.yaml`).
+Primary model in this project: `provider profile -> credentials_ref -> native provider auth source`.
 
 ## Google Cloud Speech-to-Text
 
 1. Create service account with Speech permissions.
-2. Download JSON key file locally.
-3. Set:
+2. Put the JSON key under `secrets/google/service-account.json`.
+3. Reference it via `secrets/refs/google_service_account.yaml`.
+
+Optional env alternative:
 
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS=/absolute/path/service-account.json
@@ -25,24 +27,24 @@ If `ASR_GOOGLE_ENDPOINT` is unset, backend uses the default global Google endpoi
 
 ## AWS Transcribe
 
-Use IAM user/role with S3 + Transcribe access.
+Use native AWS auth:
+
+- `AWS_PROFILE`
+- or `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY`
+- optional `AWS_SESSION_TOKEN`
+- optional `AWS_CONFIG_FILE`, `AWS_SHARED_CREDENTIALS_FILE`
+
+Provider settings such as bucket stay in `configs/providers/aws_cloud.yaml`.
+
+If you use AWS SSO, you still need a live login token:
 
 ```bash
-export AWS_REGION=us-east-1
-export AWS_ACCESS_KEY_ID=...
-export AWS_SECRET_ACCESS_KEY=...
-export AWS_SESSION_TOKEN=...   # optional
-export ASR_AWS_S3_BUCKET=your-bucket
-export ASR_AWS_CLEANUP=true
-```
-
-Or configure profile:
-
-```bash
-export AWS_PROFILE=default
+aws sso login --profile ros2ws
 ```
 
 ## Azure Speech
+
+Use native Azure auth:
 
 ```bash
 export AZURE_SPEECH_KEY=...

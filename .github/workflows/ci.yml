@@ -19,4 +19,4 @@ jobs:
       - name: Ruff
         run: ruff check .
       - name: Unit tests
-        run: PYTHONPATH=$PYTHONPATH:${{ github.workspace }}/ros2_ws/src pytest -m "not cloud and not ros" -q
+        run: PYTHONPATH=$PYTHONPATH:${{ github.workspace }}/ros2_ws/src pytest -m "not cloud and not ros and not e2e and not slow and not legacy" -q

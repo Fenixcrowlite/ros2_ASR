@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ROS2 ASR Platform Control Center</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/ui/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar">
+        <div>
+          <h1>ROS2 ASR Platform</h1>
+          <p>Human-friendly control center for runtime and benchmark subsystems</p>
+        </div>
+        <div class="topbar-status">
+          <span class="badge badge-info" id="gatewayPulse">Gateway: checking</span>
+          <span class="badge" id="runtimePulse">Runtime: unknown</span>
+          <span class="badge" id="benchmarkPulse">Benchmark: unknown</span>
+        </div>
+      </header>
+
+      <div class="layout">
+        <aside class="sidebar" id="mainNav">
+          <button data-page="dashboard" class="active">Dashboard</button>
+          <button data-page="runtime">Runtime</button>
+          <button data-page="providers">Providers</button>
+          <button data-page="profiles">Profiles</button>
+          <button data-page="datasets">Datasets</button>
+          <button data-page="benchmark">Benchmark</button>
+          <button data-page="results">Results</button>
+          <button data-page="logs">Logs & Diagnostics</button>
+          <button data-page="secrets">Secrets</button>
+        </aside>
+
+        <main class="content">
+          <section id="dashboard" class="page visible">
+            <div class="page-head">
+              <h2>Dashboard</h2>
+              <p>What is happening now and what to do next.</p>
+            </div>
+            <div class="cards-grid" id="dashboardCards"></div>
+            <div class="panel">
+              <h3>Quick Actions</h3>
+              <p class="helper">Fast path for demo/operator workflow.</p>
+              <div class="actions-row" id="dashboardQuickActions"></div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Alerts and Warnings</h3>
+                <div id="dashboardAlerts" class="stack-list"></div>
+              </div>
+              <div class="panel">
+                <h3>Recent Runtime Output</h3>
+                <div id="dashboardRuntimeOutput" class="stack-list"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="runtime" class="page">
+            <div class="page-head">
+              <h2>Runtime Control</h2>
+              <p>Start/stop/reconfigure runtime and observe live transcription behavior.</p>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Runtime Session</h3>
+                <p class="helper">Basic controls first. These fields are your draft configuration. Active runtime state is shown in Live Status and does not overwrite the form.</p>
+                <div class="form-grid">
+                  <label>
+                    Runtime profile
+                    <select id="runtimeProfileSelect"></select>
+                  </label>
+                  <label>
+                    Provider profile
+                    <select id="runtimeProviderSelect"></select>
+                  </label>
+                  <label>
+                    Session ID (optional)
+                    <input id="runtimeSessionId" placeholder="auto if empty" />
+                  </label>
+                  <label>
+                    Language
+                    <input id="runtimeLanguage" value="en-US" />
+                  </label>
+                  <label>
+                    Audio source
+                    <select id="runtimeSourceMode">
+                      <option value="file">file</option>
+                      <option value="mic">microphone</option>
+                    </select>
+                  </label>
+                  <label>
+                    Recognize WAV path
+                    <input id="runtimeWavPath" value="data/sample/en_zero.wav" />
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button class="btn-primary" id="runtimeStartBtn">Start</button>
+                  <button class="btn-secondary" id="runtimeReconfigureBtn">Reconfigure</button>
+                  <button class="btn-danger" id="runtimeStopBtn">Stop</button>
+                  <button class="btn-primary" id="runtimeRecognizeBtn">Recognize Once</button>
+                </div>
+                <div id="runtimeFeedback" class="feedback"></div>
+              </div>
+
+              <div class="panel">
+                <h3>Live Status</h3>
+                <div id="runtimeStatusSummary" class="stack-list"></div>
+                <h3>Session Timeline</h3>
+                <div id="runtimeTimeline" class="stack-list"></div>
+              </div>
+            </div>
+
+            <div class="panel">
+              <h3>Live Transcription</h3>
+              <p class="helper">Shows recent results returned by runtime gateway calls and runtime polling snapshots.</p>
+              <div id="runtimeTranscripts" class="stack-list"></div>
+            </div>
+          </section>
+
+          <section id="providers" class="page">
+            <div class="page-head">
+              <h2>Providers</h2>
+              <p>Discover backend capabilities, validate profiles, and test connectivity.</p>
+            </div>
+            <div class="panel">
+              <h3>Provider Catalog</h3>
+              <div id="providersCatalogTable"></div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Provider Profiles</h3>
+                <div id="providerProfilesTable"></div>
+              </div>
+              <div class="panel">
+                <h3>Validate / Test Provider</h3>
+                <div class="form-grid">
+                  <label>
+                    Provider profile
+                    <select id="providerTestProfile"></select>
+                  </label>
+                  <label>
+                    Test WAV
+                    <input id="providerTestWav" value="data/sample/en_zero.wav" />
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="providerValidateBtn" class="btn-secondary">Validate Config</button>
+                  <button id="providerTestBtn" class="btn-primary">Test Provider</button>
+                </div>
+                <div id="providerTestResult" class="feedback"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="profiles" class="page">
+            <div class="page-head">
+              <h2>Profiles</h2>
+              <p>Manage runtime/provider/benchmark/dataset/metric/deployment profiles without losing manual YAML workflows.</p>
+            </div>
+            <div class="toolbar">
+              <label>
+                Profile type
+                <select id="profilesTypeSelect">
+                  <option value="runtime">runtime</option>
+                  <option value="providers">providers</option>
+                  <option value="benchmark">benchmark</option>
+                  <option value="datasets">datasets</option>
+                  <option value="metrics">metrics</option>
+                  <option value="deployment">deployment</option>
+                  <option value="gui">gui</option>
+                </select>
+              </label>
+              <button id="profilesReloadBtn" class="btn-secondary">Reload</button>
+            </div>
+            <div class="three-col">
+              <div class="panel">
+                <h3>Profile List</h3>
+                <div id="profilesList" class="stack-list"></div>
+              </div>
+              <div class="panel">
+                <h3>Guided Edit</h3>
+                <div id="profilesGuidedForm" class="form-grid"></div>
+                <div class="actions-row">
+                  <button id="profileValidateBtn" class="btn-secondary">Validate</button>
+                  <button id="profileSaveBtn" class="btn-primary">Save</button>
+                </div>
+                <div id="profileFeedback" class="feedback"></div>
+              </div>
+              <div class="panel">
+                <h3>Advanced Mode (Raw JSON)</h3>
+                <p class="helper">Custom fields are preserved. Use with care.</p>
+                <textarea id="profileRawEditor" class="code-area"></textarea>
+              </div>
+            </div>
+          </section>
+
+          <section id="datasets" class="page">
+            <div class="page-head">
+              <h2>Datasets</h2>
+              <p>Import, validate, and inspect dataset manifests and registry entries.</p>
+            </div>
+            <div class="panel">
+              <h3>Dataset Registry</h3>
+              <div id="datasetsRegistryTable"></div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Import Dataset</h3>
+                <div class="form-grid">
+                  <label>
+                    Source path (folder or .jsonl manifest)
+                    <input id="datasetImportSource" placeholder="datasets/raw/... or datasets/manifests/file.jsonl" />
+                  </label>
+                  <label>
+                    Dataset ID
+                    <input id="datasetImportId" placeholder="my_dataset" />
+                  </label>
+                  <label>
+                    Dataset profile (optional)
+                    <input id="datasetImportProfile" placeholder="sample_dataset" />
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="datasetImportBtn" class="btn-primary">Import</button>
+                </div>
+                <hr />
+                <h3>Register Existing Manifest</h3>
+                <div class="form-grid">
+                  <label>
+                    Manifest path
+                    <input id="datasetRegisterManifest" placeholder="datasets/manifests/my_dataset.jsonl" />
+                  </label>
+                  <label>
+                    Dataset ID
+                    <input id="datasetRegisterId" placeholder="my_dataset" />
+                  </label>
+                  <label>
+                    Dataset profile (optional)
+                    <input id="datasetRegisterProfile" />
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="datasetRegisterBtn" class="btn-secondary">Register</button>
+                </div>
+                <hr />
+                <h3>Manifest Validation</h3>
+                <div class="form-grid">
+                  <label>
+                    Manifest path
+                    <input id="datasetValidateManifest" placeholder="datasets/manifests/sample_dataset.jsonl" />
+                  </label>
+                  <label class="checkbox-line">
+                    <input type="checkbox" id="datasetValidateAudio" />
+                    Validate referenced audio files
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="datasetValidateBtn" class="btn-secondary">Validate Manifest</button>
+                </div>
+                <div id="datasetsFeedback" class="feedback"></div>
+              </div>
+              <div class="panel">
+                <h3>Dataset Details</h3>
+                <div id="datasetDetails" class="stack-list"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="benchmark" class="page">
+            <div class="page-head">
+              <h2>Benchmark</h2>
+              <p>Build and run reproducible experiments with explicit validation and progress.</p>
+            </div>
+            <div class="panel">
+              <h3>Run Builder</h3>
+              <div class="steps-grid">
+                <div class="step">
+                  <h4>Step 1: Dataset</h4>
+                  <label>
+                    Dataset profile
+                    <select id="benchmarkDatasetProfile"></select>
+                  </label>
+                </div>
+                <div class="step">
+                  <h4>Step 2: Providers</h4>
+                  <div id="benchmarkProviderChecks" class="check-list"></div>
+                </div>
+                <div class="step">
+                  <h4>Step 3: Scenario</h4>
+                  <label>
+                    Scenario
+                    <select id="benchmarkScenario">
+                      <option value="clean_baseline">clean_baseline</option>
+                      <option value="provider_comparison">provider_comparison</option>
+                      <option value="latency_profile">latency_profile</option>
+                      <option value="noise_robustness_placeholder">noise_robustness_placeholder</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="step">
+                  <h4>Step 4: Metrics</h4>
+                  <div id="benchmarkMetricChecks" class="check-list"></div>
+                </div>
+                <div class="step">
+                  <h4>Step 5: Review & Run</h4>
+                  <label>
+                    Benchmark profile
+                    <select id="benchmarkProfileSelect"></select>
+                  </label>
+                  <label>
+                    Run ID (optional)
+                    <input id="benchmarkRunId" placeholder="auto if empty" />
+                  </label>
+                  <button id="benchmarkRunBtn" class="btn-primary">Run Benchmark</button>
+                </div>
+              </div>
+              <div id="benchmarkReview" class="feedback"></div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Run Progress</h3>
+                <div id="benchmarkActiveRun" class="stack-list"></div>
+              </div>
+              <div class="panel">
+                <h3>Benchmark History</h3>
+                <div id="benchmarkHistoryTable"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="results" class="page">
+            <div class="page-head">
+              <h2>Results</h2>
+              <p>Inspect run summaries, compare experiments, and export reproducible artifacts.</p>
+            </div>
+            <div class="panel">
+              <h3>Overview</h3>
+              <div id="resultsOverview" class="cards-grid"></div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Run Detail</h3>
+                <label>
+                  Run ID
+                  <select id="resultsRunSelect"></select>
+                </label>
+                <div class="actions-row">
+                  <button id="resultsLoadRunBtn" class="btn-secondary">Load Run</button>
+                </div>
+                <div id="resultsRunDetail" class="stack-list"></div>
+              </div>
+              <div class="panel">
+                <h3>Comparison</h3>
+                <label>
+                  Run IDs (comma separated)
+                  <input id="resultsCompareRuns" placeholder="bench_... , bench_..." />
+                </label>
+                <div class="actions-row">
+                  <button id="resultsCompareBtn" class="btn-primary">Compare</button>
+                </div>
+                <div id="resultsComparisonTable"></div>
+                <hr />
+                <h3>Export Comparison</h3>
+                <label>
+                  Export name
+                  <input id="resultsExportName" placeholder="comparison_demo" />
+                </label>
+                <label class="checkbox-line">
+                  <input type="checkbox" id="resultsExportJson" checked /> JSON
+                </label>
+                <label class="checkbox-line">
+                  <input type="checkbox" id="resultsExportCsv" checked /> CSV
+                </label>
+                <label class="checkbox-line">
+                  <input type="checkbox" id="resultsExportMd" checked /> Markdown
+                </label>
+                <div class="actions-row">
+                  <button id="resultsExportBtn" class="btn-secondary">Export</button>
+                </div>
+                <div id="resultsExportFeedback" class="feedback"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="logs" class="page">
+            <div class="page-head">
+              <h2>Logs & Diagnostics</h2>
+              <p>Translate system problems into clear corrective actions.</p>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Health Summary</h3>
+                <div id="diagnosticsHealth" class="stack-list"></div>
+                <h3>Issues</h3>
+                <div id="diagnosticsIssues" class="stack-list"></div>
+              </div>
+              <div class="panel">
+                <h3>Logs</h3>
+                <div class="form-grid">
+                  <label>
+                    Component
+                    <select id="logsComponent">
+                      <option value="all">all</option>
+                      <option value="runtime">runtime</option>
+                      <option value="benchmark">benchmark</option>
+                      <option value="gateway">gateway</option>
+                      <option value="gui">gui</option>
+                    </select>
+                  </label>
+                  <label>
+                    Severity
+                    <select id="logsSeverity">
+                      <option value="all">all</option>
+                      <option value="error">error</option>
+                      <option value="warning">warning</option>
+                      <option value="info">info</option>
+                      <option value="debug">debug</option>
+                    </select>
+                  </label>
+                  <label>
+                    Limit
+                    <input id="logsLimit" type="number" min="20" max="1000" value="200" />
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="logsRefreshBtn" class="btn-secondary">Refresh Logs</button>
+                </div>
+                <div id="logsViewer" class="log-viewer"></div>
+              </div>
+            </div>
+          </section>
+
+          <section id="secrets" class="page">
+            <div class="page-head">
+              <h2>Secrets / Credentials</h2>
+              <p>Reference-based credential management with masked metadata only.</p>
+            </div>
+            <div class="panel">
+              <h3>Secret References</h3>
+              <div id="secretsRefsTable"></div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Create or Update Secret Ref</h3>
+                <div class="form-grid">
+                  <label>
+                    File name
+                    <input id="secretFileName" placeholder="azure_speech_key" />
+                  </label>
+                  <label>
+                    Ref ID
+                    <input id="secretRefId" placeholder="secrets/azure_speech_key" />
+                  </label>
+                  <label>
+                    Provider
+                    <input id="secretProvider" placeholder="azure" />
+                  </label>
+                  <label>
+                    Kind
+                    <select id="secretKind">
+                      <option value="none">none</option>
+                      <option value="env">env</option>
+                      <option value="file">file</option>
+                    </select>
+                  </label>
+                  <label>
+                    Path (for file kind)
+                    <input id="secretPath" placeholder="secrets/google/service-account.json" />
+                  </label>
+                  <label>
+                    Env fallback
+                    <input id="secretEnvFallback" placeholder="GOOGLE_APPLICATION_CREDENTIALS" />
+                  </label>
+                  <label>
+                    Required env vars (comma separated)
+                    <input id="secretRequired" placeholder="AZURE_SPEECH_KEY,AZURE_SPEECH_REGION or AWS_PROFILE" />
+                  </label>
+                  <label>
+                    Optional env vars (comma separated)
+                    <input id="secretOptional" />
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="secretSaveBtn" class="btn-primary">Save Ref</button>
+                </div>
+              </div>
+
+              <div class="panel">
+                <h3>Validate and Link</h3>
+                <div class="form-grid">
+                  <label>
+                    Ref name
+                    <input id="secretValidateName" placeholder="azure_speech_key" />
+                  </label>
+                  <label>
+                    Provider profile
+                    <select id="secretLinkProviderProfile"></select>
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="secretValidateBtn" class="btn-secondary">Validate Ref</button>
+                  <button id="secretLinkBtn" class="btn-primary">Link to Provider Profile</button>
+                </div>
+                <div id="secretsFeedback" class="feedback"></div>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <div id="toastHost" class="toast-host"></div>
+
+    <script type="module" src="/ui/js/app.js"></script>
+  </body>
+</html>

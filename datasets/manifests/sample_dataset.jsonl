@@ -1,0 +1,2 @@
+{"sample_id":"sample_en_zero","audio_path":"data/sample/en_zero.wav","transcript":"zero","language":"en-US","duration_sec":0.0,"split":"test","tags":["clean","spoken"],"metadata":{"source":"fsdd","speaker":"jackson"}}
+{"sample_id":"sample_en_one","audio_path":"data/sample/en_one.wav","transcript":"one","language":"en-US","duration_sec":0.0,"split":"test","tags":["clean","spoken"],"metadata":{"source":"fsdd","speaker":"jackson"}}

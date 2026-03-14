@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>asr_provider_base</name>
+  <version>0.1.0</version>
+  <description>Provider adapter contract and provider registry for ASR providers</description>
+  <maintainer email="maintainer@example.com">ASR Team</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>asr_core</exec_depend>
+  <exec_depend>asr_config</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

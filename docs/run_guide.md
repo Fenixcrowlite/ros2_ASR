@@ -113,6 +113,11 @@ make bench
 make report
 ```
 
+Примечания по benchmark reproducibility:
+
+- `benchmark.scenarios` в YAML можно задавать как список или как строку через запятую (`clean,snr20,snr10`).
+- Относительные `wav_path` в dataset-манифесте резолвятся сначала относительно директории самого манифеста, затем относительно текущего `cwd`.
+
 ## 8. Запись live-семпла и прогон по выбранным интерфейсам
 
 Интерактивный режим (запись, затем выбор языка и моделей):
@@ -173,14 +178,14 @@ make arch
 
 ## 10. Типовые проблемы
 
-### 9.1 `libcublas.so.12 is not found`
+### 10.1 `libcublas.so.12 is not found`
 
 Это CUDA runtime проблема. Для быстрого восстановления:
 
 1. В `configs/live_mic_whisper.yaml` сменить `device: cuda` на `device: cpu`.
 2. Перезапустить `bringup.launch.py`.
 
-### 9.2 В `/asr/text/plain` пусто
+### 10.2 В `/asr/text/plain` пусто
 
 Проверь:
 
@@ -189,7 +194,7 @@ make arch
 - в `ros2 node list` есть `asr_text_output_node`;
 - микрофон доступен (иначе узел уйдёт в file fallback).
 
-### 9.3 Распознавание "галлюцинирует" на тишине
+### 10.3 Распознавание "галлюцинирует" на тишине
 
 Для Whisper уже включены анти-повторы в `configs/live_mic_whisper.yaml`:
 
@@ -204,7 +209,7 @@ make arch
 - Закрой терминалы с `ros2 launch` / `ros2 topic echo`.
 - Либо нажми `Ctrl+C` в каждом активном ROS2 процессе.
 
-## 12. Web GUI (полный control center)
+## 12. Web GUI (новый gateway-first control center)
 
 Запуск:
 
@@ -212,17 +217,84 @@ make arch
 make web-gui
 ```
 
+`make web-gui` запускает новый GUI-стек:
+- runtime pipeline,
+- benchmark manager,
+- `asr_gateway` backend с новым `web_ui` фронтендом.
+
+Для запуска в LAN:
+
+```bash
+make web-gui-lan
+```
+
 Адрес:
 
 ```text
-http://localhost:8765
+http://localhost:8088
 ```
 
-Возможности GUI:
+Возможности нового GUI:
 
 - настройка языков/моделей/backend параметров,
-- ввод cloud token/key/credentials,
-- upload собственных семплов и dataset,
-- генерация noisy-семплов по SNR,
-- запуск live sample eval / benchmark / ROS2 bringup,
-- мониторинг jobs, логов и артефактов.
+- управление profiles/providers/datasets/benchmark runs,
+- просмотр results/logs/diagnostics,
+- работа с credentials refs (без показа секретов).
+
+Legacy GUI остался как совместимый fallback:
+
+```bash
+make web-gui-legacy
+make web-gui-legacy-lan
+```
+
+### 12.1 Cloud auth fail-fast (legacy `web_gui`, важно)
+
+Для legacy GUI (`make web-gui-legacy`) перед стартом job выполняется cloud auth fail-fast и запуск останавливается с `HTTP 400`, если:
+
+- `google`: не задан/не найден `secrets/google/service-account.json` или `GOOGLE_APPLICATION_CREDENTIALS`.
+- `azure`: не заданы `AZURE_SPEECH_KEY` и/или `AZURE_SPEECH_REGION`.
+- `aws`: не задан `AWS_PROFILE` и нет пары `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY`.
+- `aws`: не задан `ASR_AWS_S3_BUCKET`.
+
+Для `aws` дополнительно выполняется preflight:
+
+```bash
+# boto3 STS preflight (fallback to AWS CLI `aws sts get-caller-identity`
+# when boto3 is unavailable in runtime environment)
+```
+
+Это позволяет поймать просроченный/отсутствующий SSO token до длинного запуска ROS.
+
+Для повторных AWS запусков в рамках одной GUI-сессии успешный STS preflight
+кешируется на короткое время (по умолчанию 120 секунд, `WEB_GUI_AWS_STS_PREFLIGHT_TTL_SEC`).
+Типовые SSO ошибки (`pending authorization expired`, `InvalidGrantException`, `token expired`)
+возвращаются с явными подсказками в `HTTP 400` detail.
+Отключение (только для диагностики):
+
+```bash
+export WEB_GUI_SKIP_AWS_STS_PREFLIGHT=1
+```
+
+### 12.2 AWS SSO login из legacy GUI
+
+В legacy GUI `AWS SSO Login` запускается в browser-first режиме (без принудительного `--no-browser`), что снижает риск истечения pending authorization при device-code flow.
+Для runtime SSO профиля обязательно указывать:
+
+- `AWS_SSO_ACCOUNT_ID`
+- `AWS_SSO_ROLE_NAME`
+
+## 13. Colcon notifications и пробуждение экрана
+
+В проекте по умолчанию отключено desktop-notify расширение colcon:
+
+```bash
+COLCON_EXTENSION_BLOCKLIST=colcon_core.event_handler.desktop_notification
+```
+
+Это снижает вероятность самопроизвольного пробуждения экрана во время фоновых `build/test` запусков.
+Если уведомления нужны явно, переопределите переменную окружения перед запуском.
+
+Дополнительно `colcon`-вызовы в `Makefile` и runtime-скриптах теперь выполняются через lock-wrapper
+`scripts/with_colcon_lock.sh`, чтобы параллельные сценарии (`build/test/bench/demo`) не портили
+друг другу `build/install/log` состояние workspace.

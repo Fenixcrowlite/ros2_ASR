@@ -14,8 +14,11 @@ from typing import Any
 
 import rclpy
 from rcl_interfaces.msg import ParameterDescriptor
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from std_msgs.msg import UInt8MultiArray
+
+from asr_ros.shutdown import safe_shutdown_node
 
 
 def _coerce_int_param(
@@ -210,9 +213,10 @@ def main() -> None:
     node = AudioCaptureNode()
     try:
         rclpy.spin(node)
+    except (KeyboardInterrupt, ExternalShutdownException):
+        pass
     finally:
-        node.destroy_node()
-        rclpy.shutdown()
+        safe_shutdown_node(node=node, rclpy_module=rclpy)
 
 
 if __name__ == "__main__":

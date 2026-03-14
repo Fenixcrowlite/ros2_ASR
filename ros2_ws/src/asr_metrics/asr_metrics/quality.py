@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import unicodedata
+
 
 def _levenshtein(a: list[str], b: list[str]) -> int:
     """Classic edit-distance implementation."""
@@ -26,8 +28,19 @@ def _levenshtein(a: list[str], b: list[str]) -> int:
 
 
 def normalize_text(text: str) -> str:
-    """Lowercase + whitespace normalization for robust metric comparison."""
-    return " ".join(text.strip().lower().split())
+    """Normalize text for ASR metrics by lowering case and dropping punctuation/symbol noise."""
+    normalized_chars: list[str] = []
+    for char in text.strip().lower():
+        if char.isspace():
+            normalized_chars.append(" ")
+            continue
+        category = unicodedata.category(char)
+        if category.startswith(("L", "N")):
+            normalized_chars.append(char)
+            continue
+        # Drop punctuation and symbols from both reference and hypothesis so
+        # baseline WER/CER do not over-penalize formatting differences.
+    return " ".join("".join(normalized_chars).split())
 
 
 def wer(reference: str, hypothesis: str) -> float:

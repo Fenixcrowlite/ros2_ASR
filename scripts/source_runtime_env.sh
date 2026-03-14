@@ -25,6 +25,21 @@ case "${1:---without-ros}" in
 esac
 
 _root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+_preferred_install_prefix=""
+
+if [ -n "${ASR_COLCON_INSTALL_PREFIX:-}" ] && [ -f "${ASR_COLCON_INSTALL_PREFIX}/setup.bash" ]; then
+  _preferred_install_prefix="${ASR_COLCON_INSTALL_PREFIX}"
+elif [ -f "$_root_dir/ros2_ws/install/setup.bash" ]; then
+  _preferred_install_prefix="$_root_dir/ros2_ws/install"
+elif [ -f "$_root_dir/install/setup.bash" ]; then
+  _preferred_install_prefix="$_root_dir/install"
+else
+  _preferred_install_prefix="$_root_dir/ros2_ws/install"
+fi
+
+export ASR_COLCON_BUILD_BASE="${ASR_COLCON_BUILD_BASE:-$_root_dir/ros2_ws/build}"
+export ASR_COLCON_INSTALL_PREFIX="$_preferred_install_prefix"
+export ASR_COLCON_LOG_BASE="${ASR_COLCON_LOG_BASE:-$_root_dir/ros2_ws/log}"
 
 _prepend_unique_path() {
   local _candidate="$1"
@@ -101,9 +116,9 @@ if [ "$_with_ros" -eq 1 ]; then
   if [ -f /opt/ros/jazzy/setup.bash ]; then
     # shellcheck disable=SC1091
     source /opt/ros/jazzy/setup.bash
-    if [ -f "$_root_dir/install/setup.bash" ]; then
+    if [ -f "${ASR_COLCON_INSTALL_PREFIX}/setup.bash" ]; then
       # shellcheck disable=SC1091
-      source "$_root_dir/install/setup.bash"
+      source "${ASR_COLCON_INSTALL_PREFIX}/setup.bash"
     fi
   else
     echo "[env] WARN: /opt/ros/jazzy/setup.bash not found"
@@ -113,3 +128,18 @@ if [ "$_with_ros" -eq 1 ]; then
     set -u
   fi
 fi
+
+# Disable colcon desktop notifications by default to avoid waking the screen
+# during long background builds/tests.
+_colcon_notification_extension="colcon_core.event_handler.desktop_notification"
+case ":${COLCON_EXTENSION_BLOCKLIST:-}:" in
+  *":${_colcon_notification_extension}:"*)
+    ;;
+  *)
+    if [ -n "${COLCON_EXTENSION_BLOCKLIST:-}" ]; then
+      export COLCON_EXTENSION_BLOCKLIST="${COLCON_EXTENSION_BLOCKLIST}:${_colcon_notification_extension}"
+    else
+      export COLCON_EXTENSION_BLOCKLIST="${_colcon_notification_extension}"
+    fi
+    ;;
+esac

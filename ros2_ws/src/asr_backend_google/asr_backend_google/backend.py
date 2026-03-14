@@ -3,12 +3,19 @@
 from __future__ import annotations
 
 import os
-import tempfile
 import time
 from pathlib import Path
 from typing import Any
 
-from asr_core.audio import wav_duration_sec, wav_info
+from asr_core.audio import (
+    pcm_duration_sec,
+    sample_width_from_encoding,
+    wav_bytes_to_pcm,
+    wav_duration_bytes,
+    wav_duration_sec,
+    wav_info,
+    wav_info_bytes,
+)
 from asr_core.backend import AsrBackend
 from asr_core.config import env_or
 from asr_core.factory import register_backend
@@ -61,26 +68,85 @@ class GoogleAsrBackend(AsrBackend):
             from google.cloud import speech
 
             self._speech = speech
-            if self.endpoint:
-                self._client = speech.SpeechClient(client_options={"api_endpoint": self.endpoint})
+            client_options = {"api_endpoint": self.endpoint} if self.endpoint else None
+            if self.credentials and Path(self.credentials).exists():
+                if client_options:
+                    self._client = speech.SpeechClient.from_service_account_file(
+                        self.credentials,
+                        client_options=client_options,
+                    )
+                else:
+                    self._client = speech.SpeechClient.from_service_account_file(self.credentials)
             else:
-                self._client = speech.SpeechClient()
+                if client_options:
+                    self._client = speech.SpeechClient(client_options=client_options)
+                else:
+                    self._client = speech.SpeechClient()
             return True
         except Exception:
             return False
 
-    def _request_audio(self, request: AsrRequest) -> tuple[bytes, str | None, bool]:
-        """Return `(audio_bytes, wav_path_for_metadata, cleanup_tmp)`."""
+    def _request_audio(self, request: AsrRequest) -> tuple[bytes, int, float]:
+        """Return `(pcm_audio_bytes, sample_rate_hz, duration_sec)`."""
         if request.wav_path:
-            with open(request.wav_path, "rb") as f:
-                return f.read(), request.wav_path, False
+            wav_bytes = Path(request.wav_path).read_bytes()
+            sample_rate, _, _, _ = wav_info(request.wav_path)
+            return wav_bytes_to_pcm(wav_bytes), sample_rate, wav_duration_sec(request.wav_path)
         if request.audio_bytes:
-            fd, tmp_path = tempfile.mkstemp(suffix=".wav", prefix="google_audio_")
-            os.close(fd)
-            with open(tmp_path, "wb") as f:
-                f.write(request.audio_bytes)
-            return request.audio_bytes, tmp_path, True
+            if request.audio_bytes[:4] == b"RIFF":
+                sample_rate, _, _, _ = wav_info_bytes(request.audio_bytes)
+                return (
+                    wav_bytes_to_pcm(request.audio_bytes),
+                    sample_rate,
+                    wav_duration_bytes(request.audio_bytes),
+                )
+            channels = int(request.metadata.get("channels", 1) or 1)
+            sample_width = int(
+                request.metadata.get(
+                    "sample_width_bytes",
+                    sample_width_from_encoding(request.metadata.get("encoding"), default=2),
+                )
+                or 2
+            )
+            sample_rate = int(request.sample_rate or 16000)
+            return (
+                request.audio_bytes,
+                sample_rate,
+                pcm_duration_sec(
+                    request.audio_bytes,
+                    sample_rate=sample_rate,
+                    channels=channels,
+                    sample_width=sample_width,
+                ),
+            )
         raise ValueError("Either wav_path or audio_bytes must be provided")
+
+    def _build_recognition_config(
+        self,
+        *,
+        sample_rate: int,
+        language: str,
+        enable_word_timestamps: bool,
+        model: str,
+    ):
+        """Build Google RecognitionConfig object for one request."""
+        return self._speech.RecognitionConfig(
+            encoding=self._speech.RecognitionConfig.AudioEncoding.LINEAR16,
+            sample_rate_hertz=sample_rate,
+            language_code=language,
+            enable_word_time_offsets=enable_word_timestamps,
+            model=model,
+        )
+
+    @staticmethod
+    def _supports_default_model_fallback(error_message: str) -> bool:
+        """Detect model-level request errors where `default` fallback is useful."""
+        text = str(error_message or "").lower()
+        return (
+            "incorrect model specified" in text
+            or "model is currently not supported for language" in text
+            or "requested model is currently not supported" in text
+        )
 
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
         """Run one-shot Google recognition and normalize fields."""
@@ -114,25 +180,36 @@ class GoogleAsrBackend(AsrBackend):
                 language=language,
             )
 
-        tmp_wav: str | None = None
         try:
-            audio_bytes, wav_path, cleanup = self._request_audio(request)
-            if cleanup:
-                tmp_wav = wav_path
+            audio_bytes, sample_rate, duration = self._request_audio(request)
             preprocess_ms = (time.perf_counter() - preprocess_start) * 1000.0
-            sample_rate = 16000
-            if wav_path:
-                sample_rate, _, _, _ = wav_info(wav_path)
-            config = self._speech.RecognitionConfig(
-                encoding=self._speech.RecognitionConfig.AudioEncoding.LINEAR16,
-                sample_rate_hertz=sample_rate,
-                language_code=language,
-                enable_word_time_offsets=bool(request.enable_word_timestamps),
-                model=self.model,
-            )
             audio = self._speech.RecognitionAudio(content=audio_bytes)
+            requested_model = str(self.model)
+            effective_model = requested_model
+            config = self._build_recognition_config(
+                sample_rate=sample_rate,
+                language=language,
+                enable_word_timestamps=bool(request.enable_word_timestamps),
+                model=effective_model,
+            )
             inf_start = time.perf_counter()
-            response = self._client.recognize(config=config, audio=audio)
+            try:
+                response = self._client.recognize(config=config, audio=audio)
+            except Exception as primary_exc:
+                if (
+                    effective_model != "default"
+                    and self._supports_default_model_fallback(str(primary_exc))
+                ):
+                    fallback_config = self._build_recognition_config(
+                        sample_rate=sample_rate,
+                        language=language,
+                        enable_word_timestamps=bool(request.enable_word_timestamps),
+                        model="default",
+                    )
+                    response = self._client.recognize(config=fallback_config, audio=audio)
+                    effective_model = "default"
+                else:
+                    raise
             inference_ms = (time.perf_counter() - inf_start) * 1000.0
 
             text_parts: list[str] = []
@@ -159,15 +236,22 @@ class GoogleAsrBackend(AsrBackend):
             text = " ".join([t for t in text_parts if t]).strip()
             avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
             post_start = time.perf_counter()
-            duration = wav_duration_sec(wav_path) if wav_path else 0.0
             post_ms = (time.perf_counter() - post_start) * 1000.0
+            backend_info = {
+                "provider": "google",
+                "model": effective_model,
+                "region": self.region,
+            }
+            if effective_model != requested_model:
+                backend_info["requested_model"] = requested_model
+
             return AsrResponse(
                 text=text,
                 partials=[],
                 confidence=avg_conf,
                 word_timestamps=words if request.enable_word_timestamps else [],
                 language=language,
-                backend_info={"provider": "google", "model": self.model, "region": self.region},
+                backend_info=backend_info,
                 timings=AsrTimings(
                     preprocess_ms=preprocess_ms,
                     inference_ms=inference_ms,
@@ -185,6 +269,3 @@ class GoogleAsrBackend(AsrBackend):
                 backend_info={"provider": "google", "model": self.model, "region": self.region},
                 language=language,
             )
-        finally:
-            if tmp_wav and Path(tmp_wav).exists():
-                Path(tmp_wav).unlink(missing_ok=True)

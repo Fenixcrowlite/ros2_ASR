@@ -1,0 +1,13 @@
+profile_id: benchmark/default
+inherits: []
+dataset_profile: datasets/sample_dataset
+providers:
+  - providers/whisper_local
+scenarios:
+  - clean_baseline
+metric_profiles:
+  - metrics/default_quality
+  - metrics/default_timing
+batch:
+  max_samples: 0
+  timeout_sec: 180

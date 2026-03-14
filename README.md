@@ -2,6 +2,22 @@
 
 Production-oriented modular ASR integration for ROS2 (Ubuntu 24.04, Jazzy, Python) with local and commercial backends, benchmark tooling, metrics, and reproducible experiments.
 
+## Architecture Baseline (2026-03-12)
+
+The repository now includes a modular ROS2-first baseline with explicit runtime/benchmark split and gateway boundary.
+
+- Runtime packages: `asr_runtime_nodes`, `asr_provider_base`, `asr_provider_*`, `asr_config`, `asr_storage`.
+- Benchmark packages: `asr_datasets`, `asr_benchmark_core`, `asr_benchmark_nodes`, `asr_metrics`, `asr_reporting`.
+- Gateway/UI: `asr_gateway`, `web_ui`.
+- Launch package: `asr_launch`.
+- Extended interface contract: `asr_interfaces`.
+
+Primary architecture docs:
+- `docs/architecture/system_overview.md`
+- `docs/architecture/runtime_architecture.md`
+- `docs/architecture/benchmark_architecture.md`
+- `docs/architecture/implementation_report.md`
+
 ## Features
 
 - Unified ASR core API across providers.
@@ -21,6 +37,11 @@ Production-oriented modular ASR integration for ROS2 (Ubuntu 24.04, Jazzy, Pytho
 - `docs/run_guide.md` step-by-step launch/runbook (live mic, topics, tests, troubleshooting).
 - `docs/wiki/` Obsidian-ready wiki network (modular pages + cross-links).
 - `configs/` YAML configs and cloud example config.
+- `configs/runtime|providers|benchmark|datasets|metrics|deployment|gui` profile sets.
+- `secrets/refs/` secret references (no inline credentials in provider profiles).
+- `artifacts/` runtime session and benchmark run outputs.
+- `datasets/` registry/raw/imported/manifests/processed/noise assets.
+- `web_ui/` new gateway-first UI skeleton.
 - `data/sample` sample WAV files and transcripts.
 - `ros2_ws/src/` ROS2 packages.
 - `scripts/` setup, run, benchmark, plotting, report.
@@ -40,6 +61,7 @@ make live-sample
 make bench
 make report
 make web-gui
+make web-gui-lan
 make arch
 bash scripts/release_check.sh
 ```
@@ -251,26 +273,49 @@ Useful options:
 - `--use-wav /path/to/existing.wav`
 - `--action-streaming`
 
-## Web GUI Control Center
+## Web GUI Control Center (New Gateway-First UI)
 
-Run full browser control center (configs/models/languages/secrets/upload/noise/live/benchmark/ROS bringup):
+Run full browser control center (runtime + benchmark + diagnostics) via the new `web_ui` + `asr_gateway` stack:
 
 ```bash
 make web-gui
 ```
 
+`make web-gui` now launches:
+- ROS2 runtime nodes,
+- benchmark manager node,
+- `asr_gateway` backend serving new `web_ui` at `http://localhost:8088`.
+
+For LAN access:
+
+```bash
+make web-gui-lan
+```
+
 Then open:
 
 ```text
-http://localhost:8765
+http://localhost:8088
 ```
 
-Module docs:
+New GUI docs:
+- `docs/gui/README.md`
+- `web_ui/README.md`
 
+Legacy GUI (compatibility only):
+- `make web-gui-legacy`
+- `make web-gui-legacy-lan`
 - `web_gui/README.md`
 
 ## Cloud Credentials
 
 Do not commit secrets. Use environment variables and local-only `configs/commercial.yaml` copied from `configs/commercial.example.yaml`.
+
+Legacy `web_gui` cloud runs are fail-fast by design:
+- `google` validates credentials file path before run.
+- `azure` validates key+region pair.
+- `aws` validates profile/access-key setup and runs `aws sts get-caller-identity` preflight.
+
+Secret fields are intentionally excluded from browser draft persistence.
 
 See `docs/commercial_setup.md`.

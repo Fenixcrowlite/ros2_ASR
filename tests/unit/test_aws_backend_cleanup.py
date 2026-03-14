@@ -92,3 +92,53 @@ def test_aws_cleanup_on_error(sample_wav: str, monkeypatch) -> None:
     assert response.error_code == "aws_runtime_error"
     assert transcribe.delete_transcription_job.call_count == 1
     assert s3.delete_object.call_count == 1
+
+
+def test_aws_no_s3_cleanup_when_upload_fails(sample_wav: str, monkeypatch) -> None:
+    s3 = MagicMock()
+    transcribe = MagicMock()
+    backend = _make_backend(s3=s3, transcribe=transcribe)
+    s3.upload_file.side_effect = RuntimeError("upload failed")
+
+    monkeypatch.setattr("asr_backend_aws.backend.time.sleep", lambda _: None)
+
+    response = backend.recognize_once(AsrRequest(wav_path=sample_wav, language="en-US"))
+
+    assert not response.success
+    assert response.error_code == "aws_runtime_error"
+    assert transcribe.delete_transcription_job.call_count == 0
+    assert s3.delete_object.call_count == 0
+
+
+def test_aws_maps_missing_sso_token_error_code(sample_wav: str, monkeypatch) -> None:
+    s3 = MagicMock()
+    transcribe = MagicMock()
+    backend = _make_backend(s3=s3, transcribe=transcribe)
+
+    def raise_clients():
+        raise RuntimeError("Error loading SSO Token: Token for ros2ws_sso-sso does not exist")
+
+    monkeypatch.setattr(backend, "_clients", raise_clients)
+
+    response = backend.recognize_once(AsrRequest(wav_path=sample_wav, language="en-US"))
+
+    assert not response.success
+    assert response.error_code == "aws_sso_token_missing"
+
+
+def test_aws_maps_expired_sso_token_error_code(sample_wav: str, monkeypatch) -> None:
+    s3 = MagicMock()
+    transcribe = MagicMock()
+    backend = _make_backend(s3=s3, transcribe=transcribe)
+
+    def raise_clients():
+        raise RuntimeError(
+            "Error when retrieving token from sso: Token has expired and refresh failed"
+        )
+
+    monkeypatch.setattr(backend, "_clients", raise_clients)
+
+    response = backend.recognize_once(AsrRequest(wav_path=sample_wav, language="en-US"))
+
+    assert not response.success
+    assert response.error_code == "aws_sso_token_expired"

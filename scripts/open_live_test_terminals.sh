@@ -27,8 +27,8 @@ if [ ! -f "/opt/ros/jazzy/setup.bash" ]; then
   exit 1
 fi
 
-if [ ! -f "$ROOT_DIR/install/setup.bash" ]; then
-  echo "install/setup.bash not found. Building workspace first..."
+if [ ! -f "${ASR_COLCON_INSTALL_PREFIX:-$ROOT_DIR/ros2_ws/install}/setup.bash" ]; then
+  echo "${ASR_COLCON_INSTALL_PREFIX:-$ROOT_DIR/ros2_ws/install}/setup.bash not found. Building workspace first..."
   source "$ROOT_DIR/scripts/source_runtime_env.sh" --with-ros
   cd "$ROOT_DIR"
   filter_colcon_pythonpath() {
@@ -58,12 +58,12 @@ if [ ! -f "$ROOT_DIR/install/setup.bash" ]; then
   if [ -n "${COLCON_PYTHONPATH}" ]; then
     COLCON_PYTHON_EXECUTABLE="${COLCON_PYTHON_BIN}" \
       PYTHONPATH="${COLCON_PYTHONPATH}" \
-      colcon build --base-paths ros2_ws/src --symlink-install \
+      bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --log-base ros2_ws/log --symlink-install \
         --cmake-args -DPYTHON_EXECUTABLE="${COLCON_PYTHON_BIN}" -DPython3_EXECUTABLE="${COLCON_PYTHON_BIN}"
   else
     COLCON_PYTHON_EXECUTABLE="${COLCON_PYTHON_BIN}" \
       PYTHONPATH="" \
-      colcon build --base-paths ros2_ws/src --symlink-install \
+      bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --log-base ros2_ws/log --symlink-install \
         --cmake-args -DPYTHON_EXECUTABLE="${COLCON_PYTHON_BIN}" -DPython3_EXECUTABLE="${COLCON_PYTHON_BIN}"
   fi
   if [ -n "${ORIGINAL_PYTHONPATH}" ]; then

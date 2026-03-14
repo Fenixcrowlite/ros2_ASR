@@ -1,6 +1,6 @@
 wav_path,transcript,language
-data/sample/en_hello.wav,hello world,en-US
-data/sample/en_robot.wav,robot start navigation,en-US
+data/sample/en_zero.wav,zero,en-US
+data/sample/en_one.wav,one,en-US
 data/sample/en_stop.wav,stop the robot,en-US
 data/sample/ru_privet.wav,privet mir,ru-RU
 data/sample/ru_start.wav,zapusti manipulyator,ru-RU

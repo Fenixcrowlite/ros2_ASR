@@ -1,5 +1,8 @@
 string wav_path
 string language
 bool enable_word_timestamps
+string session_id
+string provider_profile
 ---
 asr_interfaces/AsrResult result
+string resolved_profile

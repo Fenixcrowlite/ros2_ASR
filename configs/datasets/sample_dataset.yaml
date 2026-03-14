@@ -1,0 +1,5 @@
+profile_id: datasets/sample_dataset
+inherits: []
+dataset_id: sample_dataset
+manifest_path: datasets/manifests/sample_dataset.jsonl
+default_language: en-US

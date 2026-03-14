@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package format="3">
+  <name>asr_reporting</name>
+  <version>0.1.0</version>
+  <description>Benchmark report export and summary helpers</description>
+  <maintainer email="maintainer@example.com">ASR Team</maintainer>
+  <license>MIT</license>
+
+  <buildtool_depend>ament_python</buildtool_depend>
+  <exec_depend>asr_storage</exec_depend>
+  <exec_depend>asr_metrics</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 from asr_benchmark.dataset import DatasetItem
-from asr_benchmark.runner import _run_streaming_sim, run_benchmark
+from asr_benchmark.runner import _normalize_scenarios, _run_streaming_sim, run_benchmark
 from asr_core.models import AsrResponse, AsrTimings
 from asr_metrics.collector import MetricsCollector
 
@@ -93,3 +93,84 @@ def test_streaming_sim_uses_actual_wav_sample_rate(tmp_path: Path) -> None:
 
     assert backend.last_sample_rate == 8000
     assert record.success
+
+
+def test_normalize_scenarios_accepts_comma_separated_string() -> None:
+    scenarios = _normalize_scenarios("clean,snr20,snr10")
+    assert scenarios == ["clean", "snr20", "snr10"]
+
+
+def test_normalize_scenarios_rejects_invalid_type() -> None:
+    with pytest.raises(ValueError, match="list or comma-separated string"):
+        _normalize_scenarios({"clean": True})
+
+
+def test_normalize_scenarios_rejects_unsupported_label() -> None:
+    with pytest.raises(ValueError, match="Unsupported scenario"):
+        _normalize_scenarios(["clean", "noise"])
+
+
+def test_run_benchmark_accepts_comma_separated_scenarios_in_config(tmp_path: Path) -> None:
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text(
+        "\n".join(
+            [
+                "asr:",
+                "  backend: mock",
+                "backends:",
+                "  mock:",
+                "    deterministic_latency_ms: 1",
+                "benchmark:",
+                "  scenarios: clean,snr20",
+                "  chunk_sec: 0.8",
+                "  pricing:",
+                "    mock: 0.0",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    out_json = tmp_path / "bench.json"
+    out_csv = tmp_path / "bench.csv"
+
+    records = run_benchmark(
+        config_path=str(cfg),
+        dataset_path="data/transcripts/sample_manifest.csv",
+        output_json=str(out_json),
+        output_csv=str(out_csv),
+        backends=["mock"],
+    )
+
+    assert records
+    assert any(record.scenario == "snr20" for record in records)
+
+
+def test_run_benchmark_rejects_invalid_scenario_in_config(tmp_path: Path) -> None:
+    cfg = tmp_path / "config.yaml"
+    cfg.write_text(
+        "\n".join(
+            [
+                "asr:",
+                "  backend: mock",
+                "backends:",
+                "  mock:",
+                "    deterministic_latency_ms: 1",
+                "benchmark:",
+                "  scenarios:",
+                "    - clean",
+                "    - noise",
+                "  chunk_sec: 0.8",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="Unsupported scenario"):
+        run_benchmark(
+            config_path=str(cfg),
+            dataset_path="data/transcripts/sample_manifest.csv",
+            output_json=str(tmp_path / "bench.json"),
+            output_csv=str(tmp_path / "bench.csv"),
+            backends=["mock"],
+        )

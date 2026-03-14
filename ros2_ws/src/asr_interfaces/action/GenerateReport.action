@@ -1,0 +1,14 @@
+# Goal
+string run_id
+string report_profile
+string output_format
+---
+# Result
+bool success
+string report_ref
+string message
+---
+# Feedback
+string state
+float32 progress
+string detail

@@ -1,0 +1,8 @@
+profile_id: deployment/dev_local
+inherits: []
+runtime_defaults:
+  namespace_prefix: /asr
+  log_level: info
+benchmark_defaults:
+  save_raw_outputs: true
+  save_normalized_outputs: true

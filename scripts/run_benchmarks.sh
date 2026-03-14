@@ -38,12 +38,12 @@ fi
 if [ -n "$COLCON_PYTHONPATH" ]; then
   COLCON_PYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" \
     PYTHONPATH="$COLCON_PYTHONPATH" \
-    colcon build --base-paths ros2_ws/src --symlink-install \
+    bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --log-base ros2_ws/log --symlink-install \
       --cmake-args -DPYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" -DPython3_EXECUTABLE="$COLCON_PYTHON_BIN"
 else
   COLCON_PYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" \
     PYTHONPATH="" \
-    colcon build --base-paths ros2_ws/src --symlink-install \
+    bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --log-base ros2_ws/log --symlink-install \
       --cmake-args -DPYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" -DPython3_EXECUTABLE="$COLCON_PYTHON_BIN"
 fi
 if [ -n "${ORIGINAL_PYTHONPATH}" ]; then
@@ -52,7 +52,7 @@ else
   unset PYTHONPATH
 fi
 set +u
-source install/setup.bash
+source "${ASR_COLCON_INSTALL_PREFIX}/setup.bash"
 set -u
 
 python3 -m asr_benchmark.runner \

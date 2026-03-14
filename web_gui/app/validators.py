@@ -17,7 +17,7 @@ def _as_int(raw: Any, *, fallback: int) -> int:
         return fallback
     try:
         return int(raw)
-    except Exception as exc:
+    except (TypeError, ValueError) as exc:
         raise HTTPException(status_code=400, detail=f"Invalid integer value: {raw}") from exc
 
 

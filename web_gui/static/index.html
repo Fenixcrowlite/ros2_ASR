@@ -3,279 +3,306 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ROS2 ASR Control Center</title>
+  <title>ROS2 ASR Web GUI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-  <header class="hero">
-    <div>
-      <h1>ROS2 ASR Control Center</h1>
-      <p>Полный веб-контур для live/benchmark, моделей, языков, авторизаций, шумов и ROS2 launch.</p>
-    </div>
-    <div class="hero-actions">
-      <button id="run-preflight" class="btn btn-secondary">Preflight</button>
-      <button id="refresh-all" class="btn btn-secondary">Refresh</button>
-      <button id="help-lang-toggle" class="btn btn-secondary" type="button">Help: RU</button>
-      <span id="status-pill" class="pill">Idle</span>
-    </div>
-  </header>
+  <div class="mesh mesh-a"></div>
+  <div class="mesh mesh-b"></div>
+  <div class="grain"></div>
 
-  <main class="layout">
-    <section class="panel panel-config">
-      <h2 id="runtime-setup-title">Runtime Setup</h2>
-      <div class="grid two">
-        <label class="profile-name-field">Profile name
-          <input id="profile-name" type="text" placeholder="lab_ru_whisper" autocomplete="off" spellcheck="false">
-          <div id="profile-name-suggestions" class="profile-suggestions hidden" role="listbox" aria-label="Saved profile suggestions"></div>
-        </label>
-        <label>Base config
-          <select id="base-config"></select>
-        </label>
+  <main class="app-shell">
+    <header class="masthead reveal">
+      <div>
+        <p class="eyebrow">ROS2 Runtime Console</p>
+        <h1>ASR Web GUI</h1>
+        <p class="subtitle">Launch live eval, benchmark, and ROS bringup with one consistent control center.</p>
       </div>
-      <div class="row-actions">
-        <button id="save-profile" class="btn">Save Profile</button>
-        <button id="load-profile" class="btn btn-secondary">Load Profile</button>
+      <div class="masthead-actions">
+        <button id="run-preflight" class="btn">Preflight</button>
+        <button id="refresh-all" class="btn">Refresh</button>
+        <span id="status-pill" class="status-pill status-idle">idle</span>
       </div>
+    </header>
 
-      <h3 id="asr-global-title">ASR Global</h3>
-      <div class="grid three">
-        <label>Backend
-          <select id="asr-backend"></select>
-        </label>
-        <label>Language mode
-          <select id="language-mode">
-            <option value="manual">manual</option>
-            <option value="auto">auto-detect</option>
-            <option value="config" selected>config</option>
-          </select>
-        </label>
-        <label>Language
-          <input id="language" type="text" placeholder="ru-RU" list="language-options">
-        </label>
-        <label>Input mode
-          <select id="input-mode">
-            <option value="mic">mic</option>
-            <option value="file">file</option>
-            <option value="auto">auto</option>
-          </select>
-        </label>
-        <label>Sample rate
-          <input id="sample-rate" type="number" value="16000" step="1000" list="sample-rate-options">
-        </label>
-        <label>Chunk ms
-          <input id="chunk-ms" type="number" value="800" step="50" list="chunk-ms-options">
-        </label>
-      </div>
-
-      <h3 id="interfaces-model-runs-title">Interfaces & Model Runs</h3>
-      <div id="interfaces" class="checkboxes"></div>
-      <label>Model runs `backend[:model][@region]`
-        <input id="model-runs" type="text" value="whisper:tiny,mock" list="model-runs-options">
-      </label>
-
-      <h3 id="backend-details-title">Backend Details</h3>
-      <div class="grid three">
-        <label>Whisper model
-          <input id="whisper-model" type="text" value="tiny" list="whisper-model-options">
-        </label>
-        <label>Whisper device
-          <input id="whisper-device" type="text" value="cpu" list="whisper-device-options">
-        </label>
-        <label>Whisper compute
-          <input id="whisper-compute" type="text" value="int8" list="whisper-compute-options">
-        </label>
-        <label>Vosk model path
-          <input id="vosk-model-path" type="text" placeholder="/abs/path/to/vosk/model" list="vosk-model-path-options">
-        </label>
-        <label>Google model
-          <input id="google-model" type="text" value="latest_long" list="google-model-options">
-        </label>
-        <label>AWS region
-          <input id="aws-region" type="text" value="us-east-1" list="aws-region-options">
-        </label>
-        <label>AWS bucket
-          <input id="aws-bucket" type="text" placeholder="my-transcribe-bucket" list="aws-bucket-options">
-        </label>
-        <label>Azure region
-          <input id="azure-region" type="text" placeholder="westeurope" list="azure-region-options">
-        </label>
-        <label>Azure endpoint
-          <input id="azure-endpoint" type="text" placeholder="optional endpoint id" list="azure-endpoint-options">
-        </label>
-      </div>
-
-      <h3 id="cloud-auth-title">Cloud Auth (tokens/keys)</h3>
-      <div class="grid three">
-        <label>AWS SSO start URL
-          <input
-            id="secret-aws-sso-start-url"
-            type="text"
-            autocomplete="off"
-            list="aws-sso-start-url-options"
-            placeholder="https://d-xxxxxxxxxx.awsapps.com/start"
-          >
-        </label>
-        <label>AWS SSO region
-          <input
-            id="secret-aws-sso-region"
-            type="text"
-            autocomplete="off"
-            list="aws-sso-region-options"
-            placeholder="eu-north-1"
-          >
-        </label>
-      </div>
-      <div class="grid three">
-        <label>AWS auth profile file
-          <select id="aws-auth-profile"></select>
-        </label>
-        <label>AWS auth profile name
-          <input id="aws-auth-name" type="text" placeholder="aws_lab_sso" autocomplete="off" spellcheck="false">
-        </label>
-        <div class="row-actions">
-          <button id="build-aws-auth" class="btn btn-secondary" type="button">Build AWS Auth File</button>
-          <button id="load-aws-auth" class="btn btn-secondary" type="button">Load AWS Auth File</button>
-          <button id="save-aws-auth" class="btn btn-secondary" type="button">Save AWS Auth File</button>
-          <button id="aws-sso-login" class="btn" type="button">AWS SSO Login</button>
-        </div>
-      </div>
-      <label>AWS auth text file (portable KEY=VALUE)
-        <textarea
-          id="aws-auth-text"
-          rows="9"
-          spellcheck="false"
-          placeholder="AWS_AUTH_TYPE=sso&#10;AWS_PROFILE=ros2ws&#10;AWS_REGION=eu-north-1&#10;AWS_SSO_START_URL=https://d-xxxxxxxxxx.awsapps.com/start&#10;AWS_SSO_REGION=eu-north-1"
-        ></textarea>
-      </label>
-
-      <h3 id="benchmark-controls-title">Benchmark Controls</h3>
-      <div class="grid three">
-        <label>Dataset CSV
-          <input id="dataset" type="text" value="data/transcripts/sample_manifest.csv" list="dataset-options">
-        </label>
-        <label>Backends list
-          <input id="bench-backends" type="text" value="mock,whisper" list="bench-backends-options">
-        </label>
-        <label>Chunk sec
-          <input id="bench-chunk-sec" type="number" value="0.8" step="0.1" list="bench-chunk-sec-options">
-        </label>
-      </div>
-      <label>Scenarios (comma-separated)
-        <input id="bench-scenarios" type="text" value="clean,snr20,snr10,snr0" list="bench-scenarios-options">
-      </label>
-      <div id="metric-select" class="checkboxes"></div>
+    <section class="status-ribbon reveal">
+      <article class="status-card">
+        <span class="k">Selected Job</span>
+        <strong id="selected-job-label">none</strong>
+      </article>
+      <article class="status-card">
+        <span class="k">Jobs Tracked</span>
+        <strong id="job-count">0</strong>
+      </article>
+      <article class="status-card status-card-wide">
+        <span class="k">Preflight</span>
+        <p id="preflight-summary" class="mono">Not checked yet</p>
+      </article>
     </section>
 
-    <section class="panel panel-runner">
-      <h2 id="samples-noise-runs-title">Samples, Noise, Runs</h2>
+    <section class="workspace reveal">
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Runtime Setup</h2>
+          <div class="inline-actions">
+            <button id="save-profile" class="btn">Save Profile</button>
+            <button id="load-profile" class="btn">Load Profile</button>
+          </div>
+        </div>
 
-      <h3 id="upload-title">Upload</h3>
-      <form id="upload-form" class="row-actions">
-        <input id="upload-file" type="file">
-        <button id="upload-btn" class="btn" type="submit">Upload</button>
-      </form>
+        <div class="form-grid two">
+          <label>Profile name
+            <input id="profile-name" type="text" placeholder="lab_ru_whisper">
+          </label>
+          <label>Base config
+            <select id="base-config"></select>
+          </label>
+        </div>
 
-      <h3 id="noise-overlay-title">Noise Overlay</h3>
-      <div class="grid two">
-        <label>Source WAV
-          <select id="noise-source"></select>
-        </label>
-        <label>SNR levels
-          <input id="noise-levels" type="text" value="30,20,10,0" list="noise-levels-options">
-        </label>
-      </div>
-      <button id="apply-noise" class="btn btn-secondary">Generate Noisy Samples</button>
+        <h3>ASR Global</h3>
+        <div class="form-grid three">
+          <label>Backend
+            <select id="asr-backend"></select>
+          </label>
+          <label>Language mode
+            <select id="language-mode">
+              <option value="config">config</option>
+              <option value="manual">manual</option>
+              <option value="auto">auto</option>
+            </select>
+          </label>
+          <label>Language
+            <input id="language" type="text" list="language-options" placeholder="en-US">
+          </label>
+          <label>Input mode
+            <select id="input-mode">
+              <option value="auto">auto</option>
+              <option value="mic">mic</option>
+              <option value="file">file</option>
+            </select>
+          </label>
+          <label>Sample rate
+            <input id="sample-rate" type="number" value="16000" list="sample-rate-options">
+          </label>
+          <label>Chunk ms
+            <input id="chunk-ms" type="number" value="800" list="chunk-ms-options">
+          </label>
+        </div>
 
-      <h3 id="live-run-title">Live Run</h3>
-      <div class="grid three">
-        <label>Reference text
-          <input id="reference-text" type="text" placeholder="optional ground truth" list="reference-text-options">
+        <h3>Interfaces & Model Runs</h3>
+        <div id="interfaces" class="checkboxes"></div>
+        <label>model-runs (`backend[:model][@region]`)
+          <input id="model-runs" type="text" list="model-runs-options" placeholder="mock,whisper:tiny">
         </label>
-        <label>Record sec
-          <input id="record-sec" type="number" value="5" step="0.5" list="record-sec-options">
-        </label>
-        <label>Use WAV (optional)
-          <select id="use-wav"></select>
-        </label>
-        <label>Audio device
-          <input id="audio-device" type="text" placeholder="empty=default" list="audio-device-options">
-        </label>
-        <label>Action chunk sec
-          <input id="action-chunk-sec" type="number" value="0.8" step="0.1" list="action-chunk-sec-options">
-        </label>
-        <label>Timeout sec
-          <input id="request-timeout" type="number" value="25" step="1" list="request-timeout-options">
-        </label>
-      </div>
-      <div class="checkboxes inline">
-        <label><input id="ros-auto-launch" type="checkbox" checked> ROS auto launch in live eval</label>
-        <label><input id="action-streaming" type="checkbox"> Action streaming mode</label>
-      </div>
-      <div class="row-actions">
-        <button id="run-live" class="btn btn-accent">Run Live Sample Eval</button>
-      </div>
 
-      <h3 id="ros2-bringup-title">ROS2 Bringup</h3>
-      <div class="grid three">
-        <label>Bringup input mode
-          <select id="bringup-input-mode">
-            <option value="mic">mic</option>
-            <option value="file">file</option>
-            <option value="auto">auto</option>
-          </select>
-        </label>
-        <label>Bringup WAV
-          <select id="bringup-wav"></select>
-        </label>
-        <label>Mic capture sec
-          <input id="bringup-mic-sec" type="number" value="4.0" step="0.5" list="bringup-mic-sec-options">
-        </label>
-      </div>
-      <div class="checkboxes inline">
-        <label><input id="bringup-continuous" type="checkbox" checked> Continuous</label>
-        <label><input id="bringup-live-enabled" type="checkbox" checked> Live stream enabled</label>
-        <label><input id="bringup-text-enabled" type="checkbox" checked> Plain-text node enabled</label>
-      </div>
-      <div class="row-actions">
-        <button id="run-benchmark" class="btn">Run Benchmark</button>
-        <button id="start-bringup" class="btn btn-secondary">Start ROS Bringup</button>
-      </div>
+        <h3>Backend Details</h3>
+        <div class="form-grid three">
+          <label>Whisper model
+            <input id="whisper-model" type="text" value="tiny" list="whisper-model-options">
+          </label>
+          <label>Whisper device
+            <input id="whisper-device" type="text" value="cpu" list="whisper-device-options">
+          </label>
+          <label>Whisper compute
+            <input id="whisper-compute" type="text" value="int8" list="whisper-compute-options">
+          </label>
+          <label>Vosk model path
+            <input id="vosk-model-path" type="text" list="vosk-model-path-options" placeholder="models/vosk-model-small-en-us-0.15">
+          </label>
+          <label>Google model
+            <input id="google-model" type="text" list="google-model-options" placeholder="latest_long">
+          </label>
+          <label>AWS region
+            <input id="aws-region" type="text" list="aws-region-options" placeholder="us-east-1">
+          </label>
+          <label>AWS bucket
+            <input id="aws-bucket" type="text" list="aws-bucket-options" placeholder="my-transcribe-bucket">
+          </label>
+          <label>Azure region
+            <input id="azure-region" type="text" list="azure-region-options" placeholder="westeurope">
+          </label>
+          <label>Azure endpoint
+            <input id="azure-endpoint" type="text" list="azure-endpoint-options" placeholder="optional endpoint id">
+          </label>
+        </div>
 
-      <h3 id="jobs-title">Jobs</h3>
-      <table id="jobs-table">
-        <thead>
-          <tr>
-            <th>Job</th>
-            <th>Kind</th>
-            <th>Status</th>
-            <th>Started</th>
-            <th>Action</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
+        <h3>Cloud Secrets</h3>
+        <div class="form-grid three">
+          <label>Google credentials JSON
+            <input id="secret-google-cred" type="text" placeholder="/abs/path/google_credentials.json">
+          </label>
+          <label>Google project id
+            <input id="secret-google-project" type="text" placeholder="my-gcp-project">
+          </label>
+          <label>Azure speech key
+            <input id="secret-azure-key" type="password" placeholder="azure speech key">
+          </label>
+          <label>AWS access key id
+            <input id="secret-aws-id" type="text" placeholder="AKIA...">
+          </label>
+          <label>AWS secret access key
+            <input id="secret-aws-secret" type="password" placeholder="aws secret">
+          </label>
+          <label>AWS session token
+            <input id="secret-aws-token" type="password" placeholder="optional session token">
+          </label>
+          <label>AWS SSO start URL
+            <input id="secret-aws-sso-start-url" type="text" list="aws-sso-start-url-options" placeholder="https://d-xxxx.awsapps.com/start">
+          </label>
+          <label>AWS SSO region
+            <input id="secret-aws-sso-region" type="text" list="aws-sso-region-options" placeholder="eu-north-1">
+          </label>
+        </div>
 
-      <h3 id="logs-title">Logs</h3>
-      <textarea id="log-viewer" readonly></textarea>
+        <h3>AWS Auth Profile</h3>
+        <div class="form-grid three">
+          <label>Auth profile
+            <select id="aws-auth-profile"></select>
+          </label>
+          <label>Auth profile name
+            <input id="aws-auth-name" type="text" placeholder="ros2ws_sso">
+          </label>
+          <div class="inline-actions bottom">
+            <button id="build-aws-auth" class="btn" type="button">Build</button>
+            <button id="load-aws-auth" class="btn" type="button">Load</button>
+            <button id="save-aws-auth" class="btn" type="button">Save</button>
+            <button id="aws-sso-login" class="btn btn-accent" type="button">AWS SSO Login</button>
+          </div>
+        </div>
+        <label>AWS auth text (KEY=VALUE)
+          <textarea id="aws-auth-text" rows="8" placeholder="AWS_AUTH_TYPE=sso&#10;AWS_PROFILE=ros2ws_sso&#10;AWS_REGION=eu-north-1"></textarea>
+        </label>
+      </article>
 
-      <h3 id="artifacts-title">Artifacts</h3>
-      <div id="artifact-list" class="artifact-list"></div>
-      <div id="artifact-preview" class="artifact-preview"></div>
+      <article class="panel">
+        <div class="panel-head">
+          <h2>Data, Runs, and Jobs</h2>
+        </div>
+
+        <h3>Assets</h3>
+        <form id="upload-form" class="inline-actions wrap">
+          <input id="upload-file" type="file">
+          <button id="upload-btn" class="btn" type="submit">Upload</button>
+        </form>
+
+        <div class="form-grid two">
+          <label>Noise source WAV
+            <select id="noise-source"></select>
+          </label>
+          <label>SNR levels
+            <input id="noise-levels" type="text" value="30,20,10,0" list="noise-levels-options">
+          </label>
+        </div>
+        <div class="inline-actions">
+          <button id="apply-noise" class="btn">Generate Noisy Samples</button>
+        </div>
+
+        <h3>Benchmark Setup</h3>
+        <div class="form-grid three">
+          <label>Dataset CSV
+            <input id="dataset" type="text" list="dataset-options" placeholder="data/transcripts/sample_manifest.csv">
+          </label>
+          <label>Backends list
+            <input id="bench-backends" type="text" list="bench-backends-options" placeholder="mock,whisper">
+          </label>
+          <label>Chunk sec
+            <input id="bench-chunk-sec" type="number" value="0.8" step="0.1" list="bench-chunk-sec-options">
+          </label>
+        </div>
+        <label>Scenarios
+          <input id="bench-scenarios" type="text" value="clean,snr20,snr10,snr0" list="bench-scenarios-options">
+        </label>
+        <div id="metric-select" class="checkboxes"></div>
+
+        <h3>Live Run</h3>
+        <div class="form-grid three">
+          <label>Reference text
+            <input id="reference-text" type="text" list="reference-text-options" placeholder="optional ground truth">
+          </label>
+          <label>Record sec
+            <input id="record-sec" type="number" value="5" step="0.5" list="record-sec-options">
+          </label>
+          <label>Use WAV
+            <select id="use-wav"></select>
+          </label>
+          <label>Audio device
+            <input id="audio-device" type="text" list="audio-device-options" placeholder="default">
+          </label>
+          <label>Action chunk sec
+            <input id="action-chunk-sec" type="number" value="0.8" step="0.1" list="action-chunk-sec-options">
+          </label>
+          <label>Timeout sec
+            <input id="request-timeout" type="number" value="25" step="1" list="request-timeout-options">
+          </label>
+        </div>
+        <div class="checkboxes inline">
+          <label><input id="ros-auto-launch" type="checkbox" checked> ROS auto launch</label>
+          <label><input id="action-streaming" type="checkbox"> Action streaming</label>
+        </div>
+
+        <h3>ROS Bringup</h3>
+        <div class="form-grid three">
+          <label>Input mode
+            <select id="bringup-input-mode">
+              <option value="mic">mic</option>
+              <option value="file">file</option>
+              <option value="auto">auto</option>
+            </select>
+          </label>
+          <label>Bringup WAV
+            <select id="bringup-wav"></select>
+          </label>
+          <label>Mic capture sec
+            <input id="bringup-mic-sec" type="number" value="4.0" step="0.5" list="bringup-mic-sec-options">
+          </label>
+        </div>
+        <div class="checkboxes inline">
+          <label><input id="bringup-continuous" type="checkbox" checked> Continuous</label>
+          <label><input id="bringup-live-enabled" type="checkbox" checked> Live stream enabled</label>
+          <label><input id="bringup-text-enabled" type="checkbox" checked> Text node enabled</label>
+        </div>
+
+        <div class="inline-actions wrap big-gap">
+          <button id="run-live" class="btn btn-accent">Run Live Eval</button>
+          <button id="run-benchmark" class="btn">Run Benchmark</button>
+          <button id="start-bringup" class="btn">Start ROS Bringup</button>
+        </div>
+
+        <h3>Jobs</h3>
+        <table id="jobs-table">
+          <thead>
+            <tr>
+              <th>Job</th>
+              <th>Kind</th>
+              <th>Status</th>
+              <th>Started</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="jobs-body"></tbody>
+        </table>
+        <details id="inactive-jobs-details" class="inactive-jobs" hidden>
+          <summary>Inactive from previous sessions (<span id="inactive-jobs-count">0</span>)</summary>
+          <div class="inactive-jobs-controls">
+            <select id="inactive-jobs-select"></select>
+            <button id="inactive-jobs-open" class="btn" type="button" disabled>Open logs</button>
+          </div>
+        </details>
+
+        <h3>Logs</h3>
+        <pre id="log-viewer" class="log-viewer">Select a job to inspect logs.</pre>
+
+        <h3>Artifacts</h3>
+        <div id="artifact-list" class="artifact-list"></div>
+        <div id="artifact-preview" class="artifact-preview">Select an artifact to preview.</div>
+      </article>
     </section>
   </main>
 
-  <div id="help-modal" class="help-modal hidden" role="dialog" aria-modal="true" aria-labelledby="help-title">
-    <div class="help-card">
-      <div class="help-head">
-        <h3 id="help-title">Справка</h3>
-        <button id="help-close" class="btn btn-secondary" type="button">Close</button>
-      </div>
-      <p id="help-summary"></p>
-      <div id="help-what" class="help-block"></div>
-      <div id="help-how" class="help-block"></div>
-      <ul id="help-links" class="help-links"></ul>
-    </div>
-  </div>
+  <div id="toast-stack" class="toast-stack" aria-live="polite" aria-atomic="true"></div>
 
   <datalist id="language-options"></datalist>
   <datalist id="sample-rate-options"></datalist>

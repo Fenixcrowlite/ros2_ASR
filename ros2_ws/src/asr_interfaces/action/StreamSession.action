@@ -1,0 +1,15 @@
+# Goal
+string session_id
+string runtime_profile
+string provider_profile
+string audio_source
+---
+# Result
+bool success
+string session_id
+string message
+string summary_artifact_ref
+---
+# Feedback
+asr_interfaces/AsrResultPartial partial_result
+asr_interfaces/SessionStatus session_status
