@@ -8,6 +8,13 @@ scenarios:
 metric_profiles:
   - metrics/default_quality
   - metrics/default_timing
+execution_mode: batch
 batch:
   max_samples: 0
   timeout_sec: 180
+streaming:
+  chunk_ms: 500
+noise:
+  mode: white
+  levels:
+    - clean

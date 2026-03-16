@@ -97,6 +97,29 @@ export function initDatasetsPage(ctx) {
     }
   });
 
+  document.getElementById('datasetUploadBtn')?.addEventListener('click', async () => {
+    try {
+      const files = Array.from(document.getElementById('datasetUploadFiles').files || []);
+      if (!files.length) {
+        throw new Error('Select files or a folder first');
+      }
+      const payload = await api.datasetImportUpload({
+        dataset_id: document.getElementById('datasetUploadId').value,
+        dataset_profile: document.getElementById('datasetUploadProfile').value,
+        language: document.getElementById('datasetUploadLanguage').value,
+        files,
+      });
+      ui.setFeedback('datasetsFeedback', JSON.stringify(payload, null, 2));
+      ui.toast('Uploaded dataset imported', 'success');
+      document.getElementById('datasetRegisterProfile').value = payload.dataset_profile || '';
+      document.getElementById('datasetValidateManifest').value = payload.manifest_path || '';
+      await refresh();
+    } catch (error) {
+      ui.setFeedback('datasetsFeedback', error.message, 'error');
+      ui.toast(`Dataset upload failed: ${error.message}`, 'error');
+    }
+  });
+
   document.getElementById('datasetRegisterBtn')?.addEventListener('click', async () => {
     try {
       const payload = await api.datasetRegister({

@@ -10,6 +10,10 @@
 - `configs/providers/google_cloud.yaml`
 - `configs/providers/aws_cloud.yaml`
 
+`vosk_local` uses model presets:
+- `ru_small` -> `models/vosk/vosk-model-small-ru-0.22`
+- `en_small` -> `models/vosk/vosk-model-small-en-us-0.15`
+
 ## Benchmark profile
 - `configs/benchmark/default_benchmark.yaml`
 - `configs/benchmark/cloud_comparison.yaml`

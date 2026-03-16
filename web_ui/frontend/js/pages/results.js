@@ -66,11 +66,23 @@ export function initResultsPage(ctx) {
           <p>state: ${ui.escapeHtml(detail.state || '')}</p>
           <p>benchmark_profile: ${ui.escapeHtml(runManifest.benchmark_profile || '')}</p>
           <p>dataset_profile: ${ui.escapeHtml(runManifest.dataset_profile || '')}</p>
+          <p>scenario: ${ui.escapeHtml(runManifest.scenario || summary.scenario || '')}</p>
+          <p>execution_mode: ${ui.escapeHtml(summary.execution_mode || runManifest.execution_mode || 'batch')}</p>
           <p>providers: ${ui.escapeHtml((runManifest.providers || []).join(', '))}</p>
         </div>
+        ${ui.renderMetricBars('Quality metrics', summary.quality_metrics || {}, { wer: 'lower', cer: 'lower', sample_accuracy: 'higher' })}
+        ${ui.renderMetricBars('Resource metrics', summary.resource_metrics || {}, {
+          total_latency_ms: 'lower',
+          per_utterance_latency_ms: 'lower',
+          real_time_factor: 'lower',
+          estimated_cost_usd: 'lower',
+          first_partial_latency_ms: 'lower',
+          finalization_latency_ms: 'lower',
+          partial_count: 'higher',
+        })}
         <div class="stack-item">
-          <strong>Summary Metrics</strong>
-          <p>${ui.escapeHtml(JSON.stringify(summary.mean_metrics || {}, null, 2))}</p>
+          <strong>Noise summary</strong>
+          <p>${ui.escapeHtml(JSON.stringify(summary.noise_summary || {}, null, 2))}</p>
         </div>
         <div class="stack-item">
           <strong>Artifacts</strong>

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -96,6 +97,9 @@ class BenchmarkManagerNode(Node):
                     benchmark_profile=request.benchmark_profile,
                     dataset_profile=request.dataset_profile,
                     providers=list(request.providers),
+                    scenario=str(request.scenario or ""),
+                    provider_overrides=self._parse_json_object(request.provider_overrides_json, "provider_overrides_json"),
+                    benchmark_settings=self._parse_json_object(request.benchmark_settings_json, "benchmark_settings_json"),
                     run_id=run_id,
                 )
             )
@@ -192,6 +196,16 @@ class BenchmarkManagerNode(Node):
             result.dataset_id = request.dataset_id
             result.message = str(exc)
             return result
+
+    @staticmethod
+    def _parse_json_object(raw: str, field_name: str) -> dict[str, Any]:
+        value = str(raw or "").strip()
+        if not value:
+            return {}
+        parsed = json.loads(value)
+        if not isinstance(parsed, dict):
+            raise ValueError(f"{field_name} must be a JSON object")
+        return parsed
 
     def _on_get_status(self, request: GetBenchmarkStatus.Request, response: GetBenchmarkStatus.Response):
         status = self.run_status.get(request.run_id)

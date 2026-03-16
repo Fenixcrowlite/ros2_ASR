@@ -37,6 +37,26 @@ class DummyResponse:
             self.word_timestamps = [DummyWord("hello", 0.0, 0.4), DummyWord("world", 0.41, 0.8)]
 
 
+class DummyStreamSession:
+    def __init__(self, provider_label: str, language: str) -> None:
+        self.provider_label = provider_label
+        self.language = language
+        self._chunks: list[bytes] = []
+        self._drained = False
+
+    def push_audio(self, chunk: bytes) -> None:
+        self._chunks.append(chunk)
+
+    def drain_partials(self) -> list[DummyResponse]:
+        if self._drained:
+            return []
+        self._drained = True
+        return [DummyResponse(text=f"{self.provider_label} partial {self.language}", word_timestamps=[])]
+
+    def stop(self) -> DummyResponse:
+        return DummyResponse(text=f"{self.provider_label} streamed {self.language}")
+
+
 class DeterministicWhisperBackend:
     def __init__(self, config: dict[str, Any]) -> None:
         self.config = config
@@ -74,6 +94,69 @@ class DeterministicAzureBackend:
     def recognize_once(self, request: Any) -> DummyResponse:
         del request
         return DummyResponse(text="azure transcript")
+
+    def streaming_recognize(self, chunks: list[bytes], language: str, sample_rate: int) -> DummyResponse:
+        del chunks, sample_rate
+        return DummyResponse(text=f"azure streamed {language}")
+
+    def create_stream_session(
+        self,
+        *,
+        language: str,
+        sample_rate: int,
+        channels: int = 1,
+        sample_width_bytes: int = 2,
+    ) -> DummyStreamSession:
+        del sample_rate, channels, sample_width_bytes
+        return DummyStreamSession("azure", language)
+
+
+class DeterministicGoogleBackend:
+    def __init__(self, config: dict[str, Any]) -> None:
+        self.credentials = config.get("credentials_json", "")
+
+    def recognize_once(self, request: Any) -> DummyResponse:
+        del request
+        return DummyResponse(text="google transcript")
+
+    def create_stream_session(
+        self,
+        *,
+        language: str,
+        sample_rate: int,
+        channels: int = 1,
+        sample_width_bytes: int = 2,
+        enable_word_timestamps: bool = True,
+    ) -> DummyStreamSession:
+        del sample_rate, channels, sample_width_bytes, enable_word_timestamps
+        return DummyStreamSession("google", language)
+
+
+class DeterministicAwsBackend:
+    def __init__(self, config: dict[str, Any]) -> None:
+        self.region = config.get("region", "")
+        self.s3_bucket = config.get("s3_bucket", "")
+
+    def has_credentials(self) -> bool:
+        return True
+
+    def auth_validation_errors(self) -> list[str]:
+        return []
+
+    def recognize_once(self, request: Any) -> DummyResponse:
+        del request
+        return DummyResponse(text="aws transcript")
+
+    def create_stream_session(
+        self,
+        *,
+        language: str,
+        sample_rate: int,
+        channels: int = 1,
+        sample_width_bytes: int = 2,
+    ) -> DummyStreamSession:
+        del sample_rate, channels, sample_width_bytes
+        return DummyStreamSession("aws", language)
 
 
 def _assert_common_result_contract(result: Any, provider_id: str) -> None:
@@ -184,7 +267,7 @@ def test_azure_provider_contract(monkeypatch: pytest.MonkeyPatch, sample_wav: st
     assert provider.validate_config() == []
     caps = provider.discover_capabilities()
     assert caps.requires_network is True
-    assert caps.supports_streaming is False
+    assert caps.supports_streaming is True
 
     result = provider.recognize_once(
         ProviderAudio(
@@ -197,10 +280,83 @@ def test_azure_provider_contract(monkeypatch: pytest.MonkeyPatch, sample_wav: st
     )
     _assert_common_result_contract(result, "azure")
 
-    provider.start_stream()
-    unsupported = provider.stop_stream()
-    assert unsupported.degraded is True
-    assert unsupported.error_code == "unsupported"
+    provider.start_stream({"language": "en-US", "sample_rate_hz": 16000})
+    provider.push_audio(b"chunk-1")
+    stream_result = provider.stop_stream()
+    _assert_common_result_contract(stream_result, "azure")
+    assert stream_result.text == "azure streamed en-US"
+
+
+def test_google_provider_contract(monkeypatch: pytest.MonkeyPatch, sample_wav: str) -> None:
+    import asr_provider_google.google_provider as google_module
+
+    monkeypatch.setattr(google_module, "GoogleAsrBackend", DeterministicGoogleBackend)
+
+    provider = google_module.GoogleProvider()
+    provider.initialize({"region": "global"}, {"file_path": "/tmp/fake-google.json"})
+
+    assert provider.validate_config() == []
+    caps = provider.discover_capabilities()
+    assert caps.requires_network is True
+    assert caps.supports_streaming is True
+    assert caps.supports_partials is True
+    assert caps.streaming_mode == "native"
+
+    result = provider.recognize_once(
+        ProviderAudio(
+            session_id="session_google",
+            request_id="req_google",
+            language="en-US",
+            sample_rate_hz=16000,
+            wav_path=sample_wav,
+        )
+    )
+    _assert_common_result_contract(result, "google")
+
+    provider.start_stream({"language": "en-US", "sample_rate_hz": 16000})
+    provider.push_audio(b"chunk-1")
+    partials = provider.drain_stream_results()
+    assert partials
+    assert partials[0].is_partial is True
+    stream_result = provider.stop_stream()
+    _assert_common_result_contract(stream_result, "google")
+    assert stream_result.text == "google streamed en-US"
+
+
+def test_aws_provider_contract(monkeypatch: pytest.MonkeyPatch, sample_wav: str) -> None:
+    import asr_provider_aws.aws_provider as aws_module
+
+    monkeypatch.setattr(aws_module, "AwsAsrBackend", DeterministicAwsBackend)
+
+    provider = aws_module.AwsProvider()
+    provider.initialize({"region": "eu-north-1", "s3_bucket": "bucket"}, {"AWS_PROFILE": "demo"})
+
+    assert provider.validate_config() == []
+    caps = provider.discover_capabilities()
+    assert caps.requires_network is True
+    assert caps.supports_streaming is True
+    assert caps.supports_partials is True
+    assert caps.streaming_mode == "native"
+
+    result = provider.recognize_once(
+        ProviderAudio(
+            session_id="session_aws",
+            request_id="req_aws",
+            language="en-US",
+            sample_rate_hz=16000,
+            wav_path=sample_wav,
+        )
+    )
+    _assert_common_result_contract(result, "aws")
+
+    provider.start_stream({"language": "en-US", "sample_rate_hz": 16000})
+    provider.push_audio(b"chunk-1")
+    partials = provider.drain_stream_results()
+    assert partials
+    assert partials[0].is_partial is True
+    stream_result = provider.stop_stream()
+    _assert_common_result_contract(stream_result, "aws")
+    assert stream_result.text == "aws streamed en-US"
 
 
 def test_azure_provider_validation_requires_credentials(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -211,5 +367,5 @@ def test_azure_provider_validation_requires_credentials(monkeypatch: pytest.Monk
     provider.initialize({"region": ""}, {})
 
     errors = provider.validate_config()
-    assert "Azure speech key is missing" in errors
-    assert "Azure region is missing" in errors
+    assert any("Azure speech key is missing" in item for item in errors)
+    assert any("Azure region is missing" in item for item in errors)

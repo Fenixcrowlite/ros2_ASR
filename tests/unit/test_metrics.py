@@ -15,7 +15,7 @@ def test_metrics_collector_record() -> None:
     rec = collector.record(
         backend="mock",
         scenario="clean",
-        wav_path="data/sample/en_hello.wav",
+        wav_path="data/sample/vosk_test.wav",
         language="en-US",
         reference_text="hello world",
         response=response,
@@ -45,7 +45,7 @@ def test_metrics_collector_sets_rtf_zero_for_zero_duration() -> None:
     rec = collector.record(
         backend="mock",
         scenario="clean",
-        wav_path="data/sample/en_hello.wav",
+        wav_path="data/sample/vosk_test.wav",
         language="en-US",
         reference_text="",
         response=response,

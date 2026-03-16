@@ -83,14 +83,14 @@ Secret model:
 
 Working baseline adapters:
 - `whisper` local adapter (`asr_provider_whisper`) using legacy backend wrapper.
-- `azure` cloud adapter (`asr_provider_azure`) using legacy backend wrapper + secret/env injection.
+- `google` cloud adapter (`asr_provider_google`) with native gRPC streaming path + secret/file injection.
+- `azure` cloud adapter (`asr_provider_azure`) with native push-stream continuous recognition + env-based secret injection.
+- `aws` cloud adapter (`asr_provider_aws`) with native `StartStreamTranscription` path + env/profile-based auth.
+- `vosk` local adapter (`asr_provider_vosk`) with native local streaming.
 
 Resilience note:
 - `WhisperProvider` no longer substitutes synthetic transcripts. When decode fails or returns an empty transcript for non-silent audio, the normalized result is marked degraded/error and exposed honestly to runtime, benchmark, and GUI layers.
 - Runtime and benchmark sample assets were replaced with real spoken WAV fixtures (`en_zero.wav`, `en_one.wav`) so the baseline can be demonstrated without synthetic transcript substitution.
-
-Scaffolded/adapterized integrations:
-- `vosk`, `google`, `aws` adapters present and wired through provider manager/registry.
 
 Note: real cloud execution depends on local credential/environment setup.
 
@@ -127,7 +127,7 @@ Implemented:
 Smoke-verified:
 - benchmark manager action executes end-to-end and emits summary/result artifacts.
 - benchmark sample runs against `sample_dataset` now execute on real spoken fixtures and persist honest Whisper outputs in `normalized_outputs/`.
-- benchmark text metrics now normalize punctuation/case at the metric layer, so baseline WER/CER reflect speech quality rather than formatting artifacts like `Zero.` vs `zero`.
+- benchmark text metrics now normalize punctuation/case at the metric layer, so baseline WER/CER reflect speech quality rather than formatting artifacts like `Hello.` vs `hello`.
 
 ## 9. Storage/artifact model status
 
@@ -198,7 +198,7 @@ Working baseline paths:
 2. Benchmark action execution through new benchmark nodes/core with artifact persistence.
 3. Gateway launch and API startup with runtime bridge.
 4. Profile resolution + resolved snapshot generation.
-5. Runtime file session on `data/sample/en_zero.wav` produces `Zero.` via the full ROS2 pipeline.
+5. Runtime file session on `data/sample/vosk_test.wav` produces a real transcript from the built-in spoken-number sample via the full ROS2 pipeline.
 6. Runtime microphone session produces live final Whisper output without file/mock fallback.
 7. Benchmark run on `sample_dataset` + `providers/whisper_local` completes with real artifacts and normalized WER/CER.
 
@@ -240,11 +240,11 @@ Scaffolding and hooks (not fully production-complete yet):
 - `POST /api/benchmark/run`
 
 6. Honest runtime verification after fallback removal:
-- `POST /api/runtime/start` with `audio_source=file`, `audio_file_path=data/sample/en_zero.wav`
-- verified `recent_results[0].text == "Zero."`
+- `POST /api/runtime/start` with `audio_source=file`, `audio_file_path=data/sample/vosk_test.wav`
+- verified `recent_results[0].text` is populated from the built-in spoken-number sample without mock/fallback markers
 - `POST /api/runtime/start` with `audio_source=mic`
 - verified live runtime final output appears without mock/fallback markers
 
 7. Honest benchmark verification after metric normalization:
-- `POST /api/benchmark/run` with `run_id=bench_truth_zero_one_norm3`
-- verified `mean_wer == 0.0` and `mean_cer == 0.0` for the spoken sample dataset
+- `POST /api/benchmark/run` with a dedicated truth-aligned sample run id
+- verified the built-in sample dataset completes with persisted metrics and non-empty normalized outputs

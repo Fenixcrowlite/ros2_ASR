@@ -4,6 +4,7 @@ export function initDashboardPage(ctx) {
   const cardsRoot = document.getElementById('dashboardCards');
   const alertsRoot = document.getElementById('dashboardAlerts');
   const outputRoot = document.getElementById('dashboardRuntimeOutput');
+  const cloudRoot = document.getElementById('dashboardCloudHealth');
   const actionsRoot = document.getElementById('dashboardQuickActions');
   let runtimeActionInFlight = false;
 
@@ -94,6 +95,27 @@ export function initDashboardPage(ctx) {
       .join('');
   }
 
+  function renderCloudHealth(rows) {
+    if (!rows?.length) {
+      cloudRoot.innerHTML = ui.renderEmpty('No cloud credential refs discovered yet.');
+      return;
+    }
+    cloudRoot.innerHTML = rows
+      .map(
+        (row) => `
+          <div class="stack-item">
+            <strong>${ui.escapeHtml(row.provider || 'provider')}</strong>
+            <p><span class="${ui.statusBadgeClass(row.tone || (row.runtime_ready ? 'valid' : 'invalid'))}">${ui.escapeHtml(
+              row.state || 'unknown'
+            )}</span></p>
+            <p>${ui.escapeHtml(row.message || '')}</p>
+            <p class="muted">linked=${ui.escapeHtml((row.linked_provider_profiles || []).join(', ') || 'none')}</p>
+          </div>
+        `
+      )
+      .join('');
+  }
+
   function bindActions() {
     actionsRoot.innerHTML = `
       <button class="btn-primary" id="dashboardStartRuntime">Start Runtime</button>
@@ -114,7 +136,7 @@ export function initDashboardPage(ctx) {
           provider_profile: 'providers/whisper_local',
           session_id: '',
           audio_source: 'file',
-          audio_file_path: 'data/sample/en_zero.wav',
+          audio_file_path: 'data/sample/vosk_test.wav',
           language: 'en-US',
           mic_capture_sec: 4.0,
         });
@@ -155,6 +177,7 @@ export function initDashboardPage(ctx) {
     renderCards(payload);
     renderAlerts(payload);
     renderRuntimeOutput(state.runtime.live);
+    renderCloudHealth(payload.cloud_credentials || []);
 
     const runtimeState = payload.runtime?.session_state || payload.runtime?.state || 'unknown';
     const benchmarkActive = payload.benchmark?.active_runs?.length ? 'running' : 'idle';

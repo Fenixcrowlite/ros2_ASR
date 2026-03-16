@@ -1,8 +1,11 @@
 string runtime_profile
 string provider_profile
+string provider_preset
+string provider_settings_json
 string session_id
 string runtime_namespace
 bool auto_start_audio
+string processing_mode
 string audio_source
 string audio_file_path
 string language

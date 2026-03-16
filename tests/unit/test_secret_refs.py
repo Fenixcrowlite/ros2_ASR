@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 import yaml  # type: ignore[import-untyped]
-from asr_config.secrets import load_secret_ref, mask_secret_values, resolve_secret_ref
+from asr_config.secrets import load_secret_ref, mask_secret_values, resolve_env_value, resolve_secret_ref, write_local_env_values
 
 
 def _write_yaml(path: Path, payload: dict) -> None:
@@ -102,6 +102,44 @@ def test_secret_ref_raises_for_missing_required_env(
     ref = load_secret_ref(str(ref_path))
     with pytest.raises(ValueError, match="AWS_PROFILE"):
         resolve_secret_ref(ref)
+
+
+def test_env_secret_ref_can_use_local_env_injection_file(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    project_root = tmp_path / "project"
+    refs_dir = project_root / "secrets" / "refs"
+    refs_dir.mkdir(parents=True)
+    ref_path = refs_dir / "azure.yaml"
+    _write_yaml(
+        ref_path,
+        {
+            "ref_id": "secrets/azure",
+            "provider": "azure",
+            "kind": "env",
+            "required": ["AZURE_SPEECH_KEY", "AZURE_SPEECH_REGION"],
+            "optional": ["ASR_AZURE_ENDPOINT"],
+        },
+    )
+    monkeypatch.delenv("AZURE_SPEECH_KEY", raising=False)
+    monkeypatch.delenv("AZURE_SPEECH_REGION", raising=False)
+    monkeypatch.delenv("ASR_AZURE_ENDPOINT", raising=False)
+
+    write_local_env_values(
+        {
+            "AZURE_SPEECH_KEY": "azure-secret",
+            "AZURE_SPEECH_REGION": "eastus",
+            "ASR_AZURE_ENDPOINT": "https://example.invalid",
+        },
+        source_path=str(ref_path),
+    )
+
+    ref = load_secret_ref(str(ref_path))
+    resolved = resolve_secret_ref(ref)
+    endpoint_value, endpoint_source = resolve_env_value("ASR_AZURE_ENDPOINT", str(ref_path))
+
+    assert resolved["AZURE_SPEECH_KEY"] == "azure-secret"
+    assert resolved["AZURE_SPEECH_REGION"] == "eastus"
+    assert endpoint_value == "https://example.invalid"
+    assert endpoint_source == "local_env_file"
 
 
 def test_mask_secret_values_never_returns_full_plaintext() -> None:

@@ -11,6 +11,9 @@ class BenchmarkRunRequest:
     benchmark_profile: str
     dataset_profile: str = ""
     providers: list[str] = field(default_factory=list)
+    scenario: str = ""
+    provider_overrides: dict[str, dict[str, Any]] = field(default_factory=dict)
+    benchmark_settings: dict[str, Any] = field(default_factory=dict)
     run_id: str = ""
 
 

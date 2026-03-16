@@ -88,7 +88,15 @@ def _install_asr_interfaces_stub() -> None:
     msg_mod = types.ModuleType("asr_interfaces.msg")
     srv_mod = types.ModuleType("asr_interfaces.srv")
 
+    class _Header:
+        def __init__(self) -> None:
+            self.stamp = None
+
     class _Dummy:
+        def __init__(self) -> None:
+            self.header = _Header()
+            self.data = []
+
         class Goal:
             pass
 
@@ -97,7 +105,15 @@ def _install_asr_interfaces_stub() -> None:
 
     for name in ("ImportDataset", "RunBenchmarkExperiment"):
         setattr(action_mod, name, _Dummy)
-    for name in ("AsrResult", "AsrResultPartial", "NodeStatus", "SessionStatus"):
+    for name in (
+        "AsrResult",
+        "AsrResultPartial",
+        "AudioChunk",
+        "AudioSegment",
+        "NodeStatus",
+        "SessionStatus",
+        "SpeechActivity",
+    ):
         setattr(msg_mod, name, _Dummy)
     for name in (
         "GetAsrStatus",
@@ -137,7 +153,7 @@ except ModuleNotFoundError:
 
 @pytest.fixture(scope="session")
 def sample_wav() -> str:
-    return str(ROOT / "data" / "sample" / "en_hello.wav")
+    return str(ROOT / "data" / "sample" / "vosk_test.wav")
 
 
 @pytest.fixture(scope="session")

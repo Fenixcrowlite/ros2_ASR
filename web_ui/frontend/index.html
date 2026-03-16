@@ -61,6 +61,11 @@
                 <div id="dashboardRuntimeOutput" class="stack-list"></div>
               </div>
             </div>
+            <div class="panel">
+              <h3>Cloud Credential Readiness</h3>
+              <p class="helper">Shows whether Google, Azure, and AWS are actually ready for runtime and benchmark use right now.</p>
+              <div id="dashboardCloudHealth" class="stack-list"></div>
+            </div>
           </section>
 
           <section id="runtime" class="page">
@@ -82,6 +87,10 @@
                     <select id="runtimeProviderSelect"></select>
                   </label>
                   <label>
+                    Provider model / preset
+                    <select id="runtimeProviderPresetSelect"></select>
+                  </label>
+                  <label>
                     Session ID (optional)
                     <input id="runtimeSessionId" placeholder="auto if empty" />
                   </label>
@@ -97,10 +106,22 @@
                     </select>
                   </label>
                   <label>
+                    Processing mode
+                    <select id="runtimeProcessingMode">
+                      <option value="segmented">segmented via VAD</option>
+                      <option value="provider_stream">provider stream</option>
+                    </select>
+                  </label>
+                  <label>
                     Recognize WAV path
-                    <input id="runtimeWavPath" value="data/sample/en_zero.wav" />
+                    <input id="runtimeWavPath" value="data/sample/vosk_test.wav" />
                   </label>
                 </div>
+                <div id="runtimeProviderPresetMeta" class="stack-list"></div>
+                <label>
+                  Advanced provider settings JSON
+                  <textarea id="runtimeProviderSettings" class="code-area" placeholder='{"temperature": 0.2}'></textarea>
+                </label>
                 <div class="actions-row">
                   <button class="btn-primary" id="runtimeStartBtn">Start</button>
                   <button class="btn-secondary" id="runtimeReconfigureBtn">Reconfigure</button>
@@ -147,10 +168,19 @@
                     <select id="providerTestProfile"></select>
                   </label>
                   <label>
+                    Provider model / preset
+                    <select id="providerTestPreset"></select>
+                  </label>
+                  <label>
                     Test WAV
-                    <input id="providerTestWav" value="data/sample/en_zero.wav" />
+                    <input id="providerTestWav" value="data/sample/vosk_test.wav" />
                   </label>
                 </div>
+                <div id="providerPresetMeta" class="stack-list"></div>
+                <label>
+                  Advanced provider settings JSON
+                  <textarea id="providerTestSettings" class="code-area" placeholder='{"timeout_sec": 120}'></textarea>
+                </label>
                 <div class="actions-row">
                   <button id="providerValidateBtn" class="btn-secondary">Validate Config</button>
                   <button id="providerTestBtn" class="btn-primary">Test Provider</button>
@@ -232,6 +262,30 @@
                   <button id="datasetImportBtn" class="btn-primary">Import</button>
                 </div>
                 <hr />
+                <h3>Import From Explorer</h3>
+                <p class="helper">Upload a folder or a set of samples directly from the file picker. Supported layouts: `wav + paired txt` or `jsonl manifest + wav files`.</p>
+                <div class="form-grid">
+                  <label>
+                    Upload dataset ID
+                    <input id="datasetUploadId" placeholder="uploaded_dataset" />
+                  </label>
+                  <label>
+                    Upload dataset profile (optional)
+                    <input id="datasetUploadProfile" placeholder="uploaded_dataset" />
+                  </label>
+                  <label>
+                    Upload language
+                    <input id="datasetUploadLanguage" value="en-US" />
+                  </label>
+                  <label>
+                    Files / folder
+                    <input id="datasetUploadFiles" type="file" multiple webkitdirectory directory />
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="datasetUploadBtn" class="btn-primary">Upload & Import</button>
+                </div>
+                <hr />
                 <h3>Register Existing Manifest</h3>
                 <div class="form-grid">
                   <label>
@@ -288,10 +342,24 @@
                     Dataset profile
                     <select id="benchmarkDatasetProfile"></select>
                   </label>
+                  <label>
+                    Or upload samples/dataset
+                    <input id="benchmarkDatasetFiles" type="file" multiple webkitdirectory directory />
+                  </label>
+                  <label>
+                    Uploaded dataset ID
+                    <input id="benchmarkDatasetId" placeholder="bench_uploaded" />
+                  </label>
+                  <label>
+                    Uploaded dataset language
+                    <input id="benchmarkDatasetLanguage" value="en-US" />
+                  </label>
+                  <button id="benchmarkUploadDatasetBtn" class="btn-secondary">Create Dataset From Selection</button>
                 </div>
                 <div class="step">
                   <h4>Step 2: Providers</h4>
                   <div id="benchmarkProviderChecks" class="check-list"></div>
+                  <div id="benchmarkProviderTuning" class="stack-list"></div>
                 </div>
                 <div class="step">
                   <h4>Step 3: Scenario</h4>
@@ -301,13 +369,32 @@
                       <option value="clean_baseline">clean_baseline</option>
                       <option value="provider_comparison">provider_comparison</option>
                       <option value="latency_profile">latency_profile</option>
-                      <option value="noise_robustness_placeholder">noise_robustness_placeholder</option>
+                      <option value="noise_robustness">noise_robustness</option>
                     </select>
                   </label>
+                  <label>
+                    Noise mode
+                    <select id="benchmarkNoiseMode">
+                      <option value="white">white</option>
+                    </select>
+                  </label>
+                  <label>
+                    Execution mode
+                    <select id="benchmarkExecutionMode">
+                      <option value="batch">batch / one-shot</option>
+                      <option value="streaming">streaming</option>
+                    </select>
+                  </label>
+                  <label>
+                    Streaming chunk size (ms)
+                    <input id="benchmarkStreamingChunkMs" type="number" min="100" step="50" value="500" />
+                  </label>
+                  <div id="benchmarkNoiseLevels" class="check-list"></div>
                 </div>
                 <div class="step">
                   <h4>Step 4: Metrics</h4>
                   <div id="benchmarkMetricChecks" class="check-list"></div>
+                  <div id="benchmarkQualityResourceView" class="stack-list"></div>
                 </div>
                 <div class="step">
                   <h4>Step 5: Review & Run</h4>
@@ -318,6 +405,10 @@
                   <label>
                     Run ID (optional)
                     <input id="benchmarkRunId" placeholder="auto if empty" />
+                  </label>
+                  <label>
+                    Advanced benchmark settings JSON
+                    <textarea id="benchmarkSettingsEditor" class="code-area" placeholder='{"batch":{"max_samples":10}}'></textarea>
                   </label>
                   <button id="benchmarkRunBtn" class="btn-primary">Run Benchmark</button>
                 </div>
@@ -446,6 +537,144 @@
             <div class="panel">
               <h3>Secret References</h3>
               <div id="secretsRefsTable"></div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>AWS Token State</h3>
+                <p class="muted">
+                  AWS IAM Identity Center has two layers: the sign-in session and the temporary role credentials
+                  actually used by runtime and benchmark jobs. This panel shows both separately.
+                </p>
+                <div id="awsAuthSummary"></div>
+              </div>
+              <div class="panel">
+                <h3>AWS Login</h3>
+                <p class="muted">
+                  Start a native <code>aws sso login</code> flow from the GUI. The gateway runs the CLI and streams the
+                  device-code/browser output back here.
+                </p>
+                <div class="form-grid">
+                  <label>
+                    AWS ref name
+                    <input id="awsSsoRefName" value="aws_profile" />
+                  </label>
+                  <label>
+                    AWS profile
+                    <input id="awsSsoProfile" placeholder="ros2ws" />
+                  </label>
+                  <label>
+                    <input id="awsSsoUseDeviceCode" type="checkbox" checked />
+                    Use device code flow
+                  </label>
+                  <label>
+                    <input id="awsSsoNoBrowser" type="checkbox" checked />
+                    Do not auto-open browser
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="awsSsoLoginBtn" class="btn-primary">Start AWS Login</button>
+                  <button id="awsSsoRefreshBtn" class="btn-secondary">Refresh Login Status</button>
+                  <button id="awsSsoCancelBtn" class="btn-secondary">Cancel Login</button>
+                </div>
+                <div id="awsSsoLoginFeedback" class="feedback"></div>
+              </div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Google Service Account</h3>
+                <p class="muted">
+                  Google uses a native service-account JSON file. Upload it here and the gateway will store it under the
+                  ignored <code>secrets/google/service-account.json</code> path used by the provider profile.
+                </p>
+                <div class="form-grid">
+                  <label>
+                    Service-account JSON
+                    <input id="googleServiceAccountFile" type="file" accept=".json,application/json" />
+                  </label>
+                  <label>
+                    Ref name
+                    <input id="googleRefName" value="google_service_account" />
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="googleUploadBtn" class="btn-primary">Upload Google JSON</button>
+                  <button id="googleClearBtn" class="btn-secondary">Clear Google JSON</button>
+                </div>
+                <div id="googleSetupFeedback" class="feedback"></div>
+              </div>
+              <div class="panel">
+                <h3>Google Status And Quick Test</h3>
+                <div id="googleAuthSummary"></div>
+                <div class="form-grid">
+                  <label>
+                    Provider profile
+                    <input id="googleProviderProfile" value="providers/google_cloud" />
+                  </label>
+                  <label>
+                    WAV path
+                    <input id="googleTestWav" value="data/sample/vosk_test.wav" />
+                  </label>
+                  <label>
+                    Language
+                    <input id="googleTestLanguage" value="en-US" />
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="googleValidateProviderBtn" class="btn-secondary">Validate Google Provider</button>
+                  <button id="googleTestProviderBtn" class="btn-primary">Test Google Provider</button>
+                </div>
+              </div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Azure Speech Setup</h3>
+                <p class="muted">
+                  Azure uses native environment variables. Save them here into the local ignored
+                  <code>secrets/local/runtime.env</code> injection file. The gateway masks the key and never shows it
+                  back after save.
+                </p>
+                <div class="form-grid">
+                  <label>
+                    Speech key
+                    <input id="azureSpeechKey" type="password" placeholder="paste Azure Speech key" />
+                  </label>
+                  <label>
+                    Region
+                    <input id="azureSpeechRegion" placeholder="eastus" />
+                  </label>
+                  <label>
+                    Endpoint URL or custom endpoint ID (optional)
+                    <input id="azureSpeechEndpoint" placeholder="leave empty for standard Speech; or use full https://... URL / custom endpoint ID" />
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="azureSaveBtn" class="btn-primary">Save Azure Env</button>
+                  <button id="azureClearBtn" class="btn-secondary">Clear Azure Env</button>
+                </div>
+                <div id="azureSetupFeedback" class="feedback"></div>
+              </div>
+              <div class="panel">
+                <h3>Azure Status And Quick Test</h3>
+                <div id="azureAuthSummary"></div>
+                <div class="form-grid">
+                  <label>
+                    Provider profile
+                    <input id="azureProviderProfile" value="providers/azure_cloud" />
+                  </label>
+                  <label>
+                    WAV path
+                    <input id="azureTestWav" value="data/sample/vosk_test.wav" />
+                  </label>
+                  <label>
+                    Language
+                    <input id="azureTestLanguage" value="en-US" />
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="azureValidateProviderBtn" class="btn-secondary">Validate Azure Provider</button>
+                  <button id="azureTestProviderBtn" class="btn-primary">Test Azure Provider</button>
+                </div>
+              </div>
             </div>
             <div class="two-col">
               <div class="panel">

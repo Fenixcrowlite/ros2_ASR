@@ -3,7 +3,7 @@ from asr_core.models import AsrRequest
 
 
 def test_mock_backend_recognize_once(sample_wav: str) -> None:
-    backend = MockAsrBackend(config={"transcript_map": {"en_hello.wav": "hello world"}})
+    backend = MockAsrBackend(config={"transcript_map": {"vosk_test.wav": "hello world"}})
     response = backend.recognize_once(AsrRequest(wav_path=sample_wav, language="en-US"))
 
     assert response.success

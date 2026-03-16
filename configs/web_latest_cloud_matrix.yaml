@@ -9,7 +9,7 @@ asr:
   model: ""
   region: ""
   input_mode: file
-  wav_path: data/sample/en_one.wav
+  wav_path: data/sample/vosk_test.wav
 
 backends:
   mock:

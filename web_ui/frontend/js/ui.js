@@ -145,6 +145,43 @@ function parseCsvInput(raw) {
     .filter(Boolean);
 }
 
+function renderMetricBars(title, metrics, preferenceMap = {}) {
+  const entries = Object.entries(metrics || {});
+  if (!entries.length) {
+    return renderEmpty(`No ${title.toLowerCase()} metrics yet.`);
+  }
+  const maxValue = Math.max(
+    ...entries.map(([, value]) => {
+      const numeric = Number(value);
+      return Number.isFinite(numeric) ? Math.abs(numeric) : 0;
+    }),
+    1
+  );
+  return `
+    <div class="stack-item">
+      <strong>${escapeHtml(title)}</strong>
+      ${entries
+        .map(([key, value]) => {
+          const numeric = Number(value) || 0;
+          const width = Math.max(6, Math.min(100, (Math.abs(numeric) / maxValue) * 100));
+          const pref = preferenceMap[key] || 'lower';
+          return `
+            <div class="metric-bar">
+              <div class="metric-bar__head">
+                <span>${escapeHtml(key)}</span>
+                <code>${escapeHtml(String(value))}</code>
+              </div>
+              <div class="metric-bar__track">
+                <span class="metric-bar__fill ${pref === 'higher' ? 'higher' : 'lower'}" style="width:${width}%"></span>
+              </div>
+            </div>
+          `;
+        })
+        .join('')}
+    </div>
+  `;
+}
+
 export {
   escapeHtml,
   fmtDate,
@@ -158,4 +195,5 @@ export {
   toast,
   toCode,
   updateSelectOptions,
+  renderMetricBars,
 };

@@ -51,7 +51,7 @@
 
 Что это: источник аудио для `audio_capture_node`.
 Где в вики: [[02_ROS2/Node_Audio_Capture]], [[02_ROS2/Launch_Bringup]].
-Пример: `input_mode:=mic` или `input_mode:=file wav_path:=data/sample/en_hello.wav`.
+Пример: `input_mode:=mic` или `input_mode:=file wav_path:=data/sample/vosk_test.wav`.
 
 ## Sample Rate
 

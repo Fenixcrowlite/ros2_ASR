@@ -3,6 +3,8 @@ string language
 bool enable_word_timestamps
 string session_id
 string provider_profile
+string provider_preset
+string provider_settings_json
 ---
 asr_interfaces/AsrResult result
 string resolved_profile

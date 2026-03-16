@@ -46,7 +46,7 @@ def test_runtime_live_contract(repo_root: Path, tmp_path: Path, monkeypatch) -> 
         "providers/whisper_local",
         "session_contract",
         audio_source="file",
-        audio_file_path="data/sample/en_hello.wav",
+        audio_file_path="data/sample/vosk_test.wav",
         language="en-US",
         mic_capture_sec=4.0,
     )
@@ -87,5 +87,5 @@ def test_dashboard_contract_contains_operator_and_engineering_views(repo_root: P
     payload = response.json()
 
     assert response.status_code == 200
-    assert {"system", "runtime", "benchmark", "alerts", "quick_actions"} <= set(payload.keys())
+    assert {"system", "runtime", "benchmark", "cloud_credentials", "alerts", "quick_actions"} <= set(payload.keys())
     assert {"gateway", "runtime", "benchmark_active", "providers_configured", "providers_invalid"} <= set(payload["system"].keys())

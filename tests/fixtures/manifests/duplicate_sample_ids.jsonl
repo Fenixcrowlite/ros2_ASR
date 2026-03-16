@@ -1,2 +1,2 @@
-{"sample_id": "dup_001", "audio_path": "data/sample/en_hello.wav", "transcript": "hello world", "language": "en-US"}
-{"sample_id": "dup_001", "audio_path": "data/sample/en_hello.wav", "transcript": "hello world", "language": "en-US"}
+{"sample_id": "dup_001", "audio_path": "data/sample/vosk_test.wav", "transcript": "hello world", "language": "en-US"}
+{"sample_id": "dup_001", "audio_path": "data/sample/vosk_test.wav", "transcript": "hello world", "language": "en-US"}

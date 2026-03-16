@@ -12,7 +12,7 @@
 
 - `config` (default: `configs/default.yaml`)
 - `input_mode` (default: `auto`)
-- `wav_path` (default: `data/sample/en_hello.wav`)
+- `wav_path` (default: `data/sample/vosk_test.wav`)
 - `sample_rate` (default: `16000`)
 - `chunk_ms` (default: `800`)
 - `device` (default: `""`)

@@ -94,7 +94,7 @@ def test_runtime_happy_path_is_visible_in_gui(live_gateway: str, browser_page) -
 
     page.click("#runtimeRecognizeBtn")
     page.wait_for_timeout(500)
-    assert "recognized from en_hello.wav" in page.locator("#runtimeTranscripts").inner_text()
+    assert "recognized from vosk_test.wav" in page.locator("#runtimeTranscripts").inner_text()
 
     page.click("#runtimeStopBtn")
     page.wait_for_timeout(300)

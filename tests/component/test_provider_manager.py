@@ -69,3 +69,22 @@ def test_provider_manager_raises_for_invalid_provider_config(tmp_path: Path) -> 
     manager = ProviderManager(configs_root=str(configs))
     with pytest.raises(ValueError, match="invalid config requested by test fixture"):
         manager.create_from_profile("providers/broken")
+
+
+def test_provider_manager_rejects_empty_vosk_model_directory(tmp_path: Path) -> None:
+    configs = tmp_path / "configs"
+    empty_model_dir = tmp_path / "models" / "vosk"
+    empty_model_dir.mkdir(parents=True, exist_ok=True)
+    (empty_model_dir / ".gitkeep").write_text("", encoding="utf-8")
+
+    _write_yaml(
+        configs / "providers" / "vosk_local.yaml",
+        {
+            "provider_id": "vosk",
+            "settings": {"model_path": str(empty_model_dir)},
+        },
+    )
+
+    manager = ProviderManager(configs_root=str(configs))
+    with pytest.raises(ValueError, match="does not contain a Vosk model"):
+        manager.create_from_profile("providers/vosk_local")

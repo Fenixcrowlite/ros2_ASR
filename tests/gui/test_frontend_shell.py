@@ -41,6 +41,19 @@ def test_frontend_shell_and_assets_are_served(repo_root: Path, tmp_path: Path, m
     assert "ROS2 ASR Platform" in index.text
     assert 'data-page="runtime"' in index.text
     assert 'data-page="benchmark"' in index.text
+    assert 'id="runtimeProcessingMode"' in index.text
+    assert 'id="benchmarkExecutionMode"' in index.text
+    assert 'id="benchmarkStreamingChunkMs"' in index.text
+    assert 'id="dashboardCloudHealth"' in index.text
+    assert 'id="awsAuthSummary"' in index.text
+    assert 'id="awsSsoLoginBtn"' in index.text
+    assert 'id="awsSsoLoginFeedback"' in index.text
+    assert 'id="googleAuthSummary"' in index.text
+    assert 'id="googleUploadBtn"' in index.text
+    assert 'id="googleValidateProviderBtn"' in index.text
+    assert 'id="azureAuthSummary"' in index.text
+    assert 'id="azureSaveBtn"' in index.text
+    assert 'id="azureValidateProviderBtn"' in index.text
     assert "/ui/styles.css" in index.text
     assert "/ui/js/app.js" in index.text
     assert index.headers["cache-control"].startswith("no-store")

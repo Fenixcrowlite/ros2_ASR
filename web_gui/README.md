@@ -96,7 +96,7 @@ AWS_SSO_ROLE_NAME=AdministratorAccess
 
 ## Smoke сценарии
 
-1. Upload `data/sample/en_hello.wav`.
+1. Upload `data/sample/vosk_test.wav`.
 2. Noise overlay `30,20,10,0`.
 3. Live run: `interfaces=core`, `model_runs=mock,whisper:tiny`, `language_mode=auto`.
 4. Benchmark run: `dataset=data/transcripts/sample_manifest.csv`, `backends=mock,whisper`.

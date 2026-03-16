@@ -79,7 +79,7 @@ class AudioCaptureNode(Node):
         numeric_descriptor = ParameterDescriptor(dynamic_typing=True)
         # Input parameters are intentionally simple for launch/YAML usage.
         self.declare_parameter("input_mode", "auto")
-        self.declare_parameter("wav_path", "data/sample/en_hello.wav")
+        self.declare_parameter("wav_path", "data/sample/vosk_test.wav")
         self.declare_parameter("sample_rate", 16000, descriptor=numeric_descriptor)
         self.declare_parameter("chunk_ms", 800, descriptor=numeric_descriptor)
         self.declare_parameter("device", "")

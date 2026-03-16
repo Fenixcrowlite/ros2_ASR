@@ -87,6 +87,9 @@ class FakeProviderAdapter(AsrProviderAdapter):
         self._config: dict[str, Any] = {}
         self._credentials: dict[str, str] = {}
         self._stream_chunks: list[bytes] = []
+        self._stream_session_id = "stream"
+        self._stream_request_id = "stream"
+        self._stream_started_at = 0.0
         self._status = ProviderStatus(provider_id=provider_id, state="created")
 
     def initialize(self, config: dict[str, Any], credentials_ref: dict[str, str]) -> None:
@@ -104,6 +107,7 @@ class FakeProviderAdapter(AsrProviderAdapter):
     def discover_capabilities(self) -> ProviderCapabilities:
         return ProviderCapabilities(
             supports_streaming=self._supports_streaming,
+            streaming_mode="native" if self._supports_streaming else "none",
             supports_batch=True,
             supports_word_timestamps=True,
             supports_partials=self._supports_streaming,
@@ -131,19 +135,40 @@ class FakeProviderAdapter(AsrProviderAdapter):
         )
 
     def start_stream(self, options: dict[str, Any] | None = None) -> None:
-        del options
+        opts = options or {}
         self._stream_chunks = []
+        self._stream_session_id = str(opts.get("session_id", "stream") or "stream")
+        self._stream_request_id = str(opts.get("request_id", "stream") or "stream")
+        self._stream_started_at = time.perf_counter()
         self._status = ProviderStatus(provider_id=self.provider_id, state="streaming")
 
-    def push_audio(self, chunk: bytes) -> None:
+    def push_audio(self, chunk: bytes) -> NormalizedAsrResult | None:
         self._stream_chunks.append(chunk)
+        if not self._supports_streaming:
+            return None
+        return NormalizedAsrResult(
+            request_id=self._stream_request_id,
+            session_id=self._stream_session_id,
+            provider_id=self.provider_id,
+            text=f"partial {len(self._stream_chunks)}",
+            is_final=False,
+            is_partial=True,
+            language="en-US",
+            latency=LatencyMetadata(
+                total_ms=(time.perf_counter() - self._stream_started_at) * 1000.0 if self._stream_started_at else 0.0,
+                first_partial_ms=5.0,
+            ),
+            confidence=0.0,
+            confidence_available=False,
+            timestamps_available=False,
+        )
 
     def stop_stream(self) -> NormalizedAsrResult:
         self._status = ProviderStatus(provider_id=self.provider_id, state="ready")
         return make_normalized_result(
             provider_id=self.provider_id,
-            session_id="stream",
-            request_id="stream",
+            session_id=self._stream_session_id,
+            request_id=self._stream_request_id,
             text=f"stream {len(self._stream_chunks)} chunks",
         )
 
@@ -159,16 +184,33 @@ def build_stub_provider_manager(configs_root: str):
         def __init__(self, configs_root: str = configs_root) -> None:
             self.configs_root = configs_root
 
-        def create_from_profile(self, provider_profile: str) -> FakeProviderAdapter:
+        def resolve_profile_payload(self, provider_profile: str) -> dict[str, Any]:
             profile_id = provider_profile.split("/", 1)[1] if provider_profile.startswith("providers/") else provider_profile
             profile_path = Path(self.configs_root) / "providers" / f"{profile_id}.yaml"
-            payload = yaml.safe_load(profile_path.read_text(encoding="utf-8")) or {}
+            return yaml.safe_load(profile_path.read_text(encoding="utf-8")) or {}
+
+        def create_from_profile(
+            self,
+            provider_profile: str,
+            *,
+            preset_id: str = "",
+            settings_overrides: dict[str, Any] | None = None,
+        ) -> FakeProviderAdapter:
+            payload = self.resolve_profile_payload(provider_profile)
             provider_id = str(payload.get("provider_id", "fake")).strip() or "fake"
             settings = payload.get("settings", {}) if isinstance(payload.get("settings"), dict) else {}
+            if preset_id:
+                ui = payload.get("ui", {}) if isinstance(payload.get("ui"), dict) else {}
+                model_presets = ui.get("model_presets", {}) if isinstance(ui.get("model_presets", {}), dict) else {}
+                preset = model_presets.get(preset_id, {}) if isinstance(model_presets, dict) else {}
+                if isinstance(preset, dict) and isinstance(preset.get("settings"), dict):
+                    settings.update(preset.get("settings", {}))
+            if settings_overrides:
+                settings.update(settings_overrides)
             credentials_ref = str(payload.get("credentials_ref", "")).strip()
             provider = FakeProviderAdapter(
                 provider_id=provider_id,
-                supports_streaming=provider_id == "whisper",
+                supports_streaming=provider_id in {"whisper", "vosk", "google", "azure", "aws"},
                 requires_network=provider_id in {"azure", "google", "aws"},
             )
             credentials = {"ref": credentials_ref} if credentials_ref else {}
@@ -194,6 +236,9 @@ class FakeGatewayRosClient:
     _benchmark_status: dict[str, dict[str, Any]] = field(default_factory=dict)
     _runtime_results: list[dict[str, Any]] = field(default_factory=list)
     _runtime_partials: list[dict[str, Any]] = field(default_factory=list)
+    provider_preset: str = ""
+    provider_settings: dict[str, Any] = field(default_factory=dict)
+    processing_mode: str = "segmented"
 
     def __post_init__(self) -> None:
         return None
@@ -204,23 +249,37 @@ class FakeGatewayRosClient:
         provider_profile: str,
         session_id: str,
         *,
+        processing_mode: str = "",
+        provider_preset: str = "",
+        provider_settings: dict[str, Any] | None = None,
         audio_source: str = "",
         audio_file_path: str = "",
         language: str = "",
         mic_capture_sec: float = 0.0,
     ) -> GatewayResponse:
-        del audio_file_path, language, mic_capture_sec
         if self.runtime_started:
             return GatewayResponse(False, "runtime session already active", {})
         self.runtime_started = True
         self.runtime_profile = runtime_profile
         self.provider_profile = provider_profile
+        self.provider_preset = provider_preset
+        self.provider_settings = dict(provider_settings or {})
+        self.processing_mode = processing_mode or "segmented"
         self.session_id = session_id or "session_demo"
         self.audio_source = audio_source or "file"
         return GatewayResponse(
             True,
             "runtime started",
-            {"session_id": self.session_id, "resolved": "configs/resolved/runtime__default_runtime.json"},
+            {
+                "session_id": self.session_id,
+                "resolved": "configs/resolved/runtime__default_runtime.json",
+                "provider_preset": provider_preset,
+                "provider_settings": dict(provider_settings or {}),
+                "processing_mode": self.processing_mode,
+                "audio_file_path": audio_file_path,
+                "language": language,
+                "mic_capture_sec": mic_capture_sec,
+            },
         )
 
     def stop_runtime(self, session_id: str) -> GatewayResponse:
@@ -237,21 +296,47 @@ class FakeGatewayRosClient:
         runtime_profile: str,
         provider_profile: str,
         *,
+        processing_mode: str = "",
+        provider_preset: str = "",
+        provider_settings: dict[str, Any] | None = None,
         audio_source: str = "",
         audio_file_path: str = "",
         language: str = "",
         mic_capture_sec: float = 0.0,
     ) -> GatewayResponse:
-        del audio_file_path, language, mic_capture_sec
         if self.runtime_started and session_id and session_id != self.session_id:
             return GatewayResponse(False, f"unknown session: {session_id}", {})
         self.runtime_profile = runtime_profile
         self.provider_profile = provider_profile
+        self.provider_preset = provider_preset or self.provider_preset
+        self.provider_settings = dict(provider_settings or self.provider_settings)
+        self.processing_mode = processing_mode or self.processing_mode
         if audio_source:
             self.audio_source = audio_source
-        return GatewayResponse(True, "runtime reconfigured", {"resolved": "configs/resolved/runtime__default_runtime.json"})
+        return GatewayResponse(
+            True,
+            "runtime reconfigured",
+            {
+                "resolved": "configs/resolved/runtime__default_runtime.json",
+                "provider_preset": self.provider_preset,
+                "provider_settings": self.provider_settings,
+                "processing_mode": self.processing_mode,
+                "audio_file_path": audio_file_path,
+                "language": language,
+                "mic_capture_sec": mic_capture_sec,
+            },
+        )
 
-    def recognize_once(self, wav_path: str, language: str, session_id: str, provider_profile: str) -> GatewayResponse:
+    def recognize_once(
+        self,
+        wav_path: str,
+        language: str,
+        session_id: str,
+        provider_profile: str,
+        *,
+        provider_preset: str = "",
+        provider_settings: dict[str, Any] | None = None,
+    ) -> GatewayResponse:
         if self.fail_recognize:
             return GatewayResponse(False, "recognize failed", {})
         active_session = session_id or self.session_id or "session_demo"
@@ -268,6 +353,8 @@ class FakeGatewayRosClient:
             "latency_ms": 12.5,
             "degraded": False,
             "raw_metadata_ref": "artifact://fake/raw",
+            "provider_preset": provider_preset,
+            "provider_settings": dict(provider_settings or {}),
         }
         self.record_runtime_result(payload)
         return GatewayResponse(
@@ -283,14 +370,16 @@ class FakeGatewayRosClient:
             "ok",
             {
                 "backend": self.provider_profile.split("/")[-1],
-                "model": "demo",
+                "model": self.provider_preset or "default",
                 "region": "",
                 "capabilities": ["batch", "timestamps"],
                 "streaming_supported": True,
+                "streaming_mode": "native",
                 "cloud_credentials_available": False,
                 "status_message": "runtime active" if self.runtime_started else "runtime idle",
                 "session_id": self.session_id if self.runtime_started else "",
                 "session_state": state,
+                "processing_mode": self.processing_mode,
                 "audio_source": self.audio_source,
                 "runtime_profile": self.runtime_profile,
             },
@@ -302,6 +391,7 @@ class FakeGatewayRosClient:
             "state": "active" if self.runtime_started else "idle",
             "provider_id": self.provider_profile.split("/")[-1],
             "profile_id": self.runtime_profile,
+            "processing_mode": self.processing_mode,
             "status_message": "runtime active" if self.runtime_started else "runtime idle",
             "updated_at": "2026-03-13T00:00:00+00:00",
         }
@@ -390,6 +480,9 @@ class FakeGatewayRosClient:
         dataset_profile: str,
         providers: list[str],
         *,
+        scenario: str = "",
+        provider_overrides: dict[str, dict[str, Any]] | None = None,
+        benchmark_settings: dict[str, Any] | None = None,
         run_id: str = "",
     ) -> GatewayResponse:
         run_id = run_id or "bench_demo"
@@ -402,15 +495,23 @@ class FakeGatewayRosClient:
             "failed_samples": 0,
             "status_message": "running",
             "error_message": "",
+            "scenario": scenario or "clean_baseline",
         }
         time.sleep(0.05)
         store = ArtifactStore(root=str(self.project_root / "artifacts"))
         run_dir = store.make_benchmark_run(run_id)
+        provider_overrides = provider_overrides or {}
+        benchmark_settings = benchmark_settings or {}
+        execution_mode = str(benchmark_settings.get("execution_mode", "batch") or "batch")
         run_manifest = {
             "run_id": run_id,
             "benchmark_profile": benchmark_profile,
             "dataset_profile": dataset_profile,
+            "scenario": scenario or "clean_baseline",
             "providers": providers,
+            "provider_overrides": provider_overrides,
+            "benchmark_settings": benchmark_settings,
+            "execution_mode": execution_mode,
             "sample_count": 1,
             "created_at": "2026-03-12T00:00:00+00:00",
         }
@@ -419,6 +520,8 @@ class FakeGatewayRosClient:
             "benchmark_profile": benchmark_profile,
             "dataset_id": dataset_profile.split("/")[-1],
             "providers": providers,
+            "scenario": scenario or "clean_baseline",
+            "execution_mode": execution_mode,
             "total_samples": 1,
             "successful_samples": 1,
             "failed_samples": 0,
@@ -427,6 +530,35 @@ class FakeGatewayRosClient:
                 "cer": 0.0,
                 "sample_accuracy": 1.0,
                 "total_latency_ms": 15.0,
+                "per_utterance_latency_ms": 15.0,
+                "real_time_factor": 0.25,
+                "estimated_cost_usd": 0.0,
+                "first_partial_latency_ms": 25.0 if execution_mode == "streaming" else 0.0,
+                "finalization_latency_ms": 6.0 if execution_mode == "streaming" else 0.0,
+                "partial_count": 3.0 if execution_mode == "streaming" else 0.0,
+            },
+            "quality_metrics": {"wer": 0.0, "cer": 0.0, "sample_accuracy": 1.0},
+            "resource_metrics": {
+                "total_latency_ms": 15.0,
+                "per_utterance_latency_ms": 15.0,
+                "real_time_factor": 0.25,
+                "estimated_cost_usd": 0.0,
+                "first_partial_latency_ms": 25.0 if execution_mode == "streaming" else 0.0,
+                "finalization_latency_ms": 6.0 if execution_mode == "streaming" else 0.0,
+                "partial_count": 3.0 if execution_mode == "streaming" else 0.0,
+            },
+            "noise_summary": {
+                "clean": {
+                    "samples": 1,
+                    "mean_metrics": {"wer": 0.0, "cer": 0.0, "total_latency_ms": 15.0},
+                }
+            },
+            "providers_summary": {
+                provider: {
+                    "preset": str((provider_overrides.get(provider) or {}).get("preset_id", "") or "default"),
+                    "mean_metrics": {"wer": 0.0, "cer": 0.0, "total_latency_ms": 15.0},
+                }
+                for provider in providers
             },
         }
         rows = [
@@ -434,11 +566,18 @@ class FakeGatewayRosClient:
                 "run_id": run_id,
                 "provider_profile": providers[0] if providers else "providers/whisper_local",
                 "provider_id": "whisper",
+                "execution_mode": execution_mode,
+                "streaming_mode": "native" if execution_mode == "streaming" else "none",
                 "sample_id": "sample_000",
                 "success": True,
                 "text": "hello world",
                 "error_code": "",
                 "error_message": "",
+                "scenario": scenario or "clean_baseline",
+                "noise_level": "clean",
+                "provider_preset": str((provider_overrides.get(providers[0]) or {}).get("preset_id", "") or "default")
+                if providers
+                else "default",
                 "metrics": summary["mean_metrics"],
             }
         ]

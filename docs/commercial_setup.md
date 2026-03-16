@@ -8,6 +8,11 @@ Primary model in this project: `provider profile -> credentials_ref -> native pr
 2. Put the JSON key under `secrets/google/service-account.json`.
 3. Reference it via `secrets/refs/google_service_account.yaml`.
 
+If you prefer GUI-assisted setup, use the `Secrets` page:
+- upload the native service-account JSON there
+- the gateway stores it under `secrets/google/service-account.json`
+- `Secrets` and `Dashboard` then show readiness and quick-test state without exposing private key material
+
 Optional env alternative:
 
 ```bash
@@ -42,6 +47,11 @@ If you use AWS SSO, you still need a live login token:
 aws sso login --profile ros2ws
 ```
 
+Important nuance:
+- AWS IAM Identity Center uses both a sign-in session and temporary role credentials.
+- Runtime/benchmark requests can continue to work for a while even if the sign-in session has already expired, as long as the role credentials are still valid.
+- The new GUI `Secrets` page shows both states separately and can start a native `aws sso login` flow through the gateway.
+
 ## Azure Speech
 
 Use native Azure auth:
@@ -56,6 +66,8 @@ Optional:
 ```bash
 export ASR_AZURE_ENDPOINT=https://<region>.api.cognitive.microsoft.com/
 ```
+
+If you prefer GUI-assisted setup, use the `Secrets` page. It writes native Azure env vars into the local ignored file `secrets/local/runtime.env`, which the platform resolves through the same env-based secret-ref model used by runtime and benchmark provider initialization.
 
 ## Cloud Tests
 

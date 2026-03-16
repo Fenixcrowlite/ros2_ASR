@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections import defaultdict
+from collections import defaultdict, deque
 from dataclasses import dataclass
 
 from asr_interfaces.msg import AudioChunk
@@ -63,6 +63,7 @@ class _FakePreprocessNode:
 class _FakeVadNode:
     def __init__(self) -> None:
         self.energy_threshold = 50
+        self.pre_roll_ms = 250
         self.max_silence_ms = 700
         self.min_segment_ms = 400
         self.max_segment_ms = 2500
@@ -77,12 +78,26 @@ class _FakeVadNode:
         self._segment_encoding = {}
         self._segment_source_id = {}
         self._segment_metadata_ref = {}
+        self._pre_roll_chunks = defaultdict(deque)
+        self._pre_roll_total_ms = defaultdict(int)
         self._status = "idle"
         self._last_update = _FakeTime(0)
         self._clock = _FakeClock([0, 500, 1000, 1001])
 
     def get_clock(self) -> _FakeClock:
         return self._clock
+
+    def _pcm_duration_ms(self, msg, payload: bytes) -> int:
+        return VadSegmenterNode._pcm_duration_ms(self, msg, payload)
+
+    def _append_pre_roll(self, msg, payload: bytes) -> None:
+        VadSegmenterNode._append_pre_roll(self, msg, payload)
+
+    def _consume_pre_roll(self, session_id: str) -> bytes:
+        return VadSegmenterNode._consume_pre_roll(self, session_id)
+
+    def _clear_pre_roll(self, session_id: str) -> None:
+        VadSegmenterNode._clear_pre_roll(self, session_id)
 
     def _flush_segment(self, msg, end_time) -> None:
         VadSegmenterNode._flush_segment(self, msg, end_time)
@@ -176,3 +191,43 @@ def test_vad_flush_uses_segment_stream_metadata_not_terminal_marker() -> None:
     assert int(segment.sample_rate) == 16000
     assert int(segment.channels) == 1
     assert bytes(segment.data) == bytes(speech_a.data) + bytes(speech_b.data)
+
+
+def test_vad_includes_pre_roll_to_preserve_speech_onset() -> None:
+    node = _FakeVadNode()
+    node.min_segment_ms = 50
+    node.pre_roll_ms = 250
+
+    pre_roll = _make_chunk(
+        session_id="s1",
+        sample_rate=16000,
+        channels=1,
+        data=(b"\x10\x00" * 2400),
+        is_last=False,
+        metadata_ref="chunk:0",
+    )
+    speech = _make_chunk(
+        session_id="s1",
+        sample_rate=16000,
+        channels=1,
+        data=(b"\xff\x7f" * 4800),
+        is_last=False,
+        metadata_ref="chunk:1",
+    )
+    terminal = _make_chunk(
+        session_id="s1",
+        sample_rate=16000,
+        channels=1,
+        data=b"",
+        is_last=True,
+        metadata_ref="chunk:2",
+    )
+
+    VadSegmenterNode._on_chunk(node, pre_roll)
+    VadSegmenterNode._on_chunk(node, speech)
+    VadSegmenterNode._on_chunk(node, terminal)
+
+    assert len(node.segment_pub.items) == 1
+    segment = node.segment_pub.items[0]
+    assert bytes(segment.data).startswith(bytes(pre_roll.data))
+    assert bytes(segment.data).endswith(bytes(speech.data))

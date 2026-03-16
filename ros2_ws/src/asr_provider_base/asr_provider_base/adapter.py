@@ -40,8 +40,17 @@ class AsrProviderAdapter(ABC):
         """Start streaming session when supported."""
 
     @abstractmethod
-    def push_audio(self, chunk: bytes) -> None:
-        """Push stream chunk for streaming providers."""
+    def push_audio(self, chunk: bytes) -> NormalizedAsrResult | None:
+        """Push stream chunk and optionally return a partial result."""
+
+    def drain_stream_results(self) -> list[NormalizedAsrResult]:
+        """Return any already-produced non-final stream updates.
+
+        Native cloud SDKs often emit interim hypotheses asynchronously from
+        the audio push cadence. Adapters can override this hook to expose those
+        updates without forcing the runtime layer to know provider internals.
+        """
+        return []
 
     @abstractmethod
     def stop_stream(self) -> NormalizedAsrResult:

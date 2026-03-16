@@ -77,6 +77,7 @@ def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: floa
         "benchmark_profile": "default_benchmark",
         "dataset_profile": "datasets/sample_dataset",
         "providers": ["providers/whisper_local"],
+        "execution_mode": "batch",
         "sample_count": 1,
         "created_at": "2026-03-12T00:00:00+00:00",
     }
@@ -85,6 +86,8 @@ def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: floa
         "benchmark_profile": "default_benchmark",
         "dataset_id": "sample_dataset",
         "providers": ["providers/whisper_local"],
+        "scenario": "clean_baseline",
+        "execution_mode": "batch",
         "total_samples": 1,
         "successful_samples": 1,
         "failed_samples": 0,
@@ -93,6 +96,36 @@ def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: floa
             "cer": cer,
             "sample_accuracy": 1.0 if wer == 0.0 and cer == 0.0 else 0.0,
             "total_latency_ms": 15.0,
+            "per_utterance_latency_ms": 15.0,
+            "real_time_factor": 0.25,
+            "estimated_cost_usd": 0.0,
+            "first_partial_latency_ms": 0.0,
+            "finalization_latency_ms": 0.0,
+            "partial_count": 0.0,
+        },
+        "quality_metrics": {
+            "wer": wer,
+            "cer": cer,
+            "sample_accuracy": 1.0 if wer == 0.0 and cer == 0.0 else 0.0,
+        },
+        "resource_metrics": {
+            "total_latency_ms": 15.0,
+            "per_utterance_latency_ms": 15.0,
+            "real_time_factor": 0.25,
+            "estimated_cost_usd": 0.0,
+            "first_partial_latency_ms": 0.0,
+            "finalization_latency_ms": 0.0,
+            "partial_count": 0.0,
+        },
+        "noise_summary": {
+            "clean": {
+                "samples": 1,
+                "mean_metrics": {
+                    "wer": wer,
+                    "cer": cer,
+                    "total_latency_ms": 15.0,
+                },
+            }
         },
     }
     rows = [
@@ -100,6 +133,8 @@ def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: floa
             "run_id": run_id,
             "provider_profile": "providers/whisper_local",
             "provider_id": "whisper",
+            "execution_mode": "batch",
+            "streaming_mode": "none",
             "sample_id": "sample_000",
             "success": True,
             "text": "hello world",

@@ -1,13 +1,54 @@
+const TIER_SCORE = {
+  low: 1,
+  medium: 2,
+  high: 3,
+  very_high: 4,
+  local: 1,
+  unknown: 0,
+};
+
+function safeJson(raw) {
+  const text = String(raw || '').trim();
+  if (!text) {
+    return {};
+  }
+  const parsed = JSON.parse(text);
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+    throw new Error('Advanced benchmark/provider settings must be a JSON object');
+  }
+  return parsed;
+}
+
+function scoreBar(label, tier, score, ui) {
+  const width = Math.max(6, Math.min(100, (score / 4) * 100));
+  return `
+    <div class="metric-bar">
+      <div class="metric-bar__head">
+        <span>${ui.escapeHtml(label)}</span>
+        <code>${ui.escapeHtml(tier || 'n/a')}</code>
+      </div>
+      <div class="metric-bar__track">
+        <span class="metric-bar__fill higher" style="width:${width}%"></span>
+      </div>
+    </div>
+  `;
+}
+
 export function initBenchmarkPage(ctx) {
   const { api, ui, state, navigate } = ctx;
 
   const benchmarkProfileSelect = document.getElementById('benchmarkProfileSelect');
   const datasetProfileSelect = document.getElementById('benchmarkDatasetProfile');
   const providersChecksRoot = document.getElementById('benchmarkProviderChecks');
+  const providerTuningRoot = document.getElementById('benchmarkProviderTuning');
   const metricsChecksRoot = document.getElementById('benchmarkMetricChecks');
   const historyRoot = document.getElementById('benchmarkHistoryTable');
   const activeRunRoot = document.getElementById('benchmarkActiveRun');
   const reviewRoot = document.getElementById('benchmarkReview');
+  const qualityResourceRoot = document.getElementById('benchmarkQualityResourceView');
+  const noiseLevelsRoot = document.getElementById('benchmarkNoiseLevels');
+  const executionModeSelect = document.getElementById('benchmarkExecutionMode');
+  const streamingChunkInput = document.getElementById('benchmarkStreamingChunkMs');
 
   let providerProfiles = [];
 
@@ -21,6 +62,10 @@ export function initBenchmarkPage(ctx) {
     return Array.from(metricsChecksRoot.querySelectorAll('input[type="checkbox"]:checked')).map((item) =>
       item.value.startsWith('metrics/') ? item.value : `metrics/${item.value}`
     );
+  }
+
+  function selectedNoiseLevels() {
+    return Array.from(noiseLevelsRoot.querySelectorAll('input[type="checkbox"]:checked')).map((item) => item.value);
   }
 
   function renderChecks(root, values, defaultSelection = []) {
@@ -37,14 +82,163 @@ export function initBenchmarkPage(ctx) {
       .join('');
   }
 
+  function providerRow(providerProfile) {
+    return providerProfiles.find((item) => `providers/${item.provider_profile}` === providerProfile || item.provider_profile === providerProfile) || null;
+  }
+
+  function renderProviderTuning() {
+    const selected = selectedProviders();
+    if (!selected.length) {
+      providerTuningRoot.innerHTML = ui.renderEmpty('Select at least one provider to configure model presets and advanced execution settings.');
+      renderQualityResourceView();
+      return;
+    }
+    providerTuningRoot.innerHTML = selected
+      .map((providerProfile) => {
+        const row = providerRow(providerProfile);
+        const presets = row?.model_presets || [];
+        const presetOptions = presets.length
+          ? presets
+              .map(
+                (preset) => `<option value="${ui.escapeHtml(preset.preset_id)}" ${preset.preset_id === row.default_preset ? 'selected' : ''}>${ui.escapeHtml(preset.label)}</option>`
+              )
+              .join('')
+          : '<option value="">default</option>';
+        return `
+          <div class="stack-item provider-tuning-card" data-provider-card="${ui.escapeHtml(providerProfile)}">
+            <strong>${ui.escapeHtml(providerProfile)}</strong>
+            <label>
+              Model / preset
+              <select data-provider-preset="${ui.escapeHtml(providerProfile)}">${presetOptions}</select>
+            </label>
+            <label>
+              Advanced provider settings JSON
+              <textarea class="code-area" data-provider-settings="${ui.escapeHtml(providerProfile)}" placeholder='{"temperature":0.2}'></textarea>
+            </label>
+            <div data-provider-preset-meta="${ui.escapeHtml(providerProfile)}"></div>
+          </div>
+        `;
+      })
+      .join('');
+
+    providerTuningRoot.querySelectorAll('select[data-provider-preset]').forEach((select) => {
+      select.addEventListener('change', () => {
+        renderProviderPresetMeta(select.getAttribute('data-provider-preset'));
+        renderQualityResourceView();
+      });
+    });
+    providerTuningRoot.querySelectorAll('textarea[data-provider-settings]').forEach((textarea) => {
+      textarea.addEventListener('input', () => renderQualityResourceView());
+    });
+    selected.forEach((profile) => renderProviderPresetMeta(profile));
+    renderQualityResourceView();
+  }
+
+  function renderProviderPresetMeta(providerProfile) {
+    const row = providerRow(providerProfile);
+    const target = providerTuningRoot.querySelector(`[data-provider-preset-meta="${providerProfile}"]`);
+    const presetSelect = providerTuningRoot.querySelector(`[data-provider-preset="${providerProfile}"]`);
+    if (!row || !target || !presetSelect) {
+      return;
+    }
+    const preset = (row.model_presets || []).find((item) => item.preset_id === presetSelect.value) || row.execution_preview?.preset || null;
+    target.innerHTML = `
+      <div class="stack-item compact">
+        <p>${ui.escapeHtml(preset?.description || 'Default provider execution.')}</p>
+        <p class="muted">quality=${ui.escapeHtml(preset?.quality_tier || 'n/a')} resource=${ui.escapeHtml(preset?.resource_tier || 'n/a')} cost=${ui.escapeHtml(preset?.estimated_cost_tier || 'n/a')}</p>
+      </div>
+    `;
+  }
+
+  function collectProviderOverrides() {
+    const overrides = {};
+    selectedProviders().forEach((providerProfile) => {
+      const presetSelect = providerTuningRoot.querySelector(`[data-provider-preset="${providerProfile}"]`);
+      const settingsEditor = providerTuningRoot.querySelector(`[data-provider-settings="${providerProfile}"]`);
+      overrides[providerProfile] = {
+        preset_id: presetSelect?.value || '',
+        settings: safeJson(settingsEditor?.value || ''),
+      };
+    });
+    return overrides;
+  }
+
+  function renderQualityResourceView(summary = null) {
+    if (summary) {
+      qualityResourceRoot.innerHTML = `
+        ${ui.renderMetricBars('Quality metrics', summary.quality_metrics || {}, { wer: 'lower', cer: 'lower', sample_accuracy: 'higher' })}
+        ${ui.renderMetricBars('Resource metrics', summary.resource_metrics || {}, {
+          total_latency_ms: 'lower',
+          per_utterance_latency_ms: 'lower',
+          real_time_factor: 'lower',
+          estimated_cost_usd: 'lower',
+          first_partial_latency_ms: 'lower',
+          finalization_latency_ms: 'lower',
+          partial_count: 'higher',
+        })}
+      `;
+      return;
+    }
+
+    const selected = selectedProviders();
+    if (!selected.length) {
+      qualityResourceRoot.innerHTML = ui.renderEmpty('Quality/resource view will appear when you select providers and presets.');
+      return;
+    }
+    qualityResourceRoot.innerHTML = selected
+      .map((providerProfile) => {
+        const row = providerRow(providerProfile);
+        const presetSelect = providerTuningRoot.querySelector(`[data-provider-preset="${providerProfile}"]`);
+        const preset = (row?.model_presets || []).find((item) => item.preset_id === presetSelect?.value) || row?.execution_preview?.preset || {};
+        const qualityTier = preset.quality_tier || 'balanced';
+        const resourceTier = preset.resource_tier || 'medium';
+        const costTier = preset.estimated_cost_tier || 'unknown';
+        return `
+          <div class="stack-item">
+            <strong>${ui.escapeHtml(providerProfile)}</strong>
+            ${scoreBar('Quality tier', qualityTier, TIER_SCORE[qualityTier] || 2, ui)}
+            ${scoreBar('Resource tier', resourceTier, TIER_SCORE[resourceTier] || 2, ui)}
+            ${scoreBar('Cost tier', costTier, TIER_SCORE[costTier] || (costTier === 'high' ? 3 : 1), ui)}
+          </div>
+        `;
+      })
+      .join('');
+  }
+
   function renderReview() {
+    let advancedSettings = {};
+    let advancedSettingsError = '';
+    try {
+      advancedSettings = safeJson(document.getElementById('benchmarkSettingsEditor').value);
+    } catch (error) {
+      advancedSettingsError = error.message;
+    }
+    let providerOverrides = {};
+    let providerOverridesError = '';
+    try {
+      providerOverrides = collectProviderOverrides();
+    } catch (error) {
+      providerOverridesError = error.message;
+    }
     reviewRoot.textContent = JSON.stringify(
       {
         benchmark_profile: benchmarkProfileSelect.value,
         dataset_profile: datasetProfileSelect.value,
         providers: selectedProviders(),
+        provider_overrides: providerOverrides,
+        provider_overrides_error: providerOverridesError,
         scenario: document.getElementById('benchmarkScenario').value,
+        execution_mode: executionModeSelect.value,
+        noise: {
+          mode: document.getElementById('benchmarkNoiseMode').value,
+          levels: selectedNoiseLevels(),
+        },
+        streaming: {
+          chunk_ms: Number(streamingChunkInput.value || 500),
+        },
         metric_profiles: selectedMetricProfiles(),
+        benchmark_settings: advancedSettings,
+        benchmark_settings_error: advancedSettingsError,
       },
       null,
       2
@@ -56,23 +250,52 @@ export function initBenchmarkPage(ctx) {
       api.profilesByType('benchmark'),
       api.profilesByType('datasets'),
       api.profilesByType('metrics'),
-      api.profilesByType('providers'),
+      api.providersProfiles(),
     ]);
 
     ui.updateSelectOptions(benchmarkProfileSelect, benchmarkProfiles.profiles || [], 'default_benchmark');
     ui.updateSelectOptions(datasetProfileSelect, datasetProfiles.profiles || [], 'sample_dataset');
 
     providerProfiles = providerProfilesResp.profiles || [];
-    renderChecks(providersChecksRoot, providerProfiles, providerProfiles.length ? [providerProfiles[0]] : []);
+    renderChecks(
+      providersChecksRoot,
+      providerProfiles.map((item) => item.provider_profile),
+      providerProfiles.length ? [providerProfiles[0].provider_profile] : []
+    );
     renderChecks(metricsChecksRoot, metricsProfiles.profiles || [], []);
+    renderChecks(noiseLevelsRoot, ['clean', 'light', 'medium', 'heavy', 'extreme'], ['clean']);
+    renderProviderTuning();
     renderReview();
 
     providersChecksRoot.querySelectorAll('input').forEach((input) => {
-      input.addEventListener('change', renderReview);
+      input.addEventListener('change', () => {
+        renderProviderTuning();
+        renderReview();
+      });
     });
     metricsChecksRoot.querySelectorAll('input').forEach((input) => {
       input.addEventListener('change', renderReview);
     });
+    noiseLevelsRoot.querySelectorAll('input').forEach((input) => {
+      input.addEventListener('change', renderReview);
+    });
+  }
+
+  function benchmarkSettingsPayload() {
+    const advanced = safeJson(document.getElementById('benchmarkSettingsEditor').value);
+    return {
+      ...advanced,
+      execution_mode: executionModeSelect.value || 'batch',
+      noise: {
+        ...(advanced.noise || {}),
+        mode: document.getElementById('benchmarkNoiseMode').value,
+        levels: selectedNoiseLevels(),
+      },
+      streaming: {
+        ...(advanced.streaming || {}),
+        chunk_ms: Number(streamingChunkInput.value || 500),
+      },
+    };
   }
 
   async function runBenchmark() {
@@ -87,6 +310,9 @@ export function initBenchmarkPage(ctx) {
       benchmark_profile: benchmarkProfileSelect.value,
       dataset_profile: datasetProfileSelect.value,
       providers,
+      scenario: document.getElementById('benchmarkScenario').value,
+      provider_overrides: collectProviderOverrides(),
+      benchmark_settings: benchmarkSettingsPayload(),
       run_id: runIdInput,
     });
     state.benchmark.activeRunId = payload.run_id;
@@ -106,11 +332,13 @@ export function initBenchmarkPage(ctx) {
     try {
       const status = await api.benchmarkStatus(runId);
       const stateName = status.state || status.ros_status?.state || 'unknown';
+      const summary = status.result?.summary || status.result || {};
 
       activeRunRoot.innerHTML = ui.renderKeyValueList([
         { key: 'Run ID', value: runId },
         { key: 'State', value: stateName },
         { key: 'Message', value: status.message || status.ros_status?.status_message || '' },
+        { key: 'Execution Mode', value: summary.execution_mode || status.result?.execution_mode || 'n/a' },
         { key: 'Started', value: status.started_at || '' },
         { key: 'Completed', value: status.completed_at || '' },
         {
@@ -123,6 +351,9 @@ export function initBenchmarkPage(ctx) {
 
       if (['completed', 'failed'].includes(String(stateName).toLowerCase())) {
         await refreshHistory();
+        if (summary.quality_metrics || summary.resource_metrics) {
+          renderQualityResourceView(summary);
+        }
       }
     } catch (error) {
       activeRunRoot.innerHTML = ui.renderEmpty(`Failed to get benchmark status: ${error.message}`);
@@ -147,6 +378,8 @@ export function initBenchmarkPage(ctx) {
           label: 'State',
           value: (row) => `<span class="${ui.statusBadgeClass(row.state)}">${ui.escapeHtml(row.state)}</span>`,
         },
+        { key: 'scenario', label: 'Scenario', value: (row) => ui.escapeHtml(row.scenario || '') },
+        { key: 'execution_mode', label: 'Mode', value: (row) => ui.escapeHtml(row.execution_mode || 'batch') },
         { key: 'dataset_profile', label: 'Dataset', value: (row) => ui.escapeHtml(row.dataset_profile || '') },
         {
           key: 'providers',
@@ -154,9 +387,14 @@ export function initBenchmarkPage(ctx) {
           value: (row) => ui.escapeHtml((row.providers || []).join(', ')),
         },
         {
-          key: 'mean_metrics',
-          label: 'Mean Metrics',
-          value: (row) => ui.escapeHtml(JSON.stringify(row.mean_metrics || {})),
+          key: 'quality_metrics',
+          label: 'Quality',
+          value: (row) => ui.escapeHtml(JSON.stringify(row.quality_metrics || {})),
+        },
+        {
+          key: 'resource_metrics',
+          label: 'Resources',
+          value: (row) => ui.escapeHtml(JSON.stringify(row.resource_metrics || {})),
         },
       ],
       rows,
@@ -186,6 +424,28 @@ export function initBenchmarkPage(ctx) {
     });
   }
 
+  document.getElementById('benchmarkUploadDatasetBtn')?.addEventListener('click', async () => {
+    try {
+      const files = Array.from(document.getElementById('benchmarkDatasetFiles').files || []);
+      if (!files.length) {
+        throw new Error('Select files or a folder first');
+      }
+      const payload = await api.datasetImportUpload({
+        dataset_id: document.getElementById('benchmarkDatasetId').value,
+        dataset_profile: document.getElementById('benchmarkDatasetId').value,
+        language: document.getElementById('benchmarkDatasetLanguage').value,
+        files,
+      });
+      await loadOptions();
+      datasetProfileSelect.value = (payload.dataset_profile || '').replace(/^datasets\//, '');
+      renderReview();
+      ui.toast(`Uploaded dataset ready: ${payload.dataset_profile}`, 'success');
+    } catch (error) {
+      reviewRoot.textContent = error.message;
+      ui.toast(`Dataset upload failed: ${error.message}`, 'error', 4500);
+    }
+  });
+
   document.getElementById('benchmarkRunBtn')?.addEventListener('click', async () => {
     try {
       renderReview();
@@ -199,6 +459,10 @@ export function initBenchmarkPage(ctx) {
   benchmarkProfileSelect.addEventListener('change', renderReview);
   datasetProfileSelect.addEventListener('change', renderReview);
   document.getElementById('benchmarkScenario').addEventListener('change', renderReview);
+  document.getElementById('benchmarkNoiseMode').addEventListener('change', renderReview);
+  executionModeSelect.addEventListener('change', renderReview);
+  streamingChunkInput.addEventListener('input', renderReview);
+  document.getElementById('benchmarkSettingsEditor').addEventListener('input', renderReview);
 
   return {
     refresh: async () => {

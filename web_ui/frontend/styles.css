@@ -437,6 +437,50 @@ button {
   gap: 8px;
 }
 
+.provider-tuning-card .code-area,
+#runtimeProviderSettings,
+#providerTestSettings,
+#benchmarkSettingsEditor {
+  min-height: 120px;
+}
+
+.metric-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 6px;
+}
+
+.metric-bar__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.86rem;
+}
+
+.metric-bar__track {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--bg-soft);
+  overflow: hidden;
+}
+
+.metric-bar__fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--info), var(--accent));
+}
+
+.metric-bar__fill.lower {
+  background: linear-gradient(90deg, #6d8ca8, var(--info));
+}
+
+.metric-bar__fill.higher {
+  background: linear-gradient(90deg, var(--accent), var(--ok));
+}
+
 hr {
   border: none;
   border-top: 1px solid var(--border);

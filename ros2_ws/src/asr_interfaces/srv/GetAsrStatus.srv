@@ -4,9 +4,11 @@ string model
 string region
 string[] capabilities
 bool streaming_supported
+string streaming_mode
 bool cloud_credentials_available
 string status_message
 string session_id
 string session_state
+string processing_mode
 string audio_source
 string runtime_profile

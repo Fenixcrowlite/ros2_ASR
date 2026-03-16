@@ -20,7 +20,7 @@ asr:
   # audio_capture mode: auto | mic | file
   input_mode: auto
   # Fallback/test WAV path used by service and file-mode capture.
-  wav_path: data/sample/en_zero.wav
+  wav_path: data/sample/vosk_test.wav
   # Cloud fallback is disabled by default to keep runtime behavior honest.
   cloud_fallback_enabled: false
   # Local fallback backend used only when explicitly enabled.
@@ -32,6 +32,7 @@ backends:
     deterministic_latency_ms: 25.0
     # Deterministic transcript mapping by WAV file name.
     transcript_map:
+      vosk_test.wav: "10001 90210 01803"
       en_zero.wav: "zero"
       en_one.wav: "one"
       en_stop.wav: "stop the robot"

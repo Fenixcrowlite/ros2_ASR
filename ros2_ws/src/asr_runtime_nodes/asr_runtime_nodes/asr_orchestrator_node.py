@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import uuid
 from pathlib import Path
 
@@ -9,9 +10,9 @@ import rclpy
 from asr_config import list_profiles, resolve_profile, validate_runtime_payload
 from asr_core import TOPICS, make_request_id, make_session_id
 from asr_core.audio import sample_width_from_encoding
-from asr_core.normalized import NormalizedAsrResult
+from asr_core.normalized import LatencyMetadata, NormalizedAsrResult
 from asr_core.shutdown import safe_shutdown_node
-from asr_interfaces.msg import AsrResult, AsrResultPartial, AudioSegment, NodeStatus, SessionStatus
+from asr_interfaces.msg import AsrResult, AsrResultPartial, AudioChunk, AudioSegment, NodeStatus, SessionStatus
 from asr_interfaces.srv import (
     GetAsrStatus,
     ListBackends,
@@ -23,7 +24,7 @@ from asr_interfaces.srv import (
     ValidateConfig,
 )
 from asr_provider_base import ProviderAudio, ProviderManager, list_providers
-from asr_runtime_nodes.converters import to_asr_result_msg
+from asr_runtime_nodes.converters import to_asr_result_msg, to_partial_msg
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 
@@ -52,10 +53,15 @@ class AsrOrchestratorNode(Node):
         self.provider_manager = ProviderManager(configs_root=self.configs_root)
         self.provider = None
         self.provider_id = ""
+        self.provider_preset = ""
+        self.provider_settings_overrides: dict[str, object] = {}
+        self.processing_mode = "segmented"
         self.language = "en-US"
         self.enable_partials = True
         self.audio_source = "file"
         self.max_concurrent_sessions = 1
+        self._stream_active = False
+        self._stream_request_id = ""
         self._load_runtime_configuration(overrides={})
 
         self.final_pub = self.create_publisher(AsrResult, TOPICS["final_results"], 10)
@@ -67,6 +73,12 @@ class AsrOrchestratorNode(Node):
             AudioSegment,
             TOPICS["speech_segments"],
             self._on_segment,
+            10,
+        )
+        self.chunk_sub = self.create_subscription(
+            AudioChunk,
+            TOPICS["preprocessed_audio"],
+            self._on_preprocessed_chunk,
             10,
         )
 
@@ -111,11 +123,21 @@ class AsrOrchestratorNode(Node):
         self.session_state = "ready"
 
     def _build_overrides_from_request(self, request) -> dict[str, object]:
+        provider_settings_json = str(getattr(request, "provider_settings_json", "") or "").strip()
+        provider_settings: dict[str, object] = {}
+        if provider_settings_json:
+            parsed = json.loads(provider_settings_json)
+            if not isinstance(parsed, dict):
+                raise ValueError("provider_settings_json must be a JSON object")
+            provider_settings = parsed
         return {
             "audio_source": str(getattr(request, "audio_source", "") or "").strip(),
             "audio_file_path": str(getattr(request, "audio_file_path", "") or "").strip(),
             "language": str(getattr(request, "language", "") or "").strip(),
             "mic_capture_sec": float(getattr(request, "mic_capture_sec", 0.0) or 0.0),
+            "processing_mode": str(getattr(request, "processing_mode", "") or "").strip(),
+            "provider_preset": str(getattr(request, "provider_preset", "") or "").strip(),
+            "provider_settings": provider_settings,
         }
 
     def _load_runtime_configuration(
@@ -153,21 +175,42 @@ class AsrOrchestratorNode(Node):
         )
         requested_language = str(overrides.get("language", "") or "").strip()
         requested_audio_source = str(overrides.get("audio_source", "") or "").strip()
+        requested_processing_mode = str(overrides.get("processing_mode", "") or "").strip()
+        requested_provider_preset = str(overrides.get("provider_preset", "") or "").strip()
+        requested_provider_settings = overrides.get("provider_settings", {})
+        if requested_provider_settings and not isinstance(requested_provider_settings, dict):
+            raise ValueError("provider_settings must be an object")
         target_language = requested_language or str(orchestrator_cfg.get("language", "en-US"))
+        target_processing_mode = requested_processing_mode or str(orchestrator_cfg.get("processing_mode", "segmented"))
+        if target_processing_mode not in {"segmented", "provider_stream"}:
+            raise ValueError(f"Unsupported processing_mode: {target_processing_mode}")
         target_enable_partials = bool(orchestrator_cfg.get("enable_partials", True))
         target_audio_source = requested_audio_source or str(audio_cfg.get("source", "file"))
         target_max_concurrent_sessions = int(session_cfg.get("max_concurrent_sessions", 1) or 1)
-        next_provider = self.provider_manager.create_from_profile(target_provider_profile)
+        next_provider = self.provider_manager.create_from_profile(
+            target_provider_profile,
+            preset_id=requested_provider_preset,
+            settings_overrides=dict(requested_provider_settings or {}),
+        )
         previous_provider = self.provider
 
         self.runtime_profile = runtime_profile_id
         self.provider_profile = target_provider_profile
+        self.provider_preset = requested_provider_preset
+        self.provider_settings_overrides = dict(requested_provider_settings or {})
+        self.processing_mode = target_processing_mode
         self.language = target_language
         self.enable_partials = target_enable_partials
         self.audio_source = target_audio_source
         self.max_concurrent_sessions = target_max_concurrent_sessions
         self.provider = next_provider
         self.provider_id = next_provider.provider_id
+        if target_processing_mode == "provider_stream":
+            caps = next_provider.discover_capabilities()
+            if not caps.supports_streaming:
+                raise ValueError(f"Provider does not support provider_stream mode: {self.provider_profile}")
+        self._stream_active = False
+        self._stream_request_id = ""
         if previous_provider is not None and previous_provider is not next_provider:
             previous_provider.teardown()
         return runtime_cfg.snapshot_path
@@ -263,6 +306,7 @@ class AsrOrchestratorNode(Node):
         audio_request.session_id = session_id
         audio_request.runtime_namespace = request.runtime_namespace
         audio_request.auto_start_audio = True
+        audio_request.processing_mode = str(overrides.get("processing_mode", "") or "")
         audio_request.audio_source = str(overrides.get("audio_source", "") or "")
         audio_request.audio_file_path = str(overrides.get("audio_file_path", "") or "")
         audio_request.language = str(overrides.get("language", "") or "")
@@ -289,6 +333,8 @@ class AsrOrchestratorNode(Node):
             raise RuntimeError(response.message)
 
     def _on_segment(self, msg: AudioSegment) -> None:
+        if self.processing_mode != "segmented":
+            return
         if msg.session_id != self.session_id:
             return
         if self.provider is None or self.session_state not in {"ready", "running", "stopping", "degraded"}:
@@ -314,17 +360,30 @@ class AsrOrchestratorNode(Node):
                 "sample_width_bytes": sample_width_from_encoding(msg.encoding, default=2),
             },
         )
-        result = self.provider.recognize_once(audio)
-        self._publish_result(result)
-        if was_stopping:
-            self.session_state = "stopped"
-            self.session_ended_at = self.get_clock().now()
-            self.session_updated_at = self.session_ended_at
-            self._stop_requested_at = None
-        else:
-            # Keep the session receptive to subsequent segments even when one
-            # segment yields a degraded/empty result.
-            self.session_state = "ready"
+        try:
+            result = self.provider.recognize_once(audio)
+            self._publish_result(result)
+            if was_stopping:
+                self.session_state = "stopped"
+                self.session_ended_at = self.get_clock().now()
+                self.session_updated_at = self.session_ended_at
+                self._stop_requested_at = None
+            else:
+                # Keep the session receptive to subsequent segments even when one
+                # segment yields a degraded/empty result.
+                self.session_state = "ready"
+        except Exception as exc:
+            self._handle_provider_runtime_failure(
+                error_code="provider_segment_error",
+                error_message=str(exc),
+                request_id=request_id,
+            )
+
+    def _publish_partial_result(self, result: NormalizedAsrResult) -> None:
+        partial_msg = to_partial_msg(result)
+        partial_msg.header.stamp = self.get_clock().now().to_msg()
+        self.partial_pub.publish(partial_msg)
+        self.session_updated_at = self.get_clock().now()
 
     def _publish_result(self, result: NormalizedAsrResult) -> None:
         final_msg = to_asr_result_msg(result)
@@ -334,6 +393,121 @@ class AsrOrchestratorNode(Node):
         self.last_error_code = result.error_code
         self.last_error_message = result.error_message
         self.session_updated_at = self.get_clock().now()
+
+    def _handle_stream_update(self, result: NormalizedAsrResult | None) -> None:
+        if result is None:
+            return
+        if result.is_partial:
+            if self.enable_partials and result.text:
+                self._publish_partial_result(result)
+            return
+        self._publish_result(result)
+
+    def _publish_runtime_error_result(self, *, request_id: str, error_code: str, error_message: str) -> None:
+        self._publish_result(
+            NormalizedAsrResult(
+                request_id=request_id or make_request_id(),
+                session_id=self.session_id,
+                provider_id=self.provider_id,
+                text="",
+                is_final=True,
+                is_partial=False,
+                language=self.language,
+                latency=LatencyMetadata(total_ms=0.0),
+                degraded=True,
+                error_code=error_code,
+                error_message=error_message,
+            )
+        )
+
+    def _handle_provider_runtime_failure(self, *, error_code: str, error_message: str, request_id: str = "") -> None:
+        now = self.get_clock().now()
+        self.last_error_code = error_code
+        self.last_error_message = error_message
+        self.session_state = "error"
+        self.audio_session_active = False
+        self.session_ended_at = now
+        self.session_updated_at = now
+        self._stream_active = False
+        self._stream_request_id = ""
+        self._stop_requested_at = None
+
+        try:
+            self._publish_runtime_error_result(
+                request_id=request_id or self._stream_request_id or make_request_id(),
+                error_code=error_code,
+                error_message=error_message,
+            )
+        except Exception:
+            pass
+
+        try:
+            if self.provider is not None:
+                self.provider.teardown()
+        except Exception as exc:
+            self.last_error_message = f"{self.last_error_message}; provider_teardown_failed: {exc}"
+
+        try:
+            self._stop_audio_session(self.session_id)
+        except Exception as exc:
+            self.last_error_message = f"{self.last_error_message}; audio_stop_failed: {exc}"
+
+    def _on_preprocessed_chunk(self, msg: AudioChunk) -> None:
+        if self.processing_mode != "provider_stream":
+            return
+        if msg.session_id != self.session_id:
+            return
+        if self.provider is None or self.session_state not in {"ready", "running", "stopping", "degraded"}:
+            return
+
+        caps = self.provider.discover_capabilities()
+        if not caps.supports_streaming:
+            return
+        try:
+            if not self._stream_active:
+                self._stream_request_id = make_request_id()
+                self.provider.start_stream(
+                    {
+                        "session_id": self.session_id,
+                        "request_id": self._stream_request_id,
+                        "language": self.language,
+                        "sample_rate_hz": int(msg.sample_rate or 16000),
+                        "channels": int(msg.channels or 1),
+                        "encoding": str(msg.encoding or "pcm_s16le"),
+                        "sample_width_bytes": int(
+                            sample_width_from_encoding(msg.encoding, default=2)
+                        ),
+                    }
+                )
+                self._stream_active = True
+
+            was_stopping = self.session_state == "stopping"
+            self.session_state = "running"
+            self.session_updated_at = self.get_clock().now()
+
+            if msg.data:
+                partial = self.provider.push_audio(bytes(msg.data))
+                self._handle_stream_update(partial)
+                for pending in self.provider.drain_stream_results():
+                    self._handle_stream_update(pending)
+
+            if msg.is_last_chunk or was_stopping:
+                result = self.provider.stop_stream()
+                for pending in self.provider.drain_stream_results():
+                    self._handle_stream_update(pending)
+                self._stream_active = False
+                self._publish_result(result)
+                self.audio_session_active = False
+                self.session_state = "stopped"
+                self.session_ended_at = self.get_clock().now()
+                self.session_updated_at = self.session_ended_at
+                self._stop_requested_at = None
+        except Exception as exc:
+            self._handle_provider_runtime_failure(
+                error_code="provider_stream_error",
+                error_message=str(exc),
+                request_id=self._stream_request_id,
+            )
 
     @staticmethod
     def _copy_result_message(source: AsrResult, target: AsrResult) -> None:
@@ -385,12 +559,14 @@ class AsrOrchestratorNode(Node):
         previous_max_concurrent_sessions = self.max_concurrent_sessions
         previous_provider = self.provider
         previous_provider_id = self.provider_id
+        previous_provider_preset = self.provider_preset
+        previous_provider_settings_overrides = dict(self.provider_settings_overrides)
+        previous_processing_mode = self.processing_mode
         previous_audio_session_active = self.audio_session_active
 
         requested_session_id = str(request.session_id).strip()
         requested_runtime_profile = str(request.runtime_profile).strip()
         requested_provider_profile = str(request.provider_profile).strip()
-        overrides = self._build_overrides_from_request(request)
         target_runtime_profile = (
             requested_runtime_profile
             if requested_runtime_profile and requested_runtime_profile.lower() not in {"none", "null"}
@@ -414,6 +590,7 @@ class AsrOrchestratorNode(Node):
             return response
 
         try:
+            overrides = self._build_overrides_from_request(request)
             resolved_ref = self._load_runtime_configuration(
                 overrides,
                 runtime_profile=target_runtime_profile,
@@ -431,6 +608,8 @@ class AsrOrchestratorNode(Node):
             self.session_id = target_session_id
             self.session_state = "ready"
             self.audio_session_active = False
+            self._stream_active = False
+            self._stream_request_id = ""
             self._stop_requested_at = None
             self.session_started_at = provisional_started_at
             self.session_updated_at = provisional_started_at
@@ -470,8 +649,13 @@ class AsrOrchestratorNode(Node):
                 self.provider.teardown()
             self.provider = previous_provider
             self.provider_id = previous_provider_id
+            self.provider_preset = previous_provider_preset
+            self.provider_settings_overrides = previous_provider_settings_overrides
+            self.processing_mode = previous_processing_mode
             self.last_error_code = previous_last_error_code
             self.last_error_message = previous_last_error_message
+            self._stream_active = False
+            self._stream_request_id = ""
             response.accepted = False
             response.session_id = target_session_id
             response.message = str(exc)
@@ -513,15 +697,21 @@ class AsrOrchestratorNode(Node):
         self.session_updated_at = self._stop_requested_at
         self.last_error_code = ""
         self.last_error_message = ""
+        if self.processing_mode == "provider_stream" and not self._stream_active:
+            self.session_state = "stopped"
+            self.session_ended_at = self._stop_requested_at
+            self.audio_session_active = False
+            self._stop_requested_at = None
         response.success = True
         response.message = "Runtime session stopped"
         return response
 
     def _on_reconfigure(self, request: ReconfigureRuntime.Request, response: ReconfigureRuntime.Response):
         try:
+            if self.audio_session_active and self.processing_mode == "provider_stream":
+                raise RuntimeError("Cannot reconfigure runtime while provider stream is active")
             requested_runtime_profile = str(request.runtime_profile).strip()
             requested_provider_profile = str(request.provider_profile).strip()
-            overrides = self._build_overrides_from_request(request)
 
             target_runtime_profile = (
                 requested_runtime_profile
@@ -534,6 +724,7 @@ class AsrOrchestratorNode(Node):
                 else self.provider_profile
             )
 
+            overrides = self._build_overrides_from_request(request)
             resolved_ref = self._load_runtime_configuration(
                 overrides,
                 runtime_profile=target_runtime_profile,
@@ -587,6 +778,26 @@ class AsrOrchestratorNode(Node):
             if requested_language and requested_language.lower() not in {"none", "null"}
             else self.language
         )
+        try:
+            overrides = self._build_overrides_from_request(request)
+        except Exception as exc:
+            response.result.success = False
+            response.result.error_message = str(exc)
+            return response
+
+        if overrides.get("provider_preset") or overrides.get("provider_settings"):
+            try:
+                active_provider = self.provider_manager.create_from_profile(
+                    self.provider_profile,
+                    preset_id=str(overrides.get("provider_preset", "") or ""),
+                    settings_overrides=dict(overrides.get("provider_settings", {}) or {}),
+                )
+            except Exception as exc:
+                response.result.success = False
+                response.result.error_message = str(exc)
+                return response
+        else:
+            active_provider = self.provider
 
         req = ProviderAudio(
             session_id=clean_session_id,
@@ -597,7 +808,9 @@ class AsrOrchestratorNode(Node):
             audio_bytes=audio_bytes,
             enable_word_timestamps=bool(request.enable_word_timestamps),
         )
-        result = self.provider.recognize_once(req)
+        result = active_provider.recognize_once(req)
+        if active_provider is not self.provider:
+            active_provider.teardown()
         self._copy_result_message(to_asr_result_msg(result), response.result)
         response.resolved_profile = self.provider_profile
         self._publish_result(result)
@@ -637,21 +850,24 @@ class AsrOrchestratorNode(Node):
     def _on_get_status(self, request: GetAsrStatus.Request, response: GetAsrStatus.Response):
         del request
         response.backend = self.provider_id
-        response.model = ""
+        response.model = self.provider_preset
         response.region = ""
         if self.provider is not None:
             caps = self.provider.discover_capabilities()
             response.capabilities = [
                 f"streaming={caps.supports_streaming}",
+                f"streaming_mode={caps.streaming_mode}",
                 f"batch={caps.supports_batch}",
                 f"word_timestamps={caps.supports_word_timestamps}",
                 f"confidence={caps.supports_confidence}",
             ]
             response.streaming_supported = caps.supports_streaming
+            response.streaming_mode = caps.streaming_mode
             response.cloud_credentials_available = not caps.requires_network or True
         response.status_message = self.session_state
         response.session_id = self.session_id
         response.session_state = self.session_state
+        response.processing_mode = self.processing_mode
         response.audio_source = self.audio_source
         response.runtime_profile = self.runtime_profile
         return response
@@ -672,7 +888,7 @@ class AsrOrchestratorNode(Node):
         node_status.lifecycle_state = "active"
         node_status.health = "ok" if not self.last_error_code else "degraded"
         node_status.status_message = (
-            f"{self.session_state} provider={self.provider_id or 'n/a'} source={self.audio_source}"
+            f"{self.session_state} provider={self.provider_id or 'n/a'} preset={self.provider_preset or 'default'} mode={self.processing_mode} source={self.audio_source}"
         )
         node_status.ready = self.session_state in {"ready", "running", "stopped"}
         node_status.last_error_code = self.last_error_code
@@ -686,11 +902,14 @@ class AsrOrchestratorNode(Node):
         session_status.state = self.session_state
         session_status.provider_id = self.provider_id
         session_status.profile_id = self.runtime_profile
+        session_status.processing_mode = self.processing_mode
         session_status.started_at = self.session_started_at.to_msg()
         session_status.updated_at = self.session_updated_at.to_msg()
         if self.session_ended_at is not None:
             session_status.ended_at = self.session_ended_at.to_msg()
-        session_status.status_message = f"{self.session_state} source={self.audio_source}"
+        session_status.status_message = (
+            f"{self.session_state} source={self.audio_source} mode={self.processing_mode} preset={self.provider_preset or 'default'}"
+        )
         session_status.error_code = self.last_error_code
         session_status.error_message = self.last_error_message
         self.session_status_pub.publish(session_status)

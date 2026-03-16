@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+import json
+import time
+from pathlib import Path
 from typing import Any
 
 from asr_backend_vosk.backend import VoskAsrBackend
@@ -53,6 +56,11 @@ class VoskProvider(AsrProviderAdapter):
         self._stream_chunks: list[bytes] = []
         self._stream_language = "en-US"
         self._stream_rate = 16000
+        self._stream_session_id = "stream"
+        self._stream_request_id = "stream"
+        self._stream_started_at = 0.0
+        self._stream_first_partial_ms = 0.0
+        self._stream_recognizer: Any = None
 
     def initialize(self, config: dict[str, Any], credentials_ref: dict[str, str]) -> None:
         del credentials_ref
@@ -64,11 +72,20 @@ class VoskProvider(AsrProviderAdapter):
             return ["Provider is not initialized"]
         if not self._backend.model_path:
             return ["model_path is required for Vosk"]
+        model_dir = Path(str(self._backend.model_path))
+        if not model_dir.exists():
+            return [f"model_path does not exist: {model_dir}"]
+        if not model_dir.is_dir():
+            return [f"model_path is not a directory: {model_dir}"]
+        visible_entries = [item for item in model_dir.iterdir() if item.name != ".gitkeep"]
+        if not visible_entries:
+            return [f"model_path does not contain a Vosk model: {model_dir}"]
         return []
 
     def discover_capabilities(self) -> ProviderCapabilities:
         return ProviderCapabilities(
             supports_streaming=True,
+            streaming_mode="native",
             supports_batch=True,
             supports_word_timestamps=True,
             supports_partials=True,
@@ -101,33 +118,108 @@ class VoskProvider(AsrProviderAdapter):
 
     def start_stream(self, options: dict[str, Any] | None = None) -> None:
         opts = options or {}
+        if self._backend is None:
+            raise RuntimeError("VoskProvider is not initialized")
+        if not self._backend._load_vosk():  # noqa: SLF001 - provider owns backend session lifecycle
+            detail = str(getattr(self._backend, "_last_load_error", "") or "").strip()
+            message = "Vosk model is not configured or failed to load"
+            if detail:
+                message = f"{message}: {detail}"
+            raise RuntimeError(message)
         self._stream_chunks = []
         self._stream_language = str(opts.get("language", "en-US"))
         self._stream_rate = int(opts.get("sample_rate_hz", 16000))
+        self._stream_session_id = str(opts.get("session_id", "stream") or "stream")
+        self._stream_request_id = str(opts.get("request_id", "stream") or "stream")
+        self._stream_started_at = time.perf_counter()
+        self._stream_first_partial_ms = 0.0
+        self._stream_recognizer = self._backend._vosk_module.KaldiRecognizer(self._backend._model, self._stream_rate)  # noqa: SLF001
+        self._stream_recognizer.SetWords(True)
         self._status = ProviderStatus(provider_id=self.provider_id, state="streaming")
 
-    def push_audio(self, chunk: bytes) -> None:
+    def push_audio(self, chunk: bytes) -> NormalizedAsrResult | None:
+        if self._stream_recognizer is None:
+            raise RuntimeError("Vosk stream is not active")
         self._stream_chunks.append(chunk)
+        accepted = self._stream_recognizer.AcceptWaveform(chunk)
+        if accepted:
+            return None
+        partial = json.loads(self._stream_recognizer.PartialResult()).get("partial", "").strip()
+        if not partial:
+            return None
+        elapsed_ms = (time.perf_counter() - self._stream_started_at) * 1000.0 if self._stream_started_at else 0.0
+        if self._stream_first_partial_ms <= 0.0:
+            self._stream_first_partial_ms = float(elapsed_ms)
+        return NormalizedAsrResult(
+            request_id=self._stream_request_id,
+            session_id=self._stream_session_id,
+            provider_id=self.provider_id,
+            text=partial,
+            is_final=False,
+            is_partial=True,
+            language=self._stream_language,
+            latency=LatencyMetadata(
+                total_ms=float(elapsed_ms),
+                first_partial_ms=float(self._stream_first_partial_ms or elapsed_ms),
+            ),
+            confidence=0.0,
+            confidence_available=False,
+            timestamps_available=False,
+        )
 
     def stop_stream(self) -> NormalizedAsrResult:
         if self._backend is None:
             raise RuntimeError("VoskProvider is not initialized")
-        resp = self._backend.streaming_recognize(
-            self._stream_chunks,
+        if self._stream_recognizer is None:
+            raise RuntimeError("Vosk stream is not active")
+
+        final = json.loads(self._stream_recognizer.FinalResult())
+        words = [
+            NormalizedWord(
+                word=str(item.get("word", "")),
+                start_sec=float(item.get("start", 0.0)),
+                end_sec=float(item.get("end", 0.0)),
+                confidence=float(item.get("conf", 0.0)),
+                confidence_available=float(item.get("conf", 0.0)) > 0.0,
+            )
+            for item in final.get("result", [])
+        ]
+        confidences = [word.confidence for word in words if word.confidence > 0]
+        avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
+        elapsed_ms = (time.perf_counter() - self._stream_started_at) * 1000.0 if self._stream_started_at else 0.0
+        duration_sec = sum(len(chunk) for chunk in self._stream_chunks) / float(max(self._stream_rate * 2, 1))
+        result = NormalizedAsrResult(
+            request_id=self._stream_request_id,
+            session_id=self._stream_session_id,
+            provider_id=self.provider_id,
+            text=str(final.get("text", "")).strip(),
+            is_final=True,
+            is_partial=False,
+            utterance_start_sec=words[0].start_sec if words else 0.0,
+            utterance_end_sec=words[-1].end_sec if words else duration_sec,
+            words=words,
+            confidence=float(avg_conf),
+            confidence_available=bool(confidences),
+            timestamps_available=bool(words),
             language=self._stream_language,
-            sample_rate=self._stream_rate,
+            latency=LatencyMetadata(
+                total_ms=float(elapsed_ms),
+                first_partial_ms=float(self._stream_first_partial_ms),
+                finalization_ms=1.0,
+            ),
         )
-        audio = ProviderAudio(
-            session_id="stream",
-            request_id="stream",
-            language=self._stream_language,
-            sample_rate_hz=self._stream_rate,
-        )
-        return _normalize(self.provider_id, audio, resp)
+        self._stream_recognizer = None
+        self._stream_chunks = []
+        self._status = ProviderStatus(provider_id=self.provider_id, state="ready")
+        return result
 
     def get_status(self) -> ProviderStatus:
         return self._status
 
     def teardown(self) -> None:
+        self._stream_recognizer = None
+        self._stream_chunks = []
+        self._stream_started_at = 0.0
+        self._stream_first_partial_ms = 0.0
         self._backend = None
         self._status = ProviderStatus(provider_id=self.provider_id, state="stopped")

@@ -7,6 +7,7 @@ from typing import Any
 
 from asr_config import load_secret_ref, resolve_profile, resolve_secret_ref
 from asr_provider_base.adapter import AsrProviderAdapter
+from asr_provider_base.catalog import resolve_provider_execution
 from asr_provider_base.registry import create_provider
 
 
@@ -16,7 +17,7 @@ class ProviderManager:
     def __init__(self, configs_root: str = "configs") -> None:
         self.configs_root = configs_root
 
-    def create_from_profile(self, provider_profile: str) -> AsrProviderAdapter:
+    def resolve_profile_payload(self, provider_profile: str) -> dict[str, Any]:
         profile_id = provider_profile
         if provider_profile.startswith("providers/"):
             profile_id = provider_profile.split("/", 1)[1]
@@ -29,8 +30,24 @@ class ProviderManager:
         provider_id = str(payload.get("provider_id", "")).strip()
         if not provider_id:
             raise ValueError("Provider profile is missing provider_id")
+        return payload
 
-        settings = payload.get("settings", {})
+    def create_from_profile(
+        self,
+        provider_profile: str,
+        *,
+        preset_id: str = "",
+        settings_overrides: dict[str, Any] | None = None,
+    ) -> AsrProviderAdapter:
+        payload = self.resolve_profile_payload(provider_profile)
+        provider_id = str(payload.get("provider_id", "")).strip()
+
+        execution = resolve_provider_execution(
+            payload,
+            preset_id=preset_id,
+            settings_overrides=settings_overrides or {},
+        )
+        settings = execution["settings"]
         if not isinstance(settings, dict):
             raise ValueError("Provider profile settings must be an object")
 

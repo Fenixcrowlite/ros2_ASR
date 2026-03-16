@@ -3,6 +3,9 @@ string benchmark_profile
 string dataset_profile
 string run_id
 string[] providers
+string scenario
+string provider_overrides_json
+string benchmark_settings_json
 ---
 # Result
 bool success

@@ -41,20 +41,36 @@ class VoskAsrBackend(AsrBackend):
         self.model_path = self.config.get("model_path") or os.getenv("VOSK_MODEL_PATH", "")
         self._model: Any = None
         self._vosk_module: Any = None
+        self._last_load_error = ""
 
     def _load_vosk(self) -> bool:
         """Load Vosk module/model once."""
         if self._model is not None:
+            self._last_load_error = ""
             return True
         if not self.model_path:
+            self._last_load_error = "model_path is not configured"
+            return False
+        model_dir = Path(str(self.model_path))
+        if not model_dir.exists():
+            self._last_load_error = f"model path does not exist: {model_dir}"
+            return False
+        if not model_dir.is_dir():
+            self._last_load_error = f"model path is not a directory: {model_dir}"
+            return False
+        visible_entries = [item for item in model_dir.iterdir() if item.name != ".gitkeep"]
+        if not visible_entries:
+            self._last_load_error = f"model directory is empty: {model_dir}"
             return False
         try:
             from vosk import Model
 
             self._vosk_module = __import__("vosk")
             self._model = Model(self.model_path)
+            self._last_load_error = ""
             return True
-        except Exception:
+        except Exception as exc:
+            self._last_load_error = str(exc)
             return False
 
     def _request_to_wav_path(self, request: AsrRequest) -> tuple[str, bool]:

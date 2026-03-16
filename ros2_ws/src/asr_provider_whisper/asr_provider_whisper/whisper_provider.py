@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import audioop
+import time
 import wave
 from typing import Any
 
@@ -63,6 +64,9 @@ class WhisperProvider(AsrProviderAdapter):
         self._stream_language = "en-US"
         self._stream_sample_rate = 16000
         self._empty_transcript_rms_threshold = 100
+        self._stream_session_id = "stream"
+        self._stream_request_id = "stream"
+        self._stream_started_at = 0.0
 
     def initialize(self, config: dict[str, Any], credentials_ref: dict[str, str]) -> None:
         del credentials_ref
@@ -78,6 +82,7 @@ class WhisperProvider(AsrProviderAdapter):
     def discover_capabilities(self) -> ProviderCapabilities:
         return ProviderCapabilities(
             supports_streaming=True,
+            streaming_mode="simulated",
             supports_batch=True,
             supports_word_timestamps=True,
             supports_partials=False,
@@ -154,10 +159,14 @@ class WhisperProvider(AsrProviderAdapter):
         self._stream_chunks = []
         self._stream_language = str(opts.get("language", "en-US"))
         self._stream_sample_rate = int(opts.get("sample_rate_hz", 16000))
+        self._stream_session_id = str(opts.get("session_id", "stream") or "stream")
+        self._stream_request_id = str(opts.get("request_id", "stream") or "stream")
+        self._stream_started_at = time.perf_counter()
         self._status = ProviderStatus(provider_id=self.provider_id, state="streaming")
 
-    def push_audio(self, chunk: bytes) -> None:
+    def push_audio(self, chunk: bytes) -> NormalizedAsrResult | None:
         self._stream_chunks.append(chunk)
+        return None
 
     def stop_stream(self) -> NormalizedAsrResult:
         if self._backend is None:
@@ -168,19 +177,22 @@ class WhisperProvider(AsrProviderAdapter):
             sample_rate=self._stream_sample_rate,
         )
         audio = ProviderAudio(
-            session_id="stream",
-            request_id="stream",
+            session_id=self._stream_session_id,
+            request_id=self._stream_request_id,
             language=self._stream_language,
             sample_rate_hz=self._stream_sample_rate,
             metadata={"channels": 1, "sample_width_bytes": 2},
         )
         result = _normalize(self.provider_id, audio, response, is_partial=False)
+        elapsed_ms = (time.perf_counter() - self._stream_started_at) * 1000.0 if self._stream_started_at else 0.0
+        result.latency.total_ms = max(float(result.latency.total_ms), float(elapsed_ms))
         if response.success and not str(response.text or "").strip() and any(self._stream_chunks):
             result.degraded = True
             result.error_code = "empty_transcript"
             result.error_message = "Whisper returned an empty transcript for non-silent streamed audio"
             result.tags.append("empty_transcript")
             result.raw_metadata_ref = "provider:whisper_empty"
+        self._stream_chunks = []
         self._status = ProviderStatus(
             provider_id=self.provider_id,
             state="ready" if not result.error_code else "degraded",

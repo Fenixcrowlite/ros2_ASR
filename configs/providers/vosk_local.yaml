@@ -2,6 +2,34 @@ profile_id: providers/vosk_local
 inherits: []
 provider_id: vosk
 adapter: asr_provider_vosk.vosk_provider.VoskProvider
-settings:
-  model_path: models/vosk
+settings: {}
+ui:
+  default_model_preset: en_small
+  model_presets:
+    ru_small:
+      label: Russian Small
+      description: Small Russian Vosk model for low-resource local runtime and benchmark smoke tests.
+      quality_tier: medium
+      resource_tier: low
+      estimated_cost_tier: local
+      settings:
+        model_path: models/vosk/vosk-model-small-ru-0.22
+      tags:
+        - ru
+        - small
+        - streaming
+    en_small:
+      label: English Small
+      description: Small English Vosk model for low-resource local runtime and benchmark smoke tests.
+      quality_tier: medium
+      resource_tier: low
+      estimated_cost_tier: local
+      settings:
+        model_path: models/vosk/vosk-model-small-en-us-0.15
+      tags:
+        - en
+        - small
+        - streaming
+  advanced_fields:
+    - model_path
 credentials_ref: secrets/refs/local_none.yaml

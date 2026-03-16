@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import threading
 import uuid
 from collections import deque
@@ -172,6 +173,7 @@ class RuntimeObserver:
             "state": msg.state,
             "provider_id": msg.provider_id,
             "profile_id": msg.profile_id,
+            "processing_mode": msg.processing_mode,
             "started_at": _stamp_to_iso(msg.started_at),
             "updated_at": _stamp_to_iso(msg.updated_at),
             "ended_at": _stamp_to_iso(msg.ended_at),
@@ -264,6 +266,9 @@ class GatewayRosClient:
         provider_profile: str,
         session_id: str,
         *,
+        processing_mode: str = "",
+        provider_preset: str = "",
+        provider_settings: dict[str, Any] | None = None,
         audio_source: str = "",
         audio_file_path: str = "",
         language: str = "",
@@ -277,9 +282,12 @@ class GatewayRosClient:
             req = StartRuntimeSession.Request()
             req.runtime_profile = runtime_profile
             req.provider_profile = provider_profile
+            req.provider_preset = provider_preset
+            req.provider_settings_json = json.dumps(provider_settings or {}, ensure_ascii=True)
             req.session_id = session_id
             req.runtime_namespace = "/asr/runtime"
             req.auto_start_audio = True
+            req.processing_mode = processing_mode
             req.audio_source = audio_source
             req.audio_file_path = audio_file_path
             req.language = language
@@ -321,6 +329,9 @@ class GatewayRosClient:
         runtime_profile: str,
         provider_profile: str,
         *,
+        processing_mode: str = "",
+        provider_preset: str = "",
+        provider_settings: dict[str, Any] | None = None,
         audio_source: str = "",
         audio_file_path: str = "",
         language: str = "",
@@ -335,6 +346,9 @@ class GatewayRosClient:
             req.session_id = session_id
             req.runtime_profile = runtime_profile
             req.provider_profile = provider_profile
+            req.provider_preset = provider_preset
+            req.provider_settings_json = json.dumps(provider_settings or {}, ensure_ascii=True)
+            req.processing_mode = processing_mode
             req.audio_source = audio_source
             req.audio_file_path = audio_file_path
             req.language = language
@@ -347,7 +361,16 @@ class GatewayRosClient:
         finally:
             node.destroy_node()
 
-    def recognize_once(self, wav_path: str, language: str, session_id: str, provider_profile: str) -> GatewayResponse:
+    def recognize_once(
+        self,
+        wav_path: str,
+        language: str,
+        session_id: str,
+        provider_profile: str,
+        *,
+        provider_preset: str = "",
+        provider_settings: dict[str, Any] | None = None,
+    ) -> GatewayResponse:
         node = self._node()
         try:
             client = node.create_client(RecognizeOnce, "/asr/runtime/recognize_once")
@@ -359,6 +382,8 @@ class GatewayRosClient:
             req.enable_word_timestamps = True
             req.session_id = session_id
             req.provider_profile = provider_profile
+            req.provider_preset = provider_preset
+            req.provider_settings_json = json.dumps(provider_settings or {}, ensure_ascii=True)
             fut = client.call_async(req)
             if not self._await_future(node, fut, timeout_sec=max(self.timeout_sec, 20.0)) or fut.result() is None:
                 return GatewayResponse(False, "No response from recognize_once", {})
@@ -387,6 +412,9 @@ class GatewayRosClient:
         dataset_profile: str,
         providers: list[str],
         *,
+        scenario: str = "",
+        provider_overrides: dict[str, dict[str, Any]] | None = None,
+        benchmark_settings: dict[str, Any] | None = None,
         run_id: str = "",
     ) -> GatewayResponse:
         node = self._node()
@@ -400,6 +428,9 @@ class GatewayRosClient:
             goal.dataset_profile = dataset_profile
             goal.run_id = run_id
             goal.providers = providers
+            goal.scenario = scenario
+            goal.provider_overrides_json = json.dumps(provider_overrides or {}, ensure_ascii=True)
+            goal.benchmark_settings_json = json.dumps(benchmark_settings or {}, ensure_ascii=True)
 
             send_future = action.send_goal_async(goal)
             if not self._await_future(node, send_future, timeout_sec=self.timeout_sec):
@@ -475,10 +506,12 @@ class GatewayRosClient:
                 "region": res.region,
                 "capabilities": list(res.capabilities),
                 "streaming_supported": bool(res.streaming_supported),
+                "streaming_mode": str(res.streaming_mode),
                 "cloud_credentials_available": bool(res.cloud_credentials_available),
                 "status_message": res.status_message,
                 "session_id": res.session_id,
                 "session_state": res.session_state,
+                "processing_mode": str(res.processing_mode),
                 "audio_source": res.audio_source,
                 "runtime_profile": res.runtime_profile,
             }

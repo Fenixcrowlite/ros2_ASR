@@ -23,7 +23,7 @@ def generate_launch_description() -> LaunchDescription:
         output="screen",
         parameters=[
             {"input_mode": "file"},
-            {"file_path": "data/sample/en_hello.wav"},
+            {"file_path": "data/sample/vosk_test.wav"},
             {"chunk_ms": 500},
         ],
     )

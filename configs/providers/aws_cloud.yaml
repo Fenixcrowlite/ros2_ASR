@@ -7,4 +7,23 @@ settings:
   s3_bucket: ros2ws-asr-787345513049-eu-north-1
   media_format: wav
   cleanup: true
+ui:
+  default_model_preset: standard
+  model_presets:
+    standard:
+      label: Standard
+      description: Native Amazon Transcribe baseline using current region and bucket.
+      quality_tier: high
+      resource_tier: high
+      estimated_cost_tier: high
+      estimated_cost_usd_per_min: 0.024
+      settings: {}
+  advanced_fields:
+    - region
+    - s3_bucket
+    - language_model_name
+    - enable_partial_results_stabilization
+    - partial_results_stability
+    - timeout_sec
+    - cleanup
 credentials_ref: secrets/refs/aws_profile.yaml

@@ -6,4 +6,37 @@ settings:
   model: default
   region: global
   project_id: strong-minutia-419022
+ui:
+  default_model_preset: balanced
+  model_presets:
+    light:
+      label: Light
+      description: Faster short-utterance model with lower cloud spend.
+      quality_tier: medium
+      resource_tier: medium
+      estimated_cost_tier: medium
+      settings:
+        model: latest_short
+    balanced:
+      label: Balanced
+      description: General-purpose Google baseline.
+      quality_tier: high
+      resource_tier: medium
+      estimated_cost_tier: medium
+      settings:
+        model: default
+    accurate:
+      label: Accurate
+      description: Long-form model focused on best transcript quality.
+      quality_tier: very_high
+      resource_tier: high
+      estimated_cost_tier: high
+      settings:
+        model: latest_long
+  advanced_fields:
+    - model
+    - region
+    - streaming_interim_results
+    - streaming_single_utterance
+    - streaming_voice_activity_events
 credentials_ref: secrets/refs/google_service_account.yaml

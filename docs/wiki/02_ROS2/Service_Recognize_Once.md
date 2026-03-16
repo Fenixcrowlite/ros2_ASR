@@ -15,7 +15,7 @@
 ## Пример
 
 ```bash
-ros2 service call /asr/recognize_once asr_interfaces/srv/RecognizeOnce "{wav_path: data/sample/en_hello.wav, language: en-US, enable_word_timestamps: true}"
+ros2 service call /asr/recognize_once asr_interfaces/srv/RecognizeOnce "{wav_path: data/sample/vosk_test.wav, language: en-US, enable_word_timestamps: true}"
 ```
 
 ## Связанные

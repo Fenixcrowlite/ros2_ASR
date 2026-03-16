@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import os
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 import yaml  # type: ignore[import-untyped]
 
@@ -37,6 +37,88 @@ def load_secret_ref(path: str) -> SecretRef:
     )
 
 
+def _project_root_from_source(source_path: str) -> Path:
+    source = Path(source_path).expanduser() if source_path else Path.cwd()
+    source_root = source.resolve().parent if source_path else Path.cwd()
+    if source_root.name == "refs" and source_root.parent.name == "secrets":
+        return source_root.parent.parent
+    return source_root
+
+
+def local_env_file_path(source_path: str = "") -> Path:
+    env_path = os.getenv("ASR_LOCAL_ENV_FILE", "").strip()
+    if env_path:
+        return Path(env_path).expanduser()
+    project_root = _project_root_from_source(source_path)
+    return project_root / "secrets" / "local" / "runtime.env"
+
+
+def load_local_env_values(source_path: str = "") -> dict[str, str]:
+    path = local_env_file_path(source_path)
+    if not path.exists():
+        return {}
+
+    values: dict[str, str] = {}
+    for raw_line in path.read_text(encoding="utf-8").splitlines():
+        line = raw_line.strip()
+        if not line or line.startswith("#"):
+            continue
+        if line.startswith("export "):
+            line = line[7:].strip()
+        if "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        key = key.strip()
+        value = value.strip()
+        if not key:
+            continue
+        if len(value) >= 2 and value[0] == value[-1] and value[0] in {"'", '"'}:
+            value = value[1:-1]
+        values[key] = value
+    return values
+
+
+def resolve_env_value(key: str, source_path: str = "") -> tuple[str, str]:
+    process_value = os.getenv(key, "").strip()
+    if process_value:
+        return process_value, "process_env"
+    local_values = load_local_env_values(source_path)
+    local_value = str(local_values.get(key, "")).strip()
+    if local_value:
+        return local_value, "local_env_file"
+    return "", ""
+
+
+def write_local_env_values(
+    updates: dict[str, str],
+    *,
+    source_path: str = "",
+    unset: Iterable[str] = (),
+) -> Path:
+    path = local_env_file_path(source_path)
+    current = load_local_env_values(source_path)
+    for key in unset:
+        current.pop(str(key), None)
+    for key, value in updates.items():
+        normalized_key = str(key).strip()
+        if not normalized_key:
+            continue
+        normalized_value = str(value)
+        if normalized_value:
+            current[normalized_key] = normalized_value
+        else:
+            current.pop(normalized_key, None)
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    header = [
+        "# Local runtime env injection for native provider auth.",
+        "# This file is ignored by git. Use native env var names only.",
+    ]
+    body = [f"{key}={current[key]}" for key in sorted(current)]
+    path.write_text("\n".join(header + body) + ("\n" if body else "\n"), encoding="utf-8")
+    return path
+
+
 def resolve_secret_ref(ref: SecretRef) -> dict[str, str]:
     """Resolve secret reference using env/file model.
 
@@ -61,7 +143,7 @@ def resolve_secret_ref(ref: SecretRef) -> dict[str, str]:
                     candidate = relative_to_ref_dir
             result["file_path"] = str(candidate)
         if ref.env_fallback:
-            env_value = os.getenv(ref.env_fallback, "").strip()
+            env_value, _ = resolve_env_value(ref.env_fallback, ref.source_path)
             if env_value:
                 result["file_path"] = env_value
         file_path = result.get("file_path", "")
@@ -70,12 +152,12 @@ def resolve_secret_ref(ref: SecretRef) -> dict[str, str]:
 
     if ref.kind in {"env", "file"}:
         for key in ref.required:
-            value = os.getenv(key, "").strip()
+            value, _ = resolve_env_value(key, ref.source_path)
             if not value:
                 raise ValueError(f"Required secret env is missing: {key}")
             result[key] = value
         for key in ref.optional:
-            value = os.getenv(key, "").strip()
+            value, _ = resolve_env_value(key, ref.source_path)
             if value:
                 result[key] = value
 

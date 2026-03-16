@@ -66,7 +66,7 @@ def test_google_backend_falls_back_to_default_model_for_unsupported_language(
 
     response = backend.recognize_once(
         AsrRequest(
-            wav_path="data/sample/en_hello.wav",
+            wav_path="data/sample/vosk_test.wav",
             language="sk-SK",
             enable_word_timestamps=False,
         )

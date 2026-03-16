@@ -41,7 +41,8 @@ def generate_launch_description() -> LaunchDescription:
         name="vad_segmenter_node",
         output="screen",
         parameters=[
-            {"energy_threshold": 450},
+            {"energy_threshold": 100},
+            {"pre_roll_ms": 250},
             {"max_silence_ms": 500},
             {"min_segment_ms": 250},
         ],

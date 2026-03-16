@@ -1,2 +1,1 @@
-{"sample_id":"sample_en_zero","audio_path":"data/sample/en_zero.wav","transcript":"zero","language":"en-US","duration_sec":0.0,"split":"test","tags":["clean","spoken"],"metadata":{"source":"fsdd","speaker":"jackson"}}
-{"sample_id":"sample_en_one","audio_path":"data/sample/en_one.wav","transcript":"one","language":"en-US","duration_sec":0.0,"split":"test","tags":["clean","spoken"],"metadata":{"source":"fsdd","speaker":"jackson"}}
+{"sample_id":"sample_vosk_numbers","audio_path":"data/sample/vosk_test.wav","transcript":"10001 90210 01803","language":"en-US","duration_sec":8.308,"split":"test","tags":["clean","spoken","numbers"],"metadata":{"source":"vosk_public_sample","notes":"English spoken number sequence used as canonical built-in demo sample."}}

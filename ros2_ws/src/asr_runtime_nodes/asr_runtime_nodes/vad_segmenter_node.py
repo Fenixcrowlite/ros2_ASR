@@ -3,10 +3,11 @@
 from __future__ import annotations
 
 import audioop
-from collections import defaultdict
+from collections import defaultdict, deque
 
 import rclpy
 from asr_config import resolve_profile, validate_runtime_payload
+from asr_core.audio import sample_width_from_encoding
 from asr_core.namespaces import TOPICS
 from asr_core.shutdown import safe_shutdown_node
 from asr_interfaces.msg import AudioChunk, AudioSegment, NodeStatus, SpeechActivity
@@ -19,7 +20,8 @@ class VadSegmenterNode(Node):
         super().__init__("vad_segmenter_node")
         self.declare_parameter("configs_root", "configs")
         self.declare_parameter("runtime_profile", "default_runtime")
-        self.declare_parameter("energy_threshold", 500)
+        self.declare_parameter("energy_threshold", 100)
+        self.declare_parameter("pre_roll_ms", 250)
         self.declare_parameter("max_silence_ms", 700)
         self.declare_parameter("min_segment_ms", 400)
         self.declare_parameter("max_segment_ms", 2500)
@@ -27,6 +29,7 @@ class VadSegmenterNode(Node):
         self.configs_root = str(self.get_parameter("configs_root").value)
         self.runtime_profile = str(self.get_parameter("runtime_profile").value)
         self.energy_threshold = int(self.get_parameter("energy_threshold").value)
+        self.pre_roll_ms = int(self.get_parameter("pre_roll_ms").value)
         self.max_silence_ms = int(self.get_parameter("max_silence_ms").value)
         self.min_segment_ms = int(self.get_parameter("min_segment_ms").value)
         self.max_segment_ms = int(self.get_parameter("max_segment_ms").value)
@@ -55,6 +58,8 @@ class VadSegmenterNode(Node):
         self._segment_encoding: dict[str, str] = {}
         self._segment_source_id: dict[str, str] = {}
         self._segment_metadata_ref: dict[str, str] = {}
+        self._pre_roll_chunks: dict[str, deque[tuple[bytes, int]]] = defaultdict(deque)
+        self._pre_roll_total_ms: dict[str, int] = defaultdict(int)
         self._last_error_code = ""
         self._last_error_message = ""
         self._status = "idle"
@@ -83,6 +88,7 @@ class VadSegmenterNode(Node):
 
         self.runtime_profile = profile_id
         self.energy_threshold = int(vad_cfg.get("energy_threshold", self.energy_threshold) or self.energy_threshold)
+        self.pre_roll_ms = int(vad_cfg.get("pre_roll_ms", self.pre_roll_ms) or self.pre_roll_ms)
         self.max_silence_ms = int(vad_cfg.get("max_silence_ms", self.max_silence_ms) or self.max_silence_ms)
         self.min_segment_ms = int(vad_cfg.get("min_segment_ms", self.min_segment_ms) or self.min_segment_ms)
         self.max_segment_ms = int(vad_cfg.get("max_segment_ms", self.max_segment_ms) or self.max_segment_ms)
@@ -91,6 +97,41 @@ class VadSegmenterNode(Node):
         self._last_error_message = ""
         self._last_update = self.get_clock().now()
         return resolved.snapshot_path
+
+    def _pcm_duration_ms(self, msg: AudioChunk, payload: bytes) -> int:
+        if not payload:
+            return 0
+        sample_rate = int(msg.sample_rate) or 16000
+        channels = int(msg.channels) or 1
+        sample_width = sample_width_from_encoding(msg.encoding, default=2)
+        bytes_per_second = max(sample_rate * channels * sample_width, 1)
+        return int(len(payload) / float(bytes_per_second) * 1000.0)
+
+    def _append_pre_roll(self, msg: AudioChunk, payload: bytes) -> None:
+        if self.pre_roll_ms <= 0 or not payload:
+            return
+        session_id = msg.session_id
+        duration_ms = self._pcm_duration_ms(msg, payload)
+        if duration_ms <= 0:
+            return
+        self._pre_roll_chunks[session_id].append((payload, duration_ms))
+        self._pre_roll_total_ms[session_id] += duration_ms
+        while self._pre_roll_total_ms[session_id] > self.pre_roll_ms and len(self._pre_roll_chunks[session_id]) > 1:
+            _, removed_ms = self._pre_roll_chunks[session_id].popleft()
+            self._pre_roll_total_ms[session_id] -= removed_ms
+
+    def _consume_pre_roll(self, session_id: str) -> bytes:
+        chunks = self._pre_roll_chunks.get(session_id)
+        if not chunks:
+            return b""
+        payload = b"".join(chunk for chunk, _ in chunks)
+        chunks.clear()
+        self._pre_roll_total_ms[session_id] = 0
+        return payload
+
+    def _clear_pre_roll(self, session_id: str) -> None:
+        self._pre_roll_chunks.pop(session_id, None)
+        self._pre_roll_total_ms.pop(session_id, None)
 
     def _on_chunk(self, msg: AudioChunk) -> None:
         now = self.get_clock().now()
@@ -112,6 +153,9 @@ class VadSegmenterNode(Node):
         if speech_active:
             if msg.session_id not in self._segment_start:
                 self._segment_start[msg.session_id] = now
+                pre_roll = self._consume_pre_roll(msg.session_id)
+                if pre_roll:
+                    self._buffers[msg.session_id].extend(pre_roll)
             self._segment_sample_rate[msg.session_id] = int(msg.sample_rate) or self._segment_sample_rate.get(
                 msg.session_id, 16000
             )
@@ -126,6 +170,8 @@ class VadSegmenterNode(Node):
             self._buffers[msg.session_id].extend(data)
             self._last_speech_ms[msg.session_id] = int(now_ms)
         else:
+            if not self._buffers[msg.session_id]:
+                self._append_pre_roll(msg, data)
             silence_ms = int(now_ms) - int(self._last_speech_ms[msg.session_id])
             if self._buffers[msg.session_id] and silence_ms <= self.max_silence_ms:
                 self._buffers[msg.session_id].extend(data)
@@ -175,6 +221,7 @@ class VadSegmenterNode(Node):
             self._segment_encoding.pop(msg.session_id, None)
             self._segment_source_id.pop(msg.session_id, None)
             self._segment_metadata_ref.pop(msg.session_id, None)
+            self._clear_pre_roll(msg.session_id)
             return
 
         segment = AudioSegment()
@@ -199,6 +246,7 @@ class VadSegmenterNode(Node):
         self._segment_encoding.pop(msg.session_id, None)
         self._segment_source_id.pop(msg.session_id, None)
         self._segment_metadata_ref.pop(msg.session_id, None)
+        self._clear_pre_roll(msg.session_id)
 
     def _on_reconfigure(self, request: ReconfigureRuntime.Request, response: ReconfigureRuntime.Response):
         try:

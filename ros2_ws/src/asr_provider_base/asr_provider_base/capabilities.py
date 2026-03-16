@@ -8,6 +8,7 @@ from dataclasses import dataclass
 @dataclass(slots=True)
 class ProviderCapabilities:
     supports_streaming: bool = False
+    streaming_mode: str = "none"  # none | simulated | native
     supports_batch: bool = True
     supports_word_timestamps: bool = False
     supports_partials: bool = False

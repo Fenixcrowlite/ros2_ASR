@@ -30,7 +30,7 @@ def test_ros_recognize_once_service() -> None:
     try:
         assert client.wait_for_service(timeout_sec=5.0)
         req = RecognizeOnce.Request()
-        req.wav_path = "data/sample/en_hello.wav"
+        req.wav_path = "data/sample/vosk_test.wav"
         req.language = "sk"
         req.enable_word_timestamps = True
 

@@ -24,7 +24,7 @@ class AudioInputNode(Node):
         self.declare_parameter("configs_root", "configs")
         self.declare_parameter("runtime_profile", "default_runtime")
         self.declare_parameter("input_mode", "file")
-        self.declare_parameter("file_path", "data/sample/en_zero.wav")
+        self.declare_parameter("file_path", "data/sample/vosk_test.wav")
         self.declare_parameter("sample_rate_hz", 16000)
         self.declare_parameter("chunk_ms", 500)
         self.declare_parameter("loop_file", False)

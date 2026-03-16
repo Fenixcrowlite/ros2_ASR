@@ -7,6 +7,29 @@ export function initProvidersPage(ctx) {
 
   let profileRows = [];
 
+  function currentRow() {
+    return profileRows.find((row) => row.provider_profile === profileSelect.value) || null;
+  }
+
+  function providerPayload() {
+    const row = currentRow();
+    const presetSelect = document.getElementById('providerTestPreset');
+    const settingsEditor = document.getElementById('providerTestSettings');
+    let providerSettings = {};
+    const raw = String(settingsEditor?.value || '').trim();
+    if (raw) {
+      providerSettings = JSON.parse(raw);
+      if (!providerSettings || typeof providerSettings !== 'object' || Array.isArray(providerSettings)) {
+        throw new Error('Provider advanced settings must be a JSON object');
+      }
+    }
+    return {
+      provider_profile: profileSelect.value,
+      provider_preset: presetSelect?.value || row?.default_preset || '',
+      provider_settings: providerSettings,
+    };
+  }
+
   function renderCatalog(rows) {
     if (!rows.length) {
       catalogRoot.innerHTML = ui.renderEmpty('No providers discovered. Check runtime backend service availability.');
@@ -24,6 +47,7 @@ export function initProvidersPage(ctx) {
             const caps = row.capabilities || {};
             const items = [
               `stream=${caps.supports_streaming}`,
+              `stream_mode=${caps.streaming_mode || 'none'}`,
               `partials=${caps.supports_partials}`,
               `timestamps=${caps.supports_word_timestamps}`,
               `confidence=${caps.supports_confidence}`,
@@ -52,6 +76,7 @@ export function initProvidersPage(ctx) {
     }
 
     ui.updateSelectOptions(profileSelect, rows.map((row) => row.provider_profile), rows[0].provider_profile);
+    renderPresetSelect();
 
     profilesRoot.innerHTML = ui.table(
       [
@@ -62,6 +87,11 @@ export function initProvidersPage(ctx) {
           label: 'Validation',
           value: (row) =>
             `<span class="${ui.statusBadgeClass(row.valid ? 'valid' : 'invalid')}">${row.valid ? 'valid' : 'invalid'}</span>`,
+        },
+        {
+          key: 'default_preset',
+          label: 'Default model',
+          value: (row) => ui.escapeHtml(row.default_preset || 'default'),
         },
         {
           key: 'credentials_ref',
@@ -89,15 +119,16 @@ export function initProvidersPage(ctx) {
           return;
         }
         profileSelect.value = profile;
+        renderPresetSelect();
         try {
           if (action === 'validate') {
-            const payload = await api.providersValidate({ provider_profile: profile });
+            const payload = await api.providersValidate(providerPayload());
             ui.setFeedback('providerTestResult', JSON.stringify(payload, null, 2));
             ui.toast(`Validation completed for ${profile}`, payload.valid ? 'success' : 'error');
           }
           if (action === 'test') {
             const payload = await api.providersTest({
-              provider_profile: profile,
+              ...providerPayload(),
               wav_path: document.getElementById('providerTestWav').value,
               language: 'en-US',
             });
@@ -113,9 +144,38 @@ export function initProvidersPage(ctx) {
     });
   }
 
+  function renderPresetSelect() {
+    const row = currentRow();
+    const presetSelect = document.getElementById('providerTestPreset');
+    const presetMeta = document.getElementById('providerPresetMeta');
+    const presets = row?.model_presets || [];
+    if (!presetSelect || !presetMeta) {
+      return;
+    }
+    if (!presets.length) {
+      ui.updateSelectOptions(presetSelect, ['default'], 'default');
+      presetSelect.disabled = true;
+      presetMeta.innerHTML = ui.renderEmpty('This provider profile does not expose named model presets.');
+      return;
+    }
+    presetSelect.disabled = false;
+    ui.updateSelectOptions(presetSelect, presets.map((item) => item.preset_id), row.default_preset || presets[0].preset_id);
+    const current = presets.find((item) => item.preset_id === presetSelect.value) || presets[0];
+    presetMeta.innerHTML = `
+      <div class="stack-item">
+        <strong>${ui.escapeHtml(current.label)}</strong>
+        <p>${ui.escapeHtml(current.description || '')}</p>
+        <p class="muted">quality=${ui.escapeHtml(current.quality_tier || 'n/a')} resource=${ui.escapeHtml(current.resource_tier || 'n/a')}</p>
+      </div>
+    `;
+  }
+
+  document.getElementById('providerTestProfile')?.addEventListener('change', renderPresetSelect);
+  document.getElementById('providerTestPreset')?.addEventListener('change', renderPresetSelect);
+
   document.getElementById('providerValidateBtn')?.addEventListener('click', async () => {
     try {
-      const payload = await api.providersValidate({ provider_profile: profileSelect.value });
+      const payload = await api.providersValidate(providerPayload());
       ui.setFeedback('providerTestResult', JSON.stringify(payload, null, 2));
       ui.toast('Provider validation done', payload.valid ? 'success' : 'error');
       await refresh();
@@ -128,7 +188,7 @@ export function initProvidersPage(ctx) {
   document.getElementById('providerTestBtn')?.addEventListener('click', async () => {
     try {
       const payload = await api.providersTest({
-        provider_profile: profileSelect.value,
+        ...providerPayload(),
         wav_path: document.getElementById('providerTestWav').value,
         language: 'en-US',
       });

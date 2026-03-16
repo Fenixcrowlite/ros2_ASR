@@ -1,7 +1,2 @@
 wav_path,transcript,language
-data/sample/en_zero.wav,zero,en-US
-data/sample/en_one.wav,one,en-US
-data/sample/en_stop.wav,stop the robot,en-US
-data/sample/ru_privet.wav,privet mir,ru-RU
-data/sample/ru_start.wav,zapusti manipulyator,ru-RU
-data/sample/pl_czesc.wav,czesc swiecie,pl-PL
+data/sample/vosk_test.wav,10001 90210 01803,en-US

@@ -3,6 +3,7 @@ string session_id
 string state
 string provider_id
 string profile_id
+string processing_mode
 builtin_interfaces/Time started_at
 builtin_interfaces/Time updated_at
 builtin_interfaces/Time ended_at

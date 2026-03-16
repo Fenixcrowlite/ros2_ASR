@@ -32,6 +32,18 @@ make test-unit
 - `make build` собирает ROS2 workspace (`colcon build`).
 - `make test-unit` проверяет базовую логику без ROS runtime.
 
+Если хочешь поднять локальный `Vosk`, один раз скачай модели и тестовый WAV:
+
+```bash
+make setup-vosk
+```
+
+Это положит:
+
+- `models/vosk/vosk-model-small-ru-0.22`
+- `models/vosk/vosk-model-small-en-us-0.15`
+- `data/sample/vosk_test.wav`
+
 ## 3. Быстрый live-тест в 2 терминалах (рекомендуется)
 
 Самый удобный вариант:
@@ -88,7 +100,7 @@ ros2 topic echo /asr/metrics
 Пример one-shot вызова:
 
 ```bash
-ros2 service call /asr/recognize_once asr_interfaces/srv/RecognizeOnce "{wav_path: data/sample/en_hello.wav, language: en-US, enable_word_timestamps: true}"
+ros2 service call /asr/recognize_once asr_interfaces/srv/RecognizeOnce "{wav_path: data/sample/vosk_test.wav, language: en-US, enable_word_timestamps: true}"
 ```
 
 ## 6. Как поменять backend на лету
@@ -265,6 +277,36 @@ make web-gui-legacy-lan
 ```
 
 Это позволяет поймать просроченный/отсутствующий SSO token до длинного запуска ROS.
+
+Эти же проверки используются новым runtime/gateway stack перед native cloud streaming запуском. Если `google`, `azure` или `aws` показываются как `invalid` в GUI, система не будет молча переходить в buffered/fake streaming режим: запуск будет остановлен до исправления credentials.
+
+Для `aws` новый GUI `Secrets` page показывает два отдельных состояния:
+
+- `SSO sign-in session`
+- `role credentials`
+
+Это важно, потому что истекшая sign-in session ещё не всегда означает, что runtime/benchmark уже перестали работать: пока живы выданные role credentials, AWS calls могут продолжать проходить. Там же можно запустить native `aws sso login` без ухода в терминал.
+
+Для `azure` новый GUI `Secrets` page умеет:
+
+- показать, есть ли `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`, `ASR_AZURE_ENDPOINT`
+- показать, откуда они берутся:
+  - из process env
+  - или из локального `secrets/local/runtime.env`
+- сохранить/очистить native Azure env vars через GUI без помещения секретов в tracked YAML
+- сразу же запустить provider validation и quick test
+
+Для `google` новый GUI `Secrets` page умеет:
+
+- загрузить native service-account JSON
+- сохранить его в игнорируемый `secrets/google/service-account.json`
+- показать безопасную метаинформацию:
+  - `project_id`
+  - masked `client_email`
+  - путь и источник файла
+- сразу же запустить provider validation и quick test
+
+На `Dashboard` есть отдельный блок `Cloud Credential Readiness`, где сразу видно состояние `google`, `azure`, `aws` без перехода в `Secrets`.
 
 Для повторных AWS запусков в рамках одной GUI-сессии успешный STS preflight
 кешируется на короткое время (по умолчанию 120 секунд, `WEB_GUI_AWS_STS_PREFLIGHT_TTL_SEC`).

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import subprocess
 import threading
 from collections import deque
 from contextlib import asynccontextmanager
@@ -15,22 +16,37 @@ from typing import Any
 import yaml  # type: ignore[import-untyped]
 from asr_backend_aws.backend import AwsAsrBackend
 from asr_config import (
+    load_local_env_values,
     list_profiles,
     load_secret_ref,
+    local_env_file_path,
+    resolve_env_value,
     resolve_profile,
     resolve_secret_ref,
     validate_benchmark_payload,
     validate_runtime_payload,
+    write_local_env_values,
 )
 from asr_core import make_request_id, make_run_id, make_session_id
-from asr_datasets import DatasetRegistry, load_manifest
+from asr_datasets import DatasetEntry, DatasetRegistry, import_from_uploaded_files, load_manifest
 from asr_gateway.ros_client import GatewayRosClient
 from asr_provider_base import ProviderAudio, ProviderManager, create_provider, list_providers
+from asr_provider_base.catalog import default_preset_id, provider_presets, provider_ui, resolve_provider_execution
 from asr_reporting import export_csv, export_json, export_markdown
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+
+try:
+    import python_multipart  # type: ignore[import-not-found]  # noqa: F401
+except ImportError:
+    MULTIPART_AVAILABLE = False
+else:
+    MULTIPART_AVAILABLE = True
+
+if MULTIPART_AVAILABLE:
+    from fastapi import File, Form, UploadFile
 
 
 PROFILE_TYPE_DIRS = {
@@ -95,6 +111,8 @@ _RUNTIME_EVENTS: deque[dict[str, Any]] = deque(maxlen=200)
 _RUNTIME_RESULTS: deque[dict[str, Any]] = deque(maxlen=80)
 _BENCHMARK_JOBS: dict[str, dict[str, Any]] = {}
 _BENCHMARK_LOCK = threading.Lock()
+_SECRET_LOGIN_JOBS: dict[str, dict[str, Any]] = {}
+_SECRET_LOGIN_LOCK = threading.Lock()
 
 
 @asynccontextmanager
@@ -115,9 +133,12 @@ if (PROJECT_ROOT / "web_ui" / "frontend").exists():
 class RuntimeStartRequest(BaseModel):
     runtime_profile: str = "default_runtime"
     provider_profile: str = "providers/whisper_local"
+    processing_mode: str = "segmented"
+    provider_preset: str = ""
+    provider_settings: dict[str, Any] = Field(default_factory=dict)
     session_id: str = ""
     audio_source: str = "file"
-    audio_file_path: str = "data/sample/en_hello.wav"
+    audio_file_path: str = "data/sample/vosk_test.wav"
     language: str = "en-US"
     mic_capture_sec: float = 4.0
 
@@ -130,8 +151,11 @@ class RuntimeReconfigureRequest(BaseModel):
     session_id: str = ""
     runtime_profile: str = "default_runtime"
     provider_profile: str = "providers/whisper_local"
+    processing_mode: str = "segmented"
+    provider_preset: str = ""
+    provider_settings: dict[str, Any] = Field(default_factory=dict)
     audio_source: str = "file"
-    audio_file_path: str = "data/sample/en_hello.wav"
+    audio_file_path: str = "data/sample/vosk_test.wav"
     language: str = "en-US"
     mic_capture_sec: float = 4.0
 
@@ -141,12 +165,17 @@ class RecognizeRequest(BaseModel):
     language: str = "en-US"
     session_id: str = ""
     provider_profile: str = ""
+    provider_preset: str = ""
+    provider_settings: dict[str, Any] = Field(default_factory=dict)
 
 
 class BenchmarkRunRequest(BaseModel):
     benchmark_profile: str = "default_benchmark"
     dataset_profile: str = "sample_dataset"
     providers: list[str] = Field(default_factory=list)
+    scenario: str = ""
+    provider_overrides: dict[str, dict[str, Any]] = Field(default_factory=dict)
+    benchmark_settings: dict[str, Any] = Field(default_factory=dict)
     run_id: str = ""
 
 
@@ -179,11 +208,15 @@ class ProfileSaveRequest(BaseModel):
 
 class ProviderProfileRequest(BaseModel):
     provider_profile: str
+    provider_preset: str = ""
+    provider_settings: dict[str, Any] = Field(default_factory=dict)
 
 
 class ProviderTestRequest(BaseModel):
     provider_profile: str
-    wav_path: str = "data/sample/en_hello.wav"
+    provider_preset: str = ""
+    provider_settings: dict[str, Any] = Field(default_factory=dict)
+    wav_path: str = "data/sample/vosk_test.wav"
     language: str = "en-US"
 
 
@@ -205,6 +238,27 @@ class SecretValidateRequest(BaseModel):
 
 class SecretLinkProviderRequest(BaseModel):
     provider_profile: str
+    ref_name: str
+
+
+class AwsSsoLoginStartRequest(BaseModel):
+    ref_name: str = "aws_profile"
+    profile: str = ""
+    use_device_code: bool = True
+    no_browser: bool = True
+
+
+class AzureEnvSaveRequest(BaseModel):
+    ref_name: str = "azure_speech_key"
+    speech_key: str = ""
+    region: str = ""
+    endpoint: str = ""
+    clear_speech_key: bool = False
+    clear_region: bool = False
+    clear_endpoint: bool = False
+
+
+class SecretFileClearRequest(BaseModel):
     ref_name: str
 
 
@@ -295,6 +349,24 @@ def _deep_merge(base: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
     return merged
 
 
+def _normalize_provider_overrides(
+    provider_overrides: dict[str, dict[str, Any]] | None,
+) -> dict[str, dict[str, Any]]:
+    normalized: dict[str, dict[str, Any]] = {}
+    for profile, raw in (provider_overrides or {}).items():
+        if not isinstance(raw, dict):
+            continue
+        settings = raw.get("settings", raw.get("provider_settings", {}))
+        if not isinstance(settings, dict):
+            settings = {}
+        preset_id = str(raw.get("preset_id", raw.get("provider_preset", "")) or "").strip()
+        normalized[str(profile)] = {
+            "preset_id": preset_id,
+            "settings": dict(settings),
+        }
+    return normalized
+
+
 def _record_runtime_event(event: str, message: str, payload: dict[str, Any] | None = None) -> None:
     _RUNTIME_EVENTS.appendleft(
         {
@@ -329,6 +401,9 @@ def _runtime_status() -> dict[str, Any]:
             "session_id": active_session.get("session_id", ""),
             "session_state": active_session.get("state", "unknown"),
             "capabilities": [],
+            "streaming_supported": False,
+            "streaming_mode": "none",
+            "processing_mode": active_session.get("processing_mode", "segmented"),
             "audio_source": "",
             "runtime_profile": active_session.get("profile_id", ""),
             "observer_error": snapshot.get("observer_error", ""),
@@ -365,6 +440,7 @@ def _merge_runtime_results(*groups: list[dict[str, Any]]) -> list[dict[str, Any]
 def _capabilities_to_dict(caps: Any) -> dict[str, Any]:
     return {
         "supports_streaming": bool(caps.supports_streaming),
+        "streaming_mode": str(getattr(caps, "streaming_mode", "none") or "none"),
         "supports_batch": bool(caps.supports_batch),
         "supports_word_timestamps": bool(caps.supports_word_timestamps),
         "supports_partials": bool(caps.supports_partials),
@@ -387,6 +463,7 @@ def _provider_capabilities(provider_id: str) -> dict[str, Any]:
         requires_network = provider_id in {"azure", "google", "aws"}
         return {
             "supports_streaming": False,
+            "streaming_mode": "none",
             "supports_batch": False,
             "supports_word_timestamps": False,
             "supports_partials": False,
@@ -495,6 +572,9 @@ def _provider_profiles_summary() -> list[dict[str, Any]]:
         provider_id = str(payload.get("provider_id", "")).strip()
         credentials_ref = str(payload.get("credentials_ref", "")).strip()
         capabilities = _provider_capabilities(provider_id) if provider_id else {}
+        execution = resolve_provider_execution(payload)
+        presets = provider_presets(payload)
+        ui = provider_ui(payload)
 
         valid = True
         message = "valid"
@@ -521,6 +601,10 @@ def _provider_profiles_summary() -> list[dict[str, Any]]:
                 "last_modified": _profile_mtime(path),
                 "capabilities": capabilities,
                 "settings": payload.get("settings", {}),
+                "default_preset": default_preset_id(payload),
+                "model_presets": presets,
+                "execution_preview": execution,
+                "ui": ui,
             }
         )
     return result
@@ -567,6 +651,250 @@ def _secret_ref_path(ref_name: str) -> Path:
     return SECRETS_REFS_ROOT / f"{_normalize_ref_name(ref_name)}.yaml"
 
 
+def _aws_backend_from_current_env() -> AwsAsrBackend:
+    aws_ref_source = str(_secret_ref_path("aws_profile"))
+    return AwsAsrBackend(
+        config={
+            "profile": resolve_env_value("AWS_PROFILE", aws_ref_source)[0],
+            "region": resolve_env_value("AWS_REGION", aws_ref_source)[0],
+            "access_key_id": resolve_env_value("AWS_ACCESS_KEY_ID", aws_ref_source)[0],
+            "secret_access_key": resolve_env_value("AWS_SECRET_ACCESS_KEY", aws_ref_source)[0],
+            "session_token": resolve_env_value("AWS_SESSION_TOKEN", aws_ref_source)[0],
+            "config_file": resolve_env_value("AWS_CONFIG_FILE", aws_ref_source)[0],
+            "shared_credentials_file": resolve_env_value("AWS_SHARED_CREDENTIALS_FILE", aws_ref_source)[0],
+        }
+    )
+
+
+def _azure_secret_status(ref_source_path: str) -> dict[str, Any]:
+    key_value, key_source = resolve_env_value("AZURE_SPEECH_KEY", ref_source_path)
+    region_value, region_source = resolve_env_value("AZURE_SPEECH_REGION", ref_source_path)
+    endpoint_value, endpoint_source = resolve_env_value("ASR_AZURE_ENDPOINT", ref_source_path)
+    local_env_path = local_env_file_path(ref_source_path)
+    endpoint_text = str(endpoint_value or "").strip()
+    endpoint_mode = "none"
+    if endpoint_text:
+        endpoint_mode = "url" if endpoint_text.startswith(("https://", "http://", "wss://")) else "endpoint_id"
+    return {
+        "runtime_ready": bool(key_value and region_value),
+        "local_env_file": str(local_env_path),
+        "local_env_file_exists": local_env_path.exists(),
+        "speech_key_present": bool(key_value),
+        "speech_key_source": key_source or "missing",
+        "speech_key_masked": "***" if key_value else "",
+        "region": region_value,
+        "region_source": region_source or "missing",
+        "endpoint": endpoint_value,
+        "endpoint_source": endpoint_source or "missing",
+        "endpoint_mode": endpoint_mode,
+        "message": (
+            "Azure Speech credentials are ready for provider validation and runtime use."
+            if key_value and region_value
+            else "Azure needs AZURE_SPEECH_KEY and AZURE_SPEECH_REGION."
+        ),
+    }
+
+
+def _mask_email(value: str) -> str:
+    text = str(value or "").strip()
+    if not text or "@" not in text:
+        return text
+    name, domain = text.split("@", 1)
+    if len(name) <= 2:
+        masked_name = "*" * len(name)
+    else:
+        masked_name = f"{name[:2]}***{name[-1:]}"
+    return f"{masked_name}@{domain}"
+
+
+def _google_secret_status(ref_source_path: str, resolved_file_path: str = "", resolved_source: str = "") -> dict[str, Any]:
+    file_path = str(resolved_file_path or "").strip()
+    source = str(resolved_source or "").strip() or "missing"
+    auth: dict[str, Any] = {
+        "runtime_ready": False,
+        "file_path": file_path,
+        "file_source": source,
+        "file_exists": bool(file_path and Path(file_path).exists()),
+        "service_account_valid": False,
+        "project_id": "",
+        "client_email_masked": "",
+        "credential_type": "",
+        "message": "",
+    }
+    if not file_path:
+        auth["message"] = "Google needs a service-account JSON file."
+        return auth
+    path = Path(file_path)
+    if not path.exists():
+        auth["message"] = f"Referenced Google credentials file does not exist: {file_path}"
+        return auth
+
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        auth["message"] = f"Google credentials JSON is unreadable: {exc}"
+        return auth
+
+    if not isinstance(payload, dict):
+        auth["message"] = "Google credentials file must be a JSON object."
+        return auth
+
+    auth["credential_type"] = str(payload.get("type", "") or "")
+    auth["project_id"] = str(payload.get("project_id", "") or "")
+    auth["client_email_masked"] = _mask_email(str(payload.get("client_email", "") or ""))
+    auth["service_account_valid"] = (
+        auth["credential_type"] == "service_account"
+        and bool(payload.get("project_id"))
+        and bool(payload.get("client_email"))
+        and bool(payload.get("private_key"))
+    )
+    auth["runtime_ready"] = bool(auth["service_account_valid"])
+    auth["message"] = (
+        "Google service-account JSON is ready for provider validation and runtime use."
+        if auth["runtime_ready"]
+        else "Google credentials file is present but does not look like a complete service-account JSON."
+    )
+    return auth
+
+
+def _apply_process_env(updates: dict[str, str], unset: list[str] | None = None) -> None:
+    for key in unset or []:
+        os.environ.pop(key, None)
+    for key, value in updates.items():
+        if value:
+            os.environ[key] = value
+        else:
+            os.environ.pop(key, None)
+
+
+def _aws_login_job_snapshot(job_id: str) -> dict[str, Any]:
+    with _SECRET_LOGIN_LOCK:
+        job = _SECRET_LOGIN_JOBS.get(job_id)
+        if job is None:
+            raise HTTPException(status_code=404, detail=f"AWS login job not found: {job_id}")
+        return {
+            "job_id": job["job_id"],
+            "kind": job.get("kind", "aws_sso_login"),
+            "provider": "aws",
+            "ref_name": job["ref_name"],
+            "profile": job["profile"],
+            "state": job["state"],
+            "started_at": job["started_at"],
+            "completed_at": job.get("completed_at", ""),
+            "return_code": job.get("return_code"),
+            "lines": list(job.get("lines", [])),
+            "command": list(job.get("command", [])),
+            "validation": dict(job.get("validation", {})),
+        }
+
+
+def _watch_aws_login_job(job_id: str, process: subprocess.Popen[str], ref_name: str) -> None:
+    lines: deque[str] = deque(maxlen=200)
+    try:
+        if process.stdout is not None:
+            for raw in process.stdout:
+                line = str(raw).rstrip()
+                if not line:
+                    continue
+                lines.append(line)
+                with _SECRET_LOGIN_LOCK:
+                    if job_id in _SECRET_LOGIN_JOBS:
+                        _SECRET_LOGIN_JOBS[job_id]["lines"] = list(lines)
+        return_code = process.wait()
+        validation = _validate_secret_file(_secret_ref_path(ref_name))
+        with _SECRET_LOGIN_LOCK:
+            if job_id in _SECRET_LOGIN_JOBS:
+                state = _SECRET_LOGIN_JOBS[job_id].get("state", "running")
+                _SECRET_LOGIN_JOBS[job_id]["lines"] = list(lines)
+                _SECRET_LOGIN_JOBS[job_id]["return_code"] = int(return_code)
+                _SECRET_LOGIN_JOBS[job_id]["completed_at"] = _now_iso()
+                if state != "cancelled":
+                    _SECRET_LOGIN_JOBS[job_id]["state"] = "completed" if return_code == 0 else "failed"
+                _SECRET_LOGIN_JOBS[job_id]["validation"] = validation
+                _SECRET_LOGIN_JOBS[job_id].pop("_process", None)
+    except Exception as exc:
+        with _SECRET_LOGIN_LOCK:
+            if job_id in _SECRET_LOGIN_JOBS:
+                lines.append(str(exc))
+                _SECRET_LOGIN_JOBS[job_id]["lines"] = list(lines)
+                _SECRET_LOGIN_JOBS[job_id]["return_code"] = -1
+                _SECRET_LOGIN_JOBS[job_id]["completed_at"] = _now_iso()
+                _SECRET_LOGIN_JOBS[job_id]["state"] = "failed"
+                _SECRET_LOGIN_JOBS[job_id]["validation"] = _validate_secret_file(_secret_ref_path(ref_name))
+                _SECRET_LOGIN_JOBS[job_id].pop("_process", None)
+
+
+def _start_aws_login_job(
+    *,
+    ref_name: str,
+    profile: str,
+    use_device_code: bool,
+    no_browser: bool,
+) -> dict[str, Any]:
+    existing_running = None
+    with _SECRET_LOGIN_LOCK:
+        for job in _SECRET_LOGIN_JOBS.values():
+            if job.get("profile") == profile and job.get("state") == "running":
+                existing_running = job["job_id"]
+                break
+    if existing_running:
+        return _aws_login_job_snapshot(existing_running)
+
+    command = ["aws", "sso", "login", "--profile", profile]
+    if no_browser:
+        command.append("--no-browser")
+    if use_device_code:
+        command.append("--use-device-code")
+
+    env = dict(os.environ)
+    backend = _aws_backend_from_current_env()
+    if backend.config_file:
+        env["AWS_CONFIG_FILE"] = backend.config_file
+    if backend.shared_credentials_file:
+        env["AWS_SHARED_CREDENTIALS_FILE"] = backend.shared_credentials_file
+
+    try:
+        process = subprocess.Popen(
+            command,
+            cwd=str(PROJECT_ROOT),
+            env=env,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+    except FileNotFoundError as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"AWS CLI is not installed or not on PATH: {exc}",
+        ) from exc
+    job_id = make_request_id()
+    with _SECRET_LOGIN_LOCK:
+        _SECRET_LOGIN_JOBS[job_id] = {
+            "job_id": job_id,
+            "kind": "aws_sso_login",
+            "provider": "aws",
+            "ref_name": ref_name,
+            "profile": profile,
+            "state": "running",
+            "started_at": _now_iso(),
+            "completed_at": "",
+            "return_code": None,
+            "lines": [],
+            "command": command,
+            "validation": {},
+            "_process": process,
+        }
+    thread = threading.Thread(
+        target=_watch_aws_login_job,
+        args=(job_id, process, ref_name),
+        name=f"aws-sso-login-{profile}",
+        daemon=True,
+    )
+    thread.start()
+    return _aws_login_job_snapshot(job_id)
+
+
 def _validate_secret_file(path: Path) -> dict[str, Any]:
     issues: list[str] = []
     detail: dict[str, Any] = {"valid": True, "issues": issues, "env": {}}
@@ -605,8 +933,12 @@ def _validate_secret_file(path: Path) -> dict[str, Any]:
         try:
             resolved = resolve_secret_ref(ref)
             file_path = str(resolved.get("file_path", ""))
-            if ref.env_fallback and os.getenv(ref.env_fallback):
-                source = "env_fallback"
+            if ref.env_fallback:
+                _, env_source = resolve_env_value(ref.env_fallback, ref.source_path)
+                if env_source == "process_env":
+                    source = "env_fallback"
+                elif env_source == "local_env_file":
+                    source = "env_fallback_local_env_file"
         except Exception as exc:
             if str(exc):
                 issues.append(str(exc))
@@ -617,30 +949,43 @@ def _validate_secret_file(path: Path) -> dict[str, Any]:
         if not file_path:
             issues.append("credential file path is not set")
 
+    if ref.provider == "aws" and ref.kind == "env":
+        backend = _aws_backend_from_current_env()
+        auth = backend.auth_status()
+        auth["login_supported"] = bool(auth.get("uses_sso") and auth.get("profile"))
+        auth["login_recommended"] = bool(auth.get("login_recommended")) or str(auth.get("status", "")) in {
+            "role_credentials_valid_sso_expired",
+            "sso_session_expired",
+            "sso_login_required",
+        }
+        if auth.get("login_supported"):
+            auth["login_command"] = f"aws sso login --profile {auth.get('profile', '')}"
+        detail["auth"] = auth
     for name in ref.required:
-        present = bool(os.getenv(name, "").strip())
-        detail["env"][name] = {"present": present, "required": True}
+        value, source = resolve_env_value(name, ref.source_path)
+        present = bool(value)
+        detail["env"][name] = {"present": present, "required": True, "source": source or "missing"}
+        if ref.provider == "aws" and ref.kind == "env":
+            continue
         if not present:
             issues.append(f"required env missing: {name}")
 
     for name in ref.optional:
-        present = bool(os.getenv(name, "").strip())
-        detail["env"][name] = {"present": present, "required": False}
+        value, source = resolve_env_value(name, ref.source_path)
+        present = bool(value)
+        detail["env"][name] = {"present": present, "required": False, "source": source or "missing"}
 
     if ref.provider == "aws" and ref.kind == "env":
-        backend = AwsAsrBackend(
-            config={
-                "profile": os.getenv("AWS_PROFILE", "").strip(),
-                "region": os.getenv("AWS_REGION", "").strip(),
-                "access_key_id": os.getenv("AWS_ACCESS_KEY_ID", "").strip(),
-                "secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY", "").strip(),
-                "session_token": os.getenv("AWS_SESSION_TOKEN", "").strip(),
-                "config_file": os.getenv("AWS_CONFIG_FILE", "").strip(),
-                "shared_credentials_file": os.getenv("AWS_SHARED_CREDENTIALS_FILE", "").strip(),
-            }
-        )
         issues.extend(
             issue for issue in backend.auth_validation_errors() if issue and issue not in issues
+        )
+    if ref.provider == "azure" and ref.kind == "env":
+        detail["auth"] = _azure_secret_status(ref.source_path)
+    if ref.provider == "google" and ref.kind == "file":
+        detail["auth"] = _google_secret_status(
+            ref.source_path,
+            resolved_file_path=str(detail.get("resolved_file_path", "") or ""),
+            resolved_source=str(detail.get("resolved_file_path_source", "") or ""),
         )
 
     detail["valid"] = not issues
@@ -654,12 +999,44 @@ def _normalize_provider_profile(profile: str) -> str:
     return clean if clean.startswith("providers/") else f"providers/{clean}"
 
 
-def _preflight_provider_profile(profile: str) -> str:
+def _provider_execution_payload(
+    profile: str,
+    *,
+    preset_id: str = "",
+    settings_overrides: dict[str, Any] | None = None,
+) -> dict[str, Any]:
     normalized = _normalize_provider_profile(profile)
     manager = ProviderManager(configs_root=str(CONFIGS_ROOT))
-    adapter = manager.create_from_profile(normalized)
+    payload = manager.resolve_profile_payload(normalized)
+    execution = resolve_provider_execution(
+        payload,
+        preset_id=preset_id,
+        settings_overrides=settings_overrides or {},
+    )
+    adapter = manager.create_from_profile(
+        normalized,
+        preset_id=str(execution.get("selected_preset", "") or ""),
+        settings_overrides=dict(settings_overrides or {}),
+    )
     adapter.teardown()
-    return normalized
+    return {
+        "normalized_profile": normalized,
+        "payload": payload,
+        "execution": execution,
+    }
+
+
+def _preflight_provider_profile(
+    profile: str,
+    *,
+    preset_id: str = "",
+    settings_overrides: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    return _provider_execution_payload(
+        profile,
+        preset_id=preset_id,
+        settings_overrides=settings_overrides,
+    )
 
 
 def _secret_ref_list() -> list[dict[str, Any]]:
@@ -687,6 +1064,32 @@ def _secret_ref_list() -> list[dict[str, Any]]:
             }
         )
     return refs
+
+
+def _cloud_credential_overview() -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    for item in _secret_ref_list():
+        provider = str(item.get("validation", {}).get("provider", "")).strip()
+        if provider not in {"google", "azure", "aws"}:
+            continue
+        validation = item.get("validation", {})
+        auth = validation.get("auth", {}) if isinstance(validation.get("auth"), dict) else {}
+        runtime_ready = bool(auth.get("runtime_ready", validation.get("valid")))
+        tone = "valid" if runtime_ready and not auth.get("login_recommended") else "warning" if runtime_ready else "invalid"
+        rows.append(
+            {
+                "ref_name": item.get("name", ""),
+                "provider": provider,
+                "valid": bool(validation.get("valid")),
+                "runtime_ready": runtime_ready,
+                "state": str(auth.get("status", "") or ("ready" if runtime_ready else "invalid")),
+                "message": str(auth.get("message", "") or "; ".join(validation.get("issues", [])) or "ok"),
+                "tone": tone,
+                "linked_provider_profiles": item.get("linked_provider_profiles", []),
+            }
+        )
+    rows.sort(key=lambda item: item["provider"])
+    return rows
 
 
 def _dataset_stats(samples: list[Any]) -> dict[str, Any]:
@@ -757,6 +1160,26 @@ def _dataset_detail(dataset_id: str) -> dict[str, Any]:
     raise HTTPException(status_code=404, detail=f"Dataset not found: {did}")
 
 
+def _project_relative(path: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(PROJECT_ROOT))
+    except Exception:
+        return str(path.resolve())
+
+
+def _ensure_dataset_profile(dataset_profile: str, manifest_path: str, default_language: str) -> tuple[str, str]:
+    path, pid = _profile_path("datasets", dataset_profile)
+    payload = {
+        "profile_id": f"datasets/{pid}",
+        "inherits": [],
+        "dataset_id": pid,
+        "manifest_path": _project_relative(Path(manifest_path)),
+        "default_language": default_language,
+    }
+    _write_yaml(path, payload)
+    return pid, str(path)
+
+
 def _list_benchmark_history(limit: int = 50) -> list[dict[str, Any]]:
     root = ARTIFACTS_ROOT / "benchmark_runs"
     if not root.exists():
@@ -783,11 +1206,15 @@ def _list_benchmark_history(limit: int = 50) -> list[dict[str, Any]]:
                 "completed_at": job.get("completed_at", ""),
                 "benchmark_profile": run_manifest.get("benchmark_profile", ""),
                 "dataset_profile": run_manifest.get("dataset_profile", ""),
+                "scenario": run_manifest.get("scenario", summary.get("scenario", "")),
+                "execution_mode": summary.get("execution_mode", run_manifest.get("execution_mode", "batch")),
                 "providers": run_manifest.get("providers", []),
                 "total_samples": summary.get("total_samples", run_manifest.get("sample_count", 0)),
                 "successful_samples": summary.get("successful_samples", 0),
                 "failed_samples": summary.get("failed_samples", 0),
                 "mean_metrics": summary.get("mean_metrics", {}),
+                "quality_metrics": summary.get("quality_metrics", {}),
+                "resource_metrics": summary.get("resource_metrics", {}),
                 "run_dir": str(run_dir),
             }
         )
@@ -806,11 +1233,15 @@ def _list_benchmark_history(limit: int = 50) -> list[dict[str, Any]]:
                 "completed_at": state.get("completed_at", ""),
                 "benchmark_profile": state.get("benchmark_profile", ""),
                 "dataset_profile": state.get("dataset_profile", ""),
+                "scenario": state.get("scenario", ""),
+                "execution_mode": state.get("execution_mode", "batch"),
                 "providers": state.get("providers", []),
                 "total_samples": 0,
                 "successful_samples": 0,
                 "failed_samples": 0,
                 "mean_metrics": {},
+                "quality_metrics": {},
+                "resource_metrics": {},
                 "run_dir": "",
             },
         )
@@ -1061,6 +1492,7 @@ def _dashboard_payload() -> dict[str, Any]:
     history = _list_benchmark_history(limit=5)
     providers = _provider_profiles_summary()
     issues = _diagnostics_issues()
+    cloud_credentials = _cloud_credential_overview()
 
     with _BENCHMARK_LOCK:
         active = [item for item in _BENCHMARK_JOBS.values() if item.get("state") in {"queued", "running"}]
@@ -1087,6 +1519,7 @@ def _dashboard_payload() -> dict[str, Any]:
             "active_runs": active,
             "recent_runs": history,
         },
+        "cloud_credentials": cloud_credentials,
         "alerts": issues[:10],
         "quick_actions": [
             {"id": "start_runtime", "label": "Start Runtime", "endpoint": "/api/runtime/start"},
@@ -1109,6 +1542,9 @@ def _benchmark_worker(run_id: str, req: BenchmarkRunRequest) -> None:
         req.benchmark_profile,
         req.dataset_profile,
         req.providers,
+        scenario=req.scenario,
+        provider_overrides=req.provider_overrides,
+        benchmark_settings=req.benchmark_settings,
         run_id=run_id,
     )
 
@@ -1179,15 +1615,22 @@ def runtime_backends() -> dict[str, Any]:
 @app.post("/api/runtime/start")
 def runtime_start(req: RuntimeStartRequest) -> dict[str, Any]:
     try:
-        normalized_provider_profile = _preflight_provider_profile(req.provider_profile)
+        provider_exec = _preflight_provider_profile(
+            req.provider_profile,
+            preset_id=req.provider_preset,
+            settings_overrides=req.provider_settings,
+        )
     except HTTPException:
         raise
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
     res = ros.start_runtime(
         req.runtime_profile,
-        normalized_provider_profile,
+        provider_exec["normalized_profile"],
         req.session_id,
+        processing_mode=req.processing_mode,
+        provider_preset=str(provider_exec["execution"].get("selected_preset", "") or ""),
+        provider_settings=dict(req.provider_settings or {}),
         audio_source=req.audio_source,
         audio_file_path=req.audio_file_path,
         language=req.language,
@@ -1198,7 +1641,10 @@ def runtime_start(req: RuntimeStartRequest) -> dict[str, Any]:
         res.message,
         {
             "runtime_profile": req.runtime_profile,
-            "provider_profile": normalized_provider_profile,
+            "provider_profile": provider_exec["normalized_profile"],
+            "processing_mode": req.processing_mode,
+            "provider_preset": provider_exec["execution"].get("selected_preset", ""),
+            "provider_settings": req.provider_settings,
             "session_id": res.payload.get("session_id", req.session_id),
             "audio_source": req.audio_source,
             "audio_file_path": req.audio_file_path if req.audio_source == "file" else "",
@@ -1227,7 +1673,11 @@ def runtime_stop(req: RuntimeStopRequest) -> dict[str, Any]:
 @app.post("/api/runtime/reconfigure")
 def runtime_reconfigure(req: RuntimeReconfigureRequest) -> dict[str, Any]:
     try:
-        normalized_provider_profile = _preflight_provider_profile(req.provider_profile)
+        provider_exec = _preflight_provider_profile(
+            req.provider_profile,
+            preset_id=req.provider_preset,
+            settings_overrides=req.provider_settings,
+        )
     except HTTPException:
         raise
     except Exception as exc:
@@ -1235,7 +1685,10 @@ def runtime_reconfigure(req: RuntimeReconfigureRequest) -> dict[str, Any]:
     res = ros.reconfigure_runtime(
         req.session_id,
         req.runtime_profile,
-        normalized_provider_profile,
+        provider_exec["normalized_profile"],
+        processing_mode=req.processing_mode,
+        provider_preset=str(provider_exec["execution"].get("selected_preset", "") or ""),
+        provider_settings=dict(req.provider_settings or {}),
         audio_source=req.audio_source,
         audio_file_path=req.audio_file_path,
         language=req.language,
@@ -1247,7 +1700,10 @@ def runtime_reconfigure(req: RuntimeReconfigureRequest) -> dict[str, Any]:
         {
             "session_id": req.session_id,
             "runtime_profile": req.runtime_profile,
-            "provider_profile": normalized_provider_profile,
+            "provider_profile": provider_exec["normalized_profile"],
+            "processing_mode": req.processing_mode,
+            "provider_preset": provider_exec["execution"].get("selected_preset", ""),
+            "provider_settings": req.provider_settings,
             "audio_source": req.audio_source,
             "audio_file_path": req.audio_file_path if req.audio_source == "file" else "",
             "language": req.language,
@@ -1262,12 +1718,23 @@ def runtime_reconfigure(req: RuntimeReconfigureRequest) -> dict[str, Any]:
 @app.post("/api/runtime/recognize_once")
 def runtime_recognize_once(req: RecognizeRequest) -> dict[str, Any]:
     try:
-        normalized_provider_profile = _preflight_provider_profile(req.provider_profile)
+        provider_exec = _preflight_provider_profile(
+            req.provider_profile,
+            preset_id=req.provider_preset,
+            settings_overrides=req.provider_settings,
+        )
     except HTTPException:
         raise
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    res = ros.recognize_once(req.wav_path, req.language, req.session_id, normalized_provider_profile)
+    res = ros.recognize_once(
+        req.wav_path,
+        req.language,
+        req.session_id,
+        provider_exec["normalized_profile"],
+        provider_preset=str(provider_exec["execution"].get("selected_preset", "") or ""),
+        provider_settings=dict(req.provider_settings or {}),
+    )
     payload = {"message": res.message, **res.payload}
     ros.record_runtime_result(payload)
     _RUNTIME_RESULTS.appendleft({"time": _now_iso(), **payload})
@@ -1278,7 +1745,8 @@ def runtime_recognize_once(req: RecognizeRequest) -> dict[str, Any]:
             "wav_path": req.wav_path,
             "language": req.language,
             "session_id": req.session_id,
-            "provider_profile": normalized_provider_profile,
+            "provider_profile": provider_exec["normalized_profile"],
+            "provider_preset": provider_exec["execution"].get("selected_preset", ""),
             "success": res.success,
         },
     )
@@ -1305,14 +1773,24 @@ def providers_validate(req: ProviderProfileRequest) -> dict[str, Any]:
         profile = f"providers/{profile}"
 
     try:
-        adapter = manager.create_from_profile(profile)
+        provider_exec = _preflight_provider_profile(
+            profile,
+            preset_id=req.provider_preset,
+            settings_overrides=req.provider_settings,
+        )
+        adapter = manager.create_from_profile(
+            provider_exec["normalized_profile"],
+            preset_id=str(provider_exec["execution"].get("selected_preset", "") or ""),
+            settings_overrides=dict(req.provider_settings or {}),
+        )
         caps = _capabilities_to_dict(adapter.discover_capabilities())
         status = adapter.get_status()
         adapter.teardown()
         return {
             "valid": True,
             "message": "Provider profile is valid",
-            "provider_profile": profile,
+            "provider_profile": provider_exec["normalized_profile"],
+            "provider_preset": provider_exec["execution"].get("selected_preset", ""),
             "provider_id": adapter.provider_id,
             "status": status.state,
             "capabilities": caps,
@@ -1336,7 +1814,16 @@ def providers_test(req: ProviderTestRequest) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail=f"WAV file not found: {wav}")
 
     try:
-        adapter = manager.create_from_profile(profile)
+        provider_exec = _preflight_provider_profile(
+            profile,
+            preset_id=req.provider_preset,
+            settings_overrides=req.provider_settings,
+        )
+        adapter = manager.create_from_profile(
+            provider_exec["normalized_profile"],
+            preset_id=str(provider_exec["execution"].get("selected_preset", "") or ""),
+            settings_overrides=dict(req.provider_settings or {}),
+        )
         result = adapter.recognize_once(
             ProviderAudio(
                 session_id=make_session_id(),
@@ -1350,7 +1837,8 @@ def providers_test(req: ProviderTestRequest) -> dict[str, Any]:
         adapter.teardown()
         return {
             "success": not result.degraded and not result.error_code,
-            "provider_profile": profile,
+            "provider_profile": provider_exec["normalized_profile"],
+            "provider_preset": provider_exec["execution"].get("selected_preset", ""),
             "provider_id": result.provider_id,
             "text": result.text,
             "latency_ms": result.latency.total_ms,
@@ -1476,6 +1964,233 @@ def secret_validate(req: SecretValidateRequest) -> dict[str, Any]:
     }
 
 
+@app.get("/api/secrets/azure_env")
+def secret_azure_env() -> dict[str, Any]:
+    ref_path = _secret_ref_path("azure_speech_key")
+    validation = _validate_secret_file(ref_path)
+    auth = validation.get("auth", {}) if isinstance(validation.get("auth"), dict) else {}
+    return {
+        "ref_name": "azure_speech_key",
+        "validation": validation,
+        "auth": auth,
+    }
+
+
+@app.get("/api/secrets/google_service_account")
+def secret_google_service_account() -> dict[str, Any]:
+    ref_path = _secret_ref_path("google_service_account")
+    validation = _validate_secret_file(ref_path)
+    auth = validation.get("auth", {}) if isinstance(validation.get("auth"), dict) else {}
+    return {
+        "ref_name": "google_service_account",
+        "validation": validation,
+        "auth": auth,
+    }
+
+
+if MULTIPART_AVAILABLE:
+
+    @app.post("/api/secrets/google_service_account/upload")
+    async def secret_google_service_account_upload(
+        file: UploadFile = File(...),
+        ref_name: str = Form("google_service_account"),
+    ) -> dict[str, Any]:
+        normalized_ref = _normalize_ref_name(ref_name)
+        ref_path = _secret_ref_path(normalized_ref)
+        if not ref_path.exists():
+            raise HTTPException(status_code=404, detail=f"Secret ref not found: {normalized_ref}")
+
+        validation = _validate_secret_file(ref_path)
+        if validation.get("provider") != "google" or validation.get("kind") != "file":
+            raise HTTPException(
+                status_code=400,
+                detail=f"Secret ref `{normalized_ref}` is not a Google file-based auth ref.",
+            )
+
+        upload_name = str(file.filename or "").strip() or "service-account.json"
+        if not upload_name.lower().endswith(".json"):
+            raise HTTPException(status_code=400, detail="Google service-account upload must be a JSON file.")
+
+        content = await file.read()
+        try:
+            parsed = json.loads(content.decode("utf-8"))
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail=f"Uploaded Google credential file is not valid JSON: {exc}") from exc
+
+        if not isinstance(parsed, dict) or str(parsed.get("type", "") or "") != "service_account":
+            raise HTTPException(
+                status_code=400,
+                detail="Uploaded Google credential file must be a service-account JSON.",
+            )
+
+        target_path = PROJECT_ROOT / "secrets" / "google" / "service-account.json"
+        target_path.parent.mkdir(parents=True, exist_ok=True)
+        target_path.write_text(json.dumps(parsed, ensure_ascii=True, indent=2), encoding="utf-8")
+        refreshed = _validate_secret_file(ref_path)
+        return {
+            "saved": True,
+            "ref_name": normalized_ref,
+            "target_path": str(target_path),
+            "validation": refreshed,
+        }
+
+
+@app.post("/api/secrets/google_service_account/clear")
+def secret_google_service_account_clear(req: SecretFileClearRequest) -> dict[str, Any]:
+    ref_name = _normalize_ref_name(req.ref_name)
+    ref_path = _secret_ref_path(ref_name)
+    if not ref_path.exists():
+        raise HTTPException(status_code=404, detail=f"Secret ref not found: {ref_name}")
+
+    target_path = PROJECT_ROOT / "secrets" / "google" / "service-account.json"
+    if target_path.exists():
+        target_path.unlink()
+    refreshed = _validate_secret_file(ref_path)
+    return {
+        "cleared": True,
+        "ref_name": ref_name,
+        "target_path": str(target_path),
+        "validation": refreshed,
+    }
+
+
+@app.post("/api/secrets/azure_env")
+def secret_azure_env_save(req: AzureEnvSaveRequest) -> dict[str, Any]:
+    ref_name = _normalize_ref_name(req.ref_name)
+    ref_path = _secret_ref_path(ref_name)
+    if not ref_path.exists():
+        raise HTTPException(status_code=404, detail=f"Secret ref not found: {ref_name}")
+
+    validation = _validate_secret_file(ref_path)
+    if validation.get("provider") != "azure" or validation.get("kind") != "env":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Secret ref `{ref_name}` is not an Azure env-based auth ref.",
+        )
+
+    updates: dict[str, str] = {}
+    unset: list[str] = []
+    if req.clear_speech_key:
+        unset.append("AZURE_SPEECH_KEY")
+    elif req.speech_key:
+        updates["AZURE_SPEECH_KEY"] = req.speech_key.strip()
+
+    if req.clear_region:
+        unset.append("AZURE_SPEECH_REGION")
+    elif req.region:
+        updates["AZURE_SPEECH_REGION"] = req.region.strip()
+
+    if req.clear_endpoint:
+        unset.append("ASR_AZURE_ENDPOINT")
+    elif req.endpoint:
+        updates["ASR_AZURE_ENDPOINT"] = req.endpoint.strip()
+
+    env_path = write_local_env_values(updates, source_path=str(ref_path), unset=unset)
+    refreshed = _validate_secret_file(ref_path)
+    return {
+        "saved": True,
+        "ref_name": ref_name,
+        "env_file": str(env_path),
+        "validation": refreshed,
+    }
+
+
+@app.post("/api/secrets/aws_sso_login")
+def secret_aws_sso_login(req: AwsSsoLoginStartRequest) -> dict[str, Any]:
+    ref_name = _normalize_ref_name(req.ref_name)
+    path = _secret_ref_path(ref_name)
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=f"Secret ref not found: {ref_name}")
+
+    validation = _validate_secret_file(path)
+    if validation.get("provider") != "aws" or validation.get("kind") != "env":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Secret ref `{ref_name}` is not an AWS env-based auth ref.",
+        )
+
+    auth = validation.get("auth", {}) if isinstance(validation.get("auth"), dict) else {}
+    profile = str(req.profile or auth.get("profile") or os.getenv("AWS_PROFILE", "")).strip()
+    if not profile:
+        raise HTTPException(
+            status_code=400,
+            detail="AWS profile is not configured. Set AWS_PROFILE or provide profile in the login request.",
+        )
+    if auth and not bool(auth.get("uses_sso")):
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"AWS profile `{profile}` is not configured for IAM Identity Center / SSO login. "
+                "Use native access keys or a shared config profile instead."
+            ),
+        )
+
+    job = _start_aws_login_job(
+        ref_name=ref_name,
+        profile=profile,
+        use_device_code=bool(req.use_device_code),
+        no_browser=bool(req.no_browser),
+    )
+    return {
+        "job": job,
+        "validation": validation,
+    }
+
+
+@app.get("/api/secrets/aws_sso_login/{job_id}")
+def secret_aws_sso_login_status(job_id: str) -> dict[str, Any]:
+    return {"job": _aws_login_job_snapshot(job_id)}
+
+
+@app.post("/api/secrets/aws_sso_login/{job_id}/cancel")
+def secret_aws_sso_login_cancel(job_id: str) -> dict[str, Any]:
+    snapshot = None
+    with _SECRET_LOGIN_LOCK:
+        job = _SECRET_LOGIN_JOBS.get(job_id)
+        if job is None:
+            raise HTTPException(status_code=404, detail=f"AWS login job not found: {job_id}")
+        process = job.get("_process")
+        if job.get("state") != "running" or process is None:
+            snapshot = {
+                "job_id": job["job_id"],
+                "kind": job.get("kind", "aws_sso_login"),
+                "provider": "aws",
+                "ref_name": job["ref_name"],
+                "profile": job["profile"],
+                "state": job["state"],
+                "started_at": job["started_at"],
+                "completed_at": job.get("completed_at", ""),
+                "return_code": job.get("return_code"),
+                "lines": list(job.get("lines", [])),
+                "command": list(job.get("command", [])),
+                "validation": dict(job.get("validation", {})),
+            }
+        else:
+            if process.poll() is None:
+                process.terminate()
+            job["state"] = "cancelled"
+            job["completed_at"] = _now_iso()
+            lines = list(job.get("lines", []))
+            if not lines or lines[-1] != "AWS SSO login cancelled from GUI.":
+                lines.append("AWS SSO login cancelled from GUI.")
+            job["lines"] = lines[-200:]
+            snapshot = {
+                "job_id": job["job_id"],
+                "kind": job.get("kind", "aws_sso_login"),
+                "provider": "aws",
+                "ref_name": job["ref_name"],
+                "profile": job["profile"],
+                "state": job["state"],
+                "started_at": job["started_at"],
+                "completed_at": job.get("completed_at", ""),
+                "return_code": job.get("return_code"),
+                "lines": list(job.get("lines", [])),
+                "command": list(job.get("command", [])),
+                "validation": dict(job.get("validation", {})),
+            }
+    return {"job": snapshot}
+
+
 @app.post("/api/secrets/link_provider")
 def secret_link_provider(req: SecretLinkProviderRequest) -> dict[str, Any]:
     profile_path, pid = _profile_path("providers", req.provider_profile)
@@ -1515,6 +2230,71 @@ def datasets_import(req: DatasetImportRequest) -> dict[str, Any]:
     if not res.success:
         raise HTTPException(status_code=400, detail=res.message)
     return {"message": res.message, **res.payload}
+
+
+if MULTIPART_AVAILABLE:
+
+    @app.post("/api/datasets/import_upload")
+    async def datasets_import_upload(
+        dataset_id: str = Form(...),
+        dataset_profile: str = Form(""),
+        language: str = Form("en-US"),
+        files: list[UploadFile] = File(...),
+    ) -> dict[str, Any]:
+        did = _clean_name(dataset_id, "dataset_id")
+        profile_id = _normalize_profile_id("datasets", dataset_profile or did)
+        if not files:
+            raise HTTPException(status_code=400, detail="No files uploaded")
+
+        uploaded: list[dict[str, Any]] = []
+        for item in files:
+            filename = str(item.filename or "").strip()
+            if not filename:
+                continue
+            content = await item.read()
+            uploaded.append({"name": filename, "content": content})
+        if not uploaded:
+            raise HTTPException(status_code=400, detail="Uploaded file set is empty")
+
+        try:
+            manifest_path, sample_count = import_from_uploaded_files(
+                files=uploaded,
+                target_dataset_id=did,
+                language=language or "en-US",
+                imported_root=str(PROJECT_ROOT / "datasets" / "imported"),
+                manifests_root=str(PROJECT_ROOT / "datasets" / "manifests"),
+            )
+            resolved_profile_id, profile_path = _ensure_dataset_profile(profile_id, manifest_path, language or "en-US")
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+        registry = DatasetRegistry(str(DATASET_REGISTRY_PATH))
+        registry.register(
+            DatasetEntry(
+                dataset_id=did,
+                manifest_ref=str(Path(manifest_path).resolve()),
+                sample_count=int(sample_count),
+                metadata={"dataset_profile": f"datasets/{resolved_profile_id}", "source": "upload"},
+            )
+        )
+        return {
+            "success": True,
+            "message": "Uploaded dataset imported",
+            "dataset_id": did,
+            "dataset_profile": f"datasets/{resolved_profile_id}",
+            "manifest_path": manifest_path,
+            "profile_path": profile_path,
+            "sample_count": int(sample_count),
+        }
+
+else:
+
+    @app.post("/api/datasets/import_upload")
+    async def datasets_import_upload() -> dict[str, Any]:
+        raise HTTPException(
+            status_code=503,
+            detail='Dataset upload requires "python-multipart". Install dependencies from requirements.txt.',
+        )
 
 
 @app.post("/api/datasets/validate_manifest")
@@ -1570,6 +2350,8 @@ def benchmark_run(req: BenchmarkRunRequest) -> dict[str, Any]:
             "benchmark_profile": req.benchmark_profile,
             "dataset_profile": req.dataset_profile,
             "providers": req.providers,
+            "scenario": req.scenario,
+            "execution_mode": str(req.benchmark_settings.get("execution_mode", "batch") or "batch"),
             "message": "Queued",
         }
 
@@ -1577,6 +2359,9 @@ def benchmark_run(req: BenchmarkRunRequest) -> dict[str, Any]:
         benchmark_profile=req.benchmark_profile,
         dataset_profile=req.dataset_profile,
         providers=req.providers,
+        scenario=req.scenario,
+        provider_overrides=_normalize_provider_overrides(req.provider_overrides),
+        benchmark_settings=req.benchmark_settings,
         run_id=run_id,
     )
     thread = threading.Thread(target=_benchmark_worker, args=(run_id, worker_req), daemon=True)

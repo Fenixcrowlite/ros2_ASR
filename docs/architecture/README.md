@@ -1,5 +1,6 @@
 # Architecture Docs Index
 
+- `project_explained_from_zero.md`
 - `repo_assessment.md`
 - `system_overview.md`
 - `runtime_architecture.md`

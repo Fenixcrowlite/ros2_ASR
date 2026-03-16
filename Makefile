@@ -5,14 +5,17 @@ ROS_SETUP := /opt/ros/jazzy/setup.bash
 SRC_PY_PATH := $(shell find $(CURDIR)/ros2_ws/src -mindepth 1 -maxdepth 1 -type d | tr '\n' ':')
 PY_PATH := $(CURDIR):$(SRC_PY_PATH)
 ARCHVIZ := ./archviz
-COLCON_CMAKE_PY_ARGS := --cmake-args -DPYTHON_EXECUTABLE=/usr/bin/python3 -DPython3_EXECUTABLE=/usr/bin/python3
+COLCON_CMAKE_PY_ARGS := --cmake-args -DPYTHON_EXECUTABLE=$(CURDIR)/$(VENV)/bin/python -DPython3_EXECUTABLE=$(CURDIR)/$(VENV)/bin/python
 COLCON_EXTENSION_BLOCKLIST ?= colcon_core.event_handler.desktop_notification
 COLCON_WS_ARGS := --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --log-base ros2_ws/log --symlink-install
 
-.PHONY: setup build test test-unit test-ros test-colcon run live-sample bench report web-gui web-gui-lan web-gui-stop web-gui-legacy web-gui-legacy-lan arch-static arch-runtime arch arch-diff lint format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
+.PHONY: setup setup-vosk build test test-unit test-ros test-colcon run live-sample bench report web-gui web-gui-lan web-gui-stop web-gui-legacy web-gui-legacy-lan arch-static arch-runtime arch arch-diff lint format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
 
 setup:
 	bash scripts/setup_env.sh
+
+setup-vosk:
+	bash scripts/maintenance/setup_vosk_models.sh
 
 build:
 	bash -lc "if [ ! -f $(ROS_SETUP) ]; then echo 'ROS2 Jazzy not found at $(ROS_SETUP).'; exit 1; fi; if [ ! -f $(VENV)/bin/activate ]; then echo '.venv missing. Run make setup first.'; exit 1; fi; source $(VENV)/bin/activate && source $(ROS_SETUP) && COLCON_EXTENSION_BLOCKLIST='$(COLCON_EXTENSION_BLOCKLIST)' bash scripts/with_colcon_lock.sh colcon build $(COLCON_WS_ARGS) $(COLCON_CMAKE_PY_ARGS)"

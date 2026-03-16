@@ -85,7 +85,7 @@ def test_collect_live_record_without_reference_marks_unknown_quality() -> None:
         collector=collector,
         backend_label="mock",
         interface="core",
-        wav_path="data/sample/en_hello.wav",
+        wav_path="data/sample/vosk_test.wav",
         language="en-US",
         reference_text="",
         response=response,

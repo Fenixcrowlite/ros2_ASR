@@ -10,4 +10,43 @@ settings:
   no_speech_threshold: 0.6
   temperature: 0.0
   empty_transcript_rms_threshold: 100
+ui:
+  default_model_preset: light
+  model_presets:
+    light:
+      label: Light
+      description: Fastest local preset for CPU demos and low resource use.
+      quality_tier: medium
+      resource_tier: low
+      estimated_cost_tier: local
+      settings:
+        model_size: tiny
+        device: cpu
+        compute_type: int8
+    balanced:
+      label: Balanced
+      description: Better quality while staying practical on desktop hardware.
+      quality_tier: high
+      resource_tier: medium
+      estimated_cost_tier: local
+      settings:
+        model_size: base
+        device: cpu
+        compute_type: int8
+    accurate:
+      label: Accurate
+      description: Highest local quality baseline, best on strong CPU/GPU setups.
+      quality_tier: very_high
+      resource_tier: high
+      estimated_cost_tier: local
+      settings:
+        model_size: small
+        device: cpu
+        compute_type: int8
+  advanced_fields:
+    - model_size
+    - device
+    - compute_type
+    - temperature
+    - no_speech_threshold
 credentials_ref: secrets/refs/local_none.yaml

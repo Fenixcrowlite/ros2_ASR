@@ -5,4 +5,19 @@ adapter: asr_provider_azure.azure_provider.AzureProvider
 settings:
   region: eastus
   endpoint: ""
+ui:
+  default_model_preset: standard
+  model_presets:
+    standard:
+      label: Standard
+      description: Native Azure Speech baseline with resource key and region.
+      quality_tier: high
+      resource_tier: high
+      estimated_cost_tier: high
+      estimated_cost_usd_per_min: 0.018
+      settings: {}
+  advanced_fields:
+    - region
+    - endpoint
+    - streaming_partial_stability_threshold
 credentials_ref: secrets/refs/azure_speech_key.yaml

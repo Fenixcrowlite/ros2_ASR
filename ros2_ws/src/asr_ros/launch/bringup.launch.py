@@ -10,7 +10,7 @@ def generate_launch_description() -> LaunchDescription:
     config_arg = DeclareLaunchArgument("config", default_value="configs/default.yaml")
     # Audio capture parameters (can override YAML quickly from CLI).
     input_mode_arg = DeclareLaunchArgument("input_mode", default_value="auto")
-    wav_path_arg = DeclareLaunchArgument("wav_path", default_value="data/sample/en_hello.wav")
+    wav_path_arg = DeclareLaunchArgument("wav_path", default_value="data/sample/vosk_test.wav")
     sample_rate_arg = DeclareLaunchArgument("sample_rate", default_value="16000")
     chunk_ms_arg = DeclareLaunchArgument("chunk_ms", default_value="800")
     device_arg = DeclareLaunchArgument("device", default_value="")

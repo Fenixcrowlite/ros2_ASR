@@ -3,5 +3,10 @@ inherits: []
 metrics:
   - total_latency_ms
   - per_utterance_latency_ms
+  - real_time_factor
+  - estimated_cost_usd
+  - first_partial_latency_ms
+  - finalization_latency_ms
+  - partial_count
   - success_rate
   - failure_rate

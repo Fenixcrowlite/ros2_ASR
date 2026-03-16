@@ -36,7 +36,7 @@ def test_save_manifest_round_trip(tmp_path: Path) -> None:
     samples = [
         DatasetSample(
             sample_id="sample_1",
-            audio_path="data/sample/en_hello.wav",
+            audio_path="data/sample/vosk_test.wav",
             transcript="hello world",
             language="en-US",
             metadata={"split_source": "generated"},
