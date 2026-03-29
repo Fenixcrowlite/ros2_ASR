@@ -184,8 +184,10 @@ def auto_detect_language_from_wav(wav_path: Path, cfg: dict[str, Any]) -> str:
         )
         return resolved
     except Exception as exc:
-        print(f"[live-sample] Auto language detection failed ({exc}); fallback={fallback}")
-        return fallback
+        raise RuntimeError(
+            f"Auto language detection failed ({exc}). "
+            f"Use --language-mode config/manual or install a working faster-whisper setup."
+        ) from exc
 
 
 def detect_backends(cfg: dict[str, Any], cli_backends: str) -> list[str]:
@@ -553,6 +555,36 @@ def run_core_interface(
     return response
 
 
+def target_supports_streaming(cfg: dict[str, Any], target: BackendRunTarget) -> bool:
+    """Return True when selected backend target advertises native streaming."""
+    backend_cfg = override_backend_config(cfg, target)
+    backend = create_backend(target.backend, config=backend_cfg)
+    capabilities = getattr(backend, "capabilities", None)
+    return bool(getattr(capabilities, "supports_streaming", False))
+
+
+def validate_interface_plan(
+    *,
+    cfg: dict[str, Any],
+    interfaces: list[str],
+    targets: list[BackendRunTarget],
+    action_streaming: bool,
+) -> None:
+    """Reject incompatible interface/backend combinations before any run starts."""
+    if "ros_action" in interfaces and action_streaming:
+        unsupported = [
+            backend_target_label(target)
+            for target in targets
+            if not target_supports_streaming(cfg, target)
+        ]
+        if unsupported:
+            joined = ", ".join(unsupported)
+            raise ValueError(
+                "ros_action with --action-streaming requires streaming-capable backends. "
+                f"Unsupported targets: {joined}"
+            )
+
+
 def save_summary(records: list[BenchmarkRecord], output_path: Path) -> None:
     """Write compact markdown report for live sample run."""
     lines = [
@@ -760,6 +792,12 @@ def main() -> int:
     )
     if not targets:
         raise RuntimeError("No backend/model targets were selected")
+    validate_interface_plan(
+        cfg=cfg,
+        interfaces=interfaces,
+        targets=targets,
+        action_streaming=bool(args.action_streaming),
+    )
 
     language_mode = str(args.language_mode).strip().lower()
     if args.language and language_mode == "config":

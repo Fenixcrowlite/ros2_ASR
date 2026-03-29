@@ -2,7 +2,7 @@
 
 ## Current State
 - Repository already contains a meaningful but uneven test base.
-- Existing coverage is concentrated in `tests/unit/` and legacy `web_gui` helpers.
+- Existing coverage is concentrated in `tests/unit/` plus gateway/UI API flows.
 - A single ROS-marked integration test still targets legacy `asr_ros` service flow.
 - CI currently runs one broad pytest command and previously failed during collection because repository root was not on `PYTHONPATH`.
 
@@ -31,4 +31,4 @@
 2. Cover critical architecture contracts: config, provider, normalized result, storage, benchmark artifacts, gateway API.
 3. Add backend API and browser-driven GUI user-flow tests over deterministic fake backends.
 4. Add CLI/manual-flow tests for engineering workflows.
-5. Document fast vs extended vs legacy execution policy.
+5. Document fast vs extended execution policy.

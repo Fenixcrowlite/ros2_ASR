@@ -42,7 +42,7 @@
 - `google`: native cloud gRPC streaming (`streaming_recognize`) with interim results and aggregated final.
 - `azure`: native cloud push-stream continuous recognition with interim results and aggregated final.
 - `aws`: native cloud `StartStreamTranscription` path with partial results and aggregated final.
-- `whisper`: still `simulated` streaming because the current local backend is one-shot/final-oriented and does not expose true incremental decoding in the platform contract yet.
+- `whisper`: no provider-stream support in the runtime contract. It is exposed as batch / recognize-once only until a real incremental decoding path exists.
 
 Cloud adapters fail fast when required credentials are absent or expired. They do not silently downgrade to buffered pseudo-streaming.
 

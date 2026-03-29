@@ -8,7 +8,6 @@ from typing import Any
 
 from asr_datasets.manifest import DatasetSample, load_manifest, save_manifest
 
-
 SUPPORTED_SUFFIXES = {".wav"}
 
 
@@ -78,6 +77,11 @@ def import_from_uploaded_files(
         relative_name = name.replace("\\", "/").split("/")[-1]
         if not relative_name:
             continue
+        if relative_name in saved:
+            raise ValueError(
+                "Uploaded dataset bundle contains duplicate filenames after path normalization: "
+                f"{relative_name}"
+            )
         dest = target_root / relative_name
         dest.parent.mkdir(parents=True, exist_ok=True)
         dest.write_bytes(payload)
@@ -86,14 +90,24 @@ def import_from_uploaded_files(
             manifest_candidate = dest
 
     if manifest_candidate is not None:
-        samples = load_manifest(str(manifest_candidate))
-        for sample in samples:
+        manifest_samples = load_manifest(str(manifest_candidate))
+        missing_audio: list[str] = []
+        for sample in manifest_samples:
             audio_name = Path(sample.audio_path).name
             if audio_name in saved:
                 sample.audio_path = str(saved[audio_name])
+            else:
+                missing_audio.append(audio_name or sample.audio_path)
+        if missing_audio:
+            joined = ", ".join(missing_audio[:10])
+            raise ValueError(
+                "Uploaded manifest references audio files that were not included "
+                "in the upload bundle: "
+                f"{joined}"
+            )
         manifest_out = Path(manifests_root) / f"{target_dataset_id}.jsonl"
-        save_manifest(str(manifest_out), samples)
-        return str(manifest_out), len(samples)
+        save_manifest(str(manifest_out), manifest_samples)
+        return str(manifest_out), len(manifest_samples)
 
     wav_files = sorted(path for path in saved.values() if path.suffix.lower() in SUPPORTED_SUFFIXES)
     if not wav_files:
@@ -103,7 +117,9 @@ def import_from_uploaded_files(
     missing_transcripts: list[str] = []
     for index, audio in enumerate(wav_files):
         transcript_path = audio.with_suffix(".txt")
-        transcript = transcript_path.read_text(encoding="utf-8").strip() if transcript_path.exists() else ""
+        transcript = (
+            transcript_path.read_text(encoding="utf-8").strip() if transcript_path.exists() else ""
+        )
         if not transcript:
             missing_transcripts.append(audio.name)
             continue
@@ -122,7 +138,8 @@ def import_from_uploaded_files(
     if missing_transcripts:
         joined = ", ".join(missing_transcripts[:10])
         raise ValueError(
-            "Uploaded samples require paired .txt transcripts with the same file stem when no manifest is provided: "
+            "Uploaded samples require paired .txt transcripts with the same file "
+            "stem when no manifest is provided: "
             f"{joined}"
         )
 

@@ -68,6 +68,10 @@ export function initBenchmarkPage(ctx) {
     return Array.from(noiseLevelsRoot.querySelectorAll('input[type="checkbox"]:checked')).map((item) => item.value);
   }
 
+  function incompatibleStreamingProviders() {
+    return selectedProviders().filter((providerProfile) => !providerRow(providerProfile)?.capabilities?.supports_streaming);
+  }
+
   function renderChecks(root, values, defaultSelection = []) {
     root.innerHTML = values
       .map((item) => {
@@ -302,6 +306,14 @@ export function initBenchmarkPage(ctx) {
     const providers = selectedProviders();
     if (!providers.length) {
       throw new Error('Select at least one provider profile before running benchmark');
+    }
+    if ((executionModeSelect.value || 'batch') === 'streaming') {
+      const incompatible = incompatibleStreamingProviders();
+      if (incompatible.length) {
+        throw new Error(
+          `Streaming benchmark mode requires streaming-capable providers: ${incompatible.join(', ')}`
+        );
+      }
     }
 
     const runIdInput = document.getElementById('benchmarkRunId').value;

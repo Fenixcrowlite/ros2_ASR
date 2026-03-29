@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from typing import Any
-
 from asr_metrics.plugins import DEFAULT_PLUGINS, MetricContext
 
 

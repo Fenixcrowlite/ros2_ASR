@@ -1,3 +1,5 @@
+// Browser entrypoint for the static control center.
+// It wires shared helpers, page controllers, navigation, and periodic polling.
 import { createApiClient } from './api.js';
 import { state, setActivePage } from './state.js';
 import * as ui from './ui.js';
@@ -16,6 +18,8 @@ const pages = document.querySelectorAll('.page');
 const navButtons = document.querySelectorAll('#mainNav button[data-page]');
 
 function showPage(pageId) {
+  // Navigation in this app is section-based rather than route-based: one HTML
+  // shell, many page controllers that know how to refresh themselves.
   setActivePage(pageId);
 
   navButtons.forEach((button) => {
@@ -42,6 +46,8 @@ const baseContext = {
   navigate: showPage,
 };
 
+// Each page module owns one vertical slice of UI behavior but shares the same
+// API client, global state object, and utility helpers.
 const controllers = {
   dashboard: initDashboardPage(baseContext),
   runtime: initRuntimePage(baseContext),
@@ -75,6 +81,8 @@ async function bootstrap() {
 
   showPage('dashboard');
 
+  // Poll only the active page to keep the UI fresh without hammering every
+  // endpoint at once.
   window.setInterval(async () => {
     try {
       const activeController = controllers[state.activePage];

@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 def clone_project_layout(repo_root: Path, target_root: Path) -> Path:
-    for rel in ("configs", "datasets", "secrets", "web_ui/frontend"):
+    for rel in ("configs", "datasets", "secrets", "web_ui/frontend", "data/sample"):
         src = repo_root / rel
         dst = target_root / rel
         if src.is_dir():

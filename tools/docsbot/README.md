@@ -35,8 +35,11 @@ docsbot install-hooks
 
 ## LLM Provider
 
-- If `OPENAI_API_KEY` is present, docsbot uses OpenAI.
-- If no key is available, docsbot automatically uses deterministic `MockProvider`.
+- Default mode is `DOCSBOT_LLM_PROVIDER=auto`.
+  In `auto`, docsbot uses OpenAI only when `OPENAI_API_KEY` is present.
+- Without an API key in `auto`, docsbot generates deterministic template-only pages and skips `LLM Draft` sections.
+- `DOCSBOT_LLM_PROVIDER=openai` requires `OPENAI_API_KEY` and fails fast if the key is missing.
+- `DOCSBOT_LLM_PROVIDER=mock` enables deterministic `MockProvider` explicitly for offline experiments.
 
 The writer only receives a task plan and project index slices.
 

@@ -17,14 +17,10 @@ asr:
   model: ""
   # Optional runtime override for cloud region (empty -> backend config/env).
   region: ""
-  # audio_capture mode: auto | mic | file
-  input_mode: auto
-  # Fallback/test WAV path used by service and file-mode capture.
+  # audio_capture mode: mic | file
+  input_mode: file
+  # Test WAV path used by service and file-mode capture.
   wav_path: data/sample/vosk_test.wav
-  # Cloud fallback is disabled by default to keep runtime behavior honest.
-  cloud_fallback_enabled: false
-  # Local fallback backend used only when explicitly enabled.
-  cloud_fallback_backend: whisper
 
 backends:
   mock:

@@ -2,10 +2,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from tools.archviz.cli import main
 from tools.archviz.diff_graph import build_arch_diff
 from tools.archviz.graph import new_graph
 from tools.archviz.merge_graph import merge_graphs
 from tools.archviz.render import render_mermaid
+from tools.archviz.runtime_extract import (
+    ManagedStackConflictError,
+    _detect_conflicting_managed_processes,
+)
 from tools.archviz.static_extract import extract_static_graph
 
 
@@ -228,3 +233,56 @@ def test_renderer_generates_mermaid_files(tmp_path: Path) -> None:
     assert "flowchart LR" in flow_text
     assert "expectedOnly" in flow_text
     assert "-.->" in flow_text
+
+
+def test_runtime_extractor_detects_conflicting_managed_stack() -> None:
+    project_root = Path("/tmp/demo_project")
+    ps_output = "\n".join(
+        [
+            "101 python something_else.py",
+            (
+                "202 /usr/bin/python3 "
+                "/tmp/demo_project/ros2_ws/install/asr_runtime_nodes/lib/"
+                "asr_runtime_nodes/asr_orchestrator_node"
+            ),
+            (
+                "303 /usr/bin/python3 "
+                "/tmp/other_project/ros2_ws/install/asr_runtime_nodes/lib/"
+                "asr_runtime_nodes/asr_orchestrator_node"
+            ),
+        ]
+    )
+
+    conflicts = _detect_conflicting_managed_processes(
+        project_root,
+        ps_output=ps_output,
+        exclude_pids={101},
+    )
+
+    assert conflicts == [
+        (
+            202,
+            (
+                "/usr/bin/python3 "
+                "/tmp/demo_project/ros2_ws/install/asr_runtime_nodes/lib/"
+                "asr_runtime_nodes/asr_orchestrator_node"
+            ),
+        )
+    ]
+
+
+def test_archviz_cli_returns_non_zero_for_managed_stack_conflict(
+    monkeypatch, tmp_path: Path, capsys
+) -> None:
+    def _raise_conflict(*_args, **_kwargs):
+        raise ManagedStackConflictError("managed stack conflict")
+
+    monkeypatch.setattr("tools.archviz.cli.extract_runtime_graph", _raise_conflict)
+
+    exit_code = main(
+        ["runtime", "--ws", str(tmp_path / "ros2_ws"), "--out", str(tmp_path / "out")]
+    )
+
+    captured = capsys.readouterr()
+    assert exit_code == 2
+    assert "managed stack conflict" in captured.err

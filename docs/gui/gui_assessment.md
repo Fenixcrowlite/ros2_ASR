@@ -4,6 +4,7 @@
 - Assessment date: 2026-03-12
 - Repository: `/home/fenix/Desktop/ros2ws`
 - Goal: evaluate current GUI/UX and define migration to architecture-safe, user-friendly GUI baseline for ROS2-first ASR platform.
+- Status note: the legacy `web_gui/` described below has since been removed after feature parity work landed in `web_ui` + `asr_gateway`.
 
 ## Current GUI State
 
@@ -24,7 +25,7 @@
   - No clear operator vs engineer layering.
   - No diagnostics explanation layer.
 
-### 2. `web_gui/` (legacy, feature-rich but architecture-misaligned)
+### 2. Historical `web_gui/` (removed after migration)
 - Contains independent FastAPI server and frontend with its own job orchestration.
 - Strengths:
   - Many practical controls and file tools.
@@ -70,12 +71,12 @@
   - Diagnostics refresh.
 
 ## Migration Strategy
-1. Keep `web_gui/` as legacy compatibility module (no destructive removal now).
-2. Make `web_ui/` + `asr_gateway` the canonical GUI path for new architecture.
+1. Completed: `web_gui/` has been removed after parity features landed in `web_ui`.
+2. `web_ui/` + `asr_gateway` is the canonical GUI path for the current architecture.
 3. Expand gateway contract first, then rebuild frontend around task flows.
 4. Preserve config/profile file model (GUI edits YAML through gateway, not replacing file architecture).
 5. Keep credentials masked and reference-based only.
-6. Mark legacy GUI in docs as deprecated for future ROS2-first unified UX.
+6. Keep legacy GUI mentions in docs as historical context only.
 
 ## Reuse Map
 - Reuse:
@@ -87,5 +88,5 @@
 - Refactor/extend:
   - Gateway API surface and response models.
   - Frontend IA, patterns, and components.
-- Keep as legacy/deprecated:
+- Removed after migration:
   - `web_gui/` workflow backend and old static UI.

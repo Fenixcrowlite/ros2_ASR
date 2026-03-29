@@ -12,7 +12,6 @@
 | `e2e` | Validate human-visible browser flows | runtime/benchmark/results/diagnostics | No |
 | `ros` | Validate ROS graph behavior | services/actions/topics/launch | No |
 | `cloud` | Validate real provider integrations | Azure/Google/AWS live behavior | No |
-| `legacy` | Preserve non-baseline historical coverage | legacy `web_gui` and other old paths | No |
 
 ## Scope Rules
 - `unit` must be deterministic and filesystem-light.

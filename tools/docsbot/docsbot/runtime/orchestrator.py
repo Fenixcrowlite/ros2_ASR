@@ -70,10 +70,21 @@ class DocsbotOrchestrator:
             return self.cfg.repo_root
         return self.cfg.repo_root
 
-    def _provider(self) -> LLMProvider:
+    def _provider(self) -> LLMProvider | None:
+        provider_mode = self.cfg.llm_provider
+        if provider_mode not in {"auto", "none", "openai", "mock"}:
+            raise ValueError(
+                "DOCSBOT_LLM_PROVIDER must be one of: auto, none, openai, mock"
+            )
+        if provider_mode == "none":
+            return None
+        if provider_mode == "mock":
+            return MockProvider()
         if self.cfg.openai_api_key:
             return OpenAIProvider(api_key=self.cfg.openai_api_key, model=self.cfg.docsbot_model)
-        return MockProvider()
+        if provider_mode == "openai":
+            raise RuntimeError("DOCSBOT_LLM_PROVIDER=openai requires OPENAI_API_KEY")
+        return None
 
     def _load_previous_index(self) -> ProjectIndex | None:
         index_path = self.cfg.cache_dir / "index.json"
@@ -169,22 +180,24 @@ class DocsbotOrchestrator:
         return {"entity": task_id, "type": entity_type}
 
     def _ai_draft(
-        self, provider: LLMProvider, task, index: ProjectIndex, existing: str | None
+        self,
+        provider: LLMProvider,
+        task,
+        index: ProjectIndex,
+        existing: str | None,
     ) -> str:
         payload = self._entity_payload(task.entity_id, task.entity_type, index)
-        try:
-            return provider.generate_markdown(
-                task=task, index=index, entity_payload=payload, existing_content=existing
-            )
-        except Exception as exc:
-            fallback = MockProvider()
-            draft = fallback.generate_markdown(
-                task=task, index=index, entity_payload=payload, existing_content=existing
-            )
-            return draft + f"\n\n> provider_error: {exc}\n"
+        return provider.generate_markdown(
+            task=task, index=index, entity_payload=payload, existing_content=existing
+        )
 
     def _compose_pages(
-        self, index: ProjectIndex, plan: TaskPlan, provider: LLMProvider
+        self,
+        index: ProjectIndex,
+        plan: TaskPlan,
+        provider: LLMProvider | None,
+        *,
+        warnings: list[str],
     ) -> dict[str, str]:
         pages: dict[str, str] = {}
 
@@ -230,14 +243,27 @@ class DocsbotOrchestrator:
             rel = f"04_Modules/{package.name}/{package.name}.md"
             pages[rel] = module_page(index, package.name)
 
-        # Run provider for task entities and append draft sections only for changed content pages.
-        for task in plan.tasks:
-            if task.entity_type not in {"topic", "service", "message", "module", "parameter"}:
-                continue
-            rel = task.target_path.replace(f"{self.cfg.docs_subfolder}/", "")
-            existing = pages.get(rel, "")
-            draft = self._ai_draft(provider=provider, task=task, index=index, existing=existing)
-            pages[rel] = existing.rstrip() + "\n\n## LLM Draft\n\n" + draft.strip() + "\n"
+        # LLM drafts are optional enrichment only. When no provider is configured,
+        # docsbot emits deterministic template pages without synthetic mock text.
+        if provider is not None:
+            for task in plan.tasks:
+                if task.entity_type not in {"topic", "service", "message", "module", "parameter"}:
+                    continue
+                rel = task.target_path.replace(f"{self.cfg.docs_subfolder}/", "")
+                existing = pages.get(rel, "")
+                try:
+                    draft = self._ai_draft(
+                        provider=provider,
+                        task=task,
+                        index=index,
+                        existing=existing,
+                    )
+                except Exception as exc:
+                    warnings.append(
+                        f"LLM draft skipped for {rel}: {exc}"
+                    )
+                    continue
+                pages[rel] = existing.rstrip() + "\n\n## LLM Draft\n\n" + draft.strip() + "\n"
 
         page_list = sorted(pages.keys())
         pages["90_Auto/_Generated Graph.md"] = generated_graph_page(index, page_paths=page_list)
@@ -267,7 +293,12 @@ class DocsbotOrchestrator:
     def generate(self) -> dict[str, Any]:
         index, plan = self._index_and_plan()
         provider = self._provider()
-        pages = self._compose_pages(index=index, plan=plan, provider=provider)
+        warnings: list[str] = []
+        if provider is None and self.cfg.llm_provider == "auto" and not self.cfg.openai_api_key:
+            warnings.append(
+                "OPENAI_API_KEY is not set; docsbot generated template-only pages without LLM drafts."
+            )
+        pages = self._compose_pages(index=index, plan=plan, provider=provider, warnings=warnings)
 
         # QA in staging folder before touching existing vault docs.
         stage_root = self.cfg.cache_dir / "staging" / datetime.now(UTC).strftime("%Y%m%d_%H%M%S")
@@ -281,8 +312,9 @@ class DocsbotOrchestrator:
             write_errors_page(self.cfg.docs_root / "90_Auto" / "_Errors.md", stage_report.errors)
             return {
                 "ok": False,
-                "provider": provider.name(),
+                "provider": provider.name() if provider is not None else "none",
                 "errors": stage_report.errors,
+                "warnings": warnings,
                 "stage_root": str(stage_root),
             }
 
@@ -322,10 +354,11 @@ class DocsbotOrchestrator:
 
         return {
             "ok": len(outcome.errors) == 0,
-            "provider": provider.name(),
+            "provider": provider.name() if provider is not None else "none",
             "written": len(outcome.written),
             "autogen": len(outcome.autogen),
             "errors": outcome.errors,
+            "warnings": warnings,
             "docs_root": str(self.cfg.docs_root),
         }
 

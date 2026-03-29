@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from asr_backend_azure.backend import _build_speech_config
+from asr_backend_azure.backend import _build_speech_config, _cancellation_details
 
 
 class _FakeSpeechConfig:
@@ -29,6 +29,14 @@ class _FakeSpeechSdk:
         Detailed = "Detailed"
 
     SpeechConfig = _FakeSpeechConfig
+
+    class CancellationDetails:
+        def __init__(self, result) -> None:
+            self.error_details = f"ctor:{result}"
+
+        @classmethod
+        def from_result(cls, result):
+            return cls(f"from_result:{result}")
 
 
 def test_build_speech_config_uses_endpoint_url_directly() -> None:
@@ -61,3 +69,10 @@ def test_build_speech_config_uses_endpoint_id_as_property() -> None:
     assert config.endpoint is None
     assert config.region == "westeurope"
     assert config.properties == [("SpeechServiceConnection_EndpointId", "custom-endpoint-id")]
+
+
+def test_cancellation_details_prefers_sdk_factory() -> None:
+    sdk = _FakeSpeechSdk()
+    details = _cancellation_details(sdk, "boom")
+
+    assert details.error_details == "ctor:from_result:boom"

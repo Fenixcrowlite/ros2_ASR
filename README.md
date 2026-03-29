@@ -2,7 +2,7 @@
 
 Production-oriented modular ASR integration for ROS2 (Ubuntu 24.04, Jazzy, Python) with local and commercial backends, benchmark tooling, metrics, and reproducible experiments.
 
-## Architecture Baseline (2026-03-12)
+## Architecture Baseline
 
 The repository now includes a modular ROS2-first baseline with explicit runtime/benchmark split and gateway boundary.
 
@@ -69,6 +69,33 @@ bash scripts/release_check.sh
 `make bench` runs the benchmark runner and generates `results/*.csv`, `results/*.json`,
 and `results/plots/*.png` in a single pass (no duplicate plotting step).
 
+Optional external-corpus smoke suite:
+
+```bash
+bash scripts/download_dataset_optional.sh
+python scripts/run_external_dataset_suite.py --mode core
+python scripts/run_external_dataset_suite.py --mode both --api-base-url http://127.0.0.1:8088
+```
+
+That path now rebuilds `12` tiny reproducible subsets from large public corpora
+and verifies both the direct benchmark core path and the live gateway benchmark
+path. The latest combined suite summary is stored in
+`results/external_dataset_suite_20260326T182557Z.md`, and the system-level
+assessment is summarized in `SYSTEM_QUALITY_ASSESSMENT.md`.
+
+Dataset manifests may keep relative `audio_path` values. They are resolved relative
+to the manifest file location, not the caller `cwd`. Uploaded manifest bundles are
+also rejected if filenames collide after basename normalization or if the manifest
+references audio files that were not uploaded with the bundle.
+
+Managed `asr_launch` stacks are single-instance per workspace by design. If another runtime/gateway/benchmark stack from this repository is still alive, a new launch fails fast with the conflicting PIDs instead of mixing ROS topics, services, and logs.
+
+In the browser UI:
+
+- `Start Live Runtime` runs the full live ROS pipeline.
+- In file-mode the selected WAV is replayed as a paced stream, so the Runtime page shows segment-level results.
+- `Transcribe Whole File` uses the direct one-shot path for one transcript of the entire WAV.
+
 ## Obsidian Wiki
 
 Project wiki vault is available in `docs/wiki`.
@@ -101,6 +128,13 @@ tools/docsbot/.venv/bin/docsbot generate
 tools/docsbot/.venv/bin/docsbot validate
 tools/docsbot/.venv/bin/docsbot watch
 ```
+
+Docsbot LLM behavior is explicit:
+
+- default `DOCSBOT_LLM_PROVIDER=auto`: use OpenAI only when `OPENAI_API_KEY` exists
+- without a key in `auto`: generate template-only pages, no synthetic mock drafts
+- `DOCSBOT_LLM_PROVIDER=openai`: fail fast if the key is missing
+- `DOCSBOT_LLM_PROVIDER=mock`: opt in to deterministic mock drafts explicitly
 
 Generated structure in vault subfolder:
 
@@ -158,6 +192,11 @@ make arch
 make arch-diff
 ```
 
+`make arch-runtime` and `make arch` now fail fast if another managed stack from
+the same workspace is already running. Stop `make web-gui`, `full_stack_dev`,
+or other managed launches first, otherwise runtime graph extraction would be
+polluted by unrelated live nodes/topics/services.
+
 Direct CLI:
 
 ```bash
@@ -179,62 +218,91 @@ Generated artifacts in `docs/arch/`:
 ## ROS2 Demo
 
 ```bash
+source .venv/bin/activate
 source /opt/ros/jazzy/setup.bash
-source install/setup.bash
-ros2 launch asr_ros demo.launch.py
+source ros2_ws/install/setup.bash
+ros2 launch asr_launch runtime_minimal.launch.py \
+  runtime_profile:=default_runtime \
+  provider_profile:=providers/whisper_local
 ```
 
 In another terminal:
 
 ```bash
+source .venv/bin/activate
 source /opt/ros/jazzy/setup.bash
-source install/setup.bash
-ros2 service call /asr/recognize_once asr_interfaces/srv/RecognizeOnce "{wav_path: data/sample/vosk_test.wav, language: en-US, enable_word_timestamps: true}"
+source ros2_ws/install/setup.bash
+ros2 service call /asr/runtime/recognize_once asr_interfaces/srv/RecognizeOnce \
+  "{wav_path: data/sample/vosk_test.wav, language: en-US, enable_word_timestamps: true, session_id: '', provider_profile: '', provider_preset: '', provider_settings_json: '{}'}"
 ```
 
-## Live Microphone Recognition
+`make run` is a thin wrapper around this launch path.
 
-Run demo with microphone input and live chunk processing:
+## Live Runtime Session
+
+Fastest live smoke path:
+
+```bash
+./scripts/open_live_test_terminals.sh
+```
+
+The helper now starts the current `asr_launch/runtime_streaming.launch.py` stack,
+waits for `/asr/runtime/start_session`, starts the session, and subscribes to
+the structured final-result topic.
+
+Manual live run:
 
 ```bash
 source .venv/bin/activate
-export PYTHONPATH="$(python -c 'import site; print(site.getsitepackages()[0])'):${PYTHONPATH}"
 source /opt/ros/jazzy/setup.bash
-source install/setup.bash
-ros2 launch asr_ros bringup.launch.py config:=configs/live_mic_whisper.yaml input_mode:=mic
+source ros2_ws/install/setup.bash
+ros2 launch asr_launch runtime_streaming.launch.py \
+  runtime_profile:=default_runtime \
+  provider_profile:=providers/whisper_local \
+  input_mode:=mic
 ```
 
-Where to view recognized text:
+In another terminal, start the runtime session:
+
+```bash
+source .venv/bin/activate
+source /opt/ros/jazzy/setup.bash
+source ros2_ws/install/setup.bash
+ros2 service call /asr/runtime/start_session asr_interfaces/srv/StartRuntimeSession \
+  "{runtime_profile: default_runtime, provider_profile: providers/whisper_local, provider_preset: '', provider_settings_json: '{}', session_id: '', runtime_namespace: /asr/runtime, auto_start_audio: true, processing_mode: segmented, audio_source: mic, audio_file_path: data/sample/vosk_test.wav, language: en-US, mic_capture_sec: 6.0}"
+```
+
+Watch final ASR results:
 
 ```bash
 source /opt/ros/jazzy/setup.bash
-source install/setup.bash
-ros2 topic echo /asr/text/plain --qos-durability transient_local
+source ros2_ws/install/setup.bash
+ros2 topic echo /asr/runtime/results/final --qos-durability transient_local --qos-reliability reliable
 ```
 
-If your DDS reports QoS incompatibility, use:
+Open `rqt` against the correct workspace overlay:
 
 ```bash
-ros2 topic echo /asr/text/plain --once --qos-durability transient_local --qos-reliability reliable
-```
-
-Optional telemetry view:
-
-```bash
-ros2 topic echo /asr/metrics
+bash scripts/run_rqt.sh
 ```
 
 Notes:
-- `asr_text_output_node` is started in bringup by default and republishes plain text to `/asr/text/plain`.
-- Structured result message remains available on `/asr/text`.
-- `input_mode:=mic` records from microphone; if microphone is unavailable, `audio_capture_node` falls back to file mode.
-- Microphone mode is continuous by default; new recognition results are published repeatedly while you speak.
-- For deterministic/local smoke checks without ML models, switch to mock backend:
-  `ros2 service call /asr/set_backend asr_interfaces/srv/SetAsrBackend "{backend: mock, model: '', region: ''}"`.
+- There is no primary `/asr/text/plain` topic in the new runtime stack; the supported result feed is `/asr/runtime/results/final`.
+- Runtime launch alone does not auto-capture audio. Live flow begins after `/asr/runtime/start_session`.
+- The orchestrator logs every final runtime result to the launch terminal, so manual runs are no longer silent without a separate subscriber.
+- `/asr/runtime/results/final` is retained with `transient_local`; for late CLI inspection use `ros2 topic echo /asr/runtime/results/final --qos-durability transient_local --qos-reliability reliable`.
+- `audio_source=mic` uses the microphone; `audio_source=file` replays a WAV through the same runtime pipeline.
+- Runtime control/status services are now `/asr/runtime/*`, not legacy `/asr/set_backend` and `/asr/get_status`.
+- Do not launch `rqt` from a desktop shortcut or a shell that only sourced a stale top-level `install/setup.bash`; use `ros2_ws/install/setup.bash` or `scripts/run_rqt.sh` so `asr_interfaces/*` types are importable.
 
-## Live Sample Evaluation (Record + Compare Interfaces)
+## Legacy Compatibility Sample Evaluation
 
-Record one microphone sample and run it through selected interfaces/backends
+`scripts/run_live_sample_eval.sh` is kept for compatibility checks across the old
+`core`, `ros_service`, and `ros_action` paths. It still exercises the legacy
+`asr_ros` service/action surface and should not be treated as the primary
+operator runbook for the modular runtime stack.
+
+It records one microphone sample and runs it through selected interfaces/backends
 with metrics collection:
 
 Interactive mode (record first, then choose language mode and model runs):
@@ -273,6 +341,11 @@ Useful options:
 - `--use-wav /path/to/existing.wav`
 - `--action-streaming`
 
+Compatibility-tool guardrails:
+
+- `--language-mode auto` now fails fast if `faster-whisper` language detection is unavailable; it no longer falls back silently to config language.
+- `--interfaces ros_action --action-streaming` is valid only for streaming-capable backends. Batch-only targets such as Whisper are rejected before any run starts.
+
 ## Web GUI Control Center (New Gateway-First UI)
 
 Run full browser control center (runtime + benchmark + diagnostics) via the new `web_ui` + `asr_gateway` stack:
@@ -285,6 +358,12 @@ make web-gui
 - ROS2 runtime nodes,
 - benchmark manager node,
 - `asr_gateway` backend serving new `web_ui` at `http://localhost:8088`.
+
+If you need to stop an already running stack cleanly before relaunching:
+
+```bash
+bash scripts/run_web_ui.sh --stop --port 8088
+```
 
 For LAN access:
 
@@ -302,20 +381,19 @@ New GUI docs:
 - `docs/gui/README.md`
 - `web_ui/README.md`
 
-Legacy GUI (compatibility only):
-- `make web-gui-legacy`
-- `make web-gui-legacy-lan`
-- `web_gui/README.md`
-
 ## Cloud Credentials
 
 Do not commit secrets. Use environment variables and local-only `configs/commercial.yaml` copied from `configs/commercial.example.yaml`.
 
-Legacy `web_gui` cloud runs are fail-fast by design:
-- `google` validates credentials file path before run.
-- `azure` validates key+region pair.
-- `aws` validates profile/access-key setup and runs `aws sts get-caller-identity` preflight.
+Gateway/runtime cloud runs are fail-fast by design:
+- `google` validates service-account file setup before provider use.
+- `azure` validates key+region pairing before provider use.
+- `aws` validates auth/profile metadata through secret refs before provider use.
 
-Secret fields are intentionally excluded from browser draft persistence.
+The `web_ui` secrets page also supports:
+- AWS SSO login status and refresh,
+- Google service-account upload/clear,
+- Azure env save/clear,
+- environment preflight and runtime sample/noise tooling via the gateway.
 
 See `docs/commercial_setup.md`.

@@ -1,0 +1,5 @@
+profile_id: datasets/mls_german_test_subset
+inherits: []
+dataset_id: mls_german_test_subset
+manifest_path: datasets/manifests/mls_german_test_subset.jsonl
+default_language: de-DE

@@ -4,6 +4,7 @@ import json
 import shutil
 from pathlib import Path
 
+import pytest
 import yaml  # type: ignore[import-untyped]
 from asr_benchmark_core.models import BenchmarkRunRequest
 from asr_benchmark_core.orchestrator import BenchmarkOrchestrator
@@ -164,3 +165,137 @@ def test_benchmark_orchestrator_streaming_records_streaming_metrics(tmp_path: Pa
     assert summary.metadata["execution_mode"] == "streaming"
     assert summary.mean_metrics["partial_count"] > 0
     assert summary.mean_metrics["first_partial_latency_ms"] > 0
+
+
+def test_benchmark_orchestrator_rejects_streaming_for_non_streaming_provider(
+    tmp_path: Path,
+    sample_wav: str,
+) -> None:
+    class FakeBatchOnlyProvider(FakeProviderAdapter):
+        provider_id = "fake_batch_only_component"
+
+        def __init__(self) -> None:
+            super().__init__(supports_streaming=False)
+
+    register_provider("fake_batch_only_component", FakeBatchOnlyProvider)
+    configs = tmp_path / "configs"
+    artifacts = tmp_path / "artifacts"
+    registry = tmp_path / "datasets" / "registry" / "datasets.json"
+    imported_audio = tmp_path / "datasets" / "imported" / "bench.wav"
+    manifest_path = tmp_path / "datasets" / "manifests" / "bench.jsonl"
+
+    imported_audio.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    registry.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(sample_wav, imported_audio)
+
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "sample_id": "sample_00001",
+                "audio_path": str(imported_audio),
+                "transcript": "hello world",
+                "language": "en-US",
+                "split": "test",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    registry.write_text('{"datasets": []}\n', encoding="utf-8")
+
+    _write_yaml(configs / "providers" / "fake_batch_only.yaml", {"provider_id": "fake_batch_only_component", "settings": {}})
+    _write_yaml(configs / "datasets" / "bench_dataset.yaml", {"dataset_id": "bench_dataset", "manifest_path": str(manifest_path)})
+    _write_yaml(configs / "metrics" / "streaming.yaml", {"metrics": ["wer"]})
+    _write_yaml(
+        configs / "benchmark" / "bench.yaml",
+        {
+            "dataset_profile": "datasets/bench_dataset",
+            "providers": ["providers/fake_batch_only"],
+            "metric_profiles": ["metrics/streaming"],
+            "execution_mode": "streaming",
+            "streaming": {"chunk_ms": 250},
+        },
+    )
+
+    orchestrator = BenchmarkOrchestrator(
+        configs_root=str(configs),
+        artifact_root=str(artifacts),
+        registry_path=str(registry),
+    )
+
+    with pytest.raises(ValueError, match="does not support streaming benchmark mode"):
+        orchestrator.run(
+            BenchmarkRunRequest(
+                benchmark_profile="bench",
+                dataset_profile="bench_dataset",
+                providers=["providers/fake_batch_only"],
+                benchmark_settings={"execution_mode": "streaming", "streaming": {"chunk_ms": 250}},
+                run_id="bench_streaming_unsupported",
+            )
+        )
+
+
+def test_benchmark_orchestrator_rejects_invalid_merged_streaming_settings(
+    tmp_path: Path,
+    sample_wav: str,
+) -> None:
+    class FakeStreamingProvider(FakeProviderAdapter):
+        provider_id = "fake_stream_validation"
+
+    register_provider("fake_stream_validation", FakeStreamingProvider)
+    configs = tmp_path / "configs"
+    artifacts = tmp_path / "artifacts"
+    registry = tmp_path / "datasets" / "registry" / "datasets.json"
+    imported_audio = tmp_path / "datasets" / "imported" / "bench.wav"
+    manifest_path = tmp_path / "datasets" / "manifests" / "bench.jsonl"
+
+    imported_audio.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    registry.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(sample_wav, imported_audio)
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "sample_id": "sample_00001",
+                "audio_path": str(imported_audio),
+                "transcript": "stream 8 chunks",
+                "language": "en-US",
+                "split": "test",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    registry.write_text('{"datasets": []}\n', encoding="utf-8")
+
+    _write_yaml(configs / "providers" / "fake_stream.yaml", {"provider_id": "fake_stream_validation", "settings": {}})
+    _write_yaml(configs / "datasets" / "bench_dataset.yaml", {"dataset_id": "bench_dataset", "manifest_path": str(manifest_path)})
+    _write_yaml(configs / "metrics" / "streaming.yaml", {"metrics": ["wer"]})
+    _write_yaml(
+        configs / "benchmark" / "bench.yaml",
+        {
+            "dataset_profile": "datasets/bench_dataset",
+            "providers": ["providers/fake_stream"],
+            "metric_profiles": ["metrics/streaming"],
+            "execution_mode": "streaming",
+            "streaming": {"chunk_ms": 250},
+        },
+    )
+
+    orchestrator = BenchmarkOrchestrator(
+        configs_root=str(configs),
+        artifact_root=str(artifacts),
+        registry_path=str(registry),
+    )
+
+    with pytest.raises(ValueError, match="Benchmark settings validation failed"):
+        orchestrator.run(
+            BenchmarkRunRequest(
+                benchmark_profile="bench",
+                dataset_profile="bench_dataset",
+                providers=["providers/fake_stream"],
+                benchmark_settings={"execution_mode": "streaming", "streaming": {"chunk_ms": 0}},
+                run_id="bench_streaming_invalid_chunk",
+            )
+        )

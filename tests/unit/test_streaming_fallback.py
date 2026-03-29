@@ -3,11 +3,13 @@ from __future__ import annotations
 import io
 import wave
 
+import pytest
+from asr_core.audio import pcm_chunks_to_wav_bytes
 from asr_core.backend import AsrBackend
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings
 
 
-class _FallbackProbeBackend(AsrBackend):
+class _ProbeBackend(AsrBackend):
     def __init__(self) -> None:
         super().__init__()
         self.last_request: AsrRequest | None = None
@@ -24,19 +26,20 @@ class _FallbackProbeBackend(AsrBackend):
         )
 
 
-def test_streaming_fallback_wraps_pcm_chunks_into_wav() -> None:
-    backend = _FallbackProbeBackend()
+def test_pcm_chunks_to_wav_bytes_wraps_pcm_chunks_into_wav() -> None:
     chunks = [b"\x00\x00" * 1600, b"\x01\x00" * 1600]
+    wav_bytes = pcm_chunks_to_wav_bytes(chunks, sample_rate=16000)
 
-    response = backend.streaming_recognize(chunks, language="en-US", sample_rate=16000)
-
-    assert backend.last_request is not None
-    assert backend.last_request.audio_bytes is not None
-    assert backend.last_request.audio_bytes.startswith(b"RIFF")
-    with wave.open(io.BytesIO(backend.last_request.audio_bytes), "rb") as wf:
+    assert wav_bytes.startswith(b"RIFF")
+    with wave.open(io.BytesIO(wav_bytes), "rb") as wf:
         assert wf.getframerate() == 16000
         assert wf.getnchannels() == 1
         assert wf.getsampwidth() == 2
         assert wf.getnframes() == 3200
-    assert response.success
-    assert response.backend_info["streaming_fallback"] == "true"
+
+
+def test_backend_streaming_requires_explicit_implementation() -> None:
+    backend = _ProbeBackend()
+
+    with pytest.raises(NotImplementedError, match="does not support streaming_recognize"):
+        backend.streaming_recognize([b"\x00\x00" * 1600], language="en-US", sample_rate=16000)

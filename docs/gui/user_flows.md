@@ -5,8 +5,8 @@
 2. Confirm gateway/runtime health is not critical.
 3. Click `Start Runtime` quick action or open Runtime page.
 4. Select runtime and provider profiles.
-5. Start runtime.
-6. Run recognize-once sample or provide audio source.
+5. Run `Start Live Runtime` for the live pipeline.
+6. Run `Transcribe Whole File` when you need one direct transcript for the selected WAV.
 7. Observe partial/final output and session status.
 
 ## 2. Runtime Profile Setup (engineer)

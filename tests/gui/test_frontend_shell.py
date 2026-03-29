@@ -4,6 +4,7 @@ import importlib
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+
 from tests.utils.fakes import FakeGatewayRosClient, build_stub_provider_manager
 from tests.utils.project import clone_project_layout, seed_benchmark_run, seed_logs
 
@@ -36,17 +37,34 @@ def test_frontend_shell_and_assets_are_served(repo_root: Path, tmp_path: Path, m
     index = client.get("/")
     styles = client.get("/ui/styles.css")
     script = client.get("/ui/js/app.js")
+    action_runner = client.get("/ui/js/action-runner.js")
 
     assert index.status_code == 200
     assert "ROS2 ASR Platform" in index.text
     assert 'data-page="runtime"' in index.text
     assert 'data-page="benchmark"' in index.text
     assert 'id="runtimeProcessingMode"' in index.text
+    assert 'id="runtimeSampleSelect"' in index.text
+    assert 'id="runtimeSampleDropzone"' in index.text
+    assert 'id="runtimeSampleUploadInput"' in index.text
+    assert 'id="runtimeGenerateNoiseBtn"' in index.text
+    assert "Start Live Runtime" in index.text
+    assert "Transcribe Whole File" in index.text
     assert 'id="benchmarkExecutionMode"' in index.text
     assert 'id="benchmarkStreamingChunkMs"' in index.text
     assert 'id="dashboardCloudHealth"' in index.text
+    assert 'class="guide-card"' in index.text
+    assert 'id="commonLanguageOptions"' in index.text
+    assert 'id="providerProfileOptions"' in index.text
+    assert 'id="diagnosticsPreflightBtn"' in index.text
     assert 'id="awsAuthSummary"' in index.text
     assert 'id="awsSsoLoginBtn"' in index.text
+    assert 'id="awsSsoAutoOpenPage"' in index.text
+    assert 'id="awsSsoLoginUrl"' in index.text
+    assert 'id="awsSsoOpenLoginPageBtn"' in index.text
+    assert 'id="awsSsoCopyLoginPageBtn"' in index.text
+    assert 'id="awsSsoDeviceCode"' in index.text
+    assert 'id="awsSsoCopyDeviceCodeBtn"' in index.text
     assert 'id="awsSsoLoginFeedback"' in index.text
     assert 'id="googleAuthSummary"' in index.text
     assert 'id="googleUploadBtn"' in index.text
@@ -61,3 +79,5 @@ def test_frontend_shell_and_assets_are_served(repo_root: Path, tmp_path: Path, m
     assert styles.headers["cache-control"].startswith("no-store")
     assert script.status_code == 200
     assert script.headers["cache-control"].startswith("no-store")
+    assert action_runner.status_code == 200
+    assert action_runner.headers["cache-control"].startswith("no-store")

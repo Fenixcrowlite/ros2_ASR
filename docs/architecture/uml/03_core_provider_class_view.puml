@@ -1,0 +1,295 @@
+@startuml
+title Core + Provider + Benchmark Class View
+
+left to right direction
+skinparam shadowing false
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+hide empty members
+
+package "asr_core" {
+  abstract class AsrBackend {
+    +config: dict
+    +client: object
+    +capabilities: BackendCapabilities
+    +has_credentials(): bool
+    +recognize_once(request): AsrResponse
+    +streaming_recognize(chunks, language, sample_rate): AsrResponse
+  }
+
+  class AsrRequest {
+    +wav_path: str
+    +audio_bytes: bytes
+    +language: str
+    +enable_word_timestamps: bool
+    +sample_rate: int
+    +metadata: dict
+  }
+
+  class AsrResponse {
+    +text: str
+    +partials: list
+    +confidence: float
+    +word_timestamps: list
+    +language: str
+    +backend_info: dict
+    +timings: AsrTimings
+    +success: bool
+    +error_code: str
+    +error_message: str
+    +as_dict(): dict
+  }
+
+  class AsrTimings {
+    +preprocess_ms: float
+    +inference_ms: float
+    +postprocess_ms: float
+    +total_ms: float
+  }
+
+  class BackendCapabilities {
+    +supports_recognize_once: bool
+    +supports_streaming: bool
+    +streaming_mode: str
+    +supports_word_timestamps: bool
+    +supports_confidence: bool
+    +is_cloud: bool
+  }
+
+  class WordTimestamp {
+    +word: str
+    +start_sec: float
+    +end_sec: float
+    +confidence: float
+  }
+
+  class NormalizedAsrResult {
+    +request_id: str
+    +session_id: str
+    +provider_id: str
+    +text: str
+    +is_final: bool
+    +is_partial: bool
+    +words: list
+    +confidence: float
+    +latency: LatencyMetadata
+    +error_code: str
+    +error_message: str
+    +as_dict(): dict
+  }
+
+  class NormalizedWord {
+    +word: str
+    +start_sec: float
+    +end_sec: float
+    +confidence: float
+  }
+
+  class LatencyMetadata {
+    +total_ms: float
+    +first_partial_ms: float
+    +finalization_ms: float
+  }
+}
+
+package "asr_provider_base" {
+  abstract class AsrProviderAdapter {
+    +initialize(config, credentials_ref)
+    +validate_config(): list
+    +discover_capabilities(): ProviderCapabilities
+    +recognize_once(audio, options): NormalizedAsrResult
+    +start_stream(options)
+    +push_audio(chunk): NormalizedAsrResult
+    +drain_stream_results(): list
+    +stop_stream(): NormalizedAsrResult
+    +get_status(): ProviderStatus
+    +teardown()
+  }
+
+  class ProviderManager {
+    +resolve_profile_payload(provider_profile): dict
+    +create_from_profile(provider_profile, preset_id, settings_overrides): AsrProviderAdapter
+  }
+
+  class ProviderAudio {
+    +session_id: str
+    +request_id: str
+    +language: str
+    +sample_rate_hz: int
+    +audio_bytes: bytes
+    +wav_path: str
+    +metadata: dict
+  }
+
+  class ProviderStatus {
+    +provider_id: str
+    +state: str
+    +health: str
+    +error_code: str
+    +error_message: str
+  }
+
+  class ProviderCapabilities {
+    +supports_streaming: bool
+    +streaming_mode: str
+    +supports_batch: bool
+    +supports_word_timestamps: bool
+    +supports_partials: bool
+    +supports_confidence: bool
+    +requires_network: bool
+  }
+}
+
+package "asr_provider_whisper" {
+  class WhisperProvider {
+    -_backend: WhisperAsrBackend
+    +initialize(config, credentials_ref)
+    +recognize_once(audio, options): NormalizedAsrResult
+    +start_stream(options)
+    +push_audio(chunk): NormalizedAsrResult
+    +stop_stream(): NormalizedAsrResult
+    +get_status(): ProviderStatus
+  }
+}
+
+package "asr_backend_whisper" {
+  class WhisperAsrBackend {
+    +model_size: str
+    +device: str
+    +compute_type: str
+    +recognize_once(request): AsrResponse
+  }
+}
+
+package "asr_datasets" {
+  class DatasetEntry {
+    +dataset_id: str
+    +manifest_ref: str
+    +sample_count: int
+    +metadata: dict
+  }
+
+  class DatasetSample {
+    +sample_id: str
+    +audio_path: str
+    +transcript: str
+    +language: str
+    +duration_sec: float
+  }
+
+  class DatasetRegistry {
+    +list(): list
+    +register(entry)
+  }
+}
+
+package "asr_metrics" {
+  class MetricEngine {
+    +enabled_metrics: list
+    +evaluate(context): dict
+  }
+
+  class MetricContext {
+    +reference_text: str
+    +hypothesis_text: str
+    +latency_ms: float
+    +success: bool
+    +audio_duration_sec: float
+    +estimated_cost_usd: float
+  }
+
+  abstract class MetricPlugin {
+    +compute(context): float
+  }
+}
+
+package "asr_storage" {
+  class ArtifactStore {
+    +make_runtime_session(session_id)
+    +make_benchmark_run(run_id)
+    +save_json(path, payload): ArtifactRef
+    +save_manifest(run_dir, payload): ArtifactRef
+    +save_report(run_dir, name, content): ArtifactRef
+  }
+
+  class ArtifactRef {
+    +run_id: str
+    +artifact_type: str
+    +path: str
+    +checksum: str
+    +size_bytes: int
+  }
+}
+
+package "asr_benchmark_core" {
+  class BenchmarkRunRequest {
+    +benchmark_profile: str
+    +dataset_profile: str
+    +providers: list
+    +scenario: str
+    +provider_overrides: dict
+    +benchmark_settings: dict
+    +run_id: str
+  }
+
+  class BenchmarkRunSummary {
+    +run_id: str
+    +benchmark_profile: str
+    +dataset_id: str
+    +providers: list
+    +total_samples: int
+    +successful_samples: int
+    +failed_samples: int
+    +mean_metrics: dict
+    +artifacts: dict
+  }
+
+  class BatchExecutor {
+    +run_sample(...)
+    +run_sample_streaming(...)
+  }
+
+  class BenchmarkOrchestrator {
+    +run(request): BenchmarkRunSummary
+  }
+}
+
+WhisperAsrBackend --|> AsrBackend
+WhisperProvider --|> AsrProviderAdapter
+
+AsrResponse *-- AsrTimings
+AsrResponse *-- "0..*" WordTimestamp
+NormalizedAsrResult *-- LatencyMetadata
+NormalizedAsrResult *-- "0..*" NormalizedWord
+
+AsrBackend ..> AsrRequest
+AsrBackend ..> AsrResponse
+AsrProviderAdapter ..> ProviderAudio
+AsrProviderAdapter ..> ProviderStatus
+AsrProviderAdapter ..> ProviderCapabilities
+AsrProviderAdapter ..> NormalizedAsrResult
+
+ProviderManager ..> AsrProviderAdapter : creates
+WhisperProvider *-- WhisperAsrBackend
+WhisperProvider ..> ProviderAudio
+WhisperProvider ..> NormalizedAsrResult
+
+MetricEngine o-- MetricPlugin
+MetricEngine ..> MetricContext
+
+BatchExecutor *-- MetricEngine
+BatchExecutor ..> ProviderAudio
+BatchExecutor ..> DatasetSample
+BatchExecutor ..> NormalizedAsrResult
+
+BenchmarkOrchestrator ..> BenchmarkRunRequest
+BenchmarkOrchestrator ..> BenchmarkRunSummary
+BenchmarkOrchestrator ..> ProviderManager
+BenchmarkOrchestrator ..> DatasetRegistry
+BenchmarkOrchestrator ..> BatchExecutor
+BenchmarkOrchestrator ..> ArtifactStore
+
+DatasetRegistry ..> DatasetEntry
+ArtifactStore ..> ArtifactRef
+
+@enduml

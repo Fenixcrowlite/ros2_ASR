@@ -4,6 +4,26 @@
 from __future__ import annotations
 
 import argparse
+import sys
+from pathlib import Path
+
+
+def _bootstrap_imports() -> None:
+    current = Path(__file__).resolve()
+    project_root = current.parents[2]
+    src_root = project_root / "ros2_ws" / "src"
+
+    paths = [project_root]
+    if src_root.is_dir():
+        paths.extend(path for path in src_root.iterdir() if path.is_dir())
+
+    for candidate in reversed(paths):
+        text = str(candidate)
+        if text not in sys.path:
+            sys.path.insert(0, text)
+
+
+_bootstrap_imports()
 
 from asr_config import resolve_profile, validate_benchmark_payload, validate_runtime_payload
 

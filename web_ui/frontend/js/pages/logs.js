@@ -2,6 +2,8 @@ export function initLogsPage(ctx) {
   const { api, ui } = ctx;
 
   const healthRoot = document.getElementById('diagnosticsHealth');
+  const preflightSummaryRoot = document.getElementById('diagnosticsPreflightSummary');
+  const preflightDetailsRoot = document.getElementById('diagnosticsPreflightDetails');
   const issuesRoot = document.getElementById('diagnosticsIssues');
   const logsViewer = document.getElementById('logsViewer');
 
@@ -45,6 +47,75 @@ export function initLogsPage(ctx) {
       .join('');
   }
 
+  async function loadPreflight() {
+    const payload = await api.diagnosticsPreflight();
+    const checks = payload.checks || {};
+    const modules = checks.modules || {};
+    const ros = checks.ros || {};
+    const microphone = checks.microphone || {};
+
+    preflightSummaryRoot.innerHTML = ui.renderKeyValueList([
+      { key: 'Overall', value: payload.ok ? 'ready' : 'issues detected' },
+      {
+        key: 'Python modules',
+        value: `${Object.values(modules).filter((item) => item?.ok).length}/${Object.keys(modules).length} ok`,
+      },
+      { key: 'Microphone stack', value: microphone.ok ? 'ok' : microphone.message || 'unavailable' },
+      {
+        key: 'ROS / build setup',
+        value: `${Object.values(ros).filter((item) => item?.ok).length}/${Object.keys(ros).length} ok`,
+      },
+    ]);
+
+    const detailGroups = [
+      {
+        title: 'Python Modules',
+        rows: Object.entries(modules).map(([name, item]) => ({
+          name,
+          ok: item?.ok,
+          message: item?.message || '',
+        })),
+      },
+      {
+        title: 'ROS Stack',
+        rows: Object.entries(ros).map(([name, item]) => ({
+          name,
+          ok: item?.ok,
+          message: item?.message || '',
+        })),
+      },
+      {
+        title: 'Microphone',
+        rows: [
+          {
+            name: 'microphone',
+            ok: microphone.ok,
+            message: microphone.message || '',
+          },
+        ],
+      },
+    ];
+
+    preflightDetailsRoot.innerHTML = detailGroups
+      .map(
+        (group) => `
+          <div class="stack-item">
+            <strong>${ui.escapeHtml(group.title)}</strong>
+            ${group.rows
+              .map(
+                (row) => `
+                  <p><span class="${ui.statusBadgeClass(row.ok ? 'valid' : 'invalid')}">${row.ok ? 'ok' : 'missing'}</span> ${ui.escapeHtml(
+                    row.name
+                  )} · ${ui.escapeHtml(row.message)}</p>
+                `
+              )
+              .join('')}
+          </div>
+        `
+      )
+      .join('');
+  }
+
   async function loadLogs() {
     const component = document.getElementById('logsComponent').value;
     const severity = document.getElementById('logsSeverity').value;
@@ -72,8 +143,21 @@ export function initLogsPage(ctx) {
     }
   });
 
+  document.getElementById('diagnosticsPreflightBtn')?.addEventListener('click', async () => {
+    try {
+      await loadPreflight();
+      ui.toast('Preflight completed', 'info');
+    } catch (error) {
+      preflightSummaryRoot.innerHTML = ui.renderEmpty(`Preflight failed: ${error.message}`);
+      preflightDetailsRoot.innerHTML = '';
+      ui.toast(`Preflight failed: ${error.message}`, 'error');
+    }
+  });
+
   return {
     refresh: async () => {
+      preflightSummaryRoot.innerHTML = ui.renderEmpty('Run preflight to check modules, audio devices, ROS setup, and installed gateway/runtime entrypoints.');
+      preflightDetailsRoot.innerHTML = '';
       await Promise.all([loadHealth(), loadIssues(), loadLogs()]);
     },
     poll: async () => {

@@ -1,6 +1,13 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Placeholder script for optional external dataset acquisition.
-echo "Optional dataset downloader placeholder."
-echo "Add your own corpus download logic here if needed."
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT_DIR"
+
+if [[ ! -f "$ROOT_DIR/.venv/bin/activate" ]]; then
+  echo ".venv missing. Run make setup first." >&2
+  exit 1
+fi
+
+source "$ROOT_DIR/.venv/bin/activate"
+python "$ROOT_DIR/scripts/import_dataset/build_external_subsets.py" "$@"

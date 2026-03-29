@@ -2,6 +2,14 @@
 
 Единый словарь терминов проекта с короткими примерами.
 
+Важно:
+
+- primary runtime stack теперь использует `asr_launch`, `asr_runtime_nodes`,
+  `asr_gateway` и `/asr/runtime/*` interfaces;
+- определения ниже, которые упоминают `asr_ros`, `/asr/set_backend`,
+  `/asr/get_status`, `bringup.launch.py` или `/asr/text/plain`, относятся к
+  legacy compatibility surface и не должны считаться основным runbook.
+
 ## ASR
 
 Что это: распознавание речи (Automatic Speech Recognition).
@@ -12,7 +20,7 @@
 
 Что это: итоговый YAML конфиг, который реально потребляют runtime-процессы.
 Где в вики: [[08_Data_Configs/Configs_Overview]], [[07_Tooling/Web_GUI_Control_Center]].
-Пример: `web_gui/runtime_configs/20260302_230224_first-try.yaml`.
+Пример: `configs/runtime/default_runtime.yaml`.
 
 ## Base Config
 
@@ -44,6 +52,8 @@
 - `manual` (явно заданный код),
 - `auto` (автоопределение),
 - `config` (из YAML).
+Важно: `auto` теперь fail-fast режим. Если автоопределение недоступно, сценарий
+завершается ошибкой и не откатывается молча к `config`.
 Где в вики: [[06_Operations/Live_Sample_Eval_Playbook]], [[07_Tooling/Web_GUI_Control_Center]].
 Пример: `--language-mode auto`.
 
@@ -80,6 +90,8 @@
 ## Interface ros_action
 
 Что это: прогон через action `/asr/transcribe` (streaming/non-streaming).
+Важно: `--action-streaming` допустим только для backend’ов с реальным
+streaming support.
 Где в вики: [[02_ROS2/Action_Transcribe]], [[07_Tooling/Scripts/Live_Sample_Eval_Script]].
 Пример: `--interfaces ros_action --action-streaming`.
 
@@ -92,6 +104,8 @@
 ## Action Streaming
 
 Что это: режим action, где результат отдается как поток feedback + финал.
+Для batch-only backend’ов такой режим теперь отвергается до запуска, а не
+деградирует в другой сценарий.
 Где в вики: [[02_ROS2/Action_Transcribe]], [[07_Tooling/Scripts/Live_Sample_Eval_Script]].
 Пример: `--action-streaming`.
 

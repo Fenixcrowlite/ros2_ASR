@@ -65,19 +65,11 @@ class DeterministicWhisperBackend:
         del request
         return DummyResponse()
 
-    def streaming_recognize(self, chunks: list[bytes], language: str, sample_rate: int) -> DummyResponse:
-        del chunks, sample_rate
-        return DummyResponse(text=f"streamed {language}")
-
 
 class FailingWhisperBackend(DeterministicWhisperBackend):
     def recognize_once(self, request: Any) -> DummyResponse:
         del request
         return DummyResponse(success=False, error_code="whisper_model_error", error_message="simulated failure")
-
-    def streaming_recognize(self, chunks: list[bytes], language: str, sample_rate: int) -> DummyResponse:
-        del chunks, language, sample_rate
-        return DummyResponse(success=False, error_code="whisper_runtime_error", error_message="simulated failure")
 
 
 class EmptyWhisperBackend(DeterministicWhisperBackend):
@@ -180,7 +172,8 @@ def test_whisper_provider_contract(monkeypatch: pytest.MonkeyPatch, sample_wav: 
 
     assert provider.validate_config() == []
     caps = provider.discover_capabilities()
-    assert caps.supports_streaming is True
+    assert caps.supports_streaming is False
+    assert caps.streaming_mode == "none"
     assert caps.requires_network is False
 
     result = provider.recognize_once(
@@ -194,12 +187,9 @@ def test_whisper_provider_contract(monkeypatch: pytest.MonkeyPatch, sample_wav: 
         )
     )
     _assert_common_result_contract(result, "whisper")
-
-    provider.start_stream({"language": "en-US", "sample_rate_hz": 16000})
-    provider.push_audio(b"chunk-1")
-    stream_result = provider.stop_stream()
-    _assert_common_result_contract(stream_result, "whisper")
     assert provider.get_status().state == "ready"
+    with pytest.raises(RuntimeError, match="does not support provider_stream mode"):
+        provider.start_stream({"language": "en-US", "sample_rate_hz": 16000})
 
     provider.teardown()
     assert provider.get_status().state == "stopped"

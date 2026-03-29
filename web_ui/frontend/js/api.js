@@ -1,3 +1,5 @@
+// Tiny fetch wrapper used by all page modules. The browser never talks to ROS
+// directly; everything flows through gateway HTTP endpoints defined here.
 async function request(path, opts = {}) {
   const isFormData = opts.body instanceof FormData;
   const response = await fetch(path, {
@@ -29,6 +31,7 @@ function jsonBody(value) {
 }
 
 function formBody(entries) {
+  // Use FormData for uploads like WAV samples and Google service-account files.
   const form = new FormData();
   Object.entries(entries || {}).forEach(([key, value]) => {
     if (value == null) {
@@ -45,24 +48,31 @@ function formBody(entries) {
 
 export function createApiClient() {
   return {
+    // Dashboard/system overview
     health: () => request('/api/health'),
     dashboard: () => request('/api/dashboard'),
     systemStatus: () => request('/api/system/status'),
 
+    // Runtime control and live status
     runtimeStatus: () => request('/api/runtime/status'),
     runtimeLive: () => request('/api/runtime/live'),
     runtimeBackends: () => request('/api/runtime/backends'),
+    runtimeSamples: () => request('/api/runtime/samples'),
+    runtimeUploadSample: (payload) => request('/api/runtime/upload_sample', { method: 'POST', body: formBody(payload) }),
+    runtimeGenerateNoise: (payload) => request('/api/runtime/generate_noise', { method: 'POST', body: jsonBody(payload) }),
     runtimeStart: (payload) => request('/api/runtime/start', { method: 'POST', body: jsonBody(payload) }),
     runtimeStop: (payload) => request('/api/runtime/stop', { method: 'POST', body: jsonBody(payload) }),
     runtimeReconfigure: (payload) => request('/api/runtime/reconfigure', { method: 'POST', body: jsonBody(payload) }),
     runtimeRecognizeOnce: (payload) =>
       request('/api/runtime/recognize_once', { method: 'POST', body: jsonBody(payload) }),
 
+    // Provider catalog/profile inspection
     providersCatalog: () => request('/api/providers/catalog'),
     providersProfiles: () => request('/api/providers/profiles'),
     providersValidate: (payload) => request('/api/providers/validate', { method: 'POST', body: jsonBody(payload) }),
     providersTest: (payload) => request('/api/providers/test', { method: 'POST', body: jsonBody(payload) }),
 
+    // Generic profile browsing/editing
     profilesAll: () => request('/api/profiles'),
     profilesByType: (type, detailed = false) => request(`/api/profiles/${type}?detailed=${String(detailed)}`),
     profileDetail: (type, id) => request(`/api/profiles/${type}/${encodeURIComponent(id)}`),
@@ -70,6 +80,7 @@ export function createApiClient() {
       request(`/api/profiles/${type}/${encodeURIComponent(id)}`, { method: 'PUT', body: jsonBody(payload) }),
     validateConfig: (payload) => request('/api/config/validate', { method: 'POST', body: jsonBody(payload) }),
 
+    // Dataset import and registry
     datasetsList: () => request('/api/datasets'),
     datasetDetail: (id) => request(`/api/datasets/${encodeURIComponent(id)}`),
     datasetImport: (payload) => request('/api/datasets/import', { method: 'POST', body: jsonBody(payload) }),
@@ -79,22 +90,27 @@ export function createApiClient() {
     datasetValidateManifest: (payload) =>
       request('/api/datasets/validate_manifest', { method: 'POST', body: jsonBody(payload) }),
 
+    // Benchmark execution and history
     benchmarkRun: (payload) => request('/api/benchmark/run', { method: 'POST', body: jsonBody(payload) }),
     benchmarkStatus: (runId) => request(`/api/benchmark/status/${encodeURIComponent(runId)}`),
     benchmarkHistory: (limit = 30) => request(`/api/benchmark/history?limit=${limit}`),
 
+    // Result browsing/comparison/export
     resultsOverview: () => request('/api/results/overview'),
     resultsRunDetail: (runId) => request(`/api/results/runs/${encodeURIComponent(runId)}`),
     resultsCompare: (payload) => request('/api/results/compare', { method: 'POST', body: jsonBody(payload) }),
     resultsExport: (payload) => request('/api/results/export', { method: 'POST', body: jsonBody(payload) }),
 
+    // Diagnostics and logs
     diagnosticsHealth: () => request('/api/diagnostics/health'),
+    diagnosticsPreflight: () => request('/api/diagnostics/preflight'),
     diagnosticsIssues: () => request('/api/diagnostics/issues'),
     logs: (params) => {
       const search = new URLSearchParams(params);
       return request(`/api/logs?${search.toString()}`);
     },
 
+    // Secret metadata and cloud auth helpers
     secretsRefs: () => request('/api/secrets/refs'),
     secretsSaveRef: (payload) => request('/api/secrets/refs', { method: 'POST', body: jsonBody(payload) }),
     secretsValidateRef: (payload) =>
@@ -116,6 +132,7 @@ export function createApiClient() {
     secretsLinkProvider: (payload) =>
       request('/api/secrets/link_provider', { method: 'POST', body: jsonBody(payload) }),
 
+    // Artifact browser
     artifacts: () => request('/api/artifacts'),
   };
 }

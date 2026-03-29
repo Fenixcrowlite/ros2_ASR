@@ -1,26 +1,37 @@
 # KNOWN_LIMITATIONS
 
-1. Cloud E2E remains environment-dependent.
-- Полный интеграционный прогон `google/aws/azure` требует валидных аккаунтов, биллинга и сети; в дефолтном CI это не выполняется.
+1. Full cloud E2E was not executed.
+- `aws`, `google`, and `azure` provider paths still require live credentials, network, and billing-enabled accounts to be fully validated end-to-end.
 
-2. AWS preflight requires boto3 or AWS CLI availability.
-- Preflight использует boto3 STS путь, а при отсутствии boto3 переключается на `aws sts get-caller-identity`.
-- Если в окружении нет ни boto3, ни AWS CLI, AWS job start будет отклонен fail-fast.
+2. Static debt remains significant.
+- `ruff check . --statistics` reports 301 findings.
+- `mypy ros2_ws/src tests scripts tools/archviz` reports 172 errors in 18 files.
 
-3. Historical logs still contain pre-fix failures.
-- Старые файлы в `web_gui/logs/` включают legacy tracebacks и SSO ошибки, которые уже закрыты текущими правками.
+3. The repository still carries two runtime concepts.
+- The modular runtime stack is primary.
+- `asr_ros` still exists as a compatibility surface and can still confuse future contributors if not explicitly retired or isolated.
 
-4. Bandit warnings are not fully eliminated.
-- Большинство оставшихся finding — low-severity subprocess/test-patterns в tooling-коде.
+4. Wiki migration is incomplete.
+- Entry pages now warn about the modular runtime, but many deeper `docs/wiki` pages still document legacy `asr_ros` flows.
 
-5. Shell script linting is still partial.
-- `shellcheck` отсутствовал в среде, поэтому автоматическая shell static-lint стадия не была запущена.
+5. Shell linting is incomplete.
+- `shellcheck` was not available in this environment, so shell script review stayed manual plus `bash -n`.
 
-6. Coverage remains uneven for dependency-heavy backends.
-- Aggregate non-ROS coverage приемлемая, но модули `azure/vosk/whisper` требуют дополнительных mock-heavy тестов для плотного покрытия.
+6. Browser e2e dependency warnings remain.
+- The flaky fixed-port issue was removed, but `websockets` deprecation warnings still appear through third-party dependencies.
 
-7. Frontend browser E2E coverage is still limited.
-- Web GUI draft persistence и UI-state синхронизация проверены runtime-smoke, но без полноценного headless browser suite.
+7. Security findings are reduced but not zero.
+- `bandit` still reports 32 low and 1 medium finding, mostly around legitimate subprocess usage and test-code patterns.
 
-8. AWS STS preflight cache is short-term and in-memory only.
-- Кэш (по умолчанию 120 секунд) ускоряет повторные старты, но может кратковременно не заметить только что истекший токен до следующей полной preflight-проверки.
+8. `cloud_credentials_available` remains a legacy-named field.
+- For local providers it effectively means “credentials not required / runtime ready”.
+- The field is now truthful, but the name is still semantically awkward.
+
+9. `scripts/live_sample_eval.py` is still a compatibility-oriented tool.
+- It intentionally exercises legacy `core|ros_service|ros_action` paths, including `asr_ros`.
+- It is no longer the primary runtime demonstration path.
+- It now fails fast on unsupported combinations, but the tool itself still belongs to the legacy surface.
+
+10. `make arch` still needs a clean managed-stack state.
+- `archviz runtime/all` now refuses to run when another managed stack from the same workspace is already alive, which is the correct safety behavior.
+- Full runtime architecture extraction is still relatively expensive because the `full` profile launches multiple stacks sequentially.

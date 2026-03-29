@@ -6,6 +6,8 @@ export function initDashboardPage(ctx) {
   const outputRoot = document.getElementById('dashboardRuntimeOutput');
   const cloudRoot = document.getElementById('dashboardCloudHealth');
   const actionsRoot = document.getElementById('dashboardQuickActions');
+  // Dashboard is intentionally a summary page: it reads aggregated gateway
+  // payloads instead of owning any subsystem-specific business logic.
   let runtimeActionInFlight = false;
 
   function renderCards(payload) {
@@ -81,13 +83,7 @@ export function initDashboardPage(ctx) {
           <div class="stack-item">
             <strong>${ui.escapeHtml(item.provider_id || 'provider')} · ${ui.escapeHtml(item.type || 'final')}</strong>
             <p>${ui.escapeHtml(item.text || item.message || '(empty result)')}</p>
-            <p class="muted">${ui.escapeHtml(
-              item.raw_metadata_ref === 'provider:mock_fallback'
-                ? 'mode=mock-fallback'
-                : item.degraded
-                  ? 'mode=degraded'
-                  : 'mode=normal'
-            )}</p>
+            <p class="muted">${ui.escapeHtml(item.degraded ? 'mode=degraded' : 'mode=normal')}</p>
             <p class="muted">${ui.escapeHtml(item.time || '')}</p>
           </div>
         `
@@ -117,6 +113,8 @@ export function initDashboardPage(ctx) {
   }
 
   function bindActions() {
+    // Quick actions are opinionated shortcuts for the most common demo/operator
+    // flows. Deeper configuration still lives on dedicated pages.
     actionsRoot.innerHTML = `
       <button class="btn-primary" id="dashboardStartRuntime">Start Runtime</button>
       <button class="btn-danger" id="dashboardStopRuntime">Stop Runtime</button>
@@ -172,6 +170,8 @@ export function initDashboardPage(ctx) {
   }
 
   async function refresh() {
+    // One dashboard request returns a stitched view of runtime, benchmark,
+    // provider readiness, recent outputs, and cloud auth state.
     const payload = await api.dashboard();
     state.runtime.live = payload.runtime_live || state.runtime.live || {};
     renderCards(payload);

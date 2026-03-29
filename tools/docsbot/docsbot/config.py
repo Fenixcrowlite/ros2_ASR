@@ -22,6 +22,7 @@ class DocsbotConfig:
     backups_dir: Path
     openai_api_key: str | None
     docsbot_model: str
+    llm_provider: str
 
 
 @dataclass(slots=True)
@@ -155,6 +156,7 @@ def load_config(
     backups_dir.mkdir(parents=True, exist_ok=True)
 
     model = os.getenv("DOCSBOT_MODEL", "gpt-4.1-mini")
+    llm_provider = (os.getenv("DOCSBOT_LLM_PROVIDER", "auto") or "auto").strip().lower()
 
     return DocsbotConfig(
         repo_root=repo,
@@ -166,6 +168,7 @@ def load_config(
         backups_dir=backups_dir,
         openai_api_key=os.getenv("OPENAI_API_KEY"),
         docsbot_model=model,
+        llm_provider=llm_provider,
     )
 
 

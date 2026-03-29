@@ -1,9 +1,14 @@
 from __future__ import annotations
 
+import builtins
+from pathlib import Path
+
+import pytest
 from asr_core.models import AsrResponse, AsrTimings
 from asr_metrics.collector import MetricsCollector
 
 from scripts.live_sample_eval import (
+    auto_detect_language_from_wav,
     backend_model_region,
     backend_target_label,
     collect_live_record,
@@ -11,6 +16,7 @@ from scripts.live_sample_eval import (
     parse_backend_model_spec,
     parse_csv_values,
     resolve_backend_targets,
+    validate_interface_plan,
 )
 
 
@@ -93,3 +99,46 @@ def test_collect_live_record_without_reference_marks_unknown_quality() -> None:
     assert record.wer == -1.0
     assert record.cer == -1.0
     assert record.transcript_ref == ""
+
+
+def test_validate_interface_plan_rejects_action_streaming_for_batch_only_backend() -> None:
+    cfg = {
+        "asr": {"backend": "whisper", "model": "", "region": ""},
+        "backends": {"whisper": {"model_size": "tiny", "device": "cpu", "compute_type": "int8"}},
+    }
+    targets = resolve_backend_targets(
+        cfg=cfg,
+        cli_backends="",
+        cli_model_runs="whisper:tiny",
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="ros_action with --action-streaming requires streaming-capable backends",
+    ):
+        validate_interface_plan(
+            cfg=cfg,
+            interfaces=["core", "ros_action"],
+            targets=targets,
+            action_streaming=True,
+        )
+
+
+def test_auto_detect_language_from_wav_fails_fast_without_detector(
+    sample_wav: str,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    original_import = builtins.__import__
+
+    def fake_import(name, globals=None, locals=None, fromlist=(), level=0):  # noqa: ANN001
+        if name == "faster_whisper":
+            raise ImportError("missing faster_whisper")
+        return original_import(name, globals, locals, fromlist, level)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+
+    with pytest.raises(RuntimeError, match="Auto language detection failed"):
+        auto_detect_language_from_wav(
+            Path(sample_wav),
+            {"asr": {"language": "en-US"}, "backends": {"whisper": {}}},
+        )

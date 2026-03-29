@@ -129,6 +129,12 @@ def _run_streaming_sim(
     )
 
 
+def _backend_supports_streaming(backend: object) -> bool:
+    """Return True only when backend advertises real streaming support."""
+    capabilities = getattr(backend, "capabilities", None)
+    return bool(getattr(capabilities, "supports_streaming", False))
+
+
 def run_benchmark(
     *,
     config_path: str,
@@ -163,10 +169,12 @@ def run_benchmark(
             backend = create_backend(backend_name, config=backend_cfg)
         except Exception as exc:
             raise ValueError(f"Unable to create backend '{backend_name}': {exc}") from exc
+        backend_supports_streaming = _backend_supports_streaming(backend)
         for item in dataset:
             for scenario in scenarios:
                 records.append(_run_single(backend, backend_name, item, scenario, collector))
-            records.append(_run_streaming_sim(backend, backend_name, item, chunk_sec, collector))
+            if backend_supports_streaming:
+                records.append(_run_streaming_sim(backend, backend_name, item, chunk_sec, collector))
 
     save_benchmark_json(records, output_json)
     save_benchmark_csv(records, output_csv)

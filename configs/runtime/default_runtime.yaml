@@ -7,6 +7,7 @@ audio:
   sample_rate_hz: 16000
   channels: 1
   chunk_ms: 500
+  file_replay_rate: 1.0
   mic_device: ""
 preprocess:
   target_sample_rate_hz: 16000

@@ -9,6 +9,7 @@ venv/
 .pytest_cache/
 .mypy_cache/
 .ruff_cache/
+.cache/
 .coverage
 coverage.xml
 .docsbot/
@@ -30,17 +31,11 @@ results/*.md
 results/*.html
 results/coverage.xml
 results/plots/*.png
-results/web_gui/
 dist/
 
-# Web GUI runtime artifacts
-web_gui/runtime_configs/
-web_gui/uploads/
-web_gui/noisy/
-web_gui/logs/
-web_gui/profiles/
-web_gui/auth_profiles/
-web_gui/runtime_aws/
+# Web UI runtime artifacts
+data/sample/uploads/
+data/sample/generated_noise/
 
 # Secrets
 .env

@@ -11,7 +11,6 @@
 
 - `input_mode=mic`
 - `input_mode=file`
-- `input_mode=auto` (пытается mic, затем fallback на file)
 
 ## Параметры
 

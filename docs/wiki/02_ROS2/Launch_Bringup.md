@@ -11,7 +11,7 @@
 ## Launch-аргументы
 
 - `config` (default: `configs/default.yaml`)
-- `input_mode` (default: `auto`)
+- `input_mode` (default: `file`)
 - `wav_path` (default: `data/sample/vosk_test.wav`)
 - `sample_rate` (default: `16000`)
 - `chunk_ms` (default: `800`)

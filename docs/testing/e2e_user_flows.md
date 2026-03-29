@@ -3,9 +3,9 @@
 ## Flow 1: Runtime Happy Path
 1. Open GUI root page.
 2. Navigate to Runtime.
-3. Start runtime session.
-4. Run `Recognize Once`.
-5. Confirm transcript appears in live transcription.
+3. Run `Start Live Runtime` and confirm live status starts updating.
+4. Run `Transcribe Whole File`.
+5. Confirm transcript appears in live transcription and/or the merged session transcript card.
 6. Stop runtime.
 7. Confirm runtime returns to idle.
 

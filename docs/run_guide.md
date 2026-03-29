@@ -1,22 +1,25 @@
 # Run Guide (ROS2 Jazzy + ASR)
 
-Практическая инструкция: как поднять систему, где смотреть распознавание, как запускать быстрые проверки.
+Практический runbook для актуального modular runtime stack:
+`asr_launch` + `asr_runtime_nodes` + `asr_gateway` + `web_ui`.
 
 ## 1. Требования
 
 - Ubuntu 24.04
-- ROS2 Jazzy установлен в `/opt/ros/jazzy`
+- ROS2 Jazzy в `/opt/ros/jazzy`
 - Python 3.12
-- В репозитории есть `.venv` (или будет создан через `make setup`)
+- `.venv` из `make setup`
+- собранный workspace `ros2_ws/install`
 
 Проверка:
 
 ```bash
 ls /opt/ros/jazzy/setup.bash
 python3 --version
+test -f .venv/bin/activate
 ```
 
-## 2. Первый запуск (один раз)
+## 2. Первый запуск
 
 Из корня репозитория:
 
@@ -24,29 +27,21 @@ python3 --version
 make setup
 make build
 make test-unit
+make test-ros
+make test-colcon
 ```
 
-Что делает:
+Что это дает:
 
-- `make setup` создаёт `.venv`, ставит зависимости, добавляет launcher `archviz`.
-- `make build` собирает ROS2 workspace (`colcon build`).
-- `make test-unit` проверяет базовую логику без ROS runtime.
+- `make setup` создает `.venv` и ставит Python dependencies.
+- `make build` собирает ROS2 workspace.
+- `make test-unit` прогоняет non-ROS проверки.
+- `make test-ros` проверяет ROS integration surface.
+- `make test-colcon` подтверждает, что все пакеты проходят `colcon test`.
 
-Если хочешь поднять локальный `Vosk`, один раз скачай модели и тестовый WAV:
+## 3. Быстрый live-тест в 2 терминалах
 
-```bash
-make setup-vosk
-```
-
-Это положит:
-
-- `models/vosk/vosk-model-small-ru-0.22`
-- `models/vosk/vosk-model-small-en-us-0.15`
-- `data/sample/vosk_test.wav`
-
-## 3. Быстрый live-тест в 2 терминалах (рекомендуется)
-
-Самый удобный вариант:
+Рекомендуемый способ:
 
 ```bash
 ./scripts/open_live_test_terminals.sh
@@ -54,289 +49,280 @@ make setup-vosk
 
 Скрипт откроет 2 окна:
 
-1. `ASR Recognition` — запуск `bringup.launch.py`.
-2. `ASR Text Topic` — `ros2 topic echo /asr/text/plain`.
+1. `ASR Runtime Launch`:
+   - стартует `ros2 launch asr_launch runtime_streaming.launch.py`.
+2. `ASR Final Results`:
+   - подписывается на `/asr/runtime/results/final`,
+   - ждет `/asr/runtime/start_session`,
+   - запускает runtime session через сервис.
 
-По умолчанию используется конфиг `configs/live_mic_whisper.yaml`.
+Позиционные аргументы скрипта:
 
-## 4. Ручной запуск (если нужно без скрипта)
+```bash
+./scripts/open_live_test_terminals.sh [runtime_profile] [input_mode] [provider_profile] [mic_capture_sec] [audio_file_path]
+```
+
+Пример file-mode:
+
+```bash
+./scripts/open_live_test_terminals.sh default_runtime file providers/whisper_local 0.0 data/sample/vosk_test.wav
+```
+
+## 4. Ручной запуск runtime
 
 Терминал 1:
 
 ```bash
 cd /home/fenix/Desktop/ros2ws
 source .venv/bin/activate
-export PYTHONPATH="$(python -c 'import site; print(site.getsitepackages()[0])'):${PYTHONPATH}"
 source /opt/ros/jazzy/setup.bash
-source install/setup.bash
-ros2 launch asr_ros bringup.launch.py config:=configs/live_mic_whisper.yaml input_mode:=mic
+source ros2_ws/install/setup.bash
+ros2 launch asr_launch runtime_streaming.launch.py \
+  runtime_profile:=default_runtime \
+  provider_profile:=providers/whisper_local \
+  input_mode:=mic
 ```
 
-Терминал 2 (распознанный текст):
+Терминал 2: запуск session.
+
+```bash
+cd /home/fenix/Desktop/ros2ws
+source .venv/bin/activate
+source /opt/ros/jazzy/setup.bash
+source ros2_ws/install/setup.bash
+ros2 service call /asr/runtime/start_session asr_interfaces/srv/StartRuntimeSession \
+  "{runtime_profile: default_runtime, provider_profile: providers/whisper_local, provider_preset: '', provider_settings_json: '{}', session_id: '', runtime_namespace: /asr/runtime, auto_start_audio: true, processing_mode: segmented, audio_source: mic, audio_file_path: data/sample/vosk_test.wav, language: en-US, mic_capture_sec: 6.0}"
+```
+
+Терминал 3: результаты и статус.
 
 ```bash
 cd /home/fenix/Desktop/ros2ws
 source /opt/ros/jazzy/setup.bash
-source install/setup.bash
-ros2 topic echo /asr/text/plain --qos-durability transient_local --qos-reliability reliable
+source ros2_ws/install/setup.bash
+ros2 topic echo /asr/runtime/results/final --qos-durability transient_local --qos-reliability reliable
 ```
 
-Терминал 3 (метрики, опционально):
+Для `rqt` используйте подготовленный entrypoint:
 
 ```bash
 cd /home/fenix/Desktop/ros2ws
+bash scripts/run_rqt.sh
+```
+
+Опционально:
+
+```bash
+ros2 topic echo /asr/status/sessions
+ros2 service call /asr/runtime/get_status asr_interfaces/srv/GetAsrStatus "{}"
+```
+
+Важно:
+
+- launch сам по себе не начинает live-сессию;
+- live flow стартует только после `/asr/runtime/start_session`;
+- основной результат теперь в `/asr/runtime/results/final`, а не в legacy `/asr/text/plain`.
+- orchestrator пишет каждый финальный результат в launch terminal, поэтому ручной запуск больше не выглядит "немым".
+- `/asr/runtime/results/final` публикуется с `transient_local`, поэтому поздний `ros2 topic echo` должен использовать `--qos-durability transient_local`; `rqt_topic` автоматически выбирает durable subscription, когда publisher у топика один и он durable.
+- если открыть `rqt` из несоответствующего shell, он не увидит `asr_interfaces/*`; не используйте устаревший корневой `install/setup.bash`, используйте `ros2_ws/install/setup.bash` или `scripts/run_rqt.sh`.
+
+## 5. One-shot демо без live session
+
+Поднять минимальный runtime:
+
+```bash
+make run
+```
+
+Или напрямую:
+
+```bash
+source .venv/bin/activate
 source /opt/ros/jazzy/setup.bash
-source install/setup.bash
-ros2 topic echo /asr/metrics
+source ros2_ws/install/setup.bash
+ros2 launch asr_launch runtime_minimal.launch.py \
+  runtime_profile:=default_runtime \
+  provider_profile:=providers/whisper_local
 ```
 
-## 5. Где смотреть результат
-
-- Основной plain-text: `/asr/text/plain` (отдельная нода `asr_text_output_node`)
-- Структурный результат: `/asr/text`
-- Метрики: `/asr/metrics`
-- One-shot сервис: `/asr/recognize_once`
-
-Пример one-shot вызова:
+В другом терминале:
 
 ```bash
-ros2 service call /asr/recognize_once asr_interfaces/srv/RecognizeOnce "{wav_path: data/sample/vosk_test.wav, language: en-US, enable_word_timestamps: true}"
+source .venv/bin/activate
+source /opt/ros/jazzy/setup.bash
+source ros2_ws/install/setup.bash
+ros2 service call /asr/runtime/recognize_once asr_interfaces/srv/RecognizeOnce \
+  "{wav_path: data/sample/vosk_test.wav, language: en-US, enable_word_timestamps: true, session_id: '', provider_profile: '', provider_preset: '', provider_settings_json: '{}'}"
 ```
 
-## 6. Как поменять backend на лету
+`RecognizeOnce` можно вызывать с override `provider_profile`, `provider_preset`
+и `provider_settings_json`, не меняя активную live session.
+
+## 6. Актуальные runtime interfaces
+
+Topics:
+
+- `/asr/runtime/audio/raw`
+- `/asr/runtime/audio/preprocessed`
+- `/asr/runtime/vad/activity`
+- `/asr/runtime/audio/segments`
+- `/asr/runtime/results/partial`
+- `/asr/runtime/results/final`
+- `/asr/status/nodes`
+- `/asr/status/sessions`
+
+Services:
+
+- `/asr/runtime/start_session`
+- `/asr/runtime/stop_session`
+- `/asr/runtime/reconfigure`
+- `/asr/runtime/recognize_once`
+- `/asr/runtime/list_backends`
+- `/asr/runtime/get_status`
+- `/config/list_profiles`
+- `/config/validate`
+
+## 7. Provider profiles
+
+Текущие provider profiles в `configs/providers/`:
+
+- `providers/whisper_local`
+- `providers/vosk_local`
+- `providers/google_cloud`
+- `providers/aws_cloud`
+- `providers/azure_cloud`
+
+Cloud profiles требуют корректных secret refs в `secrets/refs/`.
+
+## 8. Benchmark и отчеты
 
 ```bash
-ros2 service call /asr/set_backend asr_interfaces/srv/SetAsrBackend "{backend: mock, model: '', region: ''}"
-```
-
-Проверить состояние:
-
-```bash
-ros2 service call /asr/get_status asr_interfaces/srv/GetAsrStatus "{}"
-```
-
-## 7. Тесты и бенчмарк
-
-```bash
-make test-unit
-make test-ros
-make test-colcon
 make bench
 make report
 ```
 
-Примечания по benchmark reproducibility:
-
-- `benchmark.scenarios` в YAML можно задавать как список или как строку через запятую (`clean,snr20,snr10`).
-- Относительные `wav_path` в dataset-манифесте резолвятся сначала относительно директории самого манифеста, затем относительно текущего `cwd`.
-
-## 8. Запись live-семпла и прогон по выбранным интерфейсам
-
-Интерактивный режим (запись, затем выбор языка и моделей):
+Внешний cross-corpus smoke suite:
 
 ```bash
-bash scripts/run_live_sample_eval.sh
+bash scripts/download_dataset_optional.sh
+python scripts/run_external_dataset_suite.py --mode core
+python scripts/run_external_dataset_suite.py --mode both --api-base-url http://127.0.0.1:8088
 ```
-
-Non-interactive режим:
-
-```bash
-bash scripts/run_live_sample_eval.sh \
-  --interfaces core,ros_service,ros_action \
-  --model-runs whisper:tiny,whisper:large-v3,mock \
-  --language-mode auto \
-  --ros-auto-launch \
-  --reference-text "hello world"
-```
-
-Что делает:
-
-1. Пишет микрофон в WAV.
-2. Прогоняет один и тот же WAV через выбранные интерфейсы:
-   - `core`
-   - `ros_service`
-   - `ros_action`
-3. Для каждого прогона сохраняет метрики.
 
 Артефакты:
 
-- `results/live_sample/<timestamp>/live_results.csv`
-- `results/live_sample/<timestamp>/live_results.json`
-- `results/live_sample/<timestamp>/summary.md`
-- `results/live_sample/<timestamp>/plots/*.png`
+- `results/benchmark_results.csv`
+- `results/benchmark_results.json`
+- `results/report.md`
+- `results/plots/*.png`
+- `artifacts/benchmark_runs/<run_id>/...`
+- `results/external_dataset_suite_*.md`
+- `results/external_dataset_suite_*.json`
 
-Полезные флаги:
+CLI utilities теперь умеют bootstrapping repo imports без внешнего `PYTHONPATH`,
+поэтому их можно запускать и из временного `cwd`.
 
-- `--record-sec 5.0`
-- `--model-runs whisper:tiny,whisper:large-v3,mock`
-- `--language-mode manual|auto|config`
-- `--language ru-RU`
-- `--use-wav /path/to/file.wav`
-- `--action-streaming`
+Dataset manifests могут хранить относительные `audio_path`.
+Теперь они интерпретируются относительно самого manifest-файла, а не текущего
+`cwd`. При upload/import manifest bundle также будет отвергнут, если:
 
-## 9. Архитектурные диаграммы
+- имена файлов сталкиваются после нормализации basename;
+- manifest ссылается на аудио, которого нет в загруженном наборе.
 
-```bash
-make arch
-```
+`bash scripts/download_dataset_optional.sh` теперь больше не placeholder:
+он пересобирает локальные subset-профили из LibriSpeech, Mini LibriSpeech,
+FLEURS, VoxPopuli и Multilingual LibriSpeech.
 
-Артефакты будут в `docs/arch/`:
+## 9. Web GUI
 
-- `static_graph.json`
-- `runtime_graph.json`
-- `merged_graph.json`
-- `mindmap.mmd`, `flow.mmd`, `seq_recognize_once.mmd`
-- `CHANGELOG_ARCH.md`
-
-## 10. Типовые проблемы
-
-### 10.1 `libcublas.so.12 is not found`
-
-Это CUDA runtime проблема. Для быстрого восстановления:
-
-1. В `configs/live_mic_whisper.yaml` сменить `device: cuda` на `device: cpu`.
-2. Перезапустить `bringup.launch.py`.
-
-### 10.2 В `/asr/text/plain` пусто
-
-Проверь:
-
-- в первом терминале есть логи `Live transcription published`;
-- совпадает QoS (`--qos-durability transient_local --qos-reliability reliable`);
-- в `ros2 node list` есть `asr_text_output_node`;
-- микрофон доступен (иначе узел уйдёт в file fallback).
-
-### 10.3 Распознавание "галлюцинирует" на тишине
-
-Для Whisper уже включены анти-повторы в `configs/live_mic_whisper.yaml`:
-
-- `condition_on_previous_text: false`
-- `vad_filter: true`
-- `no_speech_threshold: 0.7`
-
-Если всё ещё шумно, увеличь `no_speech_threshold` (например до `0.8`).
-
-## 11. Остановка
-
-- Закрой терминалы с `ros2 launch` / `ros2 topic echo`.
-- Либо нажми `Ctrl+C` в каждом активном ROS2 процессе.
-
-## 12. Web GUI (новый gateway-first control center)
-
-Запуск:
+Локальный запуск:
 
 ```bash
 make web-gui
 ```
 
-`make web-gui` запускает новый GUI-стек:
-- runtime pipeline,
-- benchmark manager,
-- `asr_gateway` backend с новым `web_ui` фронтендом.
-
-Для запуска в LAN:
+LAN bind:
 
 ```bash
 make web-gui-lan
 ```
 
-Адрес:
-
-```text
-http://localhost:8088
-```
-
-Возможности нового GUI:
-
-- настройка языков/моделей/backend параметров,
-- управление profiles/providers/datasets/benchmark runs,
-- просмотр results/logs/diagnostics,
-- работа с credentials refs (без показа секретов).
-
-Legacy GUI остался как совместимый fallback:
+Остановка:
 
 ```bash
-make web-gui-legacy
-make web-gui-legacy-lan
+make web-gui-stop
 ```
 
-### 12.1 Cloud auth fail-fast (legacy `web_gui`, важно)
+Что важно:
 
-Для legacy GUI (`make web-gui-legacy`) перед стартом job выполняется cloud auth fail-fast и запуск останавливается с `HTTP 400`, если:
+- default bind теперь `127.0.0.1`, а не `0.0.0.0`;
+- `--mode lan` это осознанный opt-in;
+- GUI опирается на `asr_gateway` и runtime services `/asr/runtime/*`.
 
-- `google`: не задан/не найден `secrets/google/service-account.json` или `GOOGLE_APPLICATION_CREDENTIALS`.
-- `azure`: не заданы `AZURE_SPEECH_KEY` и/или `AZURE_SPEECH_REGION`.
-- `aws`: не задан `AWS_PROFILE` и нет пары `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY`.
-- `aws`: не задан `ASR_AWS_S3_BUCKET`.
+## 10. Archviz
 
-Для `aws` дополнительно выполняется preflight:
+Быстрый безопасный путь:
 
 ```bash
-# boto3 STS preflight (fallback to AWS CLI `aws sts get-caller-identity`
-# when boto3 is unavailable in runtime environment)
+make arch-static
 ```
 
-Это позволяет поймать просроченный/отсутствующий SSO token до длинного запуска ROS.
-
-Эти же проверки используются новым runtime/gateway stack перед native cloud streaming запуском. Если `google`, `azure` или `aws` показываются как `invalid` в GUI, система не будет молча переходить в buffered/fake streaming режим: запуск будет остановлен до исправления credentials.
-
-Для `aws` новый GUI `Secrets` page показывает два отдельных состояния:
-
-- `SSO sign-in session`
-- `role credentials`
-
-Это важно, потому что истекшая sign-in session ещё не всегда означает, что runtime/benchmark уже перестали работать: пока живы выданные role credentials, AWS calls могут продолжать проходить. Там же можно запустить native `aws sso login` без ухода в терминал.
-
-Для `azure` новый GUI `Secrets` page умеет:
-
-- показать, есть ли `AZURE_SPEECH_KEY`, `AZURE_SPEECH_REGION`, `ASR_AZURE_ENDPOINT`
-- показать, откуда они берутся:
-  - из process env
-  - или из локального `secrets/local/runtime.env`
-- сохранить/очистить native Azure env vars через GUI без помещения секретов в tracked YAML
-- сразу же запустить provider validation и quick test
-
-Для `google` новый GUI `Secrets` page умеет:
-
-- загрузить native service-account JSON
-- сохранить его в игнорируемый `secrets/google/service-account.json`
-- показать безопасную метаинформацию:
-  - `project_id`
-  - masked `client_email`
-  - путь и источник файла
-- сразу же запустить provider validation и quick test
-
-На `Dashboard` есть отдельный блок `Cloud Credential Readiness`, где сразу видно состояние `google`, `azure`, `aws` без перехода в `Secrets`.
-
-Для повторных AWS запусков в рамках одной GUI-сессии успешный STS preflight
-кешируется на короткое время (по умолчанию 120 секунд, `WEB_GUI_AWS_STS_PREFLIGHT_TTL_SEC`).
-Типовые SSO ошибки (`pending authorization expired`, `InvalidGrantException`, `token expired`)
-возвращаются с явными подсказками в `HTTP 400` detail.
-Отключение (только для диагностики):
+Полный runtime-aware path:
 
 ```bash
-export WEB_GUI_SKIP_AWS_STS_PREFLIGHT=1
+make arch
 ```
 
-### 12.2 AWS SSO login из legacy GUI
+Важно:
 
-В legacy GUI `AWS SSO Login` запускается в browser-first режиме (без принудительного `--no-browser`), что снижает риск истечения pending authorization при device-code flow.
-Для runtime SSO профиля обязательно указывать:
+- `make arch` и `make arch-runtime` теперь fail-fast, если другой managed stack
+  из этого же workspace уже запущен;
+- это сделано специально, чтобы не смешивать runtime graph с чужими live nodes,
+  topics и services;
+- если у вас уже поднят `make web-gui` / `full_stack_dev.launch.py`, сначала
+  остановите его, потом запускайте archviz.
 
-- `AWS_SSO_ACCOUNT_ID`
-- `AWS_SSO_ROLE_NAME`
+## 11. Типовые проблемы
 
-## 13. Colcon notifications и пробуждение экрана
+### 11.1 Runtime поднялся, но ничего не распознает
 
-В проекте по умолчанию отключено desktop-notify расширение colcon:
+Проверь:
 
-```bash
-COLCON_EXTENSION_BLOCKLIST=colcon_core.event_handler.desktop_notification
-```
+- был ли реально вызван `/asr/runtime/start_session`;
+- `audio_source` совпадает с ожидаемым (`mic|file`);
+- выбран существующий `audio_file_path` для file-mode;
+- `ros2 service call /asr/runtime/get_status ...` возвращает `session_state=ready|running`.
 
-Это снижает вероятность самопроизвольного пробуждения экрана во время фоновых `build/test` запусков.
-Если уведомления нужны явно, переопределите переменную окружения перед запуском.
+### 11.2 Нет сообщений в `/asr/runtime/results/final`
 
-Дополнительно `colcon`-вызовы в `Makefile` и runtime-скриптах теперь выполняются через lock-wrapper
-`scripts/with_colcon_lock.sh`, чтобы параллельные сценарии (`build/test/bench/demo`) не портили
-друг другу `build/install/log` состояние workspace.
+Проверь:
+
+- что session уже стартовала;
+- что `provider_profile` валиден;
+- что для позднего CLI-подписчика указан `--qos-durability transient_local`;
+- что нет ошибок в `/asr/status/nodes` и логах orchestrator/audio_input.
+
+### 11.3 Cloud provider profile валиден по YAML, но runtime не готов
+
+Разделяй два уровня:
+
+- profile validation: профиль синтаксически и структурно корректен;
+- runtime readiness: секреты/credentials реально доступны и backend может стартовать.
+
+Перед live/benchmark прогонами для cloud providers сначала проверь страницу
+`Secrets` в GUI или secret refs в `secrets/refs/`.
+
+### 11.4 `libcublas.so.12` или другие CUDA runtime ошибки
+
+Для быстрого обхода:
+
+- переключи provider profile на CPU-friendly режим;
+- либо используй `providers/vosk_local`;
+- либо настрой корректный CUDA runtime в `.venv`.
+
+## 12. Legacy compatibility
+
+В репозитории все еще есть `asr_ros` и связанные legacy docs/scripts для
+совместимости и migration reference. Для актуального runtime stack не используй
+их как основной runbook, если задача не состоит именно в проверке обратной
+совместимости.

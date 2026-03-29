@@ -4,10 +4,10 @@
 |---|---|---|---|---|---|
 | mock | yes | native | yes | yes | no |
 | vosk | yes | native | yes | yes | no |
-| whisper | yes | simulated | yes | yes | no |
-| google | yes | simulated | yes | yes | yes |
-| aws | yes | simulated | yes | yes | yes |
-| azure | yes | simulated | yes | yes | yes |
+| whisper | yes | none | yes | yes | no |
+| google | yes | native | yes | yes | yes |
+| aws | yes | native | yes | yes | yes |
+| azure | yes | native | yes | yes | yes |
 
 ## Как это используется
 

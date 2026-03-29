@@ -51,7 +51,7 @@ class _FakeClient:
         return _FakeResponse("ahoj svet")
 
 
-def test_google_backend_falls_back_to_default_model_for_unsupported_language(
+def test_google_backend_rejects_unsupported_model_without_hidden_fallback(
     tmp_path: Path,
 ) -> None:
     creds = tmp_path / "gcp.json"
@@ -72,7 +72,8 @@ def test_google_backend_falls_back_to_default_model_for_unsupported_language(
         )
     )
 
-    assert response.success is True
-    assert response.backend_info.get("requested_model") == "latest_long"
-    assert response.backend_info.get("model") == "default"
-    assert client.models == ["latest_long", "default"]
+    assert response.success is False
+    assert response.error_code == "google_model_unsupported"
+    assert "latest_long" in response.error_message
+    assert "sk-SK" in response.error_message
+    assert client.models == ["latest_long"]

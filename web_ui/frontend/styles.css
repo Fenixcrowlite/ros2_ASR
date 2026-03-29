@@ -158,13 +158,45 @@ p {
   box-shadow: var(--shadow);
 }
 
+.inset-panel {
+  background: color-mix(in srgb, var(--panel) 80%, #f1f6f3 20%);
+  border-style: dashed;
+  box-shadow: none;
+}
+
 .panel h3 {
   font-size: 1.02rem;
+}
+
+.form-fieldset {
+  margin: 0;
+  padding: 12px;
+  border: 1px dashed color-mix(in srgb, var(--accent) 28%, var(--border) 72%);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--panel) 84%, #f4faf8 16%);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-fieldset legend {
+  padding: 0 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--accent);
 }
 
 .helper {
   color: var(--text-muted);
   font-size: 0.9rem;
+}
+
+.field-note {
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
 }
 
 .toolbar {
@@ -208,6 +240,76 @@ p {
 .step h4 {
   font-size: 0.92rem;
   margin-bottom: 8px;
+}
+
+.guide-card {
+  border: 1px solid color-mix(in srgb, var(--accent) 18%, var(--border) 82%);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(243, 250, 248, 0.92));
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.guide-card summary {
+  cursor: pointer;
+  list-style: none;
+  padding: 12px 14px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guide-card summary::-webkit-details-marker {
+  display: none;
+}
+
+.guide-card summary::before {
+  content: "▸";
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+
+.guide-card[open] summary::before {
+  content: "▾";
+}
+
+.guide-card[open] summary {
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 14%, var(--border) 86%);
+}
+
+.guide-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 10px;
+  padding: 12px 14px 0;
+}
+
+.guide-item {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.88);
+}
+
+.guide-item strong {
+  display: block;
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.guide-item p {
+  color: var(--text-muted);
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.inline-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 10px 14px 14px;
 }
 
 .form-grid {
@@ -268,6 +370,18 @@ label textarea:focus {
   gap: 8px;
 }
 
+.inline-action-field {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.inline-action-field input {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
 button {
   border: 1px solid transparent;
   border-radius: 10px;
@@ -276,6 +390,11 @@ button {
   font-weight: 600;
   cursor: pointer;
   transition: 0.2s ease;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .btn-primary {
@@ -317,6 +436,36 @@ button {
   font-size: 0.88rem;
 }
 
+.dropzone {
+  border: 1px dashed color-mix(in srgb, var(--accent) 45%, var(--border) 55%);
+  border-radius: 12px;
+  padding: 14px;
+  background: linear-gradient(180deg, #fbfdfc, #f3faf8);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.dropzone:hover,
+.dropzone.is-dragover {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, #f5fffd, #e9f7f3);
+  box-shadow: 0 0 0 3px rgba(13, 127, 113, 0.1);
+}
+
+.dropzone.is-busy {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.dropzone strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
 .stack-list {
   display: flex;
   flex-direction: column;
@@ -334,6 +483,16 @@ button {
   margin-top: 4px;
   color: var(--text-muted);
   font-size: 0.88rem;
+}
+
+.transcript-aggregate {
+  background: color-mix(in srgb, var(--accent-soft) 72%, var(--panel) 28%);
+  border-color: color-mix(in srgb, var(--accent) 30%, var(--border) 70%);
+}
+
+.transcript-block {
+  white-space: pre-wrap;
+  color: var(--text) !important;
 }
 
 .badge {
@@ -569,5 +728,10 @@ hr {
 
   .topbar-status {
     justify-content: flex-start;
+  }
+
+  .dropzone {
+    flex-direction: column;
+    align-items: stretch;
   }
 }

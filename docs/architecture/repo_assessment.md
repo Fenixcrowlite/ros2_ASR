@@ -17,8 +17,9 @@
   - `asr_backend_aws`
 
 ### 1.2 Existing GUI/web parts
-- `web_gui/` contains FastAPI backend + static frontend.
-- GUI currently executes scripts/commands and manages runtime configs, but acts as mixed control plane with some business logic.
+- At assessment time, `web_gui/` contained FastAPI backend + static frontend.
+- That GUI executed scripts/commands and managed runtime configs, but acted as mixed control plane with some business logic.
+- Current state after migration: `web_gui/` has been removed; `web_ui/` + `asr_gateway` is the only active browser control plane.
 
 ### 1.3 Existing benchmark/testing parts
 - Benchmark logic exists in `asr_benchmark` + `asr_metrics`.
@@ -33,7 +34,8 @@
 - `configs/*.yaml` (flat profile set, partially mixed concerns).
 - `data/sample`, `data/transcripts` for sample audio and manifests.
 - `results/` for benchmark outputs.
-- `web_gui/runtime_configs`, `web_gui/logs`, `web_gui/uploads` contain runtime artifacts mixed with app internals.
+- Historical `web_gui/runtime_configs`, `web_gui/logs`, `web_gui/uploads` mixed runtime artifacts with app internals.
+- Current state after cleanup: historical browser artifacts are archived only under canonical roots (`logs/gui/legacy_web_gui`, `artifacts/runtime_sessions/legacy_web_gui`, `data/sample/generated_noise/legacy_web_gui`).
 
 ## 2. Main Architectural Gaps vs Target Requirements
 
@@ -41,7 +43,7 @@
 2. Provider model is good baseline but not explicit capability-first adapter contract package.
 3. No strict profile taxonomy (`runtime/providers/benchmark/datasets/metrics/deployment`) with clear precedence chain.
 4. No dedicated secret reference model (`ref -> env/file`) with masked handling as first-class API.
-5. Artifact storage model is not centralized (`results/`, `web_gui/*` and ad-hoc outputs coexist).
+5. Artifact storage model was not centralized (`results/`, historical `web_gui/*`, and ad-hoc outputs coexisted).
 6. GUI/backend boundary is weak; GUI still carries orchestration logic and command composition.
 7. ROS2 interface layer is too narrow for full runtime/benchmark/gateway lifecycle orchestration.
 8. Package naming and responsibility boundaries do not match target modular baseline.
@@ -68,7 +70,7 @@
 - `asr_benchmark` as primary benchmark package.
 - `asr_backend_*` naming scheme (kept temporarily for compatibility wrappers).
 - Flat `configs/*.yaml` usage as only source of truth.
-- `web_gui/` as architecture control plane.
+- historical `web_gui/` as architecture control plane.
 
 ## 4. Target Structure (high-level)
 
@@ -111,7 +113,8 @@
 4. Implement new runtime pipeline in `asr_runtime_nodes` with normalized result contract.
 5. Implement profile/secrets/artifacts core (`asr_config`, `asr_storage`) and move new launch files to use it.
 6. Build benchmark core/nodes around reproducible run manifests and artifact persistence.
-7. Introduce `asr_gateway` backend API and `web_ui` skeleton; keep legacy `web_gui` marked deprecated.
+7. Introduce `asr_gateway` backend API and `web_ui` skeleton; remove legacy `web_gui` after parity.
+   Status: completed.
 8. Update docs and launch recipes; record deprecated modules and sunset path.
 
 ## 6. Risks and Controls
@@ -134,4 +137,3 @@ This cycle delivers:
 - Benchmark baseline with dataset import/registry + WER/CER/latency + reproducible run artifacts.
 - Gateway backend baseline and initial `web_ui` skeleton.
 - Mandatory architecture/migration documentation set.
-

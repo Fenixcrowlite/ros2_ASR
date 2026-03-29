@@ -2,13 +2,12 @@
 
 from __future__ import annotations
 
-import audioop
 import random
 import wave
-from array import array
 from pathlib import Path
 from typing import Any
 
+from asr_core.audio import pcm_decode_samples, pcm_encode_samples, pcm_rms
 
 NOISE_LEVELS_DB = {
     "clean": None,
@@ -82,23 +81,23 @@ def apply_noise_to_wav(
     if params.sampwidth <= 0:
         raise ValueError(f"Unsupported sample width: {params.sampwidth}")
 
-    pcm16 = raw_frames if params.sampwidth == 2 else audioop.lin2lin(raw_frames, params.sampwidth, 2)
-    signal_rms = max(audioop.rms(pcm16, 2), 1)
+    signed = params.sampwidth != 1
+    samples = pcm_decode_samples(raw_frames, sample_width=params.sampwidth, signed=signed)
+    if not samples:
+        raise ValueError("Source WAV does not contain PCM frames")
+    signal_rms = max(pcm_rms(raw_frames, sample_width=params.sampwidth, signed=signed), 1.0)
     target_noise_rms = max(int(signal_rms / (10 ** (float(snr_db) / 20.0))), 1)
 
     rng = random.Random(seed)
-    samples = array("h")
-    samples.frombytes(pcm16)
-
-    noise_samples = array("h")
-    clip = 32767
+    clip = (1 << ((params.sampwidth * 8) - 1)) - 1 if signed else 127
+    noise_samples: list[int] = []
     for _ in range(len(samples)):
         noise_val = int(rng.gauss(0.0, target_noise_rms / 1.5))
         noise_val = max(-clip, min(clip, noise_val))
         noise_samples.append(noise_val)
 
-    mixed = audioop.add(pcm16, noise_samples.tobytes(), 2)
-    encoded = mixed if params.sampwidth == 2 else audioop.lin2lin(mixed, 2, params.sampwidth)
+    mixed = [sample + noise_samples[index] for index, sample in enumerate(samples)]
+    encoded = pcm_encode_samples(mixed, sample_width=params.sampwidth, signed=signed)
 
     with wave.open(str(target), "wb") as writer:
         writer.setparams(params)

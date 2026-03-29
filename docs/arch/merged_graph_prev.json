@@ -210,6 +210,111 @@
       "executable": null,
       "id": null,
       "kind": "service",
+      "name": "/asr_text_output_node/describe_parameters",
+      "namespace": null,
+      "node": "/asr_text_output_node",
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": "service",
+      "name": "/asr_text_output_node/get_parameter_types",
+      "namespace": null,
+      "node": "/asr_text_output_node",
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": "service",
+      "name": "/asr_text_output_node/get_parameters",
+      "namespace": null,
+      "node": "/asr_text_output_node",
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": "service",
+      "name": "/asr_text_output_node/get_type_description",
+      "namespace": null,
+      "node": "/asr_text_output_node",
+      "package": null,
+      "state": "observed_only",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": "service",
+      "name": "/asr_text_output_node/list_parameters",
+      "namespace": null,
+      "node": "/asr_text_output_node",
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": "service",
+      "name": "/asr_text_output_node/set_parameters",
+      "namespace": null,
+      "node": "/asr_text_output_node",
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": "service",
+      "name": "/asr_text_output_node/set_parameters_atomically",
+      "namespace": null,
+      "node": "/asr_text_output_node",
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": "service",
       "name": "/audio_capture_node/describe_parameters",
       "namespace": null,
       "node": "/audio_capture_node",
@@ -422,6 +527,67 @@
     {
       "direction": "pub",
       "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": "topic",
+      "name": "/asr/text/plain",
+      "namespace": null,
+      "node": "/asr_text_output_node",
+      "package": null,
+      "state": "observed_only",
+      "type": "std_msgs/msg/String"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": "topic",
+      "name": "/parameter_events",
+      "namespace": null,
+      "node": "/asr_text_output_node",
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/msg/ParameterEvent"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": "topic",
+      "name": "/rosout",
+      "namespace": null,
+      "node": "/asr_text_output_node",
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/msg/Log"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "static_ast"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": "topic",
+      "name": "unknown::topic::pub",
+      "namespace": null,
+      "node": "/asr_text_output_node",
+      "package": null,
+      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_text_output_node.py",
+      "state": "expected_only",
+      "type": "String"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
         "runtime_cli",
         "static_ast"
       ],
@@ -482,6 +648,37 @@
       "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_server_node.py",
       "state": "both",
       "type": "std_msgs/msg/UInt8MultiArray"
+    },
+    {
+      "direction": "sub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": "topic",
+      "name": "/asr/text",
+      "namespace": null,
+      "node": "/asr_text_output_node",
+      "package": null,
+      "state": "observed_only",
+      "type": "asr_interfaces/msg/AsrResult"
+    },
+    {
+      "direction": "sub",
+      "evidence": [
+        "static_ast"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": "topic",
+      "name": "unknown::topic::sub",
+      "namespace": null,
+      "node": "/asr_text_output_node",
+      "package": null,
+      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_text_output_node.py",
+      "state": "expected_only",
+      "type": "AsrResult"
     }
   ],
   "launches": [
@@ -546,6 +743,7 @@
         "live_stream_enabled",
         "mic_capture_sec",
         "sample_rate",
+        "text_output_enabled",
         "wav_path"
       ],
       "evidence": [
@@ -581,6 +779,14 @@
             "wav_path"
           ],
           "remappings": []
+        },
+        {
+          "executable": "asr_text_output_node",
+          "name": "asr_text_output_node",
+          "namespace": "/",
+          "package": "asr_ros",
+          "parameters": [],
+          "remappings": []
         }
       ],
       "package": "asr_ros",
@@ -600,13 +806,13 @@
     }
   ],
   "meta": {
-    "generated_at": "2026-03-01T10:20:51.061264+00:00",
+    "generated_at": "2026-03-12T04:08:31.213709+00:00",
     "schema_version": 1,
     "source": "merged",
     "sources": {
-      "merged_nodes": 3,
-      "runtime_nodes": 2,
-      "static_nodes": 3
+      "merged_nodes": 4,
+      "runtime_nodes": 3,
+      "static_nodes": 4
     },
     "workspace": "/home/fenix/Desktop/ros2ws/ros2_ws"
   },
@@ -655,6 +861,26 @@
       ],
       "remappings": [],
       "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_server_node.py",
+      "state": "both",
+      "type": "unknown"
+    },
+    {
+      "direction": null,
+      "evidence": [
+        "runtime_cli",
+        "static_ast",
+        "static_launch"
+      ],
+      "executable": "asr_text_output_node",
+      "id": "/asr_text_output_node",
+      "kind": null,
+      "launch_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/bringup.launch.py",
+      "name": "asr_text_output_node",
+      "namespace": "/",
+      "package": "asr_ros",
+      "parameters": [],
+      "remappings": [],
+      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_text_output_node.py",
       "state": "both",
       "type": "unknown"
     },
@@ -835,6 +1061,9 @@
             "float32 gpu_mem_mb",
             "float32 cost_estimate",
             "bool success",
+            "builtin_interfaces/Time capture_start",
+            "builtin_interfaces/Time capture_end",
+            "string text_preview",
             "string notes"
           ],
           "kind": "msg",
@@ -975,6 +1204,7 @@
       ],
       "entry_points": [
         "asr_server_node = asr_ros.asr_server_node:main",
+        "asr_text_output_node = asr_ros.asr_text_output_node:main",
         "audio_capture_node = asr_ros.audio_capture_node:main"
       ],
       "evidence": [
@@ -1188,6 +1418,104 @@
       "executable": null,
       "id": null,
       "kind": null,
+      "name": "/asr_text_output_node/describe_parameters",
+      "namespace": null,
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "direction": null,
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": null,
+      "name": "/asr_text_output_node/get_parameter_types",
+      "namespace": null,
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "direction": null,
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": null,
+      "name": "/asr_text_output_node/get_parameters",
+      "namespace": null,
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "direction": null,
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": null,
+      "name": "/asr_text_output_node/get_type_description",
+      "namespace": null,
+      "package": null,
+      "state": "observed_only",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "direction": null,
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": null,
+      "name": "/asr_text_output_node/list_parameters",
+      "namespace": null,
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "direction": null,
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": null,
+      "name": "/asr_text_output_node/set_parameters",
+      "namespace": null,
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "direction": null,
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": null,
+      "name": "/asr_text_output_node/set_parameters_atomically",
+      "namespace": null,
+      "package": null,
+      "state": "observed_only",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "direction": null,
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": null,
       "name": "/audio_capture_node/describe_parameters",
       "namespace": null,
       "package": null,
@@ -1281,7 +1609,7 @@
   ],
   "snapshots": [
     {
-      "duration_sec": 25.617,
+      "duration_sec": 25.587,
       "errors": [],
       "launch": {
         "args": {},
@@ -1291,10 +1619,10 @@
         "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/demo.launch.py"
       },
       "stderr_tail": "",
-      "stdout_tail": " _shutdown(context=context)\n[audio_capture_node-2]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py\", line 82, in shutdown\n[audio_capture_node-2]     context.shutdown()\n[audio_capture_node-2]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py\", line 129, in shutdown\n[audio_capture_node-2]     self.__context.shutdown()\n[audio_capture_node-2] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [audio_capture_node-2]: process has died [pid 184616, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/audio_capture_node --ros-args -r __node:=audio_capture_node --params-file /tmp/launch_params_lmn406e6 --params-file /tmp/launch_params_wnu8ss6j --params-file /tmp/launch_params_l7706d23 --params-file /tmp/launch_params_3tb0796q --params-file /tmp/launch_params_ihz3t86p --params-file /tmp/launch_params_pmnrc2t0 --params-file /tmp/launch_params_5wcnekjv']."
+      "stdout_tail": ": Live transcription published (backend=mock, device=unknown, request_id=1aef1b38-01db-4009-968c-481cd70f4265, text='streaming mock transcript')\n[audio_capture_node-2] [INFO] [1773288438.177441132] [audio_capture_node]: Published microphone audio chunks\n[asr_server_node-1] [INFO] [1773288438.619980477] [asr_server_node]: Live transcription published (backend=mock, device=unknown, request_id=6603fcc6-6784-4fa2-b232-a2d57e442f68, text='streaming mock transcript')\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [asr_text_output_node-3]: sending signal 'SIGINT' to process[asr_text_output_node-3]\n[INFO] [audio_capture_node-2]: sending signal 'SIGINT' to process[audio_capture_node-2]\n[INFO] [asr_server_node-1]: sending signal 'SIGINT' to process[asr_server_node-1]\n[INFO] [asr_text_output_node-3]: process has finished cleanly [pid 12873]\n[INFO] [asr_server_node-1]: process has finished cleanly [pid 12871]\n[INFO] [audio_capture_node-2]: process has finished cleanly [pid 12872]"
     },
     {
-      "duration_sec": 24.198,
+      "duration_sec": 24.599,
       "errors": [],
       "launch": {
         "args": {
@@ -1306,10 +1634,10 @@
         "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/bringup.launch.py"
       },
       "stderr_tail": "",
-      "stdout_tail": "own()\n[asr_server_node-1] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [audio_capture_node-2]: process has died [pid 184807, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/audio_capture_node --ros-args -r __node:=audio_capture_node --params-file /tmp/launch_params_ywhrv4me --params-file /tmp/launch_params_87oucdc1 --params-file /tmp/launch_params_c6c1ztp7 --params-file /tmp/launch_params_chv53ixs --params-file /tmp/launch_params_zk1hljn5 --params-file /tmp/launch_params_sfpduny6 --params-file /tmp/launch_params_wshgjspn'].\n[ERROR] [asr_server_node-1]: process has died [pid 184806, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_ros/lib/asr_ros/asr_server_node --ros-args -r __node:=asr_server_node --params-file /tmp/launch_params_zygebq0n --params-file /tmp/launch_params_ryqxsubl --params-file /tmp/launch_params_ez9rgofr --params-file /tmp/launch_params_w1l3kceq']."
+      "stdout_tail": "73288443.106158760] [asr_server_node]: ASR server started with backend=mock, live_stream_enabled=True, sample_rate=16000\n[audio_capture_node-2] [INFO] [1773288444.050829281] [audio_capture_node]: Published file audio chunks from data/sample/en_hello.wav\n[asr_server_node-1] [INFO] [1773288445.195672170] [asr_server_node]: Live transcription published (backend=mock, device=unknown, request_id=b8383cd7-cb20-4357-8436-267a2fa2fd2e, text='streaming mock transcript')\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [asr_text_output_node-3]: sending signal 'SIGINT' to process[asr_text_output_node-3]\n[INFO] [audio_capture_node-2]: sending signal 'SIGINT' to process[audio_capture_node-2]\n[INFO] [asr_server_node-1]: sending signal 'SIGINT' to process[asr_server_node-1]\n[INFO] [audio_capture_node-2]: process has finished cleanly [pid 13216]\n[INFO] [asr_text_output_node-3]: process has finished cleanly [pid 13217]\n[INFO] [asr_server_node-1]: process has finished cleanly [pid 13215]"
     },
     {
-      "duration_sec": 22.284,
+      "duration_sec": 22.086,
       "errors": [],
       "launch": {
         "args": {},
@@ -1319,10 +1647,10 @@
         "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark/launch/benchmark.launch.py"
       },
       "stderr_tail": "",
-      "stdout_tail": "ark/benchmark_node.py\", line 62, in main\n[asr_benchmark_node-1]     rclpy.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py\", line 134, in shutdown\n[asr_benchmark_node-1]     _shutdown(context=context)\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py\", line 82, in shutdown\n[asr_benchmark_node-1]     context.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py\", line 129, in shutdown\n[asr_benchmark_node-1]     self.__context.shutdown()\n[asr_benchmark_node-1] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [asr_benchmark_node-1]: process has died [pid 184898, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_benchmark/lib/asr_benchmark/asr_benchmark_node --ros-args --params-file /tmp/launch_params_2k44yi55 --params-file /tmp/launch_params_g_41l218']."
+      "stdout_tail": "[INFO] [launch]: All log files can be found below /home/fenix/.ros/log/2026-03-12-05-07-47-307877-fenixmachine-13448\n[INFO] [launch]: Default logging verbosity is set to INFO\n[INFO] [asr_benchmark_node-1]: process started with pid [13459]\n[asr_benchmark_node-1] [INFO] [1773288468.426526030] [asr_benchmark_node]: Running benchmark\n[asr_benchmark_node-1] [INFO] [1773288471.784158731] [asr_benchmark_node]: Benchmark completed with 30 records\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [asr_benchmark_node-1]: sending signal 'SIGINT' to process[asr_benchmark_node-1]\n[INFO] [asr_benchmark_node-1]: process has finished cleanly [pid 13459]"
     },
     {
-      "duration_sec": 22.338,
+      "duration_sec": 22.074,
       "errors": [],
       "launch": {
         "args": {},
@@ -1332,7 +1660,7 @@
         "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/benchmark.launch.py"
       },
       "stderr_tail": "",
-      "stdout_tail": "ark/benchmark_node.py\", line 62, in main\n[asr_benchmark_node-1]     rclpy.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/__init__.py\", line 134, in shutdown\n[asr_benchmark_node-1]     _shutdown(context=context)\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/utilities.py\", line 82, in shutdown\n[asr_benchmark_node-1]     context.shutdown()\n[asr_benchmark_node-1]   File \"/opt/ros/jazzy/lib/python3.12/site-packages/rclpy/context.py\", line 129, in shutdown\n[asr_benchmark_node-1]     self.__context.shutdown()\n[asr_benchmark_node-1] rclpy._rclpy_pybind11.RCLError: failed to shutdown: rcl_shutdown already called on the given context, at ./src/rcl/init.c:333\n[ERROR] [asr_benchmark_node-1]: process has died [pid 185018, exit code 1, cmd '/home/fenix/Desktop/ros2ws/install/asr_benchmark/lib/asr_benchmark/asr_benchmark_node --ros-args --params-file /tmp/launch_params_5fcgmaa6 --params-file /tmp/launch_params_8sndntu3']."
+      "stdout_tail": "[INFO] [launch]: All log files can be found below /home/fenix/.ros/log/2026-03-12-05-08-09-387643-fenixmachine-13689\n[INFO] [launch]: Default logging verbosity is set to INFO\n[INFO] [asr_benchmark_node-1]: process started with pid [13699]\n[asr_benchmark_node-1] [INFO] [1773288490.418354100] [asr_benchmark_node]: Running benchmark\n[asr_benchmark_node-1] [INFO] [1773288493.765399714] [asr_benchmark_node]: Benchmark completed with 30 records\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [asr_benchmark_node-1]: sending signal 'SIGINT' to process[asr_benchmark_node-1]\n[INFO] [asr_benchmark_node-1]: process has finished cleanly [pid 13699]"
     }
   ],
   "topics": [
@@ -1380,6 +1708,20 @@
       "package": null,
       "state": "both",
       "type": "asr_interfaces/msg/AsrResult"
+    },
+    {
+      "direction": null,
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": null,
+      "name": "/asr/text/plain",
+      "namespace": null,
+      "package": null,
+      "state": "observed_only",
+      "type": "std_msgs/msg/String"
     },
     {
       "declared_interface": true,
@@ -1453,6 +1795,20 @@
       "package": null,
       "state": "observed_only",
       "type": "rcl_interfaces/msg/Log"
+    },
+    {
+      "direction": null,
+      "evidence": [
+        "static_ast"
+      ],
+      "executable": null,
+      "id": null,
+      "kind": null,
+      "name": null,
+      "namespace": null,
+      "package": null,
+      "state": "expected_only",
+      "type": "String"
     }
   ]
 }

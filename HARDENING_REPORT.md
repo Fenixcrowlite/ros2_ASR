@@ -1,45 +1,123 @@
 # HARDENING_REPORT
 
 ## Hardening changes
-- Added unified ROS shutdown helper `asr_ros/shutdown.py` and wired all runtime nodes to it.
-- Added `ExternalShutdownException` handling in ROS node entry points.
-- AWS preflight in Web GUI switched to boto3-first STS validation with constrained timeouts and CLI fallback.
-- Added short TTL cache for successful AWS STS preflight checks (configurable via `WEB_GUI_AWS_STS_PREFLIGHT_TTL_SEC`).
-- Added AWS auth error normalization to return actionable SSO/token diagnostics.
-- Added Google credentials JSON readability/shape check before launching cloud-targeted jobs.
-- Disabled colcon desktop notifications by default in `Makefile` and runtime env bootstrap (`COLCON_EXTENSION_BLOCKLIST`).
-- Added shared colcon lock wrapper `scripts/with_colcon_lock.sh` and wired all runtime/build/test scripts to it.
-- Added Web GUI draft persistence for non-secret fields in `web_gui/static/app.js` (auto-save + restore at startup).
-- Added split jobs view in Web GUI: inactive restored jobs are moved to collapsible dropdown, active jobs remain pinned in main table.
-- Kept earlier hardening active: strict benchmark scenarios normalization, manifest-first dataset path resolution, job stop timeout persistence, cloud-target selection precedence.
+- Runtime status now reports credential readiness truthfully instead of always returning `true`.
+- `RecognizeOnce` now honors `provider_profile` overrides, so one-shot transcription uses the provider the caller actually asked for.
+- Whisper no longer exposes buffered pseudo-streaming as if it were real provider streaming.
+- Whisper no longer auto-downgrades requested CUDA execution into hidden CPU execution.
+- Google STT no longer hides unsupported `model + language` combinations by retrying with `model=default`.
+- Runtime audio sources are now explicit `file|mic`; hidden `auto -> file` fallback behavior was removed from both modular and legacy audio-capture paths.
+- Legacy `asr_ros` server no longer attempts cloud fallback or implicit streaming on batch-only backends.
+- `source_runtime_env.sh` now defaults only to `ros2_ws/install`, so operator tools do not silently bind to a stale top-level overlay.
+- `source_runtime_env.sh --with-ros` no longer injects `ros2_ws/src/*` ahead of the built overlay.
+- Runtime and benchmark profile validation is stricter for malformed values:
+  - invalid audio source
+  - non-positive sample/chunk settings
+  - inconsistent VAD bounds
+  - invalid processing mode
+  - invalid benchmark execution mode
+  - malformed batch/streaming settings when explicitly provided
+- Benchmark validation no longer rejects minimal valid profiles just because optional `batch` or `streaming` sections are omitted.
+- Gateway/server launch defaults now bind to `127.0.0.1` unless LAN mode is explicitly selected.
+- Release gate now exercises:
+  - unit tests
+  - ROS tests
+  - `colcon test`
+  - benchmark flow
+- `make test-colcon` no longer passes unsupported flags to `colcon test`.
+- Python CLI helpers now bootstrap repo-local imports and no longer depend on external `PYTHONPATH`.
+- Python CLI helpers now fail fast on missing input files/directories with explicit messages instead of Python tracebacks.
+- Dataset manifests now resolve relative audio paths from the manifest location instead of the caller `cwd`.
+- Uploaded dataset manifests now fail fast when:
+  - uploaded filenames collide after basename normalization
+  - the manifest references audio files that were not uploaded with the bundle
+- Package-level smoke tests were added so `colcon test` reliably covers all installed packages.
+- `run_demo.sh` and `open_live_test_terminals.sh` now target the real modular runtime stack instead of legacy `asr_ros`.
+- `run_demo.sh` now rejects managed-stack conflicts before any expensive rebuild starts.
+- `open_live_test_terminals.sh` now rejects `INPUT_MODE=auto` and rejects `provider_stream` for non-streaming providers before opening terminals.
+- `live_sample_eval.py` now rejects `ros_action --action-streaming` for batch-only targets before any run starts.
+- `live_sample_eval.py` no longer falls back silently from `language-mode=auto` to config language.
+- GUI e2e tests now allocate a free port dynamically instead of colliding on fixed port `18888`.
+- ROS integration tests now run inside an isolated `ROS_DOMAIN_ID`, so retained topics from user-launched stacks do not poison test outcomes.
+- `docsbot` no longer silently falls back to `MockProvider` when no OpenAI key is configured.
+- `docsbot` now supports three explicit modes:
+  - `auto`: OpenAI only when a key exists, otherwise template-only pages with warnings
+  - `openai`: fail fast if `OPENAI_API_KEY` is missing
+  - `mock`: deterministic mock drafts only on explicit opt-in
+- `secret_scan.sh` no longer false-fails on repository-owned synthetic service-account fixtures while still scanning for real private key material and tracked key-like files.
+- `asr_gateway/ros_client.py` now logs expected executor-shutdown cleanup failures instead of swallowing them silently.
+- `asr_backend_aws/backend.py` now narrows AWS cache parsing failures to explicit filesystem/JSON decode errors.
+- `tools/archviz/static_extract.py` no longer falls back to the stdlib XML parser when `defusedxml` is expected to be available.
+- `archviz runtime` / `archviz all` now fail fast when another managed stack from the same workspace is already running.
+- Primary docs were rewritten to reflect real runtime topics/services/launch entry points.
 
 ## Failure modes closed
-- ROS stop/Ctrl+C now avoids repeated `rcl_shutdown already called` tracebacks in bringup nodes.
-- AWS SSO failures now return explicit operator guidance instead of opaque raw errors.
-- Repeated AWS job starts no longer repeat identical STS checks every time within short TTL window.
-- Invalid/corrupted Google credentials JSON is rejected before expensive runtime launch.
-- Background build/test activity no longer sends desktop notifications that can wake the locked screen.
-- Concurrent `colcon` flows no longer race each other on shared workspace directories.
-- Operator restart of Web GUI no longer forces full re-entry of non-secret run configuration.
-- Operator job table no longer gets polluted by inactive historical jobs from previous sessions.
+- One-shot requests no longer silently transcribe with the wrong provider when the caller passes `provider_profile`.
+- Gateway/runtime status no longer gives false confidence about cloud credential readiness.
+- Whisper no longer accepts a fake `provider_stream` scenario that only buffers chunks and emits one batch result at the end.
+- Whisper no longer turns a requested CUDA run into CPU execution behind the operator's back.
+- Google no longer masks an unsupported model selection by retrying a different model.
+- Runtime audio capture no longer mutates a requested microphone scenario into file playback behind the operator's back.
+- Legacy `asr_ros` no longer mutates cloud failures into hidden local fallback results.
+- Legacy `asr_ros` no longer tries to stream through non-streaming backends and hope for fallback behavior.
+- Environment bootstrap no longer grabs the wrong workspace overlay by default.
+- Release automation no longer gives a false green impression while `make test-colcon` is actually broken.
+- `colcon test` no longer fails just because packages have no tests.
+- Direct CLI scripts no longer fail in temporary working directories due to missing import path setup.
+- Direct CLI scripts no longer explode with raw tracebacks on missing input paths.
+- Dataset-manifest benchmarks no longer depend on the caller `cwd` to locate relative audio files.
+- Uploaded dataset bundles no longer accept duplicate filename aliases or manifests that point at missing bundle-local audio.
+- Docsbot no longer reports AI-generation success when no real provider is configured.
+- Release packaging no longer fails on sanitized in-repo Google credential fixtures.
+- Local gateway is no longer exposed on all interfaces by default.
+- Recommended terminal launch helpers no longer start legacy launch files that do not match current docs/API.
+- Compatibility live-sample tooling no longer degrades unsupported `ros_action --action-streaming` combinations into confusing late failures.
+- Compatibility live-sample tooling no longer degrades failed auto language detection into a different language source.
+- GUI e2e tests no longer fight over a single fixed TCP port.
+- Benchmark minimal profiles no longer break after validation hardening.
+- `make arch` no longer hangs or captures a polluted runtime graph when another managed stack from the same workspace is already live; it now aborts immediately with the conflicting PIDs.
 
 ## Added guardrails
-- `safe_shutdown_node()` enforces context-aware destroy/shutdown ordering and suppresses only known double-shutdown race.
-- AWS preflight runs against effective runtime env (`AWS_PROFILE`, `AWS_CONFIG_FILE`, `AWS_SHARED_CREDENTIALS_FILE`) before job start.
-- AWS error normalizer maps high-frequency auth failures (pending authorization expired, invalid grant, expired token, missing credentials).
-- AWS preflight cache key ties to effective auth/env tuple (profile, region, key/token/config paths) for deterministic reuse.
-- Colcon notification extension is explicitly blocklisted in automated flows.
-- `with_colcon_lock.sh` serializes workspace-mutating `colcon` operations via `flock`.
-- Web GUI draft autosave explicitly excludes secret inputs to avoid credential persistence in browser storage.
-- Web GUI archived-jobs dropdown keeps inactive restored jobs accessible without crowding active operations.
+- Fail-fast validation for invalid runtime profile values.
+- Fail-fast rejection for `audio.source=auto` and other unsupported source selections.
+- Fail-fast rejection for non-streaming providers in `provider_stream` mode.
+- Fail-fast rejection for hidden Whisper CUDA->CPU downgrade behavior.
+- Fail-fast rejection for hidden Google model fallback behavior.
+- Fail-fast rejection for legacy `asr_ros` live/action streaming when the selected backend does not actually support streaming.
+- Fail-fast validation for invalid benchmark profile values.
+- Fail-fast validation for invalid merged benchmark override settings inside `asr_benchmark_core`, not only at the gateway edge.
+- Fail-fast input-path checks for:
+  - `import_from_folder.py`
+  - `generate_report.py`
+  - `generate_plots.py`
+  - `export_run_summary.py`
+- Fail-fast dataset-import checks for duplicate normalized filenames and missing bundle-local audio references.
+- Loopback-by-default network posture for gateway launch.
+- Release check covers real ROS and package-test surfaces, not just Python unit tests.
+- `RecognizeOnce` response now returns the actual resolved provider profile used for that request.
+- Runtime scripts now encode the current session model explicitly:
+  - launch stack
+  - wait for `/asr/runtime/start_session`
+  - subscribe to `/asr/runtime/results/final`
+- Package smoke tests ensure `colcon test` stays meaningful as the package graph evolves.
 
 ## Invariants now enforced
-- ROS node `main()` paths do not fail on already-shutdown context races.
-- AWS cloud-targeted jobs must pass STS preflight (unless explicitly disabled).
-- AWS preflight success can be reused for short TTL only; failed auth still fails fast immediately.
-- Google cloud-targeted jobs require readable JSON credential object.
-- Build/test flows should not emit colcon desktop notifications by default.
-- Build/test/demo/bench colcon operations are lock-serialized when launched concurrently.
-- Benchmark scenarios must be deterministic (`clean` or `snr<N>`) and dataset relative paths resolve manifest-first.
-- Web GUI draft restore covers non-secret configuration fields across restarts.
-- Inactive restored jobs are hidden from main table but remain available from collapsible archive list.
+- `/asr/runtime/recognize_once` must respect request-level provider override semantics.
+- `cloud_credentials_available` must not be hardcoded true.
+- Whisper must advertise `supports_streaming=false` and reject stream lifecycle calls explicitly.
+- Whisper `device=cuda` must either run on CUDA or fail explicitly; no hidden compute-device mutation is allowed.
+- Google `model` must be honored as requested or fail explicitly; unsupported pairs must not silently retry `default`.
+- Requested audio source must be executed as requested; microphone failure must not silently reroute to file input.
+- Default operator overlay must be `ros2_ws/install`, not whichever `install/setup.bash` happens to exist first.
+- `--with-ros` shells must resolve Python modules from the built overlay, not from raw `ros2_ws/src` shadow paths.
+- Gateway and launch defaults must not expose the control plane on `0.0.0.0` unless requested.
+- Minimal valid benchmark profiles remain accepted when optional runtime sections are omitted.
+- `live_sample_eval.py` must reject unsupported `ros_action --action-streaming` target sets before recording/launch side effects start.
+- `run_demo.sh` must reject conflicting managed stacks before rebuild/launch.
+- `make test-colcon` must stay executable through the real `colcon test` command line.
+- Current operator scripts must launch `asr_launch` runtime entry points, not legacy `asr_ros`.
+- Primary docs must describe `/asr/runtime/*` and `/asr/status/*` as the main runtime contract.
+- Docsbot must not synthesize mock LLM output unless the operator explicitly opted into mock mode.
+- Relative dataset manifest paths must be interpreted from the manifest file location, not from the shell `cwd`.
+- Uploaded manifest bundles must not be accepted if the manifest references audio that is absent from the uploaded bundle.
+- `archviz runtime` / `archviz all` must not introspect a workspace that already has a live managed stack from the same install tree.

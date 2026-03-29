@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Release smoke-check: unit tests + benchmark + artifact existence checks.
+# Release smoke-check: python tests + ROS/colcon tests + benchmark + artifact checks.
 fail() {
   echo "FAIL: $1"
   exit 1
@@ -9,6 +9,12 @@ fail() {
 
 echo "[release-check] running unit tests"
 make test-unit
+
+echo "[release-check] running ROS integration tests"
+make test-ros
+
+echo "[release-check] running colcon package tests"
+make test-colcon
 
 echo "[release-check] running benchmark"
 make bench

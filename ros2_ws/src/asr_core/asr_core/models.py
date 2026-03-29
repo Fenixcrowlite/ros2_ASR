@@ -36,11 +36,11 @@ class AsrRequest:
 
     Fields:
     - `wav_path`: path to WAV file.
-    - `audio_bytes`: raw WAV bytes (used by streaming fallback).
+    - `audio_bytes`: in-memory audio payload when no file path is used.
     - `language`: requested language code.
     - `enable_word_timestamps`: whether word-level timings are needed.
-    - `sample_rate`: required for PCM fallback conversion.
-    - `metadata`: optional flags for backend internals/fallback behavior.
+    - `sample_rate`: sample rate hint for in-memory payload handling.
+    - `metadata`: optional flags for backend internals.
     """
 
     wav_path: str | None = None
@@ -57,7 +57,7 @@ class BackendCapabilities:
 
     supports_recognize_once: bool = True
     supports_streaming: bool = False
-    streaming_mode: str = "none"  # none | simulated | native
+    streaming_mode: str = "none"  # none | native
     supports_word_timestamps: bool = False
     supports_confidence: bool = False
     is_cloud: bool = False

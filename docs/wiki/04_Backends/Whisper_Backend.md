@@ -16,9 +16,12 @@
 - `condition_on_previous_text`
 - `vad_filter`
 
-## GPU fallback
+## GPU mode
 
-Если отсутствует `libcublas.so.12`, backend пробует CPU fallback.
+Если выбран `device=cuda`, backend теперь работает строго в CUDA-режиме.
+Если CUDA runtime библиотек нет, он возвращает явную ошибку с подсказкой
+исправить окружение или задать `device=cpu` явно. Автоматического CPU fallback
+больше нет.
 
 ## Связанные
 

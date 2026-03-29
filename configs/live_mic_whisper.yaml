@@ -7,7 +7,7 @@ asr:
   # Recognition language code.
   language: ru-RU
   timeout_sec: 30.0
-  # Input signal format used by capture and server streaming fallback.
+  # Input signal format used by capture and server chunking.
   sample_rate: 16000
   chunk_ms: 800
   # Keep empty to use backend-specific model field below.
@@ -15,7 +15,7 @@ asr:
   region: ""
   # Prefer microphone capture in this profile.
   input_mode: mic
-  # File fallback when microphone is unavailable.
+  # Reference WAV for explicit file-mode runs only.
   wav_path: data/sample/ru_privet.wav
 
 backends:

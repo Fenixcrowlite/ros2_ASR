@@ -1,116 +1,236 @@
 # Interfaces
 
+Актуальный интерфейсный контракт для modular ROS2 runtime stack.
+
 ## Terms
 
-- Backend: ASR implementation provider (`mock`, `vosk`, `whisper`, `google`, `aws`, `azure`).
-- Streaming: incremental recognition from audio chunks.
-- WER/CER: word/character error rates against reference transcript.
-- RTF: `processing_time / audio_duration` (lower is better).
-- Lifecycle node: node with explicit configure/activate-like runtime state transitions.
+- Runtime: live ASR pipeline (`audio_input -> preprocess -> VAD -> orchestrator`).
+- Provider profile: YAML profile из `configs/providers/*.yaml`.
+- Runtime profile: YAML profile из `configs/runtime/*.yaml`.
+- Session: управляемый runtime run, который стартует через `/asr/runtime/start_session`.
+- One-shot: единичная транскрипция WAV через `/asr/runtime/recognize_once`.
 
 ## Topics
 
-- `/asr/audio_chunks` (`std_msgs/msg/UInt8MultiArray`): PCM audio chunks (mono int16) consumed by `asr_server_node` for live streaming/fallback recognition.
-- `/asr/text` (`asr_interfaces/msg/AsrResult`): final/partial transcription result.
-- `/asr/metrics` (`asr_interfaces/msg/AsrMetrics`): runtime and quality telemetry.
-
-## Message: `WordTimestamp.msg`
-
-- `word` (`string`): recognized token.
-- `start_sec` (`float32`): word start in seconds.
-- `end_sec` (`float32`): word end in seconds.
-- `confidence` (`float32`): per-word confidence if available.
+- `/asr/runtime/audio/raw` (`asr_interfaces/msg/AudioChunk`)
+- `/asr/runtime/audio/preprocessed` (`asr_interfaces/msg/AudioChunk`)
+- `/asr/runtime/vad/activity` (`asr_interfaces/msg/SpeechActivity`)
+- `/asr/runtime/audio/segments` (`asr_interfaces/msg/AudioSegment`)
+- `/asr/runtime/results/partial` (`asr_interfaces/msg/AsrResultPartial`)
+- `/asr/runtime/results/final` (`asr_interfaces/msg/AsrResult`)
+- `/asr/status/nodes` (`asr_interfaces/msg/NodeStatus`)
+- `/asr/status/sessions` (`asr_interfaces/msg/SessionStatus`)
+- `/benchmark/status` (`asr_interfaces/msg/BenchmarkJobStatus`)
+- `/benchmark/events` (`asr_interfaces/msg/BenchmarkEvent`)
 
 ## Message: `AsrResult.msg`
 
-- `header` (`std_msgs/Header`): ROS timestamp/frame metadata.
-- `request_id` (`string`): request correlation id.
-- `text` (`string`): final hypothesis.
-- `partials` (`string[]`): partial hypotheses (streaming).
-- `confidence` (`float32`): normalized confidence when provider exposes it.
-- `word_timestamps` (`WordTimestamp[]`): optional aligned words.
-- `language` (`string`): requested/detected language.
-- `backend` (`string`): provider id.
-- `model` (`string`): provider model name.
-- `region` (`string`): cloud region or `local`.
-- `audio_duration_sec` (`float32`): input audio duration.
-- `preprocess_ms` (`float32`): preprocessing latency.
-- `inference_ms` (`float32`): provider/backend latency.
-- `postprocess_ms` (`float32`): normalization/packaging latency.
-- `total_ms` (`float32`): full processing time.
-- `is_final` (`bool`): final result flag.
-- `success` (`bool`): operation success flag.
-- `error_code` (`string`): normalized error code.
-- `error_message` (`string`): provider error details (sanitized).
+Ключевые поля:
 
-## Message: `AsrMetrics.msg`
+- `request_id`
+- `text`
+- `confidence`
+- `word_timestamps`
+- `language`
+- `backend`
+- `model`
+- `region`
+- `total_ms`
+- `is_final`
+- `success`
+- `error_code`
+- `error_message`
+- `session_id`
+- `provider_id`
+- `is_partial`
+- `degraded`
 
-- `header`, `request_id`, `backend`.
-- `wer`, `cer`, `rtf`, `latency_ms`.
-- `cpu_percent`, `ram_mb`, `gpu_util_percent`, `gpu_mem_mb`.
-- `cost_estimate`: estimated cloud cost by configured pricing.
-- `success`, `notes`.
+Это основной structured output контракт для runtime final results.
+
+## Message: `AsrResultPartial.msg`
+
+Используется для partial results в streaming/provider-stream mode.
+
+Ключевые поля:
+
+- `request_id`
+- `text`
+- `session_id`
+- `provider_id`
+- `language`
+- `first_partial_latency_ms`
 
 ## Services
 
-### `/asr/recognize_once` (`RecognizeOnce.srv`)
+### `/asr/runtime/start_session` (`StartRuntimeSession.srv`)
 
 Request:
-- `wav_path` (`string`)
-- `language` (`string`)
-- `enable_word_timestamps` (`bool`)
+
+- `runtime_profile`
+- `provider_profile`
+- `provider_preset`
+- `provider_settings_json`
+- `session_id`
+- `runtime_namespace`
+- `auto_start_audio`
+- `processing_mode`
+- `audio_source`
+- `audio_file_path`
+- `language`
+- `mic_capture_sec`
 
 Response:
+
+- `accepted`
+- `session_id`
+- `message`
+- `resolved_config_ref`
+
+### `/asr/runtime/stop_session` (`StopRuntimeSession.srv`)
+
+Request:
+
+- `session_id`
+
+Response:
+
+- `success`
+- `message`
+
+### `/asr/runtime/reconfigure` (`ReconfigureRuntime.srv`)
+
+Request:
+
+- `session_id`
+- `runtime_profile`
+- `provider_profile`
+- `provider_preset`
+- `provider_settings_json`
+- `processing_mode`
+- `audio_source`
+- `audio_file_path`
+- `language`
+- `mic_capture_sec`
+
+Response:
+
+- `success`
+- `message`
+- `resolved_config_ref`
+
+### `/asr/runtime/recognize_once` (`RecognizeOnce.srv`)
+
+Request:
+
+- `wav_path`
+- `language`
+- `enable_word_timestamps`
+- `session_id`
+- `provider_profile`
+- `provider_preset`
+- `provider_settings_json`
+
+Response:
+
 - `result` (`AsrResult`)
+- `resolved_profile`
 
-### `/asr/set_backend` (`SetAsrBackend.srv`)
+`provider_profile` в `RecognizeOnce` может override текущий runtime provider для
+одного запроса без перестройки активной live session.
+
+### `/asr/runtime/list_backends` (`ListBackends.srv`)
+
+Response:
+
+- `provider_ids`
+
+### `/asr/runtime/get_status` (`GetAsrStatus.srv`)
+
+Response:
+
+- `backend`
+- `model`
+- `region`
+- `capabilities`
+- `streaming_supported`
+- `streaming_mode`
+- `cloud_credentials_available`
+- `status_message`
+- `session_id`
+- `session_state`
+- `processing_mode`
+- `audio_source`
+- `runtime_profile`
+
+### `/config/list_profiles` (`ListProfiles.srv`)
 
 Request:
-- `backend` (`string`)
-- `model` (`string`)
-- `region` (`string`)
+
+- `profile_type`
 
 Response:
-- `success` (`bool`)
-- `message` (`string`)
 
-### `/asr/get_status` (`GetAsrStatus.srv`)
+- `profile_ids`
+
+### `/config/validate` (`ValidateConfig.srv`)
+
+Request:
+
+- `profile_type`
+- `profile_id`
+- `config_path`
 
 Response:
-- `backend`, `model`, `region`
-- `capabilities` (`string[]`)
-- `streaming_supported` (`bool`)
-- `cloud_credentials_available` (`bool`)
-- `status_message` (`string`)
 
-## Action
+- `valid`
+- `message`
+- `resolved_config_ref`
 
-### `/asr/transcribe` (`Transcribe.action`)
+## Actions
+
+### `/benchmark/run_experiment` (`RunBenchmarkExperiment`)
 
 Goal:
-- `wav_path` (`string`)
-- `language` (`string`)
-- `streaming` (`bool`)
-- `chunk_sec` (`float32`)
 
-Feedback:
-- `partial_result` (`AsrResult`)
-- `metrics` (`AsrMetrics`)
+- `benchmark_profile`
+- `dataset_profile`
+- `providers`
+- `scenario`
+- `provider_overrides_json`
+- `benchmark_settings_json`
+- `run_id`
 
 Result:
-- `result` (`AsrResult`)
 
-## Capabilities Matrix
+- `run_id`
+- `success`
+- `message`
+- benchmark summary
 
-| Backend | recognize_once | streaming | word timestamps | confidence |
-|---|---|---|---|---|
-| `mock` | yes | real (deterministic) | yes | yes |
-| `vosk` | yes | real | yes | yes |
-| `whisper` | yes | simulated fallback | yes | yes |
-| `google` | yes | simulated fallback | yes | yes |
-| `aws` | yes | simulated fallback | yes | yes |
-| `azure` | yes | simulated fallback | yes | yes |
+## Capability model
 
-Notes:
-- Simulated streaming means chunks are accepted and action feedback is produced, but final text comes from one-shot/fallback processing.
-- Use `/asr/get_status` to read runtime capabilities (`streaming_mode`, `word_timestamps`, `confidence`, cloud credential availability).
+Provider capabilities определяются adapter layer, а не docs вручную.
+Ключевые флаги:
+
+- `supports_streaming`
+- `streaming_mode`
+- `supports_batch`
+- `supports_word_timestamps`
+- `supports_partials`
+- `supports_confidence`
+- `supports_language_auto_detect`
+- `requires_network`
+- `cost_model_type`
+
+Для runtime truth source используй:
+
+- `/asr/runtime/get_status`
+- `/asr/runtime/list_backends`
+- `GET /api/providers/catalog`
+- `POST /api/providers/validate`
+
+## Legacy compatibility note
+
+`/asr/set_backend`, `/asr/get_status`, `/asr/text/plain` и связанные `asr_ros`
+interfaces больше не являются primary contract для modular runtime stack.
+Они оставлены только как compatibility surface и migration reference.

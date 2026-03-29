@@ -5,8 +5,9 @@ from __future__ import annotations
 import json
 import threading
 import time
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from asr_core.audio import (
     audio_bytes_to_temp_wav,
@@ -15,7 +16,7 @@ from asr_core.audio import (
     wav_duration_sec,
 )
 from asr_core.backend import AsrBackend
-from asr_core.config import as_bool, env_or
+from asr_core.config import env_or
 from asr_core.factory import register_backend
 from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabilities, WordTimestamp
@@ -46,6 +47,13 @@ def _cancellation_details(speechsdk: Any, result: Any) -> Any:
     details_cls = getattr(speechsdk, "CancellationDetails", None)
     if details_cls is None:
         return None
+    from_result = getattr(details_cls, "from_result", None)
+    if callable(from_result):
+        return from_result(result)
+    try:
+        return details_cls(result)
+    except Exception:
+        return None
 
 
 def _is_endpoint_url(value: str) -> bool:
@@ -75,13 +83,6 @@ def _build_speech_config(
     speech_config.output_format = speechsdk.OutputFormat.Detailed
     speech_config.request_word_level_timestamps()
     return speech_config
-    from_result = getattr(details_cls, "from_result", None)
-    if callable(from_result):
-        return from_result(result)
-    try:
-        return details_cls(result)
-    except Exception:
-        return None
 
 
 class AzureStreamingSession:

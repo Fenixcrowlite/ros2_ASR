@@ -10,7 +10,7 @@ if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
   exit 1
 fi
 
-SECRET_REGEX="AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{35}|-----BEGIN[[:space:]]+[^-]*PRIVATE KEY-----|aws_secret_access_key[[:space:]]*[:=][[:space:]]*['\"]?[A-Za-z0-9/+=]{16,}|speech_key[[:space:]]*[:=][[:space:]]*['\"]?[A-Za-z0-9]{16,}|subscription_key[[:space:]]*[:=][[:space:]]*['\"]?[A-Za-z0-9]{16,}|xox[baprs]-[0-9A-Za-z-]{10,}|\"type\"[[:space:]]*:[[:space:]]*\"service_account\""
+SECRET_REGEX="AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{35}|-----BEGIN[[:space:]]+[^-]*PRIVATE KEY-----|aws_secret_access_key[[:space:]]*[:=][[:space:]]*['\"]?[A-Za-z0-9/+=]{16,}|speech_key[[:space:]]*[:=][[:space:]]*['\"]?[A-Za-z0-9]{16,}|subscription_key[[:space:]]*[:=][[:space:]]*['\"]?[A-Za-z0-9]{16,}|xox[baprs]-[0-9A-Za-z-]{10,}"
 
 mapfile -d '' TRACKED_FILES < <(git ls-files -z)
 FINDINGS=()

@@ -40,8 +40,12 @@ class BenchmarkManagerNode(Node):
 
         self.registry = DatasetRegistry(self.registry_path)
 
+        # Keep simple in-memory status so GUI and scripts can ask "what is the
+        # current state of run X?" without reading artifacts on every request.
         self.run_status: dict[str, BenchmarkJobStatus] = {}
 
+        # This node is intentionally a ROS-facing shell around benchmark_core:
+        # it exposes actions/services, while core code performs the heavy work.
         self.run_action = ActionServer(
             self,
             RunBenchmarkExperiment,
@@ -79,6 +83,8 @@ class BenchmarkManagerNode(Node):
         )
 
     def _execute_benchmark(self, goal_handle):
+        # A benchmark run is a long-lived action because it may process many
+        # samples/providers and should report progress back to the caller.
         request = goal_handle.request
         raw_run_id = str(request.run_id).strip()
         run_id = raw_run_id if raw_run_id and raw_run_id.lower() not in {"none", "null"} else make_run_id("bench")
@@ -144,6 +150,9 @@ class BenchmarkManagerNode(Node):
             return action_result
 
     def _execute_import(self, goal_handle):
+        # Import supports two user paths:
+        # 1. register an existing JSONL manifest;
+        # 2. scan a folder and create a manifest automatically.
         request = goal_handle.request
 
         status = DatasetStatus()
@@ -199,6 +208,7 @@ class BenchmarkManagerNode(Node):
 
     @staticmethod
     def _parse_json_object(raw: str, field_name: str) -> dict[str, Any]:
+        # ROS actions/services carry rich override payloads as JSON strings.
         value = str(raw or "").strip()
         if not value:
             return {}

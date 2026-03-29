@@ -4,13 +4,14 @@ from __future__ import annotations
 
 import argparse
 import shutil
+import sys
 from pathlib import Path
 
 from tools.archviz.diff_graph import build_arch_diff, diff_graph_files
 from tools.archviz.graph import read_json, write_json
 from tools.archviz.merge_graph import merge_graphs
 from tools.archviz.render import render_mermaid
-from tools.archviz.runtime_extract import extract_runtime_graph
+from tools.archviz.runtime_extract import ManagedStackConflictError, extract_runtime_graph
 from tools.archviz.static_extract import extract_static_graph
 
 
@@ -175,4 +176,8 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
-    return int(args.func(args))
+    try:
+        return int(args.func(args))
+    except ManagedStackConflictError as exc:
+        print(str(exc), file=sys.stderr)
+        return 2

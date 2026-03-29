@@ -2,7 +2,7 @@
 
 ## Pipeline
 1. `audio_input_node`
-- Source abstraction: `file | mic | auto`.
+- Source abstraction: `file | mic`.
 - Publishes `asr_interfaces/AudioChunk` to `/asr/runtime/audio/raw`.
 
 2. `audio_preprocess_node`

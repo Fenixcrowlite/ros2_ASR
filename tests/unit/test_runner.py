@@ -1,9 +1,15 @@
 import wave
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from asr_benchmark.dataset import DatasetItem
-from asr_benchmark.runner import _normalize_scenarios, _run_streaming_sim, run_benchmark
+from asr_benchmark.runner import (
+    _backend_supports_streaming,
+    _normalize_scenarios,
+    _run_streaming_sim,
+    run_benchmark,
+)
 from asr_core.models import AsrResponse, AsrTimings
 from asr_metrics.collector import MetricsCollector
 
@@ -19,6 +25,7 @@ def _write_test_wav(path: Path, *, sample_rate: int, frames: int) -> None:
 class _StreamingProbeBackend:
     def __init__(self) -> None:
         self.last_sample_rate: int | None = None
+        self.capabilities = SimpleNamespace(supports_streaming=True)
 
     def streaming_recognize(
         self,
@@ -93,6 +100,51 @@ def test_streaming_sim_uses_actual_wav_sample_rate(tmp_path: Path) -> None:
 
     assert backend.last_sample_rate == 8000
     assert record.success
+
+
+def test_backend_supports_streaming_checks_capabilities_flag() -> None:
+    assert _backend_supports_streaming(
+        SimpleNamespace(capabilities=SimpleNamespace(supports_streaming=True))
+    ) is True
+    assert _backend_supports_streaming(
+        SimpleNamespace(capabilities=SimpleNamespace(supports_streaming=False))
+    ) is False
+    assert _backend_supports_streaming(SimpleNamespace()) is False
+
+
+def test_run_benchmark_skips_streaming_records_for_batch_only_backend(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import asr_benchmark.runner as runner_module
+
+    class _BatchOnlyBackend:
+        capabilities = SimpleNamespace(supports_streaming=False)
+
+        def recognize_once(self, request) -> AsrResponse:
+            del request
+            return AsrResponse(
+                text="batch only result",
+                language="en-US",
+                backend_info={"provider": "batch_only", "model": "probe", "region": "local"},
+                timings=AsrTimings(preprocess_ms=1.0, inference_ms=2.0, postprocess_ms=1.0),
+                audio_duration_sec=1.0,
+                success=True,
+            )
+
+    monkeypatch.setattr(runner_module, "create_backend", lambda backend_name, config=None: _BatchOnlyBackend())
+    monkeypatch.setattr(runner_module, "generate_all_plots", lambda records, out_dir: None)
+
+    records = run_benchmark(
+        config_path="configs/default.yaml",
+        dataset_path="data/transcripts/sample_manifest.csv",
+        output_json=str(tmp_path / "bench.json"),
+        output_csv=str(tmp_path / "bench.csv"),
+        backends=["batch_only"],
+    )
+
+    assert records
+    assert all(record.scenario != "streaming_sim" for record in records)
 
 
 def test_normalize_scenarios_accepts_comma_separated_string() -> None:

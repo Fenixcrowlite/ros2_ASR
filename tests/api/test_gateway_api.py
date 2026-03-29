@@ -3,11 +3,23 @@ from __future__ import annotations
 import importlib
 import json
 import time
+import wave
+from io import BytesIO
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+
 from tests.utils.fakes import FakeGatewayRosClient, build_stub_provider_manager
 from tests.utils.project import clone_project_layout, seed_benchmark_run, seed_logs
+
+
+def _write_provider_profile(configs_root: Path, profile_name: str, provider_id: str) -> None:
+    profile_path = configs_root / "providers" / f"{profile_name}.yaml"
+    profile_path.parent.mkdir(parents=True, exist_ok=True)
+    profile_path.write_text(
+        f"provider_id: {provider_id}\nsettings: {{}}\n",
+        encoding="utf-8",
+    )
 
 
 def _make_client(repo_root: Path, tmp_path: Path, monkeypatch):
@@ -49,7 +61,7 @@ def test_runtime_api_round_trip(repo_root: Path, tmp_path: Path, monkeypatch) ->
             "provider_profile": "providers/whisper_local",
             "provider_preset": "accurate",
             "provider_settings": {"beam_size": 5},
-            "processing_mode": "provider_stream",
+            "processing_mode": "segmented",
             "session_id": "",
             "audio_source": "file",
             "audio_file_path": "data/sample/vosk_test.wav",
@@ -64,8 +76,8 @@ def test_runtime_api_round_trip(repo_root: Path, tmp_path: Path, monkeypatch) ->
     assert live["status"]["session_state"] == "active"
     assert live["recent_events"][0]["event"] == "runtime_start"
     assert live["status"]["model"] == "accurate"
-    assert live["status"]["processing_mode"] == "provider_stream"
-    assert live["status"]["streaming_mode"] == "native"
+    assert live["status"]["processing_mode"] == "segmented"
+    assert live["status"]["streaming_mode"] == "none"
 
     recognize = client.post(
         "/api/runtime/recognize_once",
@@ -90,6 +102,63 @@ def test_runtime_api_round_trip(repo_root: Path, tmp_path: Path, monkeypatch) ->
     stop = client.post("/api/runtime/stop", json={"session_id": session_id})
     assert stop.status_code == 200
     assert client.get("/api/runtime/status").json()["session_state"] == "idle"
+
+
+def test_runtime_samples_catalog_and_upload(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
+    _gateway_api, _fake_ros, client, project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    catalog = client.get("/api/runtime/samples")
+    assert catalog.status_code == 200
+    payload = catalog.json()
+    assert payload["default_sample"] == "data/sample/vosk_test.wav"
+    assert any(item["path"] == "data/sample/vosk_test.wav" for item in payload["samples"])
+    assert any(item["path"] == "data/sample/audio_tester.wav" for item in payload["skipped"])
+
+    wav_buffer = BytesIO()
+    with wave.open(wav_buffer, "wb") as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(16000)
+        wav_file.writeframes(b"\x00\x00" * 1600)
+
+    upload = client.post(
+        "/api/runtime/upload_sample",
+        files={"file": ("drag_test.wav", wav_buffer.getvalue(), "audio/wav")},
+    )
+    assert upload.status_code == 200
+    upload_payload = upload.json()
+    assert upload_payload["saved"] is True
+    assert upload_payload["sample_path"].startswith("data/sample/uploads/drag_test")
+    assert (project_root / upload_payload["sample_path"]).exists()
+    assert any(item["path"] == upload_payload["sample_path"] for item in upload_payload["catalog"]["samples"])
+
+
+def test_runtime_noise_generation_and_preflight(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
+    _gateway_api, _fake_ros, client, project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    preflight = client.get("/api/diagnostics/preflight")
+    assert preflight.status_code == 200
+    preflight_payload = preflight.json()
+    assert "ok" in preflight_payload
+    assert "checks" in preflight_payload
+    assert "modules" in preflight_payload["checks"]
+    assert "microphone" in preflight_payload["checks"]
+    assert "ros" in preflight_payload["checks"]
+
+    noise = client.post(
+        "/api/runtime/generate_noise",
+        json={
+            "source_wav": "data/sample/vosk_test.wav",
+            "snr_levels": [20.0, 10.0],
+        },
+    )
+    assert noise.status_code == 200
+    noise_payload = noise.json()
+    assert len(noise_payload["generated"]) == 2
+    for row in noise_payload["generated"]:
+        assert row["path"].startswith("data/sample/generated_noise/")
+        assert (project_root / row["path"]).exists()
+    assert any(item["path"] == noise_payload["generated"][0]["path"] for item in noise_payload["catalog"]["samples"])
 
 
 def test_runtime_api_rejects_double_start(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
@@ -125,6 +194,57 @@ def test_runtime_api_rejects_double_start(repo_root: Path, tmp_path: Path, monke
     assert "already active" in second.json()["detail"]
 
 
+def test_runtime_api_marks_completed_file_session_from_audio_status(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+    fake_ros.runtime_started = True
+    fake_ros.session_id = "session_demo"
+    fake_ros.audio_source = "file"
+
+    def completed_snapshot() -> dict[str, object]:
+        active_session = {
+            "session_id": "session_demo",
+            "state": "ready",
+            "provider_id": "whisper_local",
+            "profile_id": "default_runtime",
+            "processing_mode": "segmented",
+            "status_message": "ready source=file mode=segmented",
+            "updated_at": "2026-03-25T00:00:00+00:00",
+        }
+        return {
+            "observer_error": "",
+            "recent_results": [],
+            "recent_partials": [],
+            "node_statuses": [
+                {
+                    "node_name": "audio_input_node",
+                    "health": "ok",
+                    "ready": True,
+                    "status_message": "completed source=file session=session_demo",
+                    "time": "2026-03-25T00:00:00+00:00",
+                    "last_error_code": "",
+                    "last_error_message": "",
+                }
+            ],
+            "session_statuses": [active_session],
+            "active_session": active_session,
+        }
+
+    monkeypatch.setattr(type(fake_ros), "runtime_snapshot", lambda self: completed_snapshot())
+
+    status = client.get("/api/runtime/status")
+    assert status.status_code == 200
+    assert status.json()["session_state"] == "completed"
+
+    live = client.get("/api/runtime/live")
+    assert live.status_code == 200
+    payload = live.json()
+    assert payload["status"]["session_state"] == "completed"
+    assert payload["active_session"]["state"] == "completed"
+    assert payload["session_statuses"][0]["state"] == "completed"
+
+
 def test_benchmark_history_status_compare_and_export(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
     _gateway_api, _fake_ros, client, project_root = _make_client(repo_root, tmp_path, monkeypatch)
 
@@ -133,12 +253,12 @@ def test_benchmark_history_status_compare_and_export(repo_root: Path, tmp_path: 
         json={
             "benchmark_profile": "default_benchmark",
             "dataset_profile": "sample_dataset",
-            "providers": ["providers/whisper_local"],
+            "providers": ["providers/azure_cloud"],
             "scenario": "noise_robustness",
             "provider_overrides": {
-                "providers/whisper_local": {
-                    "provider_preset": "accurate",
-                    "provider_settings": {"beam_size": 4},
+                "providers/azure_cloud": {
+                    "provider_preset": "standard",
+                    "provider_settings": {"region": "eastus"},
                 }
             },
             "benchmark_settings": {
@@ -271,7 +391,7 @@ def test_google_service_account_upload_and_clear(repo_root: Path, tmp_path: Path
                     {
                         "type": "service_account",
                         "project_id": "demo-project",
-                        "private_key": "-----BEGIN PRIVATE KEY-----\\nabc\\n-----END PRIVATE KEY-----\\n",
+                        "private_key": "mock-private-key-material",
                         "client_email": "demo-account@demo-project.iam.gserviceaccount.com",
                     }
                 ).encode("utf-8"),
@@ -350,7 +470,12 @@ def test_secrets_aws_sso_login_endpoints(repo_root: Path, tmp_path: Path, monkey
             "started_at": "2026-03-16T10:00:00Z",
             "completed_at": "",
             "return_code": None,
-            "lines": ["Open the following URL in your browser"],
+            "lines": [
+                "Using a browser, open the following URL:",
+                "https://d-c36767bf7f.awsapps.com/start/#/device",
+                "Then enter the code:",
+                "ABCD-EFGH",
+            ],
             "command": ["aws", "sso", "login", "--profile", kwargs["profile"], "--no-browser", "--use-device-code"],
             "validation": {},
         }
@@ -378,7 +503,12 @@ def test_secrets_aws_sso_login_endpoints(repo_root: Path, tmp_path: Path, monkey
         "started_at": "2026-03-16T10:00:00Z",
         "completed_at": "",
         "return_code": None,
-        "lines": ["Open the following URL in your browser"],
+        "lines": [
+            "Using a browser, open the following URL:",
+            "https://d-c36767bf7f.awsapps.com/start/#/device",
+            "Then enter the code:",
+            "ABCD-EFGH",
+        ],
         "command": ["aws", "sso", "login", "--profile", "ros2ws", "--no-browser", "--use-device-code"],
         "validation": {},
         "_process": fake_process,
@@ -396,15 +526,21 @@ def test_secrets_aws_sso_login_endpoints(repo_root: Path, tmp_path: Path, monkey
     assert start.status_code == 200
     assert start.json()["job"]["kind"] == "aws_sso_login"
     assert start.json()["job"]["profile"] == "ros2ws"
+    assert start.json()["job"]["login_page_url"] == "https://d-c36767bf7f.awsapps.com/start/#/device"
+    assert start.json()["job"]["user_code"] == "ABCD-EFGH"
 
     status = client.get("/api/secrets/aws_sso_login/job_aws_login_demo")
     assert status.status_code == 200
     assert status.json()["job"]["state"] == "running"
+    assert status.json()["job"]["login_page_url"] == "https://d-c36767bf7f.awsapps.com/start/#/device"
+    assert status.json()["job"]["user_code"] == "ABCD-EFGH"
     assert "browser" in status.json()["job"]["lines"][0].lower()
 
     cancel = client.post("/api/secrets/aws_sso_login/job_aws_login_demo/cancel", json={})
     assert cancel.status_code == 200
     assert cancel.json()["job"]["state"] == "cancelled"
+    assert cancel.json()["job"]["login_page_url"] == "https://d-c36767bf7f.awsapps.com/start/#/device"
+    assert cancel.json()["job"]["user_code"] == "ABCD-EFGH"
     assert fake_process._terminated is True
 
 
@@ -458,6 +594,194 @@ def test_runtime_start_rejects_invalid_provider_preflight(repo_root: Path, tmp_p
     assert response.status_code == 400
     assert "AWS SSO token expired" in response.json()["detail"]
     assert fake_ros.runtime_started is False
+
+
+def test_runtime_start_rejects_invalid_processing_mode(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
+    _gateway_api, fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    response = client.post(
+        "/api/runtime/start",
+        json={
+            "runtime_profile": "default_runtime",
+            "provider_profile": "providers/whisper_local",
+            "processing_mode": "broken_mode",
+            "audio_source": "file",
+            "audio_file_path": "data/sample/vosk_test.wav",
+            "language": "en-US",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "orchestrator.processing_mode must be one of" in response.json()["detail"]
+    assert fake_ros.runtime_started is False
+
+
+def test_runtime_start_rejects_invalid_audio_source(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
+    _gateway_api, fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    response = client.post(
+        "/api/runtime/start",
+        json={
+            "runtime_profile": "default_runtime",
+            "provider_profile": "providers/whisper_local",
+            "processing_mode": "segmented",
+            "audio_source": "broken_source",
+            "audio_file_path": "data/sample/vosk_test.wav",
+            "language": "en-US",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "audio.source must be one of" in response.json()["detail"]
+    assert fake_ros.runtime_started is False
+
+
+def test_runtime_start_rejects_auto_audio_source(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
+    _gateway_api, fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    response = client.post(
+        "/api/runtime/start",
+        json={
+            "runtime_profile": "default_runtime",
+            "provider_profile": "providers/whisper_local",
+            "processing_mode": "segmented",
+            "audio_source": "auto",
+            "audio_file_path": "data/sample/vosk_test.wav",
+            "language": "en-US",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "audio.source must be one of: file, mic" in response.json()["detail"]
+    assert fake_ros.runtime_started is False
+
+
+def test_runtime_start_rejects_missing_runtime_wav(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
+    _gateway_api, fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    response = client.post(
+        "/api/runtime/start",
+        json={
+            "runtime_profile": "default_runtime",
+            "provider_profile": "providers/whisper_local",
+            "processing_mode": "segmented",
+            "audio_source": "file",
+            "audio_file_path": "data/sample/missing.wav",
+            "language": "en-US",
+        },
+    )
+
+    assert response.status_code == 404
+    assert "Runtime WAV not found" in response.json()["detail"]
+    assert fake_ros.runtime_started is False
+
+
+def test_runtime_start_rejects_provider_stream_for_non_streaming_provider(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, fake_ros, client, project_root = _make_client(repo_root, tmp_path, monkeypatch)
+    _write_provider_profile(project_root / "configs", "fake_batch_only", "fake_batch_only_component")
+
+    response = client.post(
+        "/api/runtime/start",
+        json={
+            "runtime_profile": "default_runtime",
+            "provider_profile": "providers/fake_batch_only",
+            "processing_mode": "provider_stream",
+            "audio_source": "file",
+            "audio_file_path": "data/sample/vosk_test.wav",
+            "language": "en-US",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "does not support processing_mode=provider_stream" in response.json()["detail"]
+    assert fake_ros.runtime_started is False
+
+
+def test_runtime_start_rejects_provider_stream_for_whisper(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    response = client.post(
+        "/api/runtime/start",
+        json={
+            "runtime_profile": "default_runtime",
+            "provider_profile": "providers/whisper_local",
+            "processing_mode": "provider_stream",
+            "audio_source": "file",
+            "audio_file_path": "data/sample/vosk_test.wav",
+            "language": "en-US",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "does not support processing_mode=provider_stream" in response.json()["detail"]
+    assert fake_ros.runtime_started is False
+
+
+def test_runtime_recognize_once_rejects_missing_runtime_sample(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    response = client.post(
+        "/api/runtime/recognize_once",
+        json={
+            "wav_path": "data/sample/missing.wav",
+            "language": "en-US",
+            "provider_profile": "providers/whisper_local",
+        },
+    )
+
+    assert response.status_code == 404
+    assert "Runtime WAV not found" in response.json()["detail"]
+
+
+def test_benchmark_run_rejects_streaming_for_non_streaming_provider(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, _fake_ros, client, project_root = _make_client(repo_root, tmp_path, monkeypatch)
+    _write_provider_profile(project_root / "configs", "fake_batch_only", "fake_batch_only_component")
+
+    response = client.post(
+        "/api/benchmark/run",
+        json={
+            "benchmark_profile": "default_benchmark",
+            "dataset_profile": "sample_dataset",
+            "providers": ["providers/fake_batch_only"],
+            "benchmark_settings": {"execution_mode": "streaming"},
+        },
+    )
+
+    assert response.status_code == 400
+    assert "does not support streaming benchmark mode" in response.json()["detail"]
+
+
+def test_benchmark_run_rejects_provider_overrides_for_unselected_provider(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    response = client.post(
+        "/api/benchmark/run",
+        json={
+            "benchmark_profile": "default_benchmark",
+            "dataset_profile": "sample_dataset",
+            "providers": ["providers/whisper_local"],
+            "provider_overrides": {
+                "providers/azure_cloud": {
+                    "preset_id": "",
+                    "settings": {},
+                }
+            },
+            "benchmark_settings": {"execution_mode": "batch"},
+        },
+    )
+
+    assert response.status_code == 400
+    assert "provider_overrides contains profiles that are not selected" in response.json()["detail"]
 
 
 def test_dataset_import_upload_registers_manifest(repo_root: Path, tmp_path: Path, monkeypatch) -> None:

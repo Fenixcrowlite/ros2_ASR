@@ -2,20 +2,18 @@
 
 from __future__ import annotations
 
-import time
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 
-from asr_core.audio import pcm_chunks_to_wav_bytes
-from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabilities
+from asr_core.models import AsrRequest, AsrResponse, BackendCapabilities
 
 
 class AsrBackend(ABC):
     """Abstract backend contract.
 
     Implementations must provide at least `recognize_once`.
-    `streaming_recognize` has a safe default that buffers chunks and delegates
-    to one-shot recognition.
+    Backends that advertise streaming support must implement
+    `streaming_recognize` explicitly instead of relying on a buffered fallback.
     """
 
     name = "base"
@@ -46,27 +44,15 @@ class AsrBackend(ABC):
         language: str,
         sample_rate: int,
     ) -> AsrResponse:
-        """Default streaming fallback for non-native streaming providers.
+        """Run provider-native streaming recognition.
 
-        Flow:
-        1. Buffer all PCM chunks.
-        2. Convert them to valid WAV bytes.
-        3. Call `recognize_once`.
+        The base contract is intentionally strict: a backend must not silently
+        buffer streaming input and reinterpret it as one-shot recognition.
         """
-        start = time.perf_counter()
-        buffered_chunks = list(chunks)
-        wav_bytes = pcm_chunks_to_wav_bytes(buffered_chunks, sample_rate=sample_rate)
-        request = AsrRequest(audio_bytes=wav_bytes, language=language, sample_rate=sample_rate)
-        result = self.recognize_once(request)
-        elapsed_ms = (time.perf_counter() - start) * 1000.0
-        result.timings = AsrTimings(
-            preprocess_ms=result.timings.preprocess_ms,
-            inference_ms=result.timings.inference_ms,
-            postprocess_ms=max(
-                result.timings.postprocess_ms,
-                elapsed_ms - result.timings.preprocess_ms - result.timings.inference_ms,
-            ),
+        del chunks, language, sample_rate
+        backend_name = getattr(self, "name", self.__class__.__name__)
+        if not self.capabilities.supports_streaming:
+            raise NotImplementedError(f"{backend_name} does not support streaming_recognize")
+        raise NotImplementedError(
+            f"{backend_name} advertises streaming support but does not implement streaming_recognize"
         )
-        if self.capabilities.streaming_mode == "none":
-            result.backend_info["streaming_fallback"] = "true"
-        return result

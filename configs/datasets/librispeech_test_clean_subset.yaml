@@ -1,0 +1,5 @@
+profile_id: datasets/librispeech_test_clean_subset
+inherits: []
+dataset_id: librispeech_test_clean_subset
+manifest_path: datasets/manifests/librispeech_test_clean_subset.jsonl
+default_language: en-US

@@ -1,0 +1,59 @@
+@startuml
+title Benchmark Execution Sequence View
+
+skinparam shadowing false
+skinparam linetype ortho
+autonumber
+
+actor "Operator" as Operator
+participant "web_ui/frontend" as WebUI
+participant "asr_gateway/api.py" as GatewayAPI
+participant "GatewayRosClient" as GatewayROS
+participant "benchmark_manager_node" as BenchmarkNode
+participant "BenchmarkOrchestrator" as BenchmarkOrchestrator
+participant "DatasetRegistry\nload_manifest()" as DatasetLayer
+participant "ProviderManager" as ProviderManager
+participant "BatchExecutor" as BatchExecutor
+participant "AsrProviderAdapter" as ProviderAdapter
+participant "MetricEngine" as MetricEngine
+participant "ArtifactStore" as ArtifactStore
+
+Operator -> WebUI : choose benchmark profile,\ndataset, providers, scenario
+WebUI -> GatewayAPI : POST /api/benchmark/run
+GatewayAPI -> GatewayROS : send RunBenchmarkExperiment goal
+GatewayROS -> BenchmarkNode : /benchmark/run_experiment
+BenchmarkNode -> BenchmarkOrchestrator : run(BenchmarkRunRequest)
+
+BenchmarkOrchestrator -> DatasetLayer : resolve dataset profile\nand load manifest
+DatasetLayer --> BenchmarkOrchestrator : DatasetSample list
+BenchmarkOrchestrator -> ArtifactStore : make_benchmark_run(run_id)
+
+loop each provider profile
+  BenchmarkOrchestrator -> ProviderManager : create_from_profile(...)
+  ProviderManager --> BenchmarkOrchestrator : initialized provider
+
+  loop each sample x scenario variant
+    BenchmarkOrchestrator -> BatchExecutor : run_sample(...) or\nrun_sample_streaming(...)
+    BatchExecutor -> ProviderAdapter : recognize_once(...) or stream
+    ProviderAdapter --> BatchExecutor : NormalizedAsrResult
+    BatchExecutor -> MetricEngine : evaluate(MetricContext)
+    MetricEngine --> BatchExecutor : metrics dict
+    BatchExecutor --> BenchmarkOrchestrator : result record
+    BenchmarkOrchestrator -> ArtifactStore : save raw output
+    BenchmarkOrchestrator -> ArtifactStore : save normalized output
+  end
+end
+
+BenchmarkOrchestrator -> ArtifactStore : save results.csv/results.json
+BenchmarkOrchestrator -> ArtifactStore : save summary.json/summary.md
+BenchmarkOrchestrator --> BenchmarkNode : BenchmarkRunSummary
+BenchmarkNode --> GatewayROS : action result + summary
+GatewayROS --> GatewayAPI : normalized HTTP payload
+GatewayAPI --> WebUI : run_id, status, summary refs
+
+note right of BenchmarkOrchestrator
+  The benchmark layer is intentionally separate from the live runtime
+  pipeline so experiments remain reproducible and artifact-oriented.
+end note
+
+@enduml

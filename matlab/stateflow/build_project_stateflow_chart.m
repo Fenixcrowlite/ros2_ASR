@@ -3,7 +3,7 @@ function modelName = build_project_stateflow_chart(varargin)
 %   MODELNAME = BUILD_PROJECT_STATEFLOW_CHART() creates/overwrites a Simulink
 %   model and fills one Stateflow chart with architecture details collected from:
 %   - docs/arch/merged_graph.json
-%   - repository folder structure (ros2_ws, web_gui, scripts, tools, etc.)
+%   - repository folder structure (ros2_ws, web_ui, scripts, tools, etc.)
 %
 %   Name-value options:
 %     'RepoRoot'              - repository root path
@@ -36,7 +36,7 @@ addChartAnnotation(chart, sprintf([ ...
 [topStates, flowStates] = createTopStates(chart);
 
 populateRosWorkspace(topStates.ROS2_Workspace, graph, opts);
-populateWebGui(topStates.Web_GUI, opts);
+populateWebUi(topStates.Web_UI, opts);
 populateScripts(topStates.Scripts_CLI, opts);
 populateTools(topStates.Tools_Archviz_Docsbot, opts);
 populateInterfaces(topStates.Interfaces_and_Contracts, graph);
@@ -148,7 +148,7 @@ function [top, flowStates] = createTopStates(chart)
 stateDefs = {
     'Init', ...
     'ROS2_Workspace', ...
-    'Web_GUI', ...
+    'Web_UI', ...
     'Scripts_CLI', ...
     'Tools_Archviz_Docsbot', ...
     'Interfaces_and_Contracts', ...
@@ -168,8 +168,8 @@ end
 flowStates = createRuntimeFlowSkeleton(top.Runtime_Flow);
 
 addTransitionSafe(chart, top.Init, top.ROS2_Workspace, 'env_ok');
-addTransitionSafe(chart, top.Init, top.Web_GUI, 'ui_mode');
-addTransitionSafe(chart, top.Web_GUI, top.Runtime_Flow, 'job_started');
+addTransitionSafe(chart, top.Init, top.Web_UI, 'ui_mode');
+addTransitionSafe(chart, top.Web_UI, top.Runtime_Flow, 'job_started');
 addTransitionSafe(chart, top.ROS2_Workspace, top.Runtime_Flow, 'nodes_ready');
 addTransitionSafe(chart, top.Runtime_Flow, top.Interfaces_and_Contracts, 'contracts_active');
 addTransitionSafe(chart, top.Interfaces_and_Contracts, top.Project_Assets, 'artifacts_written');
@@ -385,27 +385,27 @@ for i = 1:numel(ifaces)
 end
 end
 
-function populateWebGui(parentState, opts)
+function populateWebUi(parentState, opts)
 repoRoot = opts.RepoRoot;
-backendPath = fullfile(repoRoot, 'web_gui', 'app');
-frontendPath = fullfile(repoRoot, 'web_gui', 'static');
-mainPyPath = fullfile(backendPath, 'main.py');
+backendPath = fullfile(repoRoot, 'ros2_ws', 'src', 'asr_gateway', 'asr_gateway');
+frontendPath = fullfile(repoRoot, 'web_ui', 'frontend');
+mainPyPath = fullfile(backendPath, 'api.py');
 
 childPos = layoutGrid(4, 10, 16, 2, 170, 80, 10, 10);
-backendState = addStateSafe(parentState, 'FastAPI_Backend', {'REST API + runtime config + job manager'}, childPos(1, :));
-frontendState = addStateSafe(parentState, 'Frontend_Static', {'index.html + app.js + styles.css'}, childPos(2, :));
+backendState = addStateSafe(parentState, 'Gateway_API', {'FastAPI gateway over ROS/runtime/benchmark/storage'}, childPos(1, :));
+frontendState = addStateSafe(parentState, 'Frontend_Web_UI', {'index.html + js/ + styles.css'}, childPos(2, :));
 routesState = addStateSafe(parentState, 'API_Routes', {'auto-extracted from @app.<method>(...)'}, childPos(3, :));
-runtimeState = addStateSafe(parentState, 'Runtime_Files', {'profiles + uploads + logs + runtime_configs'}, childPos(4, :));
+runtimeState = addStateSafe(parentState, 'Runtime_Files', {'configs + uploads + logs + artifacts'}, childPos(4, :));
 
 populateFiles(backendState, backendPath, opts.MaxStatesPerContainer, {'.py'});
 populateFiles(frontendState, frontendPath, opts.MaxStatesPerContainer, {'.js', '.html', '.css'});
 populateFastApiRoutes(routesState, mainPyPath, opts.MaxStatesPerContainer);
 
 runtimeRoots = {
-    fullfile(repoRoot, 'web_gui', 'profiles'), ...
-    fullfile(repoRoot, 'web_gui', 'uploads'), ...
-    fullfile(repoRoot, 'web_gui', 'logs'), ...
-    fullfile(repoRoot, 'web_gui', 'runtime_configs')
+    fullfile(repoRoot, 'configs'), ...
+    fullfile(repoRoot, 'data', 'sample', 'uploads'), ...
+    fullfile(repoRoot, 'logs'), ...
+    fullfile(repoRoot, 'artifacts')
 };
 populateMultiRootSummary(runtimeState, runtimeRoots, {'*.yaml', '*.log', '*.txt', '*.wav', '*.csv', '*.json'});
 
@@ -416,7 +416,7 @@ end
 
 function populateFastApiRoutes(parentState, mainPyPath, maxStates)
 if ~exist(mainPyPath, 'file')
-    addStateSafe(parentState, 'Routes_Not_Found', {'web_gui/app/main.py not found'}, [10 12 120 45]);
+    addStateSafe(parentState, 'Routes_Not_Found', {'asr_gateway/api.py not found'}, [10 12 120 45]);
     return;
 end
 
@@ -578,7 +578,7 @@ end
 
 function wireTopTransitions(chart, top)
 addTransitionSafe(chart, top.Init, top.Shutdown, 'fatal_startup_error');
-addTransitionSafe(chart, top.Web_GUI, top.Errors_and_Recovery, 'api_exception');
+addTransitionSafe(chart, top.Web_UI, top.Errors_and_Recovery, 'api_exception');
 addTransitionSafe(chart, top.ROS2_Workspace, top.Errors_and_Recovery, 'launch_failure');
 addTransitionSafe(chart, top.Project_Assets, top.Init, 'reload_profile');
 end

@@ -2,21 +2,24 @@
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import re
+import shlex
+import shutil
 import subprocess
 import threading
 from collections import deque
 from contextlib import asynccontextmanager
+from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
 import yaml  # type: ignore[import-untyped]
-from asr_backend_aws.backend import AwsAsrBackend
+from asr_benchmark_core.noise import apply_noise_to_wav, resolve_noise_plan
 from asr_config import (
-    load_local_env_values,
     list_profiles,
     load_secret_ref,
     local_env_file_path,
@@ -30,6 +33,36 @@ from asr_config import (
 from asr_core import make_request_id, make_run_id, make_session_id
 from asr_datasets import DatasetEntry, DatasetRegistry, import_from_uploaded_files, load_manifest
 from asr_gateway.ros_client import GatewayRosClient
+from asr_gateway.log_views import (
+    collect_logs as collect_logs_helper,
+    detect_severity as detect_severity_helper,
+    log_files as log_files_helper,
+    tail_lines as tail_lines_helper,
+)
+from asr_gateway.result_views import (
+    compare_runs as compare_runs_helper,
+    list_benchmark_history as list_benchmark_history_helper,
+    metric_preference as metric_preference_helper,
+    run_detail as run_detail_helper,
+    run_dir as run_dir_helper,
+)
+from asr_gateway.runtime_assets import (
+    list_runtime_samples as list_runtime_samples_helper,
+    noise_output_target_for_snr,
+    resolve_runtime_sample_path as resolve_runtime_sample_path_helper,
+    runtime_upload_target as runtime_upload_target_helper,
+    wav_metadata_from_bytes as wav_metadata_from_bytes_helper,
+    wav_metadata_from_file as wav_metadata_from_file_helper,
+)
+from asr_gateway.secret_state import (
+    aws_backend_from_current_env as aws_backend_from_current_env_helper,
+    azure_secret_status as azure_secret_status_helper,
+    google_secret_status as google_secret_status_helper,
+    normalize_ref_name as normalize_ref_name_helper,
+    secret_ref_path as secret_ref_path_helper,
+    validate_secret_file as validate_secret_file_helper,
+    mask_email as mask_email_helper,
+)
 from asr_provider_base import ProviderAudio, ProviderManager, create_provider, list_providers
 from asr_provider_base.catalog import default_preset_id, provider_presets, provider_ui, resolve_provider_execution
 from asr_reporting import export_csv, export_json, export_markdown
@@ -68,6 +101,8 @@ HUMAN_PROVIDER_NAMES = {
 }
 
 SAFE_NAME_RE = re.compile(r"^[a-zA-Z0-9_./-]+$")
+AWS_DEVICE_CODE_RE = re.compile(r"\b[A-Z0-9]{4}(?:-[A-Z0-9]{4})+\b")
+AWS_URL_RE = re.compile(r"https?://[^\s<>()]+")
 
 
 def _no_cache_headers() -> dict[str, str]:
@@ -86,6 +121,55 @@ class NoCacheStaticFiles(StaticFiles):
         return response
 
 
+def _aws_device_login_page_url(start_url: str) -> str:
+    text = str(start_url or "").strip()
+    if not text:
+        return ""
+    if "#/device" in text:
+        return text
+    normalized = text.rstrip("/")
+    if normalized.endswith("/start"):
+        return f"{normalized}/#/device"
+    return text
+
+
+def _extract_aws_login_job_hints(lines: list[str], *, start_url: str = "") -> dict[str, str]:
+    normalized_start_url = str(start_url or "").strip()
+    login_page_url = _aws_device_login_page_url(normalized_start_url)
+    verification_uri = ""
+    user_code = ""
+
+    for raw in lines or []:
+        line = str(raw or "").strip()
+        if not line:
+            continue
+
+        if not user_code:
+            match = AWS_DEVICE_CODE_RE.search(line.upper())
+            if match:
+                user_code = match.group(0)
+
+        for raw_url in AWS_URL_RE.findall(line):
+            url = raw_url.rstrip(".,")
+            if "#/device" in url:
+                login_page_url = url
+            elif not verification_uri:
+                verification_uri = url
+
+            if not login_page_url and ".awsapps.com/start" in url:
+                login_page_url = _aws_device_login_page_url(url)
+
+    if not login_page_url and verification_uri:
+        login_page_url = verification_uri
+
+    return {
+        "sso_start_url": normalized_start_url,
+        "login_page_url": login_page_url,
+        "verification_uri": verification_uri,
+        "user_code": user_code,
+    }
+
+
 def _detect_project_root() -> Path:
     env_root = os.getenv("ASR_PROJECT_ROOT", "").strip()
     if env_root:
@@ -101,12 +185,20 @@ def _detect_project_root() -> Path:
 
 
 PROJECT_ROOT = _detect_project_root()
+# These paths let the gateway act as a single control point for configs,
+# uploaded samples, artifacts, logs, and secret metadata.
 CONFIGS_ROOT = PROJECT_ROOT / "configs"
 SECRETS_REFS_ROOT = PROJECT_ROOT / "secrets" / "refs"
 ARTIFACTS_ROOT = PROJECT_ROOT / "artifacts"
 LOGS_ROOT = PROJECT_ROOT / "logs"
 DATASET_REGISTRY_PATH = PROJECT_ROOT / "datasets" / "registry" / "datasets.json"
+RUNTIME_SAMPLES_ROOT = PROJECT_ROOT / "data" / "sample"
+RUNTIME_SAMPLE_UPLOADS_ROOT = RUNTIME_SAMPLES_ROOT / "uploads"
+RUNTIME_NOISE_ROOT = RUNTIME_SAMPLES_ROOT / "generated_noise"
+RUNTIME_SAMPLE_SUFFIXES = {".wav", ".wave"}
 
+# Lightweight in-memory state for recent UI history. Durable outputs still live
+# on disk under artifacts/logs; these caches only serve fast dashboard polling.
 _RUNTIME_EVENTS: deque[dict[str, Any]] = deque(maxlen=200)
 _RUNTIME_RESULTS: deque[dict[str, Any]] = deque(maxlen=80)
 _BENCHMARK_JOBS: dict[str, dict[str, Any]] = {}
@@ -121,15 +213,21 @@ async def _lifespan(app: FastAPI):
     try:
         yield
     finally:
-        ros.close()
+        close = getattr(ros, "close", None)
+        if callable(close):
+            close()
 
 
 app = FastAPI(title="ASR Gateway", version="0.2.0", lifespan=_lifespan)
 ros = GatewayRosClient(timeout_sec=5.0)
 if (PROJECT_ROOT / "web_ui" / "frontend").exists():
+    # Serve the static browser UI from the same process that exposes the API so
+    # operators only need one host/port.
     app.mount("/ui", NoCacheStaticFiles(directory=str(PROJECT_ROOT / "web_ui" / "frontend")), name="ui")
 
 
+# Pydantic request models define the JSON contract between browser/scripts and
+# the gateway. They intentionally mirror the user-facing forms closely.
 class RuntimeStartRequest(BaseModel):
     runtime_profile: str = "default_runtime"
     provider_profile: str = "providers/whisper_local"
@@ -167,6 +265,11 @@ class RecognizeRequest(BaseModel):
     provider_profile: str = ""
     provider_preset: str = ""
     provider_settings: dict[str, Any] = Field(default_factory=dict)
+
+
+class NoiseGenerateRequest(BaseModel):
+    source_wav: str
+    snr_levels: list[float] = Field(default_factory=list)
 
 
 class BenchmarkRunRequest(BaseModel):
@@ -379,13 +482,242 @@ def _record_runtime_event(event: str, message: str, payload: dict[str, Any] | No
 
 
 def _run_dir(run_id: str) -> Path:
-    rid = _clean_name(run_id, "run_id")
-    return ARTIFACTS_ROOT / "benchmark_runs" / rid
+    return run_dir_helper(ARTIFACTS_ROOT, run_id, clean_name=_clean_name)
 
 
 def _session_dir(session_id: str) -> Path:
     sid = _clean_name(session_id, "session_id")
     return ARTIFACTS_ROOT / "runtime_sessions" / sid
+
+
+def _project_relative_path(path: Path) -> str:
+    try:
+        return path.resolve().relative_to(PROJECT_ROOT.resolve()).as_posix()
+    except Exception:
+        return str(path)
+
+
+def _wav_metadata_from_bytes(content: bytes) -> dict[str, Any]:
+    return wav_metadata_from_bytes_helper(content)
+
+
+def _wav_metadata_from_file(path: Path) -> dict[str, Any]:
+    return wav_metadata_from_file_helper(path)
+
+
+def _list_runtime_samples() -> dict[str, Any]:
+    return list_runtime_samples_helper(
+        samples_root=RUNTIME_SAMPLES_ROOT,
+        uploads_root=RUNTIME_SAMPLE_UPLOADS_ROOT,
+        project_relative_path=_project_relative_path,
+        sample_suffixes=RUNTIME_SAMPLE_SUFFIXES,
+        upload_enabled=MULTIPART_AVAILABLE,
+    )
+
+
+def _runtime_upload_target(filename: str) -> Path:
+    return runtime_upload_target_helper(
+        filename,
+        uploads_root=RUNTIME_SAMPLE_UPLOADS_ROOT,
+        sample_suffixes=RUNTIME_SAMPLE_SUFFIXES,
+    )
+
+
+def _resolve_runtime_sample_path(value: str, *, label: str = "sample_path") -> Path:
+    return resolve_runtime_sample_path_helper(
+        value,
+        clean_name=_clean_name,
+        project_root=PROJECT_ROOT,
+        allowed_roots=(
+            RUNTIME_SAMPLES_ROOT,
+            ARTIFACTS_ROOT,
+            PROJECT_ROOT / "results",
+        ),
+        label=label,
+    )
+
+
+def _noise_output_target(source: Path, snr_db: float) -> Path:
+    return noise_output_target_for_snr(source, snr_db=snr_db, noise_root=RUNTIME_NOISE_ROOT)
+
+
+def _module_ok(module_name: str) -> tuple[bool, str]:
+    try:
+        spec = importlib.util.find_spec(module_name)
+    except ModuleNotFoundError:
+        spec = None
+    if spec is None:
+        return False, f"Module not installed: {module_name}"
+    return True, "ok"
+
+
+def _check_microphone_stack() -> tuple[bool, str, dict[str, Any]]:
+    details: dict[str, Any] = {}
+    try:
+        import sounddevice as sd  # type: ignore[import-not-found]
+        import soundfile as sf  # type: ignore[import-not-found]
+
+        details["sounddevice"] = getattr(sd, "__version__", "unknown")
+        details["soundfile"] = getattr(sf, "__version__", "unknown")
+        try:
+            devices = sd.query_devices()
+            default_in, _default_out = sd.default.device
+            details["audio_device_count"] = len(devices)
+            details["default_input"] = int(default_in) if default_in is not None else None
+        except Exception as exc:  # pragma: no cover - device availability varies by environment
+            return False, f"Audio device query failed: {exc}", details
+        return True, "ok", details
+    except Exception as exc:
+        return False, str(exc), details
+
+
+def _resolve_entrypoint_python(entrypoint: Path) -> tuple[str | None, str]:
+    if not entrypoint.exists():
+        return None, f"Entrypoint not found: {entrypoint}"
+    try:
+        first_line = entrypoint.read_text(encoding="utf-8", errors="replace").splitlines()[0].strip()
+    except IndexError:
+        return None, f"Entrypoint is empty: {entrypoint}"
+    except Exception as exc:
+        return None, f"Unable to read entrypoint: {exc}"
+
+    if not first_line.startswith("#!"):
+        return None, f"Entrypoint has no shebang: {entrypoint}"
+
+    shebang = first_line[2:].strip()
+    if not shebang:
+        return None, f"Entrypoint shebang is empty: {entrypoint}"
+
+    parts = shlex.split(shebang)
+    if not parts:
+        return None, f"Entrypoint shebang is invalid: {entrypoint}"
+
+    if Path(parts[0]).name == "env":
+        if len(parts) < 2:
+            return None, f"Entrypoint env shebang is invalid: {entrypoint}"
+        resolved = shutil.which(parts[1]) or parts[1]
+        return resolved, f"shebang={shebang}"
+    return parts[0], f"shebang={shebang}"
+
+
+def _module_ok_via_python(python_exec: str | None, module_name: str) -> tuple[bool, str]:
+    if not python_exec:
+        return False, "Python executable is not defined"
+
+    check_code = (
+        "import importlib.util, sys; "
+        f"sys.exit(0 if importlib.util.find_spec({module_name!r}) else 2)"
+    )
+    try:
+        result = subprocess.run(
+            [python_exec, "-c", check_code],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=8,
+        )
+    except FileNotFoundError:
+        return False, f"Python executable not found: {python_exec}"
+    except Exception as exc:
+        return False, f"Unable to run module check with {python_exec}: {exc}"
+
+    if result.returncode == 0:
+        return True, f"{python_exec} imports {module_name}"
+
+    details = result.stderr.strip() or result.stdout.strip() or f"exit={result.returncode}"
+    return False, f"{python_exec} cannot import {module_name}: {details}"
+
+
+def _run_preflight_checks() -> dict[str, Any]:
+    required_modules = {
+        "fastapi": "fastapi",
+        "uvicorn": "uvicorn",
+        "soundfile": "soundfile",
+        "sounddevice": "sounddevice",
+        "faster_whisper": "faster_whisper",
+        "vosk": "vosk",
+        "google_cloud_speech": "google.cloud.speech",
+        "boto3": "boto3",
+        "azure_speech": "azure.cognitiveservices.speech",
+        "matplotlib": "matplotlib",
+        "numpy": "numpy",
+        "psutil": "psutil",
+        "yaml": "yaml",
+    }
+
+    module_checks: dict[str, dict[str, Any]] = {}
+    for label, module_name in required_modules.items():
+        ok, message = _module_ok(module_name)
+        module_checks[label] = {"ok": ok, "message": message}
+
+    ros_setup = Path("/opt/ros/jazzy/setup.bash")
+    install_setup = PROJECT_ROOT / "ros2_ws" / "install" / "setup.bash"
+    if not install_setup.exists():
+        install_setup = PROJECT_ROOT / "install" / "setup.bash"
+
+    ros_executable = shutil.which("ros2")
+    mic_ok, mic_message, mic_details = _check_microphone_stack()
+
+    gateway_exec = install_setup.parent / "asr_gateway" / "lib" / "asr_gateway" / "asr_gateway_server"
+    runtime_exec = install_setup.parent / "asr_runtime_nodes" / "lib" / "asr_runtime_nodes" / "asr_orchestrator_node"
+    benchmark_exec = install_setup.parent / "asr_benchmark_nodes" / "lib" / "asr_benchmark_nodes" / "benchmark_manager_node"
+    runtime_python, runtime_python_message = _resolve_entrypoint_python(runtime_exec)
+    runtime_whisper_ok, runtime_whisper_message = _module_ok_via_python(runtime_python, "faster_whisper")
+
+    checks = {
+        "modules": module_checks,
+        "microphone": {
+            "ok": mic_ok,
+            "message": mic_message,
+            "details": mic_details,
+        },
+        "ros": {
+            "ros2_binary": {
+                "ok": bool(ros_executable or ros_setup.exists()),
+                "message": ros_executable or "ros2 not in current PATH, but /opt/ros/jazzy/setup.bash is available",
+            },
+            "jazzy_setup": {
+                "ok": ros_setup.exists(),
+                "message": str(ros_setup),
+            },
+            "install_setup": {
+                "ok": install_setup.exists(),
+                "message": str(install_setup),
+            },
+            "gateway_node_installed": {
+                "ok": gateway_exec.exists(),
+                "message": str(gateway_exec),
+            },
+            "runtime_node_installed": {
+                "ok": runtime_exec.exists(),
+                "message": str(runtime_exec),
+            },
+            "benchmark_node_installed": {
+                "ok": benchmark_exec.exists(),
+                "message": str(benchmark_exec),
+            },
+            "runtime_python": {
+                "ok": bool(runtime_python),
+                "message": runtime_python_message,
+            },
+            "runtime_faster_whisper": {
+                "ok": runtime_whisper_ok,
+                "message": runtime_whisper_message,
+            },
+        },
+    }
+
+    ok = True
+    for group in checks.values():
+        if isinstance(group, dict):
+            for item in group.values():
+                if isinstance(item, dict) and "ok" in item and not bool(item["ok"]):
+                    ok = False
+
+    return {
+        "ok": ok,
+        "checks": checks,
+    }
 
 
 def _runtime_status() -> dict[str, Any]:
@@ -408,12 +740,64 @@ def _runtime_status() -> dict[str, Any]:
             "runtime_profile": active_session.get("profile_id", ""),
             "observer_error": snapshot.get("observer_error", ""),
         }
-    payload = dict(result.payload)
+    payload = _normalize_runtime_status_payload(snapshot, result.payload)
     payload["available"] = True
     payload["state"] = str(payload.get("session_state", payload.get("status_message", "unknown")))
     payload["message"] = "ok"
     payload["observer_error"] = snapshot.get("observer_error", "")
     return payload
+
+
+def _audio_input_completion(snapshot: dict[str, Any], session_id: str) -> tuple[bool, str]:
+    clean_session_id = str(session_id or "").strip()
+    for item in list(snapshot.get("node_statuses", [])):
+        if str(item.get("node_name", "") or "") != "audio_input_node":
+            continue
+        status_message = str(item.get("status_message", "") or "")
+        if clean_session_id and f"session={clean_session_id}" not in status_message:
+            continue
+        if status_message.startswith("completed"):
+            return True, status_message
+    return False, ""
+
+
+def _normalize_runtime_status_payload(snapshot: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+    normalized = dict(payload)
+    session_id = str(normalized.get("session_id", "") or snapshot.get("active_session", {}).get("session_id", "") or "")
+    audio_source = str(
+        normalized.get("audio_source", "") or snapshot.get("active_session", {}).get("audio_source", "") or ""
+    )
+    is_completed, completion_message = _audio_input_completion(snapshot, session_id)
+    if is_completed and audio_source == "file":
+        normalized["session_state"] = "completed"
+        normalized["status_message"] = completion_message or "completed source=file"
+    return normalized
+
+
+def _normalize_runtime_session_snapshot(snapshot: dict[str, Any], *, audio_source: str) -> dict[str, Any]:
+    normalized = {
+        "recent_results": _merge_runtime_results(snapshot.get("recent_results", []), list(_RUNTIME_RESULTS)),
+        "recent_partials": list(snapshot.get("recent_partials", [])),
+        "node_statuses": list(snapshot.get("node_statuses", [])),
+        "session_statuses": [dict(item) for item in list(snapshot.get("session_statuses", []))],
+        "active_session": dict(snapshot.get("active_session", {})),
+    }
+    if audio_source != "file":
+        return normalized
+
+    active_session_id = str(normalized["active_session"].get("session_id", "") or "")
+    is_completed, completion_message = _audio_input_completion(snapshot, active_session_id)
+    if not is_completed:
+        return normalized
+
+    if active_session_id:
+        normalized["active_session"]["state"] = "completed"
+        normalized["active_session"]["status_message"] = completion_message or "completed source=file"
+        for item in normalized["session_statuses"]:
+            if str(item.get("session_id", "") or "") == active_session_id:
+                item["state"] = "completed"
+                item["status_message"] = completion_message or "completed source=file"
+    return normalized
 
 
 def _merge_runtime_results(*groups: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -641,120 +1025,42 @@ def _provider_catalog() -> list[dict[str, Any]]:
 
 
 def _normalize_ref_name(ref_name: str) -> str:
-    name = _clean_name(ref_name, "ref_name")
-    if name.endswith(".yaml"):
-        name = name[:-5]
-    return name
+    return normalize_ref_name_helper(ref_name, clean_name=_clean_name)
 
 
 def _secret_ref_path(ref_name: str) -> Path:
-    return SECRETS_REFS_ROOT / f"{_normalize_ref_name(ref_name)}.yaml"
+    return secret_ref_path_helper(
+        ref_name,
+        secrets_refs_root=SECRETS_REFS_ROOT,
+        clean_name=_clean_name,
+    )
 
 
-def _aws_backend_from_current_env() -> AwsAsrBackend:
-    aws_ref_source = str(_secret_ref_path("aws_profile"))
-    return AwsAsrBackend(
-        config={
-            "profile": resolve_env_value("AWS_PROFILE", aws_ref_source)[0],
-            "region": resolve_env_value("AWS_REGION", aws_ref_source)[0],
-            "access_key_id": resolve_env_value("AWS_ACCESS_KEY_ID", aws_ref_source)[0],
-            "secret_access_key": resolve_env_value("AWS_SECRET_ACCESS_KEY", aws_ref_source)[0],
-            "session_token": resolve_env_value("AWS_SESSION_TOKEN", aws_ref_source)[0],
-            "config_file": resolve_env_value("AWS_CONFIG_FILE", aws_ref_source)[0],
-            "shared_credentials_file": resolve_env_value("AWS_SHARED_CREDENTIALS_FILE", aws_ref_source)[0],
-        }
+def _aws_backend_from_current_env() -> Any:
+    return aws_backend_from_current_env_helper(
+        secret_ref_source=str(_secret_ref_path("aws_profile")),
+        resolve_env_value=resolve_env_value,
     )
 
 
 def _azure_secret_status(ref_source_path: str) -> dict[str, Any]:
-    key_value, key_source = resolve_env_value("AZURE_SPEECH_KEY", ref_source_path)
-    region_value, region_source = resolve_env_value("AZURE_SPEECH_REGION", ref_source_path)
-    endpoint_value, endpoint_source = resolve_env_value("ASR_AZURE_ENDPOINT", ref_source_path)
-    local_env_path = local_env_file_path(ref_source_path)
-    endpoint_text = str(endpoint_value or "").strip()
-    endpoint_mode = "none"
-    if endpoint_text:
-        endpoint_mode = "url" if endpoint_text.startswith(("https://", "http://", "wss://")) else "endpoint_id"
-    return {
-        "runtime_ready": bool(key_value and region_value),
-        "local_env_file": str(local_env_path),
-        "local_env_file_exists": local_env_path.exists(),
-        "speech_key_present": bool(key_value),
-        "speech_key_source": key_source or "missing",
-        "speech_key_masked": "***" if key_value else "",
-        "region": region_value,
-        "region_source": region_source or "missing",
-        "endpoint": endpoint_value,
-        "endpoint_source": endpoint_source or "missing",
-        "endpoint_mode": endpoint_mode,
-        "message": (
-            "Azure Speech credentials are ready for provider validation and runtime use."
-            if key_value and region_value
-            else "Azure needs AZURE_SPEECH_KEY and AZURE_SPEECH_REGION."
-        ),
-    }
+    return azure_secret_status_helper(
+        ref_source_path,
+        resolve_env_value=resolve_env_value,
+        local_env_file_path=local_env_file_path,
+    )
 
 
 def _mask_email(value: str) -> str:
-    text = str(value or "").strip()
-    if not text or "@" not in text:
-        return text
-    name, domain = text.split("@", 1)
-    if len(name) <= 2:
-        masked_name = "*" * len(name)
-    else:
-        masked_name = f"{name[:2]}***{name[-1:]}"
-    return f"{masked_name}@{domain}"
+    return mask_email_helper(value)
 
 
 def _google_secret_status(ref_source_path: str, resolved_file_path: str = "", resolved_source: str = "") -> dict[str, Any]:
-    file_path = str(resolved_file_path or "").strip()
-    source = str(resolved_source or "").strip() or "missing"
-    auth: dict[str, Any] = {
-        "runtime_ready": False,
-        "file_path": file_path,
-        "file_source": source,
-        "file_exists": bool(file_path and Path(file_path).exists()),
-        "service_account_valid": False,
-        "project_id": "",
-        "client_email_masked": "",
-        "credential_type": "",
-        "message": "",
-    }
-    if not file_path:
-        auth["message"] = "Google needs a service-account JSON file."
-        return auth
-    path = Path(file_path)
-    if not path.exists():
-        auth["message"] = f"Referenced Google credentials file does not exist: {file_path}"
-        return auth
-
-    try:
-        payload = json.loads(path.read_text(encoding="utf-8"))
-    except Exception as exc:
-        auth["message"] = f"Google credentials JSON is unreadable: {exc}"
-        return auth
-
-    if not isinstance(payload, dict):
-        auth["message"] = "Google credentials file must be a JSON object."
-        return auth
-
-    auth["credential_type"] = str(payload.get("type", "") or "")
-    auth["project_id"] = str(payload.get("project_id", "") or "")
-    auth["client_email_masked"] = _mask_email(str(payload.get("client_email", "") or ""))
-    auth["service_account_valid"] = (
-        auth["credential_type"] == "service_account"
-        and bool(payload.get("project_id"))
-        and bool(payload.get("client_email"))
-        and bool(payload.get("private_key"))
+    return google_secret_status_helper(
+        ref_source_path,
+        resolved_file_path=resolved_file_path,
+        resolved_source=resolved_source,
     )
-    auth["runtime_ready"] = bool(auth["service_account_valid"])
-    auth["message"] = (
-        "Google service-account JSON is ready for provider validation and runtime use."
-        if auth["runtime_ready"]
-        else "Google credentials file is present but does not look like a complete service-account JSON."
-    )
-    return auth
 
 
 def _apply_process_env(updates: dict[str, str], unset: list[str] | None = None) -> None:
@@ -772,6 +1078,12 @@ def _aws_login_job_snapshot(job_id: str) -> dict[str, Any]:
         job = _SECRET_LOGIN_JOBS.get(job_id)
         if job is None:
             raise HTTPException(status_code=404, detail=f"AWS login job not found: {job_id}")
+        validation = dict(job.get("validation", {}))
+        auth = validation.get("auth", {}) if isinstance(validation.get("auth"), dict) else {}
+        hints = _extract_aws_login_job_hints(
+            list(job.get("lines", [])),
+            start_url=str(job.get("sso_start_url") or auth.get("sso_start_url") or ""),
+        )
         return {
             "job_id": job["job_id"],
             "kind": job.get("kind", "aws_sso_login"),
@@ -784,7 +1096,8 @@ def _aws_login_job_snapshot(job_id: str) -> dict[str, Any]:
             "return_code": job.get("return_code"),
             "lines": list(job.get("lines", [])),
             "command": list(job.get("command", [])),
-            "validation": dict(job.get("validation", {})),
+            "validation": validation,
+            **hints,
         }
 
 
@@ -896,100 +1209,15 @@ def _start_aws_login_job(
 
 
 def _validate_secret_file(path: Path) -> dict[str, Any]:
-    issues: list[str] = []
-    detail: dict[str, Any] = {"valid": True, "issues": issues, "env": {}}
-
-    if not path.exists():
-        issues.append("secret ref file is missing")
-        detail["valid"] = False
-        return detail
-
-    try:
-        ref = load_secret_ref(str(path))
-    except Exception as exc:
-        issues.append(str(exc))
-        detail["valid"] = False
-        return detail
-
-    detail.update(
-        {
-            "ref_id": ref.ref_id,
-            "provider": ref.provider,
-            "kind": ref.kind,
-            "path": ref.path,
-            "env_fallback": ref.env_fallback,
-            "required": ref.required,
-            "optional": ref.optional,
-            "masked": ref.masked,
-        }
+    return validate_secret_file_helper(
+        path,
+        load_secret_ref=load_secret_ref,
+        resolve_secret_ref=resolve_secret_ref,
+        resolve_env_value=resolve_env_value,
+        aws_backend_factory=_aws_backend_from_current_env,
+        azure_status_factory=_azure_secret_status,
+        google_status_factory=_google_secret_status,
     )
-
-    if ref.kind not in {"none", "env", "file"}:
-        issues.append(f"unsupported kind: {ref.kind}")
-
-    if ref.kind == "file":
-        file_path = ref.path
-        source = "path"
-        try:
-            resolved = resolve_secret_ref(ref)
-            file_path = str(resolved.get("file_path", ""))
-            if ref.env_fallback:
-                _, env_source = resolve_env_value(ref.env_fallback, ref.source_path)
-                if env_source == "process_env":
-                    source = "env_fallback"
-                elif env_source == "local_env_file":
-                    source = "env_fallback_local_env_file"
-        except Exception as exc:
-            if str(exc):
-                issues.append(str(exc))
-        detail["resolved_file_path"] = file_path
-        detail["resolved_file_path_source"] = source
-        if file_path and not Path(file_path).exists():
-            issues.append(f"resolved credential file not found: {file_path}")
-        if not file_path:
-            issues.append("credential file path is not set")
-
-    if ref.provider == "aws" and ref.kind == "env":
-        backend = _aws_backend_from_current_env()
-        auth = backend.auth_status()
-        auth["login_supported"] = bool(auth.get("uses_sso") and auth.get("profile"))
-        auth["login_recommended"] = bool(auth.get("login_recommended")) or str(auth.get("status", "")) in {
-            "role_credentials_valid_sso_expired",
-            "sso_session_expired",
-            "sso_login_required",
-        }
-        if auth.get("login_supported"):
-            auth["login_command"] = f"aws sso login --profile {auth.get('profile', '')}"
-        detail["auth"] = auth
-    for name in ref.required:
-        value, source = resolve_env_value(name, ref.source_path)
-        present = bool(value)
-        detail["env"][name] = {"present": present, "required": True, "source": source or "missing"}
-        if ref.provider == "aws" and ref.kind == "env":
-            continue
-        if not present:
-            issues.append(f"required env missing: {name}")
-
-    for name in ref.optional:
-        value, source = resolve_env_value(name, ref.source_path)
-        present = bool(value)
-        detail["env"][name] = {"present": present, "required": False, "source": source or "missing"}
-
-    if ref.provider == "aws" and ref.kind == "env":
-        issues.extend(
-            issue for issue in backend.auth_validation_errors() if issue and issue not in issues
-        )
-    if ref.provider == "azure" and ref.kind == "env":
-        detail["auth"] = _azure_secret_status(ref.source_path)
-    if ref.provider == "google" and ref.kind == "file":
-        detail["auth"] = _google_secret_status(
-            ref.source_path,
-            resolved_file_path=str(detail.get("resolved_file_path", "") or ""),
-            resolved_source=str(detail.get("resolved_file_path_source", "") or ""),
-        )
-
-    detail["valid"] = not issues
-    return detail
 
 
 def _normalize_provider_profile(profile: str) -> str:
@@ -997,6 +1225,13 @@ def _normalize_provider_profile(profile: str) -> str:
     if not clean:
         raise HTTPException(status_code=400, detail="provider_profile is required")
     return clean if clean.startswith("providers/") else f"providers/{clean}"
+
+
+def _normalize_runtime_profile(profile: str) -> str:
+    clean = str(profile).strip()
+    if not clean:
+        raise HTTPException(status_code=400, detail="runtime_profile is required")
+    return clean.split("/", 1)[1] if clean.startswith("runtime/") else clean
 
 
 def _provider_execution_payload(
@@ -1018,11 +1253,15 @@ def _provider_execution_payload(
         preset_id=str(execution.get("selected_preset", "") or ""),
         settings_overrides=dict(settings_overrides or {}),
     )
-    adapter.teardown()
+    try:
+        capabilities = _capabilities_to_dict(adapter.discover_capabilities())
+    finally:
+        adapter.teardown()
     return {
         "normalized_profile": normalized,
         "payload": payload,
         "execution": execution,
+        "capabilities": capabilities,
     }
 
 
@@ -1037,6 +1276,288 @@ def _preflight_provider_profile(
         preset_id=preset_id,
         settings_overrides=settings_overrides,
     )
+
+
+def _preflight_runtime_request(
+    *,
+    runtime_profile: str,
+    provider_profile: str,
+    provider_preset: str = "",
+    provider_settings: dict[str, Any] | None = None,
+    processing_mode: str = "",
+    audio_source: str = "",
+    audio_file_path: str = "",
+    language: str = "",
+    mic_capture_sec: float = 0.0,
+) -> dict[str, Any]:
+    runtime_profile_id = _normalize_runtime_profile(runtime_profile)
+    try:
+        resolved_runtime = resolve_profile(
+            profile_type="runtime",
+            profile_id=runtime_profile_id,
+            configs_root=str(CONFIGS_ROOT),
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    runtime_payload = deepcopy(resolved_runtime.data)
+    if not isinstance(runtime_payload, dict):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Runtime profile `{runtime_profile_id}` must resolve to an object.",
+        )
+
+    audio_cfg = dict(runtime_payload.get("audio", {})) if isinstance(runtime_payload.get("audio"), dict) else {}
+    orchestrator_cfg = (
+        dict(runtime_payload.get("orchestrator", {}))
+        if isinstance(runtime_payload.get("orchestrator"), dict)
+        else {}
+    )
+    runtime_payload["audio"] = audio_cfg
+    runtime_payload["orchestrator"] = orchestrator_cfg
+
+    try:
+        provider_exec = _preflight_provider_profile(
+            provider_profile,
+            preset_id=provider_preset,
+            settings_overrides=provider_settings,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    if str(audio_source or "").strip():
+        audio_cfg["source"] = str(audio_source).strip()
+    if str(processing_mode or "").strip():
+        orchestrator_cfg["processing_mode"] = str(processing_mode).strip()
+    if str(language or "").strip():
+        orchestrator_cfg["language"] = str(language).strip()
+    if float(mic_capture_sec or 0.0) > 0.0:
+        audio_cfg["mic_capture_sec"] = float(mic_capture_sec)
+
+    orchestrator_cfg["provider_profile"] = provider_exec["normalized_profile"]
+
+    effective_audio_source = str(audio_cfg.get("source", "file") or "file").strip() or "file"
+    effective_audio_file_path = str(audio_cfg.get("file_path", "") or "").strip()
+    if effective_audio_source == "file":
+        if str(audio_file_path or "").strip():
+            effective_audio_file_path = str(audio_file_path).strip()
+        if effective_audio_source == "file" and not effective_audio_file_path:
+            raise HTTPException(
+                status_code=400,
+                detail="audio_file_path is required when audio_source=file",
+            )
+        if effective_audio_file_path:
+            resolved_audio = _resolve_runtime_sample_path(
+                effective_audio_file_path,
+                label="audio_file_path",
+            )
+            if not resolved_audio.exists():
+                raise HTTPException(
+                    status_code=404,
+                    detail=f"Runtime WAV not found: {effective_audio_file_path}",
+                )
+            audio_cfg["file_path"] = _project_relative_path(resolved_audio)
+            effective_audio_file_path = audio_cfg["file_path"]
+    else:
+        audio_cfg["file_path"] = ""
+        effective_audio_file_path = ""
+
+    errors = validate_runtime_payload(runtime_payload)
+    if errors:
+        raise HTTPException(status_code=400, detail="; ".join(errors))
+
+    if effective_audio_source == "mic":
+        mic_ok, mic_message, _mic_details = _check_microphone_stack()
+        if not mic_ok:
+            raise HTTPException(
+                status_code=400,
+                detail=f"Microphone input is not available: {mic_message}",
+            )
+
+    effective_processing_mode = str(orchestrator_cfg.get("processing_mode", "segmented") or "segmented").strip()
+    if effective_processing_mode == "provider_stream" and not bool(
+        provider_exec["capabilities"].get("supports_streaming", False)
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                f"Provider profile `{provider_exec['normalized_profile']}` does not support "
+                "processing_mode=provider_stream"
+            ),
+        )
+
+    return {
+        "runtime_profile": runtime_profile_id,
+        "provider_exec": provider_exec,
+        "processing_mode": effective_processing_mode,
+        "audio_source": effective_audio_source,
+        "audio_file_path": effective_audio_file_path,
+        "language": str(orchestrator_cfg.get("language", "") or "").strip(),
+        "mic_capture_sec": float(audio_cfg.get("mic_capture_sec", 0.0) or 0.0),
+        "resolved_config_ref": str(getattr(resolved_runtime, "snapshot_path", "") or ""),
+    }
+
+
+def _normalize_benchmark_profile(profile: str) -> str:
+    clean = str(profile).strip()
+    if not clean:
+        raise HTTPException(status_code=400, detail="benchmark_profile is required")
+    return clean.split("/", 1)[1] if clean.startswith("benchmark/") else clean
+
+
+def _normalize_dataset_profile(profile: str) -> str:
+    clean = str(profile).strip()
+    if not clean:
+        raise HTTPException(status_code=400, detail="dataset_profile is required")
+    return clean if clean.startswith("datasets/") else f"datasets/{clean}"
+
+
+def _preflight_benchmark_request(req: BenchmarkRunRequest) -> dict[str, Any]:
+    benchmark_profile_id = _normalize_benchmark_profile(req.benchmark_profile)
+    try:
+        benchmark_cfg = resolve_profile(
+            profile_type="benchmark",
+            profile_id=benchmark_profile_id,
+            configs_root=str(CONFIGS_ROOT),
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    benchmark_payload = deepcopy(benchmark_cfg.data)
+    if not isinstance(benchmark_payload, dict):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Benchmark profile `{benchmark_profile_id}` must resolve to an object.",
+        )
+
+    errors = validate_benchmark_payload(benchmark_payload)
+    if errors:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Benchmark profile validation failed: {'; '.join(errors)}",
+        )
+
+    dataset_profile = _normalize_dataset_profile(
+        req.dataset_profile or str(benchmark_payload.get("dataset_profile", "") or "")
+    )
+    dataset_profile_id = dataset_profile.split("/", 1)[1]
+    try:
+        resolve_profile(
+            profile_type="datasets",
+            profile_id=dataset_profile_id,
+            configs_root=str(CONFIGS_ROOT),
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    metric_profiles = benchmark_payload.get("metric_profiles", [])
+    if isinstance(metric_profiles, list):
+        for metric_profile in metric_profiles:
+            metric_ref = str(metric_profile or "").strip()
+            if not metric_ref:
+                continue
+            metric_id = metric_ref.split("/", 1)[1] if metric_ref.startswith("metrics/") else metric_ref
+            try:
+                resolve_profile(
+                    profile_type="metrics",
+                    profile_id=metric_id,
+                    configs_root=str(CONFIGS_ROOT),
+                )
+            except Exception as exc:
+                raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    selected_providers = req.providers or [
+        str(item).strip()
+        for item in benchmark_payload.get("providers", [])
+        if str(item or "").strip()
+    ]
+    normalized_providers = [_normalize_provider_profile(item) for item in selected_providers]
+    if not normalized_providers:
+        raise HTTPException(status_code=400, detail="No providers selected for benchmark run")
+
+    normalized_overrides: dict[str, dict[str, Any]] = {}
+    for profile, override in _normalize_provider_overrides(req.provider_overrides).items():
+        normalized_overrides[_normalize_provider_profile(profile)] = dict(override)
+
+    unexpected_overrides = sorted(set(normalized_overrides) - set(normalized_providers))
+    if unexpected_overrides:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "provider_overrides contains profiles that are not selected: "
+                + ", ".join(unexpected_overrides)
+            ),
+        )
+
+    merged_settings = _deep_merge(
+        {
+            "execution_mode": str(benchmark_payload.get("execution_mode", "batch") or "batch"),
+            "batch": dict(benchmark_payload.get("batch", {}))
+            if isinstance(benchmark_payload.get("batch"), dict)
+            else {},
+            "streaming": dict(benchmark_payload.get("streaming", {}))
+            if isinstance(benchmark_payload.get("streaming"), dict)
+            else {},
+            "noise": dict(benchmark_payload.get("noise", {}))
+            if isinstance(benchmark_payload.get("noise"), dict)
+            else {},
+        },
+        dict(req.benchmark_settings or {}),
+    )
+    execution_mode = str(merged_settings.get("execution_mode", "batch") or "batch").strip() or "batch"
+    if execution_mode not in {"batch", "streaming"}:
+        raise HTTPException(
+            status_code=400,
+            detail="execution_mode must be one of: batch, streaming",
+        )
+
+    scenario = str(req.scenario or "").strip() or str(
+        (benchmark_payload.get("scenarios") or ["clean_baseline"])[0]
+    )
+    try:
+        resolve_noise_plan(
+            scenario=scenario,
+            benchmark_settings=merged_settings,
+            profile_scenarios=[str(item) for item in benchmark_payload.get("scenarios", [])],
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    for provider_profile in normalized_providers:
+        override = normalized_overrides.get(provider_profile, {})
+        try:
+            provider_exec = _preflight_provider_profile(
+                provider_profile,
+                preset_id=str(override.get("preset_id", "") or ""),
+                settings_overrides=dict(override.get("settings", {}))
+                if isinstance(override.get("settings", {}), dict)
+                else {},
+            )
+        except HTTPException:
+            raise
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        if execution_mode == "streaming" and not bool(
+            provider_exec["capabilities"].get("supports_streaming", False)
+        ):
+            raise HTTPException(
+                status_code=400,
+                detail=(
+                    f"Provider does not support streaming benchmark mode: "
+                    f"{provider_exec['normalized_profile']}"
+                ),
+            )
+
+    return {
+        "benchmark_profile": benchmark_profile_id,
+        "dataset_profile": dataset_profile,
+        "providers": normalized_providers,
+        "provider_overrides": normalized_overrides,
+        "benchmark_settings": merged_settings,
+        "scenario": scenario,
+    }
 
 
 def _secret_ref_list() -> list[dict[str, Any]]:
@@ -1181,230 +1702,55 @@ def _ensure_dataset_profile(dataset_profile: str, manifest_path: str, default_la
 
 
 def _list_benchmark_history(limit: int = 50) -> list[dict[str, Any]]:
-    root = ARTIFACTS_ROOT / "benchmark_runs"
-    if not root.exists():
-        return []
-    rows: list[dict[str, Any]] = []
-    run_dirs = [path for path in root.iterdir() if path.is_dir()]
-    run_dirs.sort(key=lambda item: item.stat().st_mtime, reverse=True)
-
     with _BENCHMARK_LOCK:
         job_snapshot = dict(_BENCHMARK_JOBS)
-
-    for run_dir in run_dirs[:limit]:
-        run_id = run_dir.name
-        summary = _read_json(run_dir / "reports" / "summary.json", {})
-        run_manifest = _read_json(run_dir / "manifest" / "run_manifest.json", {})
-        job = job_snapshot.get(run_id, {})
-        state = str(job.get("state", "completed" if summary else "unknown"))
-
-        rows.append(
-            {
-                "run_id": run_id,
-                "state": state,
-                "started_at": job.get("started_at", run_manifest.get("created_at", "")),
-                "completed_at": job.get("completed_at", ""),
-                "benchmark_profile": run_manifest.get("benchmark_profile", ""),
-                "dataset_profile": run_manifest.get("dataset_profile", ""),
-                "scenario": run_manifest.get("scenario", summary.get("scenario", "")),
-                "execution_mode": summary.get("execution_mode", run_manifest.get("execution_mode", "batch")),
-                "providers": run_manifest.get("providers", []),
-                "total_samples": summary.get("total_samples", run_manifest.get("sample_count", 0)),
-                "successful_samples": summary.get("successful_samples", 0),
-                "failed_samples": summary.get("failed_samples", 0),
-                "mean_metrics": summary.get("mean_metrics", {}),
-                "quality_metrics": summary.get("quality_metrics", {}),
-                "resource_metrics": summary.get("resource_metrics", {}),
-                "run_dir": str(run_dir),
-            }
-        )
-
-    # include in-memory runs that are not yet materialized on disk
-    existing_ids = {row["run_id"] for row in rows}
-    for run_id, state in job_snapshot.items():
-        if run_id in existing_ids:
-            continue
-        rows.insert(
-            0,
-            {
-                "run_id": run_id,
-                "state": state.get("state", "unknown"),
-                "started_at": state.get("started_at", ""),
-                "completed_at": state.get("completed_at", ""),
-                "benchmark_profile": state.get("benchmark_profile", ""),
-                "dataset_profile": state.get("dataset_profile", ""),
-                "scenario": state.get("scenario", ""),
-                "execution_mode": state.get("execution_mode", "batch"),
-                "providers": state.get("providers", []),
-                "total_samples": 0,
-                "successful_samples": 0,
-                "failed_samples": 0,
-                "mean_metrics": {},
-                "quality_metrics": {},
-                "resource_metrics": {},
-                "run_dir": "",
-            },
-        )
-
-    return rows[:limit]
+    return list_benchmark_history_helper(
+        artifacts_root=ARTIFACTS_ROOT,
+        read_json=_read_json,
+        benchmark_jobs=job_snapshot,
+        limit=limit,
+    )
 
 
 def _run_detail(run_id: str) -> dict[str, Any]:
-    run_dir = _run_dir(run_id)
-    if not run_dir.exists():
-        raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
-
-    run_manifest = _read_json(run_dir / "manifest" / "run_manifest.json", {})
-    summary = _read_json(run_dir / "reports" / "summary.json", {})
-    metrics_rows = _read_json(run_dir / "metrics" / "results.json", [])
-
     with _BENCHMARK_LOCK:
-        state = _BENCHMARK_JOBS.get(run_id, {}).get("state", "completed")
-
-    return {
-        "run_id": run_id,
-        "state": state,
-        "run_manifest": run_manifest,
-        "summary": summary,
-        "results_head": metrics_rows[:100],
-        "results_count": len(metrics_rows) if isinstance(metrics_rows, list) else 0,
-        "artifacts": {
-            "manifest": str(run_dir / "manifest" / "run_manifest.json"),
-            "summary_json": str(run_dir / "reports" / "summary.json"),
-            "summary_md": str(run_dir / "reports" / "summary.md"),
-            "results_json": str(run_dir / "metrics" / "results.json"),
-            "results_csv": str(run_dir / "metrics" / "results.csv"),
-        },
-    }
+        job_snapshot = dict(_BENCHMARK_JOBS)
+    return run_detail_helper(
+        run_id,
+        artifacts_root=ARTIFACTS_ROOT,
+        clean_name=_clean_name,
+        read_json=_read_json,
+        benchmark_jobs=job_snapshot,
+    )
 
 
 def _metric_preference(metric_name: str) -> str:
-    lowered = metric_name.lower()
-    if any(token in lowered for token in ("wer", "cer", "latency", "error", "failure", "timeout", "rtf")):
-        return "lower"
-    return "higher"
+    return metric_preference_helper(metric_name)
 
 
 def _compare_runs(run_ids: list[str], metrics: list[str]) -> dict[str, Any]:
-    if not run_ids:
-        raise HTTPException(status_code=400, detail="run_ids must not be empty")
-
-    details = [_run_detail(run_id) for run_id in run_ids]
-    summaries = [detail.get("summary", {}) for detail in details]
-
-    metric_names = sorted(
-        set(metrics)
-        if metrics
-        else {
-            key
-            for summary in summaries
-            for key in (summary.get("mean_metrics", {}) or {}).keys()
-        }
+    return compare_runs_helper(
+        run_ids,
+        metrics,
+        detail_loader=_run_detail,
+        metric_preference_func=_metric_preference,
     )
-
-    by_run: dict[str, dict[str, float]] = {}
-    for detail in details:
-        run_id = str(detail.get("run_id", ""))
-        mean_metrics = detail.get("summary", {}).get("mean_metrics", {})
-        row: dict[str, float] = {}
-        for metric in metric_names:
-            value = mean_metrics.get(metric)
-            if value is None:
-                continue
-            row[metric] = float(value)
-        by_run[run_id] = row
-
-    table: list[dict[str, Any]] = []
-    for metric in metric_names:
-        values = {run_id: by_run.get(run_id, {}).get(metric) for run_id in run_ids}
-        available = {run_id: val for run_id, val in values.items() if val is not None}
-        best_run = ""
-        if available:
-            if _metric_preference(metric) == "lower":
-                best_run = min(available, key=available.get)
-            else:
-                best_run = max(available, key=available.get)
-
-        table.append(
-            {
-                "metric": metric,
-                "preference": _metric_preference(metric),
-                "values": values,
-                "best_run": best_run,
-            }
-        )
-
-    return {
-        "run_ids": run_ids,
-        "metrics": metric_names,
-        "by_run": by_run,
-        "table": table,
-    }
 
 
 def _tail_lines(path: Path, limit: int) -> list[str]:
-    if not path.exists() or not path.is_file():
-        return []
-    try:
-        content = path.read_text(encoding="utf-8", errors="replace").splitlines()
-    except Exception:
-        return []
-    return content[-limit:]
+    return tail_lines_helper(path, limit)
 
 
 def _detect_severity(line: str) -> str:
-    lowered = line.lower()
-    if "error" in lowered:
-        return "error"
-    if "warn" in lowered:
-        return "warning"
-    if "debug" in lowered:
-        return "debug"
-    return "info"
+    return detect_severity_helper(line)
 
 
 def _log_files(component: str) -> list[Path]:
-    mapping = {
-        "runtime": LOGS_ROOT / "runtime",
-        "benchmark": LOGS_ROOT / "benchmark",
-        "gateway": LOGS_ROOT / "gateway",
-        "gui": LOGS_ROOT / "gui",
-    }
-    components = [component] if component != "all" else sorted(mapping.keys())
-
-    files: list[Path] = []
-    for comp in components:
-        base = mapping.get(comp)
-        if base is None or not base.exists():
-            continue
-        candidates = [path for path in base.rglob("*") if path.is_file()]
-        candidates.sort(key=lambda item: item.stat().st_mtime, reverse=True)
-        files.extend(candidates[:3])
-    return files
+    return log_files_helper(LOGS_ROOT, component)
 
 
 def _collect_logs(component: str, severity: str, limit: int) -> list[dict[str, Any]]:
-    output: list[dict[str, Any]] = []
-    sev = severity.lower()
-    for path in _log_files(component):
-        try:
-            rel = path.relative_to(LOGS_ROOT)
-            comp = rel.parts[0] if rel.parts else "unknown"
-        except ValueError:
-            comp = "unknown"
-        for line in _tail_lines(path, limit):
-            detected = _detect_severity(line)
-            if sev != "all" and detected != sev:
-                continue
-            output.append(
-                {
-                    "component": comp,
-                    "file": str(path),
-                    "severity": detected,
-                    "message": line,
-                }
-            )
-    return output[-limit:]
+    return collect_logs_helper(LOGS_ROOT, component, severity, limit)
 
 
 def _diagnostics_issues() -> list[dict[str, Any]]:
@@ -1561,6 +1907,7 @@ def _benchmark_worker(run_id: str, req: BenchmarkRunRequest) -> None:
         _BENCHMARK_JOBS[run_id] = state
 
 
+# --- Basic health and dashboard endpoints ---
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "time": _now_iso()}
@@ -1584,6 +1931,7 @@ def dashboard() -> dict[str, Any]:
     return _dashboard_payload()
 
 
+# --- Runtime endpoints used by Dashboard and Runtime pages ---
 @app.get("/api/runtime/status")
 def runtime_status() -> dict[str, Any]:
     return _runtime_status()
@@ -1592,14 +1940,19 @@ def runtime_status() -> dict[str, Any]:
 @app.get("/api/runtime/live")
 def runtime_live() -> dict[str, Any]:
     snapshot = ros.runtime_snapshot()
+    status = _runtime_status()
+    normalized_snapshot = _normalize_runtime_session_snapshot(
+        snapshot,
+        audio_source=str(status.get("audio_source", "") or ""),
+    )
     return {
-        "status": _runtime_status(),
+        "status": status,
         "recent_events": list(_RUNTIME_EVENTS),
-        "recent_results": _merge_runtime_results(snapshot.get("recent_results", []), list(_RUNTIME_RESULTS)),
-        "recent_partials": list(snapshot.get("recent_partials", [])),
-        "node_statuses": list(snapshot.get("node_statuses", [])),
-        "session_statuses": list(snapshot.get("session_statuses", [])),
-        "active_session": dict(snapshot.get("active_session", {})),
+        "recent_results": normalized_snapshot["recent_results"],
+        "recent_partials": normalized_snapshot["recent_partials"],
+        "node_statuses": normalized_snapshot["node_statuses"],
+        "session_statuses": normalized_snapshot["session_statuses"],
+        "active_session": normalized_snapshot["active_session"],
         "time": _now_iso(),
     }
 
@@ -1612,44 +1965,130 @@ def runtime_backends() -> dict[str, Any]:
     return res.payload
 
 
+@app.get("/api/runtime/samples")
+def runtime_samples() -> dict[str, Any]:
+    return _list_runtime_samples()
+
+
+@app.post("/api/runtime/generate_noise")
+def runtime_generate_noise(req: NoiseGenerateRequest) -> dict[str, Any]:
+    if not req.snr_levels:
+        raise HTTPException(status_code=400, detail="At least one SNR level is required.")
+
+    source = _resolve_runtime_sample_path(req.source_wav, label="source_wav")
+    if source.suffix.lower() not in RUNTIME_SAMPLE_SUFFIXES:
+        raise HTTPException(status_code=400, detail="Noise generation requires a WAV source file.")
+    if not source.exists():
+        raise HTTPException(status_code=404, detail=f"Source WAV not found: {req.source_wav}")
+
+    generated: list[dict[str, Any]] = []
+    for snr_db in req.snr_levels:
+        target = _noise_output_target(source, float(snr_db))
+        output_path = Path(
+            apply_noise_to_wav(
+                source_path=str(source),
+                output_path=str(target),
+                snr_db=float(snr_db),
+                seed=1337,
+            )
+        )
+        generated.append(
+            {
+                "path": _project_relative_path(output_path),
+                "snr_db": float(snr_db),
+                "name": output_path.name,
+                **_wav_metadata_from_file(output_path),
+            }
+        )
+
+    return {
+        "source_wav": _project_relative_path(source),
+        "generated": generated,
+        "catalog": _list_runtime_samples(),
+    }
+
+
+if MULTIPART_AVAILABLE:
+
+    @app.post("/api/runtime/upload_sample")
+    async def runtime_upload_sample(file: UploadFile = File(...)) -> dict[str, Any]:
+        upload_name = str(file.filename or "").strip() or "runtime_sample.wav"
+        content = await file.read()
+        if not content:
+            raise HTTPException(status_code=400, detail="Uploaded runtime sample is empty.")
+
+        try:
+            metadata = _wav_metadata_from_bytes(content)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+        target_path = _runtime_upload_target(upload_name)
+        target_path.write_bytes(content)
+        catalog = _list_runtime_samples()
+        return {
+            "saved": True,
+            "sample_path": _project_relative_path(target_path),
+            "sample": {
+                "path": _project_relative_path(target_path),
+                "name": target_path.name,
+                "uploaded": True,
+                "size_bytes": len(content),
+                **metadata,
+            },
+            "catalog": catalog,
+        }
+
+else:
+
+    @app.post("/api/runtime/upload_sample")
+    async def runtime_upload_sample() -> dict[str, Any]:
+        raise HTTPException(
+            status_code=503,
+            detail='Runtime sample upload requires "python-multipart". Install dependencies from requirements.txt.',
+        )
+
+
 @app.post("/api/runtime/start")
 def runtime_start(req: RuntimeStartRequest) -> dict[str, Any]:
-    try:
-        provider_exec = _preflight_provider_profile(
-            req.provider_profile,
-            preset_id=req.provider_preset,
-            settings_overrides=req.provider_settings,
-        )
-    except HTTPException:
-        raise
-    except Exception as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-    res = ros.start_runtime(
-        req.runtime_profile,
-        provider_exec["normalized_profile"],
-        req.session_id,
+    preflight = _preflight_runtime_request(
+        runtime_profile=req.runtime_profile,
+        provider_profile=req.provider_profile,
+        provider_preset=req.provider_preset,
+        provider_settings=req.provider_settings,
         processing_mode=req.processing_mode,
-        provider_preset=str(provider_exec["execution"].get("selected_preset", "") or ""),
-        provider_settings=dict(req.provider_settings or {}),
         audio_source=req.audio_source,
         audio_file_path=req.audio_file_path,
         language=req.language,
         mic_capture_sec=req.mic_capture_sec,
     )
+    provider_exec = preflight["provider_exec"]
+    res = ros.start_runtime(
+        preflight["runtime_profile"],
+        provider_exec["normalized_profile"],
+        req.session_id,
+        processing_mode=preflight["processing_mode"],
+        provider_preset=str(provider_exec["execution"].get("selected_preset", "") or ""),
+        provider_settings=dict(req.provider_settings or {}),
+        audio_source=preflight["audio_source"],
+        audio_file_path=preflight["audio_file_path"],
+        language=preflight["language"],
+        mic_capture_sec=preflight["mic_capture_sec"],
+    )
     _record_runtime_event(
         "runtime_start",
         res.message,
         {
-            "runtime_profile": req.runtime_profile,
+            "runtime_profile": preflight["runtime_profile"],
             "provider_profile": provider_exec["normalized_profile"],
-            "processing_mode": req.processing_mode,
+            "processing_mode": preflight["processing_mode"],
             "provider_preset": provider_exec["execution"].get("selected_preset", ""),
             "provider_settings": req.provider_settings,
             "session_id": res.payload.get("session_id", req.session_id),
-            "audio_source": req.audio_source,
-            "audio_file_path": req.audio_file_path if req.audio_source == "file" else "",
-            "language": req.language,
+            "audio_source": preflight["audio_source"],
+            "audio_file_path": preflight["audio_file_path"] if preflight["audio_source"] == "file" else "",
+            "language": preflight["language"],
             "success": res.success,
+            "resolved_config_ref": preflight["resolved_config_ref"],
         },
     )
     if not res.success:
@@ -1672,42 +2111,45 @@ def runtime_stop(req: RuntimeStopRequest) -> dict[str, Any]:
 
 @app.post("/api/runtime/reconfigure")
 def runtime_reconfigure(req: RuntimeReconfigureRequest) -> dict[str, Any]:
-    try:
-        provider_exec = _preflight_provider_profile(
-            req.provider_profile,
-            preset_id=req.provider_preset,
-            settings_overrides=req.provider_settings,
-        )
-    except HTTPException:
-        raise
-    except Exception as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-    res = ros.reconfigure_runtime(
-        req.session_id,
-        req.runtime_profile,
-        provider_exec["normalized_profile"],
+    preflight = _preflight_runtime_request(
+        runtime_profile=req.runtime_profile,
+        provider_profile=req.provider_profile,
+        provider_preset=req.provider_preset,
+        provider_settings=req.provider_settings,
         processing_mode=req.processing_mode,
-        provider_preset=str(provider_exec["execution"].get("selected_preset", "") or ""),
-        provider_settings=dict(req.provider_settings or {}),
         audio_source=req.audio_source,
         audio_file_path=req.audio_file_path,
         language=req.language,
         mic_capture_sec=req.mic_capture_sec,
+    )
+    provider_exec = preflight["provider_exec"]
+    res = ros.reconfigure_runtime(
+        req.session_id,
+        preflight["runtime_profile"],
+        provider_exec["normalized_profile"],
+        processing_mode=preflight["processing_mode"],
+        provider_preset=str(provider_exec["execution"].get("selected_preset", "") or ""),
+        provider_settings=dict(req.provider_settings or {}),
+        audio_source=preflight["audio_source"],
+        audio_file_path=preflight["audio_file_path"],
+        language=preflight["language"],
+        mic_capture_sec=preflight["mic_capture_sec"],
     )
     _record_runtime_event(
         "runtime_reconfigure",
         res.message,
         {
             "session_id": req.session_id,
-            "runtime_profile": req.runtime_profile,
+            "runtime_profile": preflight["runtime_profile"],
             "provider_profile": provider_exec["normalized_profile"],
-            "processing_mode": req.processing_mode,
+            "processing_mode": preflight["processing_mode"],
             "provider_preset": provider_exec["execution"].get("selected_preset", ""),
             "provider_settings": req.provider_settings,
-            "audio_source": req.audio_source,
-            "audio_file_path": req.audio_file_path if req.audio_source == "file" else "",
-            "language": req.language,
+            "audio_source": preflight["audio_source"],
+            "audio_file_path": preflight["audio_file_path"] if preflight["audio_source"] == "file" else "",
+            "language": preflight["language"],
             "success": res.success,
+            "resolved_config_ref": preflight["resolved_config_ref"],
         },
     )
     if not res.success:
@@ -1727,8 +2169,11 @@ def runtime_recognize_once(req: RecognizeRequest) -> dict[str, Any]:
         raise
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    wav_path = _resolve_runtime_sample_path(req.wav_path, label="wav_path")
+    if not wav_path.exists():
+        raise HTTPException(status_code=404, detail=f"Runtime WAV not found: {req.wav_path}")
     res = ros.recognize_once(
-        req.wav_path,
+        _project_relative_path(wav_path),
         req.language,
         req.session_id,
         provider_exec["normalized_profile"],
@@ -1742,7 +2187,7 @@ def runtime_recognize_once(req: RecognizeRequest) -> dict[str, Any]:
         "recognize_once",
         res.message,
         {
-            "wav_path": req.wav_path,
+            "wav_path": _project_relative_path(wav_path),
             "language": req.language,
             "session_id": req.session_id,
             "provider_profile": provider_exec["normalized_profile"],
@@ -1755,6 +2200,7 @@ def runtime_recognize_once(req: RecognizeRequest) -> dict[str, Any]:
     return payload
 
 
+# --- Provider inspection and validation endpoints ---
 @app.get("/api/providers/catalog")
 def providers_catalog() -> dict[str, Any]:
     return {"providers": _provider_catalog()}
@@ -1852,6 +2298,7 @@ def providers_test(req: ProviderTestRequest) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(exc))
 
 
+# --- Profile CRUD / validation endpoints ---
 @app.get("/api/profiles")
 def profiles_all() -> dict[str, Any]:
     grouped = {
@@ -1922,6 +2369,7 @@ def config_validate(req: ConfigValidateRequest) -> dict[str, Any]:
     return {"message": res.message, **res.payload}
 
 
+# --- Secrets and cloud credential management endpoints ---
 @app.get("/api/secrets/refs")
 def secret_refs() -> dict[str, Any]:
     return {"refs": _secret_ref_list()}
@@ -2131,6 +2579,25 @@ def secret_aws_sso_login(req: AwsSsoLoginStartRequest) -> dict[str, Any]:
         use_device_code=bool(req.use_device_code),
         no_browser=bool(req.no_browser),
     )
+    job_id = str(job.get("job_id", "") or "")
+    sso_start_url = str(auth.get("sso_start_url", "") or "")
+    if job_id:
+        job_stored = False
+        with _SECRET_LOGIN_LOCK:
+            if job_id in _SECRET_LOGIN_JOBS:
+                _SECRET_LOGIN_JOBS[job_id]["sso_start_url"] = sso_start_url
+                job_stored = True
+        if job_stored:
+            job = _aws_login_job_snapshot(job_id)
+        else:
+            hints = _extract_aws_login_job_hints(
+                list(job.get("lines", [])) if isinstance(job.get("lines", []), list) else [],
+                start_url=sso_start_url,
+            )
+            job = {
+                **job,
+                **hints,
+            }
     return {
         "job": job,
         "validation": validation,
@@ -2144,27 +2611,13 @@ def secret_aws_sso_login_status(job_id: str) -> dict[str, Any]:
 
 @app.post("/api/secrets/aws_sso_login/{job_id}/cancel")
 def secret_aws_sso_login_cancel(job_id: str) -> dict[str, Any]:
-    snapshot = None
     with _SECRET_LOGIN_LOCK:
         job = _SECRET_LOGIN_JOBS.get(job_id)
         if job is None:
             raise HTTPException(status_code=404, detail=f"AWS login job not found: {job_id}")
         process = job.get("_process")
         if job.get("state") != "running" or process is None:
-            snapshot = {
-                "job_id": job["job_id"],
-                "kind": job.get("kind", "aws_sso_login"),
-                "provider": "aws",
-                "ref_name": job["ref_name"],
-                "profile": job["profile"],
-                "state": job["state"],
-                "started_at": job["started_at"],
-                "completed_at": job.get("completed_at", ""),
-                "return_code": job.get("return_code"),
-                "lines": list(job.get("lines", [])),
-                "command": list(job.get("command", [])),
-                "validation": dict(job.get("validation", {})),
-            }
+            pass
         else:
             if process.poll() is None:
                 process.terminate()
@@ -2174,21 +2627,7 @@ def secret_aws_sso_login_cancel(job_id: str) -> dict[str, Any]:
             if not lines or lines[-1] != "AWS SSO login cancelled from GUI.":
                 lines.append("AWS SSO login cancelled from GUI.")
             job["lines"] = lines[-200:]
-            snapshot = {
-                "job_id": job["job_id"],
-                "kind": job.get("kind", "aws_sso_login"),
-                "provider": "aws",
-                "ref_name": job["ref_name"],
-                "profile": job["profile"],
-                "state": job["state"],
-                "started_at": job["started_at"],
-                "completed_at": job.get("completed_at", ""),
-                "return_code": job.get("return_code"),
-                "lines": list(job.get("lines", [])),
-                "command": list(job.get("command", [])),
-                "validation": dict(job.get("validation", {})),
-            }
-    return {"job": snapshot}
+    return {"job": _aws_login_job_snapshot(job_id)}
 
 
 @app.post("/api/secrets/link_provider")
@@ -2212,6 +2651,7 @@ def secret_link_provider(req: SecretLinkProviderRequest) -> dict[str, Any]:
     }
 
 
+# --- Dataset registry/import endpoints ---
 @app.post("/api/datasets/register")
 def datasets_register(req: DatasetRegisterRequest) -> dict[str, Any]:
     res = ros.register_dataset(req.manifest_path, req.dataset_id, req.dataset_profile)
@@ -2336,8 +2776,10 @@ def datasets_detail(dataset_id: str) -> dict[str, Any]:
     return _dataset_detail(dataset_id)
 
 
+# --- Benchmark execution endpoints ---
 @app.post("/api/benchmark/run")
 def benchmark_run(req: BenchmarkRunRequest) -> dict[str, Any]:
+    preflight = _preflight_benchmark_request(req)
     run_id = req.run_id.strip() or make_run_id("bench")
 
     with _BENCHMARK_LOCK:
@@ -2347,21 +2789,21 @@ def benchmark_run(req: BenchmarkRunRequest) -> dict[str, Any]:
             "run_id": run_id,
             "state": "queued",
             "created_at": _now_iso(),
-            "benchmark_profile": req.benchmark_profile,
-            "dataset_profile": req.dataset_profile,
-            "providers": req.providers,
-            "scenario": req.scenario,
-            "execution_mode": str(req.benchmark_settings.get("execution_mode", "batch") or "batch"),
+            "benchmark_profile": preflight["benchmark_profile"],
+            "dataset_profile": preflight["dataset_profile"],
+            "providers": preflight["providers"],
+            "scenario": preflight["scenario"],
+            "execution_mode": str(preflight["benchmark_settings"].get("execution_mode", "batch") or "batch"),
             "message": "Queued",
         }
 
     worker_req = BenchmarkRunRequest(
-        benchmark_profile=req.benchmark_profile,
-        dataset_profile=req.dataset_profile,
-        providers=req.providers,
-        scenario=req.scenario,
-        provider_overrides=_normalize_provider_overrides(req.provider_overrides),
-        benchmark_settings=req.benchmark_settings,
+        benchmark_profile=preflight["benchmark_profile"],
+        dataset_profile=preflight["dataset_profile"],
+        providers=preflight["providers"],
+        scenario=preflight["scenario"],
+        provider_overrides=preflight["provider_overrides"],
+        benchmark_settings=preflight["benchmark_settings"],
         run_id=run_id,
     )
     thread = threading.Thread(target=_benchmark_worker, args=(run_id, worker_req), daemon=True)
@@ -2416,6 +2858,7 @@ def benchmark_history(limit: int = Query(default=30, ge=1, le=200)) -> dict[str,
     return {"runs": _list_benchmark_history(limit=limit)}
 
 
+# --- Result browsing/export endpoints ---
 @app.get("/api/results/overview")
 def results_overview() -> dict[str, Any]:
     history = _list_benchmark_history(limit=20)
@@ -2482,6 +2925,7 @@ def results_export(req: ResultExportRequest) -> dict[str, Any]:
     }
 
 
+# --- Diagnostics, logs, and artifact discovery endpoints ---
 @app.get("/api/diagnostics/health")
 def diagnostics_health() -> dict[str, Any]:
     runtime = _runtime_status()
@@ -2511,6 +2955,11 @@ def diagnostics_health() -> dict[str, Any]:
             "active_runs": [row for row in history if row.get("state") in {"queued", "running"}],
         },
     }
+
+
+@app.get("/api/diagnostics/preflight")
+def diagnostics_preflight() -> dict[str, Any]:
+    return _run_preflight_checks()
 
 
 @app.get("/api/diagnostics/issues")

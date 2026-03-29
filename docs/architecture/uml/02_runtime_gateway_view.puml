@@ -1,0 +1,92 @@
+@startuml
+title Runtime + Gateway Component View
+
+top to bottom direction
+skinparam shadowing false
+skinparam componentStyle rectangle
+skinparam packageStyle rectangle
+skinparam linetype ortho
+hide stereotype
+
+actor "Operator" as Operator
+
+component "web_ui/frontend" as WebUI
+component "Makefile / scripts / ros2 launch" as CLI
+component "asr_launch\nfull_stack_dev + gateway_with_runtime" as Launch
+
+package "Gateway Boundary" {
+  component "asr_gateway/api.py\nFastAPI endpoints" as GatewayAPI
+  component "GatewayRosClient\nRuntimeObserver" as GatewayROS
+}
+
+package "Runtime Pipeline" {
+  component "audio_input_node" as AudioInput
+  component "audio_preprocess_node" as AudioPreprocess
+  component "vad_segmenter_node" as VadNode
+  component "asr_orchestrator_node" as Orchestrator
+}
+
+package "Provider Resolution" {
+  component "ProviderManager" as ProviderManager
+  component "AsrProviderAdapter" as ProviderAdapter
+  component "Backend / SDK wrapper" as Backend
+}
+
+database "configs/runtime\nconfigs/providers" as Configs
+database "secrets/refs + env" as Secrets
+queue "ROS2 topics + services + actions" as RosGraph
+cloud "Local model / cloud speech API" as SpeechEngine
+
+Operator --> WebUI : browser control
+Operator --> CLI : launch and scripts
+CLI --> Launch : start stack
+
+Launch --> AudioInput
+Launch --> AudioPreprocess
+Launch --> VadNode
+Launch --> Orchestrator
+Launch --> GatewayAPI
+
+WebUI --> GatewayAPI : HTTP / JSON
+GatewayAPI --> GatewayROS : translate UI requests
+
+GatewayAPI --> Configs : list / validate / resolve profiles
+GatewayAPI --> Secrets : inspect and validate secret refs
+GatewayROS --> Orchestrator : runtime control services
+
+AudioInput --> RosGraph : publish AudioChunk(raw)
+RosGraph --> AudioPreprocess : subscribe raw audio
+
+AudioPreprocess --> RosGraph : publish AudioChunk(preprocessed)
+RosGraph --> VadNode : segmented mode input
+RosGraph --> Orchestrator : provider_stream input
+
+VadNode --> RosGraph : publish SpeechActivity
+VadNode --> RosGraph : publish AudioSegment
+RosGraph --> Orchestrator : speech segments
+
+Orchestrator --> ProviderManager : create_from_profile(...)
+ProviderManager --> Configs : resolve provider profile
+ProviderManager --> Secrets : resolve credentials_ref
+ProviderManager --> ProviderAdapter : initialize + validate
+
+Orchestrator --> ProviderAdapter : recognize_once / start_stream / push_audio
+ProviderAdapter --> Backend : provider-specific call
+Backend --> SpeechEngine : local inference or cloud SDK/API
+
+Orchestrator --> RosGraph : publish final/partial/status
+RosGraph --> GatewayROS : observer subscriptions
+GatewayROS --> GatewayAPI : runtime snapshot
+
+note right of Orchestrator
+  Two runtime modes:
+  1. segmented: AudioSegment from VAD
+  2. provider_stream: preprocessed chunks directly to provider
+end note
+
+note bottom of GatewayAPI
+  GUI does not talk to runtime nodes directly.
+  All browser traffic crosses the gateway boundary first.
+end note
+
+@enduml

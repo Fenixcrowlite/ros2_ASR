@@ -11,10 +11,12 @@ import queue
 import threading
 import time
 import uuid
+from collections.abc import Iterable
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import UTC, datetime
+from json import JSONDecodeError
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import requests  # type: ignore[import-untyped]
 from asr_core.audio import (
@@ -73,7 +75,9 @@ class AwsStreamingSession:
     def _classify_error(exc: Exception) -> tuple[str, str]:
         message = str(exc).strip() or exc.__class__.__name__
         lowered = message.lower()
-        if "error loading sso token" in lowered or ("token for" in lowered and "does not exist" in lowered):
+        if "error loading sso token" in lowered or (
+            "token for" in lowered and "does not exist" in lowered
+        ):
             return "aws_sso_token_missing", message
         if "token has expired" in lowered or "expired and refresh failed" in lowered:
             return "aws_sso_token_expired", message
@@ -311,7 +315,7 @@ class AwsAsrBackend(AsrBackend):
         for cache_path in cache_dir.glob("*.json"):
             try:
                 payload = json.loads(cache_path.read_text(encoding="utf-8"))
-            except Exception:
+            except (OSError, JSONDecodeError):
                 continue
             credentials = payload.get("Credentials", {})
             if not isinstance(credentials, dict):
@@ -339,7 +343,7 @@ class AwsAsrBackend(AsrBackend):
         for cache_path in cache_dir.glob("*.json"):
             try:
                 payload = json.loads(cache_path.read_text(encoding="utf-8"))
-            except Exception:
+            except (OSError, JSONDecodeError):
                 continue
             if not str(payload.get("accessToken", "")).strip():
                 continue
@@ -350,7 +354,9 @@ class AwsAsrBackend(AsrBackend):
             if sso_region and payload_region and payload_region != sso_region:
                 continue
 
-            parsed_expiry = AwsAsrBackend._parse_iso_datetime(str(payload.get("expiresAt", "")).strip())
+            parsed_expiry = AwsAsrBackend._parse_iso_datetime(
+                str(payload.get("expiresAt", "")).strip()
+            )
             if parsed_expiry is not None:
                 matches.append(parsed_expiry)
         return max(matches) if matches else None
@@ -361,12 +367,12 @@ class AwsAsrBackend(AsrBackend):
         if not cache_dir.exists():
             return None
 
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         best: tuple[datetime, dict[str, str]] | None = None
         for cache_path in cache_dir.glob("*.json"):
             try:
                 payload = json.loads(cache_path.read_text(encoding="utf-8"))
-            except Exception:
+            except (OSError, JSONDecodeError):
                 continue
 
             credentials = payload.get("Credentials", {})
@@ -419,7 +425,7 @@ class AwsAsrBackend(AsrBackend):
         return parser.get(section, "sso_account_id", fallback="").strip()
 
     def auth_status(self) -> dict[str, Any]:
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         status: dict[str, Any] = {
             "profile": self.profile,
             "region": self.region,
@@ -429,14 +435,14 @@ class AwsAsrBackend(AsrBackend):
             "login_recommended": False,
             "login_command": "",
             "config_file": str(
-                (Path(self.config_file).expanduser() if self.config_file else Path.home() / ".aws" / "config")
+                Path(self.config_file).expanduser()
+                if self.config_file
+                else Path.home() / ".aws" / "config"
             ),
             "shared_credentials_file": str(
-                (
-                    Path(self.shared_credentials_file).expanduser()
-                    if self.shared_credentials_file
-                    else Path.home() / ".aws" / "credentials"
-                )
+                Path(self.shared_credentials_file).expanduser()
+                if self.shared_credentials_file
+                else Path.home() / ".aws" / "credentials"
             ),
             "static_keys_present": bool(self.access_key_id and self.secret_access_key),
             "sso_session_name": "",
@@ -455,9 +461,14 @@ class AwsAsrBackend(AsrBackend):
             status["status"] = "config_missing"
             status["message"] = f"AWS config file does not exist: {self.config_file}"
             return status
-        if self.shared_credentials_file and not Path(self.shared_credentials_file).expanduser().exists():
+        if (
+            self.shared_credentials_file
+            and not Path(self.shared_credentials_file).expanduser().exists()
+        ):
             status["status"] = "shared_credentials_missing"
-            status["message"] = f"AWS shared credentials file does not exist: {self.shared_credentials_file}"
+            status["message"] = (
+                f"AWS shared credentials file does not exist: {self.shared_credentials_file}"
+            )
             return status
 
         if not self.profile:
@@ -467,13 +478,17 @@ class AwsAsrBackend(AsrBackend):
                 status["runtime_ready"] = True
                 return status
             status["status"] = "anonymous_or_default_chain"
-            status["message"] = "No explicit AWS profile configured. SDK default credential chain will be used."
+            status["message"] = (
+                "No explicit AWS profile configured. SDK default credential chain will be used."
+            )
             return status
 
         config_path = Path(status["config_file"])
         if not config_path.exists():
             status["status"] = "config_missing"
-            status["message"] = f"AWS config file not found for profile `{self.profile}`: {config_path}"
+            status["message"] = (
+                f"AWS config file not found for profile `{self.profile}`: {config_path}"
+            )
             return status
 
         parser = configparser.RawConfigParser()
@@ -491,8 +506,12 @@ class AwsAsrBackend(AsrBackend):
         if sso_session:
             sso_section = f"sso-session {sso_session}"
             if parser.has_section(sso_section):
-                start_url = start_url or parser.get(sso_section, "sso_start_url", fallback="").strip()
-                sso_region = sso_region or parser.get(sso_section, "sso_region", fallback="").strip()
+                start_url = (
+                    start_url or parser.get(sso_section, "sso_start_url", fallback="").strip()
+                )
+                sso_region = (
+                    sso_region or parser.get(sso_section, "sso_region", fallback="").strip()
+                )
 
         status["uses_sso"] = bool(sso_session or start_url)
         status["login_supported"] = bool(status["uses_sso"] and self.profile)
@@ -505,8 +524,8 @@ class AwsAsrBackend(AsrBackend):
 
         cli_cache_expiry = self._latest_cli_cache_expiry(account_id=account_id)
         if cli_cache_expiry is not None:
-            status["role_credentials_expires_at"] = cli_cache_expiry.astimezone(timezone.utc).isoformat().replace(
-                "+00:00", "Z"
+            status["role_credentials_expires_at"] = (
+                cli_cache_expiry.astimezone(UTC).isoformat().replace("+00:00", "Z")
             )
             status["role_credentials_valid"] = cli_cache_expiry > now
 
@@ -522,7 +541,9 @@ class AwsAsrBackend(AsrBackend):
 
         sso_expiry = self._latest_sso_cache_expiry(start_url=start_url, sso_region=sso_region)
         if sso_expiry is not None:
-            status["sso_session_expires_at"] = sso_expiry.astimezone(timezone.utc).isoformat().replace("+00:00", "Z")
+            status["sso_session_expires_at"] = (
+                sso_expiry.astimezone(UTC).isoformat().replace("+00:00", "Z")
+            )
             status["sso_session_valid"] = sso_expiry > now
 
         if status["role_credentials_valid"]:
@@ -534,8 +555,10 @@ class AwsAsrBackend(AsrBackend):
                 status["status"] = "role_credentials_valid_sso_expired"
                 status["login_recommended"] = True
                 status["message"] = (
-                    "AWS role credentials are still valid, but the IAM Identity Center sign-in session is expired. "
-                    "Runtime and benchmark requests may continue to work until role credentials expire."
+                    "AWS role credentials are still valid, but the IAM Identity "
+                    "Center sign-in session is expired. "
+                    "Runtime and benchmark requests may continue to work until "
+                    "role credentials expire."
                 )
             return status
 
@@ -543,7 +566,8 @@ class AwsAsrBackend(AsrBackend):
             status["status"] = "sso_session_valid_no_role_credentials"
             status["runtime_ready"] = True
             status["message"] = (
-                "IAM Identity Center sign-in session is valid. Active role credentials are not cached yet, "
+                "IAM Identity Center sign-in session is valid. "
+                "Active role credentials are not cached yet, "
                 "but the AWS SDK can mint them on the first real request."
             )
             return status
@@ -566,8 +590,13 @@ class AwsAsrBackend(AsrBackend):
         errors: list[str] = []
         if self.config_file and not Path(self.config_file).expanduser().exists():
             errors.append(f"AWS config file does not exist: {self.config_file}")
-        if self.shared_credentials_file and not Path(self.shared_credentials_file).expanduser().exists():
-            errors.append(f"AWS shared credentials file does not exist: {self.shared_credentials_file}")
+        if (
+            self.shared_credentials_file
+            and not Path(self.shared_credentials_file).expanduser().exists()
+        ):
+            errors.append(
+                f"AWS shared credentials file does not exist: {self.shared_credentials_file}"
+            )
 
         if errors:
             return errors
@@ -585,11 +614,11 @@ class AwsAsrBackend(AsrBackend):
         return [message] if message else []
 
     def _build_boto3_session(self):
-        import boto3
-
         session: Any = self._session
         if session is not None:
             return session
+        import boto3
+
         with self._aws_env_overrides():
             if self.profile:
                 cached_credentials = self._load_cli_cache_credentials(
@@ -684,7 +713,9 @@ class AwsAsrBackend(AsrBackend):
     def _classify_runtime_error(exc: Exception) -> tuple[str, str]:
         message = str(exc).strip() or exc.__class__.__name__
         lowered = message.lower()
-        if "error loading sso token" in lowered or ("token for" in lowered and "does not exist" in lowered):
+        if "error loading sso token" in lowered or (
+            "token for" in lowered and "does not exist" in lowered
+        ):
             return "aws_sso_token_missing", message
         if "token has expired" in lowered or "expired and refresh failed" in lowered:
             return "aws_sso_token_expired", message
@@ -708,7 +739,8 @@ class AwsAsrBackend(AsrBackend):
             raise RuntimeError("Missing AWS region. Set AWS_REGION or backends.aws.region.")
         if not self.has_credentials():
             raise RuntimeError(
-                "Missing AWS credentials. Set AWS_PROFILE or both AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
+                "Missing AWS credentials. Set AWS_PROFILE or both "
+                "AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
             )
         validation_errors = self.auth_validation_errors()
         if validation_errors:

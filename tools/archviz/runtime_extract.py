@@ -16,6 +16,10 @@ from tools.archviz.graph import GraphBuilder, dedupe_sorted, new_graph, normaliz
 from tools.archviz.static_extract import discover_launches
 
 
+class ManagedStackConflictError(RuntimeError):
+    """Raised when runtime extraction would overlap with a live managed stack."""
+
+
 @dataclass
 class LaunchEntry:
     """Executable launch descriptor for runtime probing."""
@@ -204,6 +208,73 @@ def _parse_topic_info_verbose(output: str) -> list[str]:
     return dedupe_sorted(nodes)
 
 
+def _managed_install_markers(project_root: Path) -> tuple[str, ...]:
+    install_root = project_root / "ros2_ws" / "install"
+    return tuple(
+        str(install_root / package)
+        for package in ("asr_runtime_nodes", "asr_gateway", "asr_benchmark_nodes")
+    )
+
+
+def _detect_conflicting_managed_processes(
+    project_root: Path, *, exclude_pids: set[int], ps_output: str | None = None
+) -> list[tuple[int, str]]:
+    if ps_output is None:
+        try:
+            ps_output = subprocess.run(
+                ["ps", "-eo", "pid=,args="],
+                check=True,
+                capture_output=True,
+                text=True,
+            ).stdout
+        except (OSError, subprocess.CalledProcessError):
+            return []
+
+    markers = _managed_install_markers(project_root)
+    managed_names = (
+        "audio_input_node",
+        "audio_preprocess_node",
+        "vad_segmenter_node",
+        "asr_orchestrator_node",
+        "benchmark_manager_node",
+        "asr_gateway_server",
+    )
+    conflicts: list[tuple[int, str]] = []
+    for raw_line in ps_output.splitlines():
+        line = raw_line.strip()
+        if not line:
+            continue
+        pid_text, _, args = line.partition(" ")
+        if not pid_text.isdigit() or not args:
+            continue
+        pid = int(pid_text)
+        if pid in exclude_pids:
+            continue
+        if not any(marker in args for marker in markers):
+            continue
+        if not any(name in args for name in managed_names):
+            continue
+        conflicts.append((pid, args))
+    return conflicts
+
+
+def _assert_no_conflicting_managed_stack(project_root: Path) -> None:
+    conflicts = _detect_conflicting_managed_processes(
+        project_root,
+        exclude_pids={os.getpid(), os.getppid()},
+    )
+    if not conflicts:
+        return
+    details = "\n".join(f"  pid={pid}: {args}" for pid, args in conflicts)
+    raise ManagedStackConflictError(
+        "Another managed ASR stack from this workspace is already running.\n"
+        "Stop it before running `archviz runtime` or `archviz all`, "
+        "otherwise the runtime graph may mix unrelated "
+        "nodes/topics/services.\n"
+        f"{details}"
+    )
+
+
 def _collect_runtime_snapshot() -> dict[str, Any]:
     snapshot: dict[str, Any] = {
         "nodes": [],
@@ -373,6 +444,8 @@ def extract_runtime_graph(
     if not shutil_which("ros2"):
         builder.add_runtime_error("ros2 command not found in PATH")
         return graph
+
+    _assert_no_conflicting_managed_stack(ws_path.parent)
 
     profile_file = Path(__file__).resolve().parent / "profiles.yaml"
     entries = _profile_launches(str(ws_path), profile=profile, profile_file=profile_file)

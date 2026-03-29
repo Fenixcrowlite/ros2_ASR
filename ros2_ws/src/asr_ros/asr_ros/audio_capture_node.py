@@ -1,7 +1,7 @@
 """ROS2 audio producer node.
 
 Publishes raw PCM chunks to `/asr/audio_chunks` either from microphone
-or from WAV file fallback mode.
+or from WAV file input.
 """
 
 from __future__ import annotations
@@ -78,7 +78,7 @@ class AudioCaptureNode(Node):
         super().__init__("audio_capture_node")
         numeric_descriptor = ParameterDescriptor(dynamic_typing=True)
         # Input parameters are intentionally simple for launch/YAML usage.
-        self.declare_parameter("input_mode", "auto")
+        self.declare_parameter("input_mode", "file")
         self.declare_parameter("wav_path", "data/sample/vosk_test.wav")
         self.declare_parameter("sample_rate", 16000, descriptor=numeric_descriptor)
         self.declare_parameter("chunk_ms", 800, descriptor=numeric_descriptor)
@@ -132,16 +132,18 @@ class AudioCaptureNode(Node):
         if self._published_once:
             return
         mode = self.input_mode
-        if mode == "auto":
-            mode = "mic"
         if mode == "mic":
             if self._publish_from_mic():
                 if not self.continuous:
                     self._published_once = True
                 return
-            self.get_logger().warning("Microphone unavailable, falling back to file mode")
-            self.input_mode = "file"
-            mode = "file"
+            self.get_logger().error("Microphone capture failed; no fallback mode is applied")
+            self._published_once = True
+            return
+        if mode not in {"file", "mic"}:
+            self.get_logger().error(f"Unsupported input_mode: {mode}")
+            self._published_once = True
+            return
         if mode == "file":
             self._publish_from_file()
             self._published_once = True
@@ -168,7 +170,7 @@ class AudioCaptureNode(Node):
 
         Returns:
             `True` when microphone stream was opened and processed.
-            `False` when microphone is unavailable (caller should fallback).
+            `False` when microphone capture failed.
         """
         try:
             import sounddevice as sd

@@ -2,11 +2,19 @@
 
 from __future__ import annotations
 
-import audioop
 from collections import defaultdict
 
 import rclpy
 from asr_config import resolve_profile, validate_runtime_payload
+from asr_core.audio import (
+    pcm_max_abs,
+    pcm_peak_limit,
+    pcm_resample_linear,
+    pcm_scale,
+    pcm_signed_from_encoding,
+    pcm_to_mono,
+    sample_width_from_encoding,
+)
 from asr_core.namespaces import TOPICS
 from asr_core.shutdown import safe_shutdown_node
 from asr_interfaces.msg import AudioChunk, NodeStatus
@@ -53,6 +61,8 @@ class AudioPreprocessNode(Node):
         self.status_timer = self.create_timer(1.0, self._publish_status)
 
     def _load_runtime_configuration(self, runtime_profile: str) -> str:
+        # Preprocess settings live in the runtime profile because they shape the
+        # audio contract expected by later nodes and providers.
         profile_id = runtime_profile
         if profile_id.startswith("runtime/"):
             profile_id = profile_id.split("/", 1)[1]
@@ -73,7 +83,8 @@ class AudioPreprocessNode(Node):
 
         self.runtime_profile = profile_id
         self.target_sample_rate_hz = int(
-            preprocess_cfg.get("target_sample_rate_hz", self.target_sample_rate_hz) or self.target_sample_rate_hz
+            preprocess_cfg.get("target_sample_rate_hz", self.target_sample_rate_hz)
+            or self.target_sample_rate_hz
         )
         self.normalize = bool(preprocess_cfg.get("normalize", self.normalize))
         self.force_mono = bool(preprocess_cfg.get("mono", self.force_mono))
@@ -87,32 +98,51 @@ class AudioPreprocessNode(Node):
         data = bytes(msg.data)
         out_channels = int(msg.channels) or 1
         out_sample_rate = int(msg.sample_rate) or self.target_sample_rate_hz
+        sample_width = sample_width_from_encoding(msg.encoding, default=2)
+        signed = pcm_signed_from_encoding(msg.encoding, default=sample_width != 1)
 
+        # Collapse stereo to mono when requested so every downstream provider
+        # sees a simpler, predictable channel layout.
         if data and self.force_mono and int(msg.channels) == 2:
-            data = audioop.tomono(data, 2, 0.5, 0.5)
+            data = pcm_to_mono(
+                data,
+                sample_width=sample_width,
+                channels=2,
+                signed=signed,
+                left_gain=0.5,
+                right_gain=0.5,
+            )
             out_channels = 1
         elif self.force_mono and out_channels > 1 and not data:
             out_channels = 1
 
+        # Resample early so VAD and provider code do not need to handle many
+        # different input sample rates.
         if data and out_sample_rate != self.target_sample_rate_hz:
-            data, _ = audioop.ratecv(
+            data = pcm_resample_linear(
                 data,
-                2,
-                out_channels,
-                out_sample_rate,
-                self.target_sample_rate_hz,
-                None,
+                sample_width=sample_width,
+                channels=out_channels,
+                source_rate_hz=out_sample_rate,
+                target_rate_hz=self.target_sample_rate_hz,
+                signed=signed,
             )
             out_sample_rate = int(self.target_sample_rate_hz)
         elif not data:
-            out_sample_rate = int(self._session_output_rate.get(msg.session_id, self.target_sample_rate_hz))
+            # Preserve the last known output format for the closing "empty"
+            # chunk that marks end-of-stream.
+            out_sample_rate = int(
+                self._session_output_rate.get(msg.session_id, self.target_sample_rate_hz)
+            )
             out_channels = int(self._session_output_channels.get(msg.session_id, out_channels or 1))
 
         if data and self.normalize:
-            max_val = audioop.max(data, 2)
+            # Soft normalization improves consistency without clipping.
+            max_val = pcm_max_abs(data, sample_width=sample_width, signed=signed)
             if max_val > 0:
-                scale = min(1.0, 0.9 * 32767.0 / float(max_val))
-                data = audioop.mul(data, 2, scale)
+                peak_limit = float(pcm_peak_limit(sample_width, signed=signed))
+                scale = min(1.0, (0.9 * peak_limit) / float(max_val))
+                data = pcm_scale(data, sample_width=sample_width, factor=scale, signed=signed)
 
         out = AudioChunk()
         out.header = msg.header
@@ -133,9 +163,13 @@ class AudioPreprocessNode(Node):
         self._status = "ready" if msg.is_last_chunk else "running"
         self._last_update = self.get_clock().now()
 
-    def _on_reconfigure(self, request: ReconfigureRuntime.Request, response: ReconfigureRuntime.Response):
+    def _on_reconfigure(
+        self, request: ReconfigureRuntime.Request, response: ReconfigureRuntime.Response
+    ):
         try:
-            snapshot_path = self._load_runtime_configuration(request.runtime_profile or self.runtime_profile)
+            snapshot_path = self._load_runtime_configuration(
+                request.runtime_profile or self.runtime_profile
+            )
             response.success = True
             response.message = "Audio preprocess reconfigured"
             response.resolved_config_ref = snapshot_path
@@ -156,7 +190,8 @@ class AudioPreprocessNode(Node):
         msg.lifecycle_state = "active"
         msg.health = "ok" if not self._last_error_code else "degraded"
         msg.status_message = (
-            f"{self._status} sample_rate={self.target_sample_rate_hz} normalize={self.normalize} mono={self.force_mono}"
+            f"{self._status} sample_rate={self.target_sample_rate_hz} "
+            f"normalize={self.normalize} mono={self.force_mono}"
         )
         msg.ready = self._status in {"ready", "running"}
         msg.last_error_code = self._last_error_code

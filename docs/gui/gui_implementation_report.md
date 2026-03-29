@@ -13,6 +13,7 @@
 - `web_ui/frontend` existed as a minimal static panel with limited controls.
 - `asr_gateway` provided only a narrow API subset.
 - Legacy `web_gui/` had rich features but was not aligned with the new package boundaries and gateway-first model.
+- After the migration milestone, the legacy `web_gui/` was removed and the missing operator tooling was folded into `web_ui` + `asr_gateway`.
 - Missing UX artifacts:
   - no clear IA docs;
   - no design system;
@@ -103,7 +104,7 @@
 - Polling-driven live UX for runtime and benchmark state.
 
 ## Supported User Flows (implemented baseline)
-- Quick runtime start/stop and recognize-once.
+- Quick runtime start/stop plus whole-file transcription.
 - Provider profile validation and smoke test.
 - Profile browsing, guided edit, advanced raw edit, save, validate.
 - Dataset import/register/manifest validation + preview.
@@ -117,6 +118,7 @@
 - Profile management preserves file-driven config model.
 - Secret handling remains reference-based and masked.
 - Benchmark/result views are backed by real artifact directories and run manifests.
+- Repository root now exposes a single active browser UI tree: `web_ui/`.
 
 ## What Is Working End-to-End
 - New frontend serves and renders all required top-level pages.

@@ -7,9 +7,11 @@ PY_PATH := $(CURDIR):$(SRC_PY_PATH)
 ARCHVIZ := ./archviz
 COLCON_CMAKE_PY_ARGS := --cmake-args -DPYTHON_EXECUTABLE=$(CURDIR)/$(VENV)/bin/python -DPython3_EXECUTABLE=$(CURDIR)/$(VENV)/bin/python
 COLCON_EXTENSION_BLOCKLIST ?= colcon_core.event_handler.desktop_notification
-COLCON_WS_ARGS := --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --log-base ros2_ws/log --symlink-install
+COLCON_GLOBAL_ARGS := --log-base ros2_ws/log
+COLCON_WS_ARGS := --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --symlink-install
+COLCON_TEST_WS_ARGS := --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install
 
-.PHONY: setup setup-vosk build test test-unit test-ros test-colcon run live-sample bench report web-gui web-gui-lan web-gui-stop web-gui-legacy web-gui-legacy-lan arch-static arch-runtime arch arch-diff lint format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
+.PHONY: setup setup-vosk build test test-unit test-ros test-colcon run live-sample bench report web-gui web-gui-lan web-gui-stop arch-static arch-runtime arch arch-diff lint format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
 
 setup:
 	bash scripts/setup_env.sh
@@ -18,16 +20,16 @@ setup-vosk:
 	bash scripts/maintenance/setup_vosk_models.sh
 
 build:
-	bash -lc "if [ ! -f $(ROS_SETUP) ]; then echo 'ROS2 Jazzy not found at $(ROS_SETUP).'; exit 1; fi; if [ ! -f $(VENV)/bin/activate ]; then echo '.venv missing. Run make setup first.'; exit 1; fi; source $(VENV)/bin/activate && source $(ROS_SETUP) && COLCON_EXTENSION_BLOCKLIST='$(COLCON_EXTENSION_BLOCKLIST)' bash scripts/with_colcon_lock.sh colcon build $(COLCON_WS_ARGS) $(COLCON_CMAKE_PY_ARGS)"
+	bash -lc "if [ ! -f $(ROS_SETUP) ]; then echo 'ROS2 Jazzy not found at $(ROS_SETUP).'; exit 1; fi; if [ ! -f $(VENV)/bin/activate ]; then echo '.venv missing. Run make setup first.'; exit 1; fi; source $(VENV)/bin/activate && source $(ROS_SETUP) && COLCON_PYTHON_EXECUTABLE='$(CURDIR)/$(VENV)/bin/python' COLCON_EXTENSION_BLOCKLIST='$(COLCON_EXTENSION_BLOCKLIST)' bash scripts/with_colcon_lock.sh colcon $(COLCON_GLOBAL_ARGS) build $(COLCON_WS_ARGS) $(COLCON_CMAKE_PY_ARGS)"
 
 test-unit:
 	bash -lc 'source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(PY_PATH) $(PY) -m pytest -q -m "not ros"'
 
 test-ros:
-	bash -lc 'if [ ! -f $(ROS_SETUP) ]; then echo "ROS2 Jazzy not found at $(ROS_SETUP), skipping ROS tests."; exit 0; fi; if [ ! -f $(VENV)/bin/activate ]; then echo ".venv missing. Run make setup first."; exit 1; fi; source $(VENV)/bin/activate && source $(ROS_SETUP) && COLCON_EXTENSION_BLOCKLIST="$(COLCON_EXTENSION_BLOCKLIST)" bash scripts/with_colcon_lock.sh colcon build $(COLCON_WS_ARGS) $(COLCON_CMAKE_PY_ARGS) && source ros2_ws/install/setup.bash && PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=$$PYTHONPATH:$(PY_PATH) $(PY) -m pytest -q -m ros tests/integration'
+	bash -lc 'if [ ! -f $(ROS_SETUP) ]; then echo "ROS2 Jazzy not found at $(ROS_SETUP), skipping ROS tests."; exit 0; fi; if [ ! -f $(VENV)/bin/activate ]; then echo ".venv missing. Run make setup first."; exit 1; fi; source $(VENV)/bin/activate && source $(ROS_SETUP) && COLCON_PYTHON_EXECUTABLE="$(CURDIR)/$(VENV)/bin/python" COLCON_EXTENSION_BLOCKLIST="$(COLCON_EXTENSION_BLOCKLIST)" bash scripts/with_colcon_lock.sh colcon $(COLCON_GLOBAL_ARGS) build $(COLCON_WS_ARGS) $(COLCON_CMAKE_PY_ARGS) && source ros2_ws/install/setup.bash && PYTEST_DISABLE_PLUGIN_AUTOLOAD=1 PYTHONPATH=$$PYTHONPATH:$(PY_PATH) $(PY) -m pytest -q -m ros tests/integration'
 
 test-colcon:
-	bash -lc "if [ ! -f $(ROS_SETUP) ]; then echo 'ROS2 Jazzy not found at $(ROS_SETUP), skipping colcon tests.'; exit 0; fi; if [ ! -f $(VENV)/bin/activate ]; then echo '.venv missing. Run make setup first.'; exit 1; fi; source $(VENV)/bin/activate && source $(ROS_SETUP) && COLCON_EXTENSION_BLOCKLIST='$(COLCON_EXTENSION_BLOCKLIST)' bash scripts/with_colcon_lock.sh colcon build $(COLCON_WS_ARGS) $(COLCON_CMAKE_PY_ARGS) && source ros2_ws/install/setup.bash && COLCON_EXTENSION_BLOCKLIST='$(COLCON_EXTENSION_BLOCKLIST)' bash scripts/with_colcon_lock.sh colcon test $(COLCON_WS_ARGS) --event-handlers console_cohesion+ && COLCON_EXTENSION_BLOCKLIST='$(COLCON_EXTENSION_BLOCKLIST)' bash scripts/with_colcon_lock.sh colcon test-result --test-result-base ros2_ws/build --verbose"
+	bash -lc "if [ ! -f $(ROS_SETUP) ]; then echo 'ROS2 Jazzy not found at $(ROS_SETUP), skipping colcon tests.'; exit 0; fi; if [ ! -f $(VENV)/bin/activate ]; then echo '.venv missing. Run make setup first.'; exit 1; fi; source $(VENV)/bin/activate && source $(ROS_SETUP) && COLCON_PYTHON_EXECUTABLE='$(CURDIR)/$(VENV)/bin/python' COLCON_EXTENSION_BLOCKLIST='$(COLCON_EXTENSION_BLOCKLIST)' bash scripts/with_colcon_lock.sh colcon $(COLCON_GLOBAL_ARGS) build $(COLCON_WS_ARGS) $(COLCON_CMAKE_PY_ARGS) && source ros2_ws/install/setup.bash && COLCON_PYTHON_EXECUTABLE='$(CURDIR)/$(VENV)/bin/python' COLCON_EXTENSION_BLOCKLIST='$(COLCON_EXTENSION_BLOCKLIST)' bash scripts/with_colcon_lock.sh colcon $(COLCON_GLOBAL_ARGS) test $(COLCON_TEST_WS_ARGS) --event-handlers console_cohesion+ && COLCON_EXTENSION_BLOCKLIST='$(COLCON_EXTENSION_BLOCKLIST)' bash scripts/with_colcon_lock.sh colcon $(COLCON_GLOBAL_ARGS) test-result --test-result-base ros2_ws/build --verbose"
 
 test: test-unit test-ros test-colcon
 
@@ -52,12 +54,6 @@ web-gui-lan:
 web-gui-stop:
 	bash scripts/run_web_ui.sh --stop --port 8088
 
-web-gui-legacy:
-	bash web_gui/run_web_gui.sh --mode local
-
-web-gui-legacy-lan:
-	bash web_gui/run_web_gui.sh --mode lan
-
 arch-static:
 	bash -lc "source $(VENV)/bin/activate && $(ARCHVIZ) static --ws ros2_ws --out docs/arch"
 
@@ -72,7 +68,7 @@ arch-diff:
 
 lint:
 	bash -lc "source $(VENV)/bin/activate && ruff check ."
-	bash -lc 'source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(PY_PATH) mypy ros2_ws/src tests web_gui scripts tools/archviz'
+	bash -lc 'source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(PY_PATH) mypy ros2_ws/src tests scripts tools/archviz'
 
 format:
 	bash -lc "source $(VENV)/bin/activate && ruff format ."
@@ -81,7 +77,7 @@ clean:
 	rm -rf build install log ros2_ws/build ros2_ws/install ros2_ws/log \
 		.pytest_cache .ruff_cache .mypy_cache dist
 	rm -f results/benchmark_results.csv results/benchmark_results.json results/report.md
-	rm -rf results/plots results/web_gui
+	rm -rf results/plots
 	find . -type d \( -path './.git' -o -path './.git/*' -o -path './.venv' -o -path './.venv/*' -o -path './.venv_*' -o -path './.venv_*/*' \) -prune -o -type d -name '__pycache__' -exec rm -rf {} +
 	find . -type d \( -path './.git' -o -path './.git/*' -o -path './.venv' -o -path './.venv/*' -o -path './.venv_*' -o -path './.venv_*/*' \) -prune -o -type f -name '*.pyc' -exec rm -f {} +
 

@@ -31,19 +31,19 @@ filter_colcon_pythonpath() {
 
 ORIGINAL_PYTHONPATH="${PYTHONPATH-}"
 COLCON_PYTHONPATH="$(filter_colcon_pythonpath)"
-COLCON_PYTHON_BIN="/usr/bin/python3"
+COLCON_PYTHON_BIN="${VIRTUAL_ENV:-}/bin/python"
 if [ ! -x "$COLCON_PYTHON_BIN" ]; then
   COLCON_PYTHON_BIN="$(command -v python3)"
 fi
 if [ -n "$COLCON_PYTHONPATH" ]; then
   COLCON_PYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" \
     PYTHONPATH="$COLCON_PYTHONPATH" \
-    bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --log-base ros2_ws/log --symlink-install \
+    bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon --log-base ros2_ws/log build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --symlink-install \
       --cmake-args -DPYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" -DPython3_EXECUTABLE="$COLCON_PYTHON_BIN"
 else
   COLCON_PYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" \
     PYTHONPATH="" \
-    bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --log-base ros2_ws/log --symlink-install \
+    bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon --log-base ros2_ws/log build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --symlink-install \
       --cmake-args -DPYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" -DPython3_EXECUTABLE="$COLCON_PYTHON_BIN"
 fi
 if [ -n "${ORIGINAL_PYTHONPATH}" ]; then

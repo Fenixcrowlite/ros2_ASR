@@ -8,6 +8,7 @@ from asr_backend_vosk.backend import VoskAsrBackend
 from asr_backend_whisper.backend import WhisperAsrBackend
 from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest
+from asr_provider_whisper.whisper_provider import WhisperProvider
 
 
 def test_normalize_language_code_slovak_variants() -> None:
@@ -46,14 +47,13 @@ def test_whisper_backend_normalizes_slovak_on_model_error(
     assert response.language == "sk-SK"
 
 
-def test_whisper_cuda_defaults_to_strict_gpu_mode() -> None:
-    backend = WhisperAsrBackend(config={"device": "cuda"})
-    assert backend.allow_cpu_fallback is False
-
-
-def test_whisper_cuda_can_enable_cpu_fallback_explicitly() -> None:
-    backend = WhisperAsrBackend(config={"device": "cuda", "allow_cpu_fallback": True})
-    assert backend.allow_cpu_fallback is True
+def test_whisper_provider_rejects_legacy_cpu_fallback_flag() -> None:
+    provider = WhisperProvider()
+    provider.initialize({"device": "cuda", "allow_cpu_fallback": True}, credentials_ref={})
+    assert provider.validate_config() == [
+        "Whisper setting `allow_cpu_fallback` is no longer supported. "
+        "Fix CUDA runtime libraries or set device=cpu explicitly."
+    ]
 
 
 def test_google_backend_normalizes_slovak_on_credential_error(

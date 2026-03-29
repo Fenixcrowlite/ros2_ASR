@@ -45,6 +45,29 @@
               <h2>Dashboard</h2>
               <p>What is happening now and what to do next.</p>
             </div>
+            <details class="guide-card">
+              <summary>Quick guide and legend</summary>
+              <div class="guide-grid">
+                <div class="guide-item">
+                  <strong>Quick Actions</strong>
+                  <p>Use these for the shortest demo path when runtime, benchmark, or credential setup is already prepared.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>Alerts and warnings</strong>
+                  <p>Start here when the system looks idle but expected work is not happening.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>Cloud readiness</strong>
+                  <p>A provider can be installed but still unusable because credentials, files, or tokens are missing.</p>
+                </div>
+              </div>
+              <div class="inline-legend">
+                <span class="badge badge-info">Info</span>
+                <span class="badge badge-ok">Ready</span>
+                <span class="badge badge-warn">Action needed</span>
+                <span class="badge badge-error">Blocked</span>
+              </div>
+            </details>
             <div class="cards-grid" id="dashboardCards"></div>
             <div class="panel">
               <h3>Quick Actions</h3>
@@ -73,60 +96,119 @@
               <h2>Runtime Control</h2>
               <p>Start/stop/reconfigure runtime and observe live transcription behavior.</p>
             </div>
+            <details class="guide-card">
+              <summary>Runtime help and field legend</summary>
+              <div class="guide-grid">
+                <div class="guide-item">
+                  <strong>Draft vs live state</strong>
+                  <p>The form is your next run draft. The Live Status panel shows what is actually running now.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>Safe default</strong>
+                  <p><code>segmented via VAD</code> is the safer default for mixed providers and demos.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>Recognize once</strong>
+                  <p>Use it for deterministic single-WAV checks before starting a long runtime session.</p>
+                </div>
+              </div>
+            </details>
             <div class="two-col">
               <div class="panel">
                 <h3>Runtime Session</h3>
                 <p class="helper">Basic controls first. These fields are your draft configuration. Active runtime state is shown in Live Status and does not overwrite the form.</p>
-                <div class="form-grid">
-                  <label>
-                    Runtime profile
-                    <select id="runtimeProfileSelect"></select>
-                  </label>
-                  <label>
-                    Provider profile
-                    <select id="runtimeProviderSelect"></select>
-                  </label>
-                  <label>
-                    Provider model / preset
-                    <select id="runtimeProviderPresetSelect"></select>
-                  </label>
-                  <label>
-                    Session ID (optional)
-                    <input id="runtimeSessionId" placeholder="auto if empty" />
-                  </label>
-                  <label>
-                    Language
-                    <input id="runtimeLanguage" value="en-US" />
-                  </label>
-                  <label>
-                    Audio source
-                    <select id="runtimeSourceMode">
-                      <option value="file">file</option>
-                      <option value="mic">microphone</option>
-                    </select>
-                  </label>
-                  <label>
-                    Processing mode
-                    <select id="runtimeProcessingMode">
-                      <option value="segmented">segmented via VAD</option>
-                      <option value="provider_stream">provider stream</option>
-                    </select>
-                  </label>
-                  <label>
-                    Recognize WAV path
-                    <input id="runtimeWavPath" value="data/sample/vosk_test.wav" />
-                  </label>
+                <fieldset class="form-fieldset">
+                  <legend>Session inputs</legend>
+                  <div class="form-grid">
+                    <label>
+                      Runtime profile
+                      <select id="runtimeProfileSelect" title="Base runtime profile that controls pipeline behavior."></select>
+                      <span class="field-note">Choose the runtime YAML baseline first.</span>
+                    </label>
+                    <label>
+                      Provider profile
+                      <select id="runtimeProviderSelect" title="Backend/provider profile used by the runtime session."></select>
+                      <span class="field-note">Provider profile defines backend family and auth expectations.</span>
+                    </label>
+                    <label>
+                      Provider model / preset
+                      <select id="runtimeProviderPresetSelect" title="Optional provider-specific model or preset override."></select>
+                      <span class="field-note">Leave preset empty to use provider-profile defaults.</span>
+                    </label>
+                    <label>
+                      Session ID (optional)
+                      <input id="runtimeSessionId" placeholder="auto if empty" title="Leave empty to let the gateway create a unique session ID." />
+                      <span class="field-note">Useful when you want to reconfigure or stop a known session explicitly.</span>
+                    </label>
+                    <label>
+                      Language
+                      <input id="runtimeLanguage" value="en-US" list="commonLanguageOptions" title="Language code passed to runtime requests." />
+                      <span class="field-note">Common values are available in the dropdown suggestions.</span>
+                    </label>
+                    <label>
+                      Audio source
+                      <select id="runtimeSourceMode" title="Choose whether runtime reads a project WAV or captures microphone input.">
+                        <option value="file">file</option>
+                        <option value="mic">microphone</option>
+                      </select>
+                    </label>
+                    <label>
+                      Processing mode
+                      <select id="runtimeProcessingMode" title="Segmented mode is safer; provider stream is only for streaming-capable providers.">
+                        <option value="segmented">segmented via VAD</option>
+                        <option value="provider_stream">provider stream</option>
+                      </select>
+                      <span class="field-note">Use provider stream only when the selected provider advertises real streaming support.</span>
+                    </label>
+                    <label>
+                      Project sample
+                      <select id="runtimeSampleSelect" title="Sample catalog from the project data directory and uploaded files."></select>
+                    </label>
+                  </div>
+                </fieldset>
+                <div class="dropzone" id="runtimeSampleDropzone" tabindex="0" role="button" aria-label="Upload runtime sample">
+                  <div>
+                    <strong>Drag and drop a WAV sample here</strong>
+                    <p class="helper">The file is stored under <code>data/sample/uploads</code> and becomes selectable for file-mode runtime and whole-file transcription.</p>
+                  </div>
+                  <div class="actions-row">
+                    <button class="btn-secondary" id="runtimeSampleBrowseBtn" type="button">Browse WAV</button>
+                  </div>
+                  <input id="runtimeSampleUploadInput" type="file" accept=".wav,audio/wav,audio/x-wav" hidden />
+                </div>
+                <div id="runtimeSampleCatalogMeta" class="stack-list"></div>
+                <div class="panel inset-panel">
+                  <h3>Noise Variants</h3>
+                  <p class="helper">Generate extra WAV samples from the selected project sample for quick noise-robustness smoke tests.</p>
+                  <div class="form-grid">
+                    <label>
+                      SNR levels (comma separated)
+                      <input id="runtimeNoiseLevels" value="30,20,10,0" />
+                    </label>
+                  </div>
+                  <div class="actions-row">
+                    <button class="btn-secondary" id="runtimeGenerateNoiseBtn" type="button">Generate Noise Variants</button>
+                  </div>
+                  <div id="runtimeNoiseFeedback" class="feedback"></div>
                 </div>
                 <div id="runtimeProviderPresetMeta" class="stack-list"></div>
-                <label>
-                  Advanced provider settings JSON
-                  <textarea id="runtimeProviderSettings" class="code-area" placeholder='{"temperature": 0.2}'></textarea>
-                </label>
+                <fieldset class="form-fieldset">
+                  <legend>Advanced override</legend>
+                  <label>
+                    Advanced provider settings JSON
+                    <textarea id="runtimeProviderSettings" class="code-area" placeholder='{"temperature": 0.2}' title="Optional JSON patch merged over the selected provider profile and preset."></textarea>
+                    <span class="field-note">Only put provider-specific overrides here. Invalid JSON is rejected before launch.</span>
+                  </label>
+                </fieldset>
+                <p class="helper">
+                  Live runtime replays file-mode input as a paced stream and produces segment-level results.
+                  Use whole-file transcription when you want one direct transcription for the selected WAV without VAD/session startup.
+                </p>
                 <div class="actions-row">
-                  <button class="btn-primary" id="runtimeStartBtn">Start</button>
-                  <button class="btn-secondary" id="runtimeReconfigureBtn">Reconfigure</button>
-                  <button class="btn-danger" id="runtimeStopBtn">Stop</button>
-                  <button class="btn-primary" id="runtimeRecognizeBtn">Recognize Once</button>
+                  <button class="btn-primary" id="runtimeStartBtn" title="Start a live runtime session with the draft configuration. In file-mode the WAV is replayed as a paced audio stream.">Start Live Runtime</button>
+                  <button class="btn-secondary" id="runtimeReconfigureBtn" title="Apply the draft configuration to the active session.">Reconfigure</button>
+                  <button class="btn-danger" id="runtimeStopBtn" title="Stop the active runtime session.">Stop</button>
+                  <button class="btn-primary" id="runtimeRecognizeBtn" title="Transcribe the selected WAV in one direct request without keeping runtime active.">Transcribe Whole File</button>
                 </div>
                 <div id="runtimeFeedback" class="feedback"></div>
               </div>
@@ -141,7 +223,7 @@
 
             <div class="panel">
               <h3>Live Transcription</h3>
-              <p class="helper">Shows recent results returned by runtime gateway calls and runtime polling snapshots.</p>
+              <p class="helper">Shows live segment-level runtime results. The merged session transcript appears first, followed by individual segment outputs.</p>
               <div id="runtimeTranscripts" class="stack-list"></div>
             </div>
           </section>
@@ -151,6 +233,19 @@
               <h2>Providers</h2>
               <p>Discover backend capabilities, validate profiles, and test connectivity.</p>
             </div>
+            <details class="guide-card">
+              <summary>Provider validation help</summary>
+              <div class="guide-grid">
+                <div class="guide-item">
+                  <strong>Validate config</strong>
+                  <p>Checks profile structure, required fields, and local prerequisites without spending runtime budget.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>Test provider</strong>
+                  <p>Runs a real short recognition path with the selected WAV to confirm the backend actually works.</p>
+                </div>
+              </div>
+            </details>
             <div class="panel">
               <h3>Provider Catalog</h3>
               <div id="providersCatalogTable"></div>
@@ -162,28 +257,32 @@
               </div>
               <div class="panel">
                 <h3>Validate / Test Provider</h3>
-                <div class="form-grid">
-                  <label>
-                    Provider profile
-                    <select id="providerTestProfile"></select>
-                  </label>
-                  <label>
-                    Provider model / preset
-                    <select id="providerTestPreset"></select>
-                  </label>
-                  <label>
-                    Test WAV
-                    <input id="providerTestWav" value="data/sample/vosk_test.wav" />
-                  </label>
-                </div>
+                <fieldset class="form-fieldset">
+                  <legend>Validation input</legend>
+                  <div class="form-grid">
+                    <label>
+                      Provider profile
+                      <select id="providerTestProfile" title="Provider profile to validate or test."></select>
+                    </label>
+                    <label>
+                      Provider model / preset
+                      <select id="providerTestPreset" title="Optional preset override for the test call."></select>
+                    </label>
+                    <label>
+                      Test WAV
+                      <input id="providerTestWav" value="data/sample/vosk_test.wav" list="commonSampleWavOptions" title="Project WAV used for provider smoke testing." />
+                      <span class="field-note">Use a short clean sample for faster comparison between providers.</span>
+                    </label>
+                  </div>
+                </fieldset>
                 <div id="providerPresetMeta" class="stack-list"></div>
                 <label>
                   Advanced provider settings JSON
                   <textarea id="providerTestSettings" class="code-area" placeholder='{"timeout_sec": 120}'></textarea>
                 </label>
                 <div class="actions-row">
-                  <button id="providerValidateBtn" class="btn-secondary">Validate Config</button>
-                  <button id="providerTestBtn" class="btn-primary">Test Provider</button>
+                  <button id="providerValidateBtn" class="btn-secondary" title="Validate profile structure and prerequisites.">Validate Config</button>
+                  <button id="providerTestBtn" class="btn-primary" title="Run a real provider test call with the selected WAV.">Test Provider</button>
                 </div>
                 <div id="providerTestResult" class="feedback"></div>
               </div>
@@ -195,6 +294,19 @@
               <h2>Profiles</h2>
               <p>Manage runtime/provider/benchmark/dataset/metric/deployment profiles without losing manual YAML workflows.</p>
             </div>
+            <details class="guide-card">
+              <summary>Profiles guide</summary>
+              <div class="guide-grid">
+                <div class="guide-item">
+                  <strong>Guided edit</strong>
+                  <p>Use this when you want safer form-based changes with structure-aware validation.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>Raw JSON</strong>
+                  <p>Use advanced mode for custom keys that are not yet represented by the guided editor.</p>
+                </div>
+              </div>
+            </details>
             <div class="toolbar">
               <label>
                 Profile type
@@ -237,6 +349,23 @@
               <h2>Datasets</h2>
               <p>Import, validate, and inspect dataset manifests and registry entries.</p>
             </div>
+            <details class="guide-card">
+              <summary>Dataset help and supported layouts</summary>
+              <div class="guide-grid">
+                <div class="guide-item">
+                  <strong>Import source</strong>
+                  <p>Use a folder with <code>wav + txt</code> pairs or a prepared <code>.jsonl</code> manifest.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>Register existing manifest</strong>
+                  <p>Use this when the manifest already exists on disk and only needs registry linkage.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>Validation</strong>
+                  <p>Enable audio checks when you want to confirm every referenced file still exists.</p>
+                </div>
+              </div>
+            </details>
             <div class="panel">
               <h3>Dataset Registry</h3>
               <div id="datasetsRegistryTable"></div>
@@ -247,7 +376,8 @@
                 <div class="form-grid">
                   <label>
                     Source path (folder or .jsonl manifest)
-                    <input id="datasetImportSource" placeholder="datasets/raw/... or datasets/manifests/file.jsonl" />
+                    <input id="datasetImportSource" placeholder="datasets/raw/... or datasets/manifests/file.jsonl" list="datasetSourceOptions" title="Folder path or JSONL manifest path to import." />
+                    <span class="field-note">Common project locations are available in the dropdown suggestions.</span>
                   </label>
                   <label>
                     Dataset ID
@@ -255,11 +385,11 @@
                   </label>
                   <label>
                     Dataset profile (optional)
-                    <input id="datasetImportProfile" placeholder="sample_dataset" />
+                    <input id="datasetImportProfile" placeholder="sample_dataset" list="datasetProfileOptions" />
                   </label>
                 </div>
                 <div class="actions-row">
-                  <button id="datasetImportBtn" class="btn-primary">Import</button>
+                  <button id="datasetImportBtn" class="btn-primary" title="Import a dataset from an existing folder or manifest path.">Import</button>
                 </div>
                 <hr />
                 <h3>Import From Explorer</h3>
@@ -271,11 +401,11 @@
                   </label>
                   <label>
                     Upload dataset profile (optional)
-                    <input id="datasetUploadProfile" placeholder="uploaded_dataset" />
+                    <input id="datasetUploadProfile" placeholder="uploaded_dataset" list="datasetProfileOptions" />
                   </label>
                   <label>
                     Upload language
-                    <input id="datasetUploadLanguage" value="en-US" />
+                    <input id="datasetUploadLanguage" value="en-US" list="commonLanguageOptions" />
                   </label>
                   <label>
                     Files / folder
@@ -283,14 +413,14 @@
                   </label>
                 </div>
                 <div class="actions-row">
-                  <button id="datasetUploadBtn" class="btn-primary">Upload & Import</button>
+                  <button id="datasetUploadBtn" class="btn-primary" title="Upload a folder or file selection and register it as a dataset.">Upload & Import</button>
                 </div>
                 <hr />
                 <h3>Register Existing Manifest</h3>
                 <div class="form-grid">
                   <label>
                     Manifest path
-                    <input id="datasetRegisterManifest" placeholder="datasets/manifests/my_dataset.jsonl" />
+                    <input id="datasetRegisterManifest" placeholder="datasets/manifests/my_dataset.jsonl" list="datasetManifestOptions" />
                   </label>
                   <label>
                     Dataset ID
@@ -298,18 +428,18 @@
                   </label>
                   <label>
                     Dataset profile (optional)
-                    <input id="datasetRegisterProfile" />
+                    <input id="datasetRegisterProfile" list="datasetProfileOptions" />
                   </label>
                 </div>
                 <div class="actions-row">
-                  <button id="datasetRegisterBtn" class="btn-secondary">Register</button>
+                  <button id="datasetRegisterBtn" class="btn-secondary" title="Register a dataset manifest that already exists on disk.">Register</button>
                 </div>
                 <hr />
                 <h3>Manifest Validation</h3>
                 <div class="form-grid">
                   <label>
                     Manifest path
-                    <input id="datasetValidateManifest" placeholder="datasets/manifests/sample_dataset.jsonl" />
+                    <input id="datasetValidateManifest" placeholder="datasets/manifests/sample_dataset.jsonl" list="datasetManifestOptions" />
                   </label>
                   <label class="checkbox-line">
                     <input type="checkbox" id="datasetValidateAudio" />
@@ -317,7 +447,7 @@
                   </label>
                 </div>
                 <div class="actions-row">
-                  <button id="datasetValidateBtn" class="btn-secondary">Validate Manifest</button>
+                  <button id="datasetValidateBtn" class="btn-secondary" title="Validate dataset manifest structure and optionally verify referenced audio files.">Validate Manifest</button>
                 </div>
                 <div id="datasetsFeedback" class="feedback"></div>
               </div>
@@ -333,6 +463,23 @@
               <h2>Benchmark</h2>
               <p>Build and run reproducible experiments with explicit validation and progress.</p>
             </div>
+            <details class="guide-card">
+              <summary>Benchmark help and scenario legend</summary>
+              <div class="guide-grid">
+                <div class="guide-item">
+                  <strong>clean_baseline</strong>
+                  <p>Best first run for regression checks and thesis/demo screenshots.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>provider_comparison</strong>
+                  <p>Use when you want multiple providers on the same dataset and settings envelope.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>noise_robustness</strong>
+                  <p>Activates noise-related controls and is the right mode for SNR comparison.</p>
+                </div>
+              </div>
+            </details>
             <div class="panel">
               <h3>Run Builder</h3>
               <div class="steps-grid">
@@ -352,9 +499,9 @@
                   </label>
                   <label>
                     Uploaded dataset language
-                    <input id="benchmarkDatasetLanguage" value="en-US" />
+                    <input id="benchmarkDatasetLanguage" value="en-US" list="commonLanguageOptions" />
                   </label>
-                  <button id="benchmarkUploadDatasetBtn" class="btn-secondary">Create Dataset From Selection</button>
+                  <button id="benchmarkUploadDatasetBtn" class="btn-secondary" title="Create a dataset from the selected files before running benchmark.">Create Dataset From Selection</button>
                 </div>
                 <div class="step">
                   <h4>Step 2: Providers</h4>
@@ -365,25 +512,27 @@
                   <h4>Step 3: Scenario</h4>
                   <label>
                     Scenario
-                    <select id="benchmarkScenario">
+                    <select id="benchmarkScenario" title="Scenario preset controlling comparison style and benchmark intent.">
                       <option value="clean_baseline">clean_baseline</option>
                       <option value="provider_comparison">provider_comparison</option>
                       <option value="latency_profile">latency_profile</option>
                       <option value="noise_robustness">noise_robustness</option>
                     </select>
+                    <span class="field-note">Pick noise robustness only when you actually want generated or catalogued noise variants involved.</span>
                   </label>
                   <label>
                     Noise mode
-                    <select id="benchmarkNoiseMode">
+                    <select id="benchmarkNoiseMode" title="Noise generation mode used by robustness scenarios.">
                       <option value="white">white</option>
                     </select>
                   </label>
                   <label>
                     Execution mode
-                    <select id="benchmarkExecutionMode">
+                    <select id="benchmarkExecutionMode" title="Batch is simpler and faster; streaming is for chunk-level evaluation.">
                       <option value="batch">batch / one-shot</option>
                       <option value="streaming">streaming</option>
                     </select>
+                    <span class="field-note">Streaming mode matters only when transport and provider behavior under chunking are part of the experiment.</span>
                   </label>
                   <label>
                     Streaming chunk size (ms)
@@ -404,13 +553,14 @@
                   </label>
                   <label>
                     Run ID (optional)
-                    <input id="benchmarkRunId" placeholder="auto if empty" />
+                    <input id="benchmarkRunId" placeholder="auto if empty" title="Leave empty to let the gateway generate a run ID." />
+                    <span class="field-note">Use manual IDs only when you need deterministic naming for exports or demos.</span>
                   </label>
                   <label>
                     Advanced benchmark settings JSON
                     <textarea id="benchmarkSettingsEditor" class="code-area" placeholder='{"batch":{"max_samples":10}}'></textarea>
                   </label>
-                  <button id="benchmarkRunBtn" class="btn-primary">Run Benchmark</button>
+                  <button id="benchmarkRunBtn" class="btn-primary" title="Start benchmark with the reviewed dataset, providers, scenario, and metrics.">Run Benchmark</button>
                 </div>
               </div>
               <div id="benchmarkReview" class="feedback"></div>
@@ -432,6 +582,19 @@
               <h2>Results</h2>
               <p>Inspect run summaries, compare experiments, and export reproducible artifacts.</p>
             </div>
+            <details class="guide-card">
+              <summary>Results help</summary>
+              <div class="guide-grid">
+                <div class="guide-item">
+                  <strong>Run detail</strong>
+                  <p>Load one run when you want exact parameters, metrics, and exported artifacts.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>Comparison</strong>
+                  <p>Use comma-separated run IDs to compare multiple experiments side by side.</p>
+                </div>
+              </div>
+            </details>
             <div class="panel">
               <h3>Overview</h3>
               <div id="resultsOverview" class="cards-grid"></div>
@@ -486,10 +649,34 @@
               <h2>Logs & Diagnostics</h2>
               <p>Translate system problems into clear corrective actions.</p>
             </div>
+            <details class="guide-card">
+              <summary>Diagnostics help and legend</summary>
+              <div class="guide-grid">
+                <div class="guide-item">
+                  <strong>Preflight</strong>
+                  <p>Run this first when runtime or benchmark actions fail before any provider request starts.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>Issues</strong>
+                  <p>This panel is for interpreted problems; raw logs stay on the right for exact details.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>Severity filter</strong>
+                  <p>Start with <code>error</code> or <code>warning</code> to cut noise during incident triage.</p>
+                </div>
+              </div>
+            </details>
             <div class="two-col">
               <div class="panel">
                 <h3>Health Summary</h3>
                 <div id="diagnosticsHealth" class="stack-list"></div>
+                <h3>Environment Preflight</h3>
+                <p class="helper">Check Python modules, microphone stack, ROS2 setup, and installed gateway/runtime entrypoints.</p>
+                <div class="actions-row">
+                  <button id="diagnosticsPreflightBtn" class="btn-secondary" title="Run environment and dependency checks before deeper troubleshooting.">Run Preflight</button>
+                </div>
+                <div id="diagnosticsPreflightSummary" class="stack-list"></div>
+                <div id="diagnosticsPreflightDetails" class="stack-list"></div>
                 <h3>Issues</h3>
                 <div id="diagnosticsIssues" class="stack-list"></div>
               </div>
@@ -518,11 +705,12 @@
                   </label>
                   <label>
                     Limit
-                    <input id="logsLimit" type="number" min="20" max="1000" value="200" />
+                    <input id="logsLimit" type="number" min="20" max="1000" value="200" title="How many log entries to request from the gateway." />
+                    <span class="field-note">Use lower values for fast refresh during active debugging.</span>
                   </label>
                 </div>
                 <div class="actions-row">
-                  <button id="logsRefreshBtn" class="btn-secondary">Refresh Logs</button>
+                  <button id="logsRefreshBtn" class="btn-secondary" title="Reload logs with the selected filters.">Refresh Logs</button>
                 </div>
                 <div id="logsViewer" class="log-viewer"></div>
               </div>
@@ -534,6 +722,23 @@
               <h2>Secrets / Credentials</h2>
               <p>Reference-based credential management with masked metadata only.</p>
             </div>
+            <details class="guide-card">
+              <summary>Secrets help and provider legend</summary>
+              <div class="guide-grid">
+                <div class="guide-item">
+                  <strong>AWS</strong>
+                  <p>Interactive login flow with token state, then provider profiles consume the resulting CLI session.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>Google</strong>
+                  <p>Upload one service-account JSON file and reference it from the provider profile.</p>
+                </div>
+                <div class="guide-item">
+                  <strong>Azure</strong>
+                  <p>Save key and region into local env injection storage; the key stays masked after save.</p>
+                </div>
+              </div>
+            </details>
             <div class="panel">
               <h3>Secret References</h3>
               <div id="secretsRefsTable"></div>
@@ -556,25 +761,45 @@
                 <div class="form-grid">
                   <label>
                     AWS ref name
-                    <input id="awsSsoRefName" value="aws_profile" />
+                    <input id="awsSsoRefName" value="aws_profile" title="Secret reference name used by provider profiles." />
+                    <span class="field-note">Keep this stable if multiple provider profiles link to the same AWS auth reference.</span>
                   </label>
                   <label>
                     AWS profile
-                    <input id="awsSsoProfile" placeholder="ros2ws" />
+                    <input id="awsSsoProfile" placeholder="ros2ws" list="awsProfileOptions" title="Local AWS CLI profile name used for the SSO login flow." />
                   </label>
                   <label>
                     <input id="awsSsoUseDeviceCode" type="checkbox" checked />
                     Use device code flow
                   </label>
                   <label>
-                    <input id="awsSsoNoBrowser" type="checkbox" checked />
-                    Do not auto-open browser
+                    <input id="awsSsoAutoOpenPage" type="checkbox" checked />
+                    Auto-open login page
+                  </label>
+                </div>
+                <div class="form-grid">
+                  <label>
+                    Login page
+                    <div class="inline-action-field">
+                      <input id="awsSsoLoginUrl" placeholder="AWS device login page will appear here" readonly />
+                      <button id="awsSsoOpenLoginPageBtn" class="btn-secondary" type="button">Open</button>
+                      <button id="awsSsoCopyLoginPageBtn" class="btn-secondary" type="button">Copy URL</button>
+                    </div>
+                    <span class="field-note">The GUI derives this from the configured AWS SSO start URL and keeps it ready for relogin.</span>
+                  </label>
+                  <label>
+                    Device code
+                    <div class="inline-action-field">
+                      <input id="awsSsoDeviceCode" placeholder="AWS CLI device code will appear here" readonly />
+                      <button id="awsSsoCopyDeviceCodeBtn" class="btn-secondary" type="button">Copy Code</button>
+                    </div>
+                    <span class="field-note">Paste this code into the AWS login page when IAM Identity Center asks for it.</span>
                   </label>
                 </div>
                 <div class="actions-row">
-                  <button id="awsSsoLoginBtn" class="btn-primary">Start AWS Login</button>
-                  <button id="awsSsoRefreshBtn" class="btn-secondary">Refresh Login Status</button>
-                  <button id="awsSsoCancelBtn" class="btn-secondary">Cancel Login</button>
+                  <button id="awsSsoLoginBtn" class="btn-primary" title="Start a native aws sso login flow through the gateway.">Start AWS Login</button>
+                  <button id="awsSsoRefreshBtn" class="btn-secondary" title="Refresh cached AWS login state and token status.">Refresh Login Status</button>
+                  <button id="awsSsoCancelBtn" class="btn-secondary" title="Cancel the currently running AWS login flow.">Cancel Login</button>
                 </div>
                 <div id="awsSsoLoginFeedback" class="feedback"></div>
               </div>
@@ -593,12 +818,12 @@
                   </label>
                   <label>
                     Ref name
-                    <input id="googleRefName" value="google_service_account" />
+                    <input id="googleRefName" value="google_service_account" title="Reference name that provider profiles can reuse." />
                   </label>
                 </div>
                 <div class="actions-row">
-                  <button id="googleUploadBtn" class="btn-primary">Upload Google JSON</button>
-                  <button id="googleClearBtn" class="btn-secondary">Clear Google JSON</button>
+                  <button id="googleUploadBtn" class="btn-primary" title="Upload and register Google service-account JSON.">Upload Google JSON</button>
+                  <button id="googleClearBtn" class="btn-secondary" title="Remove the stored Google JSON reference.">Clear Google JSON</button>
                 </div>
                 <div id="googleSetupFeedback" class="feedback"></div>
               </div>
@@ -608,20 +833,20 @@
                 <div class="form-grid">
                   <label>
                     Provider profile
-                    <input id="googleProviderProfile" value="providers/google_cloud" />
+                    <input id="googleProviderProfile" value="providers/google_cloud" list="providerProfileOptions" />
                   </label>
                   <label>
                     WAV path
-                    <input id="googleTestWav" value="data/sample/vosk_test.wav" />
+                    <input id="googleTestWav" value="data/sample/vosk_test.wav" list="commonSampleWavOptions" />
                   </label>
                   <label>
                     Language
-                    <input id="googleTestLanguage" value="en-US" />
+                    <input id="googleTestLanguage" value="en-US" list="commonLanguageOptions" />
                   </label>
                 </div>
                 <div class="actions-row">
-                  <button id="googleValidateProviderBtn" class="btn-secondary">Validate Google Provider</button>
-                  <button id="googleTestProviderBtn" class="btn-primary">Test Google Provider</button>
+                  <button id="googleValidateProviderBtn" class="btn-secondary" title="Validate Google provider profile and auth setup.">Validate Google Provider</button>
+                  <button id="googleTestProviderBtn" class="btn-primary" title="Run a short Google provider test with the selected WAV.">Test Google Provider</button>
                 </div>
               </div>
             </div>
@@ -640,7 +865,7 @@
                   </label>
                   <label>
                     Region
-                    <input id="azureSpeechRegion" placeholder="eastus" />
+                    <input id="azureSpeechRegion" placeholder="eastus" list="azureRegionOptions" />
                   </label>
                   <label>
                     Endpoint URL or custom endpoint ID (optional)
@@ -648,8 +873,8 @@
                   </label>
                 </div>
                 <div class="actions-row">
-                  <button id="azureSaveBtn" class="btn-primary">Save Azure Env</button>
-                  <button id="azureClearBtn" class="btn-secondary">Clear Azure Env</button>
+                  <button id="azureSaveBtn" class="btn-primary" title="Save Azure Speech credentials into the local env injection file.">Save Azure Env</button>
+                  <button id="azureClearBtn" class="btn-secondary" title="Clear stored Azure Speech env values.">Clear Azure Env</button>
                 </div>
                 <div id="azureSetupFeedback" class="feedback"></div>
               </div>
@@ -659,20 +884,20 @@
                 <div class="form-grid">
                   <label>
                     Provider profile
-                    <input id="azureProviderProfile" value="providers/azure_cloud" />
+                    <input id="azureProviderProfile" value="providers/azure_cloud" list="providerProfileOptions" />
                   </label>
                   <label>
                     WAV path
-                    <input id="azureTestWav" value="data/sample/vosk_test.wav" />
+                    <input id="azureTestWav" value="data/sample/vosk_test.wav" list="commonSampleWavOptions" />
                   </label>
                   <label>
                     Language
-                    <input id="azureTestLanguage" value="en-US" />
+                    <input id="azureTestLanguage" value="en-US" list="commonLanguageOptions" />
                   </label>
                 </div>
                 <div class="actions-row">
-                  <button id="azureValidateProviderBtn" class="btn-secondary">Validate Azure Provider</button>
-                  <button id="azureTestProviderBtn" class="btn-primary">Test Azure Provider</button>
+                  <button id="azureValidateProviderBtn" class="btn-secondary" title="Validate Azure provider profile and env setup.">Validate Azure Provider</button>
+                  <button id="azureTestProviderBtn" class="btn-primary" title="Run a short Azure provider test with the selected WAV.">Test Azure Provider</button>
                 </div>
               </div>
             </div>
@@ -702,7 +927,7 @@
                   </label>
                   <label>
                     Path (for file kind)
-                    <input id="secretPath" placeholder="secrets/google/service-account.json" />
+                    <input id="secretPath" placeholder="secrets/google/service-account.json" list="secretPathOptions" />
                   </label>
                   <label>
                     Env fallback
@@ -718,7 +943,7 @@
                   </label>
                 </div>
                 <div class="actions-row">
-                  <button id="secretSaveBtn" class="btn-primary">Save Ref</button>
+                  <button id="secretSaveBtn" class="btn-primary" title="Create or update a secret reference entry.">Save Ref</button>
                 </div>
               </div>
 
@@ -735,8 +960,8 @@
                   </label>
                 </div>
                 <div class="actions-row">
-                  <button id="secretValidateBtn" class="btn-secondary">Validate Ref</button>
-                  <button id="secretLinkBtn" class="btn-primary">Link to Provider Profile</button>
+                  <button id="secretValidateBtn" class="btn-secondary" title="Validate that the selected secret reference resolves correctly.">Validate Ref</button>
+                  <button id="secretLinkBtn" class="btn-primary" title="Attach the secret reference to the selected provider profile.">Link to Provider Profile</button>
                 </div>
                 <div id="secretsFeedback" class="feedback"></div>
               </div>
@@ -747,6 +972,47 @@
     </div>
 
     <div id="toastHost" class="toast-host"></div>
+
+    <datalist id="commonLanguageOptions">
+      <option value="en-US"></option>
+      <option value="ru-RU"></option>
+      <option value="sk-SK"></option>
+      <option value="de-DE"></option>
+    </datalist>
+    <datalist id="commonSampleWavOptions">
+      <option value="data/sample/vosk_test.wav"></option>
+      <option value="data/sample/audio_tester.wav"></option>
+      <option value="data/sample/uploads"></option>
+    </datalist>
+    <datalist id="providerProfileOptions">
+      <option value="providers/whisper_local"></option>
+      <option value="providers/vosk_local"></option>
+      <option value="providers/google_cloud"></option>
+      <option value="providers/azure_cloud"></option>
+      <option value="providers/aws_cloud"></option>
+    </datalist>
+    <datalist id="datasetManifestOptions">
+      <option value="datasets/manifests/sample_dataset.jsonl"></option>
+    </datalist>
+    <datalist id="datasetSourceOptions">
+      <option value="datasets/raw"></option>
+      <option value="datasets/manifests/sample_dataset.jsonl"></option>
+    </datalist>
+    <datalist id="datasetProfileOptions">
+      <option value="sample_dataset"></option>
+      <option value="datasets/sample_dataset"></option>
+    </datalist>
+    <datalist id="awsProfileOptions">
+      <option value="ros2ws"></option>
+    </datalist>
+    <datalist id="azureRegionOptions">
+      <option value="eastus"></option>
+      <option value="westeurope"></option>
+    </datalist>
+    <datalist id="secretPathOptions">
+      <option value="secrets/google/service-account.json"></option>
+      <option value="secrets/local/runtime.env"></option>
+    </datalist>
 
     <script type="module" src="/ui/js/app.js"></script>
   </body>

@@ -25,6 +25,33 @@ def test_load_manifest_reads_valid_fixture(repo_root: Path) -> None:
     assert samples[1].language == "en-US"
 
 
+def test_load_manifest_resolves_relative_audio_paths_from_manifest_directory(
+    tmp_path: Path,
+) -> None:
+    audio_dir = tmp_path / "audio"
+    audio_dir.mkdir()
+    wav_path = audio_dir / "sample.wav"
+    wav_path.write_bytes(b"RIFF0000WAVE")
+    manifest_path = tmp_path / "manifest.jsonl"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "sample_id": "sample_rel",
+                "audio_path": "audio/sample.wav",
+                "transcript": "hello",
+                "language": "en-US",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    samples = load_manifest(str(manifest_path))
+
+    assert len(samples) == 1
+    assert Path(samples[0].audio_path).resolve() == wav_path.resolve()
+
+
 def test_load_manifest_rejects_duplicate_sample_ids(repo_root: Path) -> None:
     manifest_path = repo_root / "tests" / "fixtures" / "manifests" / "duplicate_sample_ids.jsonl"
     with pytest.raises(ValueError, match="duplicate sample_id"):

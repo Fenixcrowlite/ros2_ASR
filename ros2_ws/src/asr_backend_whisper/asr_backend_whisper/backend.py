@@ -1,4 +1,4 @@
-"""Local faster-whisper backend with optional CUDA and CPU fallback."""
+"""Local faster-whisper backend with strict device selection."""
 
 from __future__ import annotations
 
@@ -6,7 +6,6 @@ import os
 import tempfile
 import time
 import wave
-from collections.abc import Iterable
 from pathlib import Path
 from typing import Any
 
@@ -15,14 +14,6 @@ from asr_core.backend import AsrBackend
 from asr_core.factory import register_backend
 from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabilities, WordTimestamp
-
-
-def _as_bool(raw: Any) -> bool:
-    """Parse bool-like config values from YAML/ENV."""
-    if isinstance(raw, str):
-        return raw.strip().lower() in {"1", "true", "yes", "on"}
-    return bool(raw)
-
 
 @register_backend("whisper")
 class WhisperAsrBackend(AsrBackend):
@@ -35,7 +26,7 @@ class WhisperAsrBackend(AsrBackend):
         return BackendCapabilities(
             supports_recognize_once=True,
             supports_streaming=False,
-            streaming_mode="simulated",
+            streaming_mode="none",
             supports_word_timestamps=True,
             supports_confidence=True,
             is_cloud=False,
@@ -46,13 +37,6 @@ class WhisperAsrBackend(AsrBackend):
         super().__init__(config=config, client=client)
         self.model_size = self.config.get("model_size", os.getenv("ASR_WHISPER_MODEL", "tiny"))
         self.device = self.config.get("device", os.getenv("ASR_WHISPER_DEVICE", "cpu"))
-        default_cpu_fallback = "0" if str(self.device).lower().startswith("cuda") else "1"
-        self.allow_cpu_fallback = _as_bool(
-            self.config.get(
-                "allow_cpu_fallback",
-                os.getenv("ASR_WHISPER_ALLOW_CPU_FALLBACK", default_cpu_fallback),
-            )
-        )
         self.compute_type = self.config.get(
             "compute_type", os.getenv("ASR_WHISPER_COMPUTE_TYPE", "int8")
         )
@@ -71,56 +55,6 @@ class WhisperAsrBackend(AsrBackend):
         self._model: Any = None
         self._load_error: str = ""
 
-    def _is_cuda_device(self) -> bool:
-        """Return `True` when backend is configured for CUDA device."""
-        return str(self.device).lower().startswith("cuda")
-
-    @staticmethod
-    def _clone_request_with_metadata(request: AsrRequest, metadata: dict[str, Any]) -> AsrRequest:
-        """Create request copy with updated metadata flags."""
-        return AsrRequest(
-            wav_path=request.wav_path,
-            audio_bytes=request.audio_bytes,
-            language=request.language,
-            enable_word_timestamps=request.enable_word_timestamps,
-            sample_rate=request.sample_rate,
-            metadata=metadata,
-        )
-
-    def _try_cpu_fallback(self, request: AsrRequest, error_message: str) -> AsrResponse | None:
-        """Fallback to CPU when CUDA runtime library is unavailable."""
-        if not self.allow_cpu_fallback:
-            return None
-        if not self._is_cuda_device():
-            return None
-        if "libcublas.so.12" not in error_message:
-            return None
-        if request.metadata.get("cpu_fallback_attempted"):
-            return None
-
-        fallback_meta = dict(request.metadata)
-        fallback_meta["cpu_fallback_attempted"] = True
-        fallback_request = self._clone_request_with_metadata(request, fallback_meta)
-
-        self.device = "cpu"
-        if str(self.compute_type).lower() in {"float16", "float32"}:
-            self.compute_type = "int8"
-        self._model = None
-
-        fallback_response = self.recognize_once(fallback_request)
-        hint = (
-            "CUDA runtime library missing (libcublas.so.12). "
-            "Install cu12 runtime wheels and include their lib dirs into LD_LIBRARY_PATH."
-        )
-        if fallback_response.success:
-            fallback_response.backend_info["compute_device"] = "cpu_fallback"
-            fallback_response.backend_info["cuda_error"] = "libcublas_missing"
-            return fallback_response
-        fallback_response.error_message = (
-            f"{hint} CPU fallback failed: {fallback_response.error_message}"
-        )
-        return fallback_response
-
     def _load_model(self) -> bool:
         """Lazy-load Whisper model instance."""
         if self._model is not None:
@@ -134,7 +68,12 @@ class WhisperAsrBackend(AsrBackend):
             self._load_error = ""
             return True
         except Exception as exc:
-            self._load_error = f"{type(exc).__name__}: {exc}"
+            detail = f"{type(exc).__name__}: {exc}"
+            if "libcublas.so.12" in detail:
+                detail = (
+                    f"{detail}. Fix CUDA runtime libraries or set device=cpu explicitly."
+                )
+            self._load_error = detail
             return False
 
     def _request_to_wav_path(self, request: AsrRequest) -> tuple[str, bool]:
@@ -243,13 +182,15 @@ class WhisperAsrBackend(AsrBackend):
                 success=True,
             )
         except Exception as exc:
-            cpu_fallback = self._try_cpu_fallback(request, str(exc))
-            if cpu_fallback is not None:
-                return cpu_fallback
+            error_message = str(exc)
+            if "libcublas.so.12" in error_message:
+                error_message = (
+                    f"{error_message}. Fix CUDA runtime libraries or set device=cpu explicitly."
+                )
             return AsrResponse(
                 success=False,
                 error_code="whisper_runtime_error",
-                error_message=str(exc),
+                error_message=error_message,
                 backend_info={
                     "provider": "whisper",
                     "model": self.model_size,
@@ -263,18 +204,7 @@ class WhisperAsrBackend(AsrBackend):
             if cleanup and wav_path and Path(wav_path).exists():
                 Path(wav_path).unlink(missing_ok=True)
 
-    def streaming_recognize(
-        self,
-        chunks: Iterable[bytes],
-        *,
-        language: str,
-        sample_rate: int,
-    ) -> AsrResponse:
-        """Use generic base fallback for simulated streaming."""
-        result = super().streaming_recognize(
-            chunks,
-            language=normalize_language_code(language, fallback="en-US"),
-            sample_rate=sample_rate,
-        )
-        result.backend_info["streaming_fallback"] = "true"
-        return result
+    def streaming_recognize(self, chunks, *, language: str, sample_rate: int) -> AsrResponse:
+        """Reject streaming calls explicitly; Whisper is batch-only here."""
+        del chunks, language, sample_rate
+        raise NotImplementedError("WhisperAsrBackend does not support streaming_recognize")

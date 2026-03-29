@@ -36,8 +36,9 @@ bash scripts/run_live_sample_eval.sh \
 ## Пререквизиты
 
 - В `.venv` должны быть `sounddevice` + `soundfile` (для записи с микрофона).
-- Для `language_mode=auto` желателен `faster-whisper`.
+- Для `language_mode=auto` обязателен рабочий `faster-whisper`; silent fallback к config-языку больше не используется.
 - Для ROS интерфейсов (`ros_service`, `ros_action`) нужен собранный workspace.
+- `ros_action --action-streaming` допустим только для streaming-capable backend’ов. Для Whisper и других batch-only backend’ов сценарий теперь отвергается до запуска.
 
 ## Когда использовать
 

@@ -5,14 +5,12 @@ from __future__ import annotations
 import csv
 import json
 import platform
-from datetime import datetime, timezone
+from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 from statistics import mean
 from typing import Any
 
-from asr_benchmark_core.executor import BatchExecutor
-from asr_benchmark_core.models import BenchmarkRunRequest, BenchmarkRunSummary
-from asr_benchmark_core.noise import apply_noise_to_wav, resolve_noise_plan
 from asr_config import resolve_profile, validate_benchmark_payload
 from asr_core import make_run_id
 from asr_datasets import DatasetRegistry, load_manifest
@@ -20,6 +18,10 @@ from asr_metrics.engine import MetricEngine
 from asr_provider_base import ProviderManager
 from asr_provider_base.catalog import resolve_provider_execution
 from asr_storage import ArtifactStore
+
+from asr_benchmark_core.executor import BatchExecutor
+from asr_benchmark_core.models import BenchmarkRunRequest, BenchmarkRunSummary
+from asr_benchmark_core.noise import apply_noise_to_wav, resolve_noise_plan
 
 QUALITY_METRICS = {"wer", "cer", "sample_accuracy"}
 RESOURCE_METRICS = {
@@ -31,6 +33,24 @@ RESOURCE_METRICS = {
     "finalization_latency_ms",
     "partial_count",
 }
+
+
+@dataclass(slots=True)
+class ResolvedBenchmarkPlan:
+    run_id: str
+    dataset_id: str
+    dataset_profile_ref: str
+    manifest_path: str
+    samples: list[Any]
+    benchmark_settings: dict[str, Any]
+    execution_mode: str
+    provider_profiles: list[str]
+    metric_profiles: list[str]
+    enabled_metrics: list[str]
+    scenario: str
+    noise_plan: list[dict[str, Any]]
+    provider_execution: dict[str, dict[str, Any]]
+    config_snapshots: dict[str, Any]
 
 
 def _deep_merge(base: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
@@ -56,7 +76,20 @@ class BenchmarkOrchestrator:
         self.provider_manager = ProviderManager(configs_root=configs_root)
         self.dataset_registry = DatasetRegistry(registry_path=registry_path)
 
-    def run(self, request: BenchmarkRunRequest) -> BenchmarkRunSummary:
+    @staticmethod
+    def _default_enabled_metrics() -> list[str]:
+        return [
+            "wer",
+            "cer",
+            "sample_accuracy",
+            "total_latency_ms",
+            "per_utterance_latency_ms",
+            "real_time_factor",
+            "success_rate",
+            "failure_rate",
+        ]
+
+    def _resolve_benchmark_profile(self, request: BenchmarkRunRequest) -> tuple[Any, str]:
         benchmark_profile_id = request.benchmark_profile
         if benchmark_profile_id.startswith("benchmark/"):
             benchmark_profile_id = benchmark_profile_id.split("/", 1)[1]
@@ -70,19 +103,25 @@ class BenchmarkOrchestrator:
         if errors:
             joined = "; ".join(errors)
             raise ValueError(f"Benchmark profile validation failed: {joined}")
+        return benchmark_cfg, benchmark_profile_id
 
-        dataset_profile = request.dataset_profile or str(benchmark_cfg.data.get("dataset_profile", ""))
-        if dataset_profile.startswith("datasets/"):
-            dataset_profile = dataset_profile.split("/", 1)[1]
-        if not dataset_profile:
+    def _resolve_dataset_plan(
+        self,
+        request: BenchmarkRunRequest,
+        benchmark_cfg: Any,
+    ) -> tuple[str, Any, str, list[Any]]:
+        dataset_profile_ref = request.dataset_profile or str(benchmark_cfg.data.get("dataset_profile", ""))
+        dataset_profile_id = dataset_profile_ref
+        if dataset_profile_id.startswith("datasets/"):
+            dataset_profile_id = dataset_profile_id.split("/", 1)[1]
+        if not dataset_profile_id:
             raise ValueError("dataset_profile is required")
 
         dataset_cfg = resolve_profile(
             profile_type="datasets",
-            profile_id=dataset_profile,
+            profile_id=dataset_profile_id,
             configs_root=self.configs_root,
         )
-        dataset_id = str(dataset_cfg.data.get("dataset_id", dataset_profile))
         manifest_path = str(dataset_cfg.data.get("manifest_path", "")).strip()
         if not manifest_path:
             raise ValueError("Dataset profile is missing manifest_path")
@@ -90,28 +129,52 @@ class BenchmarkOrchestrator:
         samples = load_manifest(manifest_path)
         if not samples:
             raise ValueError(f"Dataset manifest has no samples: {manifest_path}")
+        return dataset_profile_ref, dataset_cfg, manifest_path, samples
 
+    def _resolve_benchmark_settings(
+        self,
+        benchmark_cfg: Any,
+        request: BenchmarkRunRequest,
+        samples: list[Any],
+    ) -> tuple[dict[str, Any], str, list[Any]]:
         benchmark_settings = _deep_merge(
             {
-                "batch": dict(benchmark_cfg.data.get("batch", {})) if isinstance(benchmark_cfg.data.get("batch", {}), dict) else {},
-                "noise": dict(benchmark_cfg.data.get("noise", {})) if isinstance(benchmark_cfg.data.get("noise", {}), dict) else {},
-                "streaming": dict(benchmark_cfg.data.get("streaming", {})) if isinstance(benchmark_cfg.data.get("streaming", {}), dict) else {},
+                "batch": dict(benchmark_cfg.data.get("batch", {}))
+                if isinstance(benchmark_cfg.data.get("batch", {}), dict)
+                else {},
+                "noise": dict(benchmark_cfg.data.get("noise", {}))
+                if isinstance(benchmark_cfg.data.get("noise", {}), dict)
+                else {},
+                "streaming": dict(benchmark_cfg.data.get("streaming", {}))
+                if isinstance(benchmark_cfg.data.get("streaming", {}), dict)
+                else {},
             },
             request.benchmark_settings or {},
         )
         execution_mode = str(benchmark_settings.get("execution_mode", "batch") or "batch").strip() or "batch"
         if execution_mode not in {"batch", "streaming"}:
             raise ValueError(f"Unsupported benchmark execution_mode: {execution_mode}")
+        validation_payload = dict(benchmark_cfg.data)
+        validation_payload["execution_mode"] = execution_mode
+        validation_payload["batch"] = (
+            dict(benchmark_settings.get("batch", {}))
+            if isinstance(benchmark_settings.get("batch", {}), dict)
+            else benchmark_settings.get("batch", {})
+        )
+        validation_payload["streaming"] = (
+            dict(benchmark_settings.get("streaming", {}))
+            if isinstance(benchmark_settings.get("streaming", {}), dict)
+            else benchmark_settings.get("streaming", {})
+        )
+        errors = validate_benchmark_payload(validation_payload)
+        if errors:
+            raise ValueError(f"Benchmark settings validation failed: {'; '.join(errors)}")
         max_samples = int(benchmark_settings.get("batch", {}).get("max_samples", 0) or 0)
         if max_samples > 0:
             samples = samples[:max_samples]
+        return benchmark_settings, execution_mode, samples
 
-        provider_profiles = request.providers or [
-            str(item) for item in benchmark_cfg.data.get("providers", []) if str(item).strip()
-        ]
-        if not provider_profiles:
-            raise ValueError("No providers selected for benchmark run")
-
+    def _resolve_metric_plan(self, benchmark_cfg: Any) -> tuple[list[str], dict[str, str], list[str]]:
         enabled_metrics: list[str] = []
         metric_profiles = [str(item) for item in benchmark_cfg.data.get("metric_profiles", [])]
         metric_snapshots: dict[str, str] = {}
@@ -124,43 +187,39 @@ class BenchmarkOrchestrator:
             )
             enabled_metrics.extend([str(item) for item in metric_cfg.data.get("metrics", [])])
             metric_snapshots[metric_profile] = metric_cfg.snapshot_path
-        enabled_metrics = sorted(set(enabled_metrics)) or [
-            "wer",
-            "cer",
-            "sample_accuracy",
-            "total_latency_ms",
-            "per_utterance_latency_ms",
-            "real_time_factor",
-            "success_rate",
-            "failure_rate",
+        enabled_metrics = sorted(set(enabled_metrics)) or self._default_enabled_metrics()
+        return metric_profiles, metric_snapshots, enabled_metrics
+
+    def _resolve_provider_profiles(self, request: BenchmarkRunRequest, benchmark_cfg: Any) -> list[str]:
+        provider_profiles = request.providers or [
+            str(item) for item in benchmark_cfg.data.get("providers", []) if str(item).strip()
         ]
+        if not provider_profiles:
+            raise ValueError("No providers selected for benchmark run")
+        return provider_profiles
 
-        scenario = str(request.scenario or "").strip() or str((benchmark_cfg.data.get("scenarios") or ["clean_baseline"])[0])
-        noise_plan = resolve_noise_plan(
-            scenario=scenario,
-            benchmark_settings=benchmark_settings,
-            profile_scenarios=[str(item) for item in benchmark_cfg.data.get("scenarios", [])],
-        )
-
+    def _resolve_provider_execution_plan(
+        self,
+        *,
+        provider_profiles: list[str],
+        provider_overrides: dict[str, dict[str, Any]] | None,
+    ) -> tuple[dict[str, str], dict[str, dict[str, Any]]]:
         provider_snapshots: dict[str, str] = {}
         provider_execution: dict[str, dict[str, Any]] = {}
         for provider_profile in provider_profiles:
-            provider_id = (
-                provider_profile.split("/", 1)[1]
-                if provider_profile.startswith("providers/")
-                else provider_profile
-            )
+            provider_id = provider_profile.split("/", 1)[1] if provider_profile.startswith("providers/") else provider_profile
             provider_cfg = resolve_profile(
                 profile_type="providers",
                 profile_id=provider_id,
                 configs_root=self.configs_root,
             )
-            overrides = dict((request.provider_overrides or {}).get(provider_profile, {}))
+            overrides = dict((provider_overrides or {}).get(provider_profile, {}))
             preset_id = str(overrides.pop("preset_id", "") or "").strip()
+            settings = overrides.get("settings", {}) if isinstance(overrides.get("settings", {}), dict) else {}
             execution = resolve_provider_execution(
                 provider_cfg.data,
                 preset_id=preset_id,
-                settings_overrides=overrides.get("settings", {}) if isinstance(overrides.get("settings", {}), dict) else {},
+                settings_overrides=settings,
             )
             provider_snapshots[provider_profile] = provider_cfg.snapshot_path
             provider_execution[provider_profile] = {
@@ -168,85 +227,155 @@ class BenchmarkOrchestrator:
                 "preset": execution.get("preset", {}),
                 "settings": execution.get("settings", {}),
             }
+        return provider_snapshots, provider_execution
 
-        run_id = request.run_id or make_run_id("bench")
-        run_dir = self.artifact_store.make_benchmark_run(run_id)
+    def _resolve_run_plan(self, request: BenchmarkRunRequest) -> ResolvedBenchmarkPlan:
+        benchmark_cfg, _benchmark_profile_id = self._resolve_benchmark_profile(request)
+        dataset_profile_ref, dataset_cfg, manifest_path, samples = self._resolve_dataset_plan(request, benchmark_cfg)
+        benchmark_settings, execution_mode, samples = self._resolve_benchmark_settings(
+            benchmark_cfg,
+            request,
+            samples,
+        )
+        provider_profiles = self._resolve_provider_profiles(request, benchmark_cfg)
+        metric_profiles, metric_snapshots, enabled_metrics = self._resolve_metric_plan(benchmark_cfg)
 
-        run_manifest = {
-            "run_id": run_id,
-            "created_at": datetime.now(timezone.utc).isoformat(),
-            "benchmark_profile": request.benchmark_profile,
-            "dataset_profile": request.dataset_profile or str(benchmark_cfg.data.get("dataset_profile", "")),
-            "providers": provider_profiles,
-            "metric_profiles": metric_profiles,
-            "enabled_metrics": enabled_metrics,
-            "scenario": scenario,
-            "benchmark_settings": benchmark_settings,
-            "noise_plan": noise_plan,
-            "provider_execution": provider_execution,
-            "config_snapshots": {
+        scenario = str(request.scenario or "").strip() or str((benchmark_cfg.data.get("scenarios") or ["clean_baseline"])[0])
+        noise_plan = resolve_noise_plan(
+            scenario=scenario,
+            benchmark_settings=benchmark_settings,
+            profile_scenarios=[str(item) for item in benchmark_cfg.data.get("scenarios", [])],
+        )
+        provider_snapshots, provider_execution = self._resolve_provider_execution_plan(
+            provider_profiles=provider_profiles,
+            provider_overrides=request.provider_overrides,
+        )
+
+        return ResolvedBenchmarkPlan(
+            run_id=request.run_id or make_run_id("bench"),
+            dataset_id=str(dataset_cfg.data.get("dataset_id", dataset_profile_ref)),
+            dataset_profile_ref=dataset_profile_ref,
+            manifest_path=manifest_path,
+            samples=samples,
+            benchmark_settings=benchmark_settings,
+            execution_mode=execution_mode,
+            provider_profiles=provider_profiles,
+            metric_profiles=metric_profiles,
+            enabled_metrics=enabled_metrics,
+            scenario=scenario,
+            noise_plan=noise_plan,
+            provider_execution=provider_execution,
+            config_snapshots={
                 "benchmark": benchmark_cfg.snapshot_path,
                 "dataset": dataset_cfg.snapshot_path,
                 "providers": provider_snapshots,
                 "metrics": metric_snapshots,
             },
+        )
+
+    def _build_run_manifest(self, request: BenchmarkRunRequest, plan: ResolvedBenchmarkPlan) -> dict[str, Any]:
+        return {
+            "run_id": plan.run_id,
+            "created_at": datetime.now(UTC).isoformat(),
+            "benchmark_profile": request.benchmark_profile,
+            "dataset_profile": plan.dataset_profile_ref,
+            "providers": plan.provider_profiles,
+            "metric_profiles": plan.metric_profiles,
+            "enabled_metrics": plan.enabled_metrics,
+            "scenario": plan.scenario,
+            "benchmark_settings": plan.benchmark_settings,
+            "noise_plan": plan.noise_plan,
+            "provider_execution": plan.provider_execution,
+            "config_snapshots": plan.config_snapshots,
             "environment": {
                 "python": platform.python_version(),
                 "platform": platform.platform(),
             },
-            "dataset_manifest": manifest_path,
-            "sample_count": len(samples),
+            "dataset_manifest": plan.manifest_path,
+            "sample_count": len(plan.samples),
         }
-        manifest_ref = self.artifact_store.save_manifest(run_dir, run_manifest)
 
-        metric_engine = MetricEngine(enabled_metrics=enabled_metrics)
-        executor = BatchExecutor(metric_engine=metric_engine)
+    @staticmethod
+    def _estimate_provider_cost(sample: Any, execution: dict[str, Any]) -> float:
+        provider_cost_per_minute = float(execution.get("preset", {}).get("estimated_cost_usd_per_min", 0.0) or 0.0)
+        if provider_cost_per_minute <= 0:
+            return 0.0
+        duration_min = max(float(sample.duration_sec or 0.0), 0.0) / 60.0
+        return duration_min * provider_cost_per_minute
 
+    @staticmethod
+    def _resolve_sample_audio_path(*, sample: Any, variant: dict[str, Any], derived_audio_root: Path) -> str:
+        if variant.get("noise_level") == "clean":
+            return sample.audio_path
+        variant_name = f"{sample.sample_id}__{variant['noise_level']}.wav"
+        return apply_noise_to_wav(
+            source_path=sample.audio_path,
+            output_path=str(derived_audio_root / variant_name),
+            snr_db=float(variant["snr_db"]),
+            seed=int(variant["seed"]),
+        )
+
+    def _build_execution_meta(
+        self,
+        *,
+        plan: ResolvedBenchmarkPlan,
+        execution: dict[str, Any],
+        caps: Any,
+        sample: Any,
+        variant: dict[str, Any],
+    ) -> dict[str, Any]:
+        return {
+            **variant,
+            "provider_preset": execution.get("preset_id", ""),
+            "provider_label": execution.get("preset", {}).get("label", ""),
+            "quality_tier": execution.get("preset", {}).get("quality_tier", "balanced"),
+            "resource_tier": execution.get("preset", {}).get("resource_tier", "medium"),
+            "estimated_cost_usd": self._estimate_provider_cost(sample, execution),
+            "execution_mode": plan.execution_mode,
+            "streaming_mode": caps.streaming_mode if plan.execution_mode == "streaming" else "none",
+            "streaming_chunk_ms": int(plan.benchmark_settings.get("streaming", {}).get("chunk_ms", 500) or 500),
+        }
+
+    def _execute_provider_matrix(
+        self,
+        *,
+        plan: ResolvedBenchmarkPlan,
+        executor: BatchExecutor,
+        run_dir: Path,
+    ) -> list[dict[str, Any]]:
         results: list[dict[str, Any]] = []
-        session_id = f"benchmark_{run_id}"
+        session_id = f"benchmark_{plan.run_id}"
         derived_audio_root = run_dir / "derived_audio"
 
-        for provider_profile in provider_profiles:
-            execution = provider_execution.get(provider_profile, {})
+        for provider_profile in plan.provider_profiles:
+            execution = plan.provider_execution.get(provider_profile, {})
             provider = self.provider_manager.create_from_profile(
                 provider_profile,
                 preset_id=str(execution.get("preset_id", "") or ""),
                 settings_overrides=dict(execution.get("settings", {})),
             )
             caps = provider.discover_capabilities()
-            provider_cost_per_minute = float(execution.get("preset", {}).get("estimated_cost_usd_per_min", 0.0) or 0.0)
+            if plan.execution_mode == "streaming" and not caps.supports_streaming:
+                provider.teardown()
+                raise ValueError(f"Provider does not support streaming benchmark mode: {provider_profile}")
             try:
-                for sample in samples:
-                    for variant in noise_plan:
-                        sample_audio_path = sample.audio_path
-                        if variant.get("noise_level") != "clean":
-                            variant_name = f"{sample.sample_id}__{variant['noise_level']}.wav"
-                            sample_audio_path = apply_noise_to_wav(
-                                source_path=sample.audio_path,
-                                output_path=str(derived_audio_root / variant_name),
-                                snr_db=float(variant["snr_db"]),
-                                seed=int(variant["seed"]),
-                            )
-                        estimated_cost_usd = 0.0
-                        if provider_cost_per_minute > 0:
-                            duration_min = max(float(sample.duration_sec or 0.0), 0.0) / 60.0
-                            estimated_cost_usd = duration_min * provider_cost_per_minute
-                        execution_meta = {
-                            **variant,
-                            "provider_preset": execution.get("preset_id", ""),
-                            "provider_label": execution.get("preset", {}).get("label", ""),
-                            "quality_tier": execution.get("preset", {}).get("quality_tier", "balanced"),
-                            "resource_tier": execution.get("preset", {}).get("resource_tier", "medium"),
-                            "estimated_cost_usd": estimated_cost_usd,
-                            "execution_mode": execution_mode,
-                            "streaming_mode": caps.streaming_mode if execution_mode == "streaming" else "none",
-                            "streaming_chunk_ms": int(benchmark_settings.get("streaming", {}).get("chunk_ms", 500) or 500),
-                        }
-                        if execution_mode == "streaming":
-                            if not caps.supports_streaming:
-                                raise ValueError(f"Provider does not support streaming benchmark mode: {provider_profile}")
+                for sample in plan.samples:
+                    for variant in plan.noise_plan:
+                        sample_audio_path = self._resolve_sample_audio_path(
+                            sample=sample,
+                            variant=variant,
+                            derived_audio_root=derived_audio_root,
+                        )
+                        execution_meta = self._build_execution_meta(
+                            plan=plan,
+                            execution=execution,
+                            caps=caps,
+                            sample=sample,
+                            variant=variant,
+                        )
+                        if plan.execution_mode == "streaming":
                             record = executor.run_sample_streaming(
-                                run_id=run_id,
+                                run_id=plan.run_id,
                                 provider=provider,
                                 provider_profile=provider_profile,
                                 sample=sample,
@@ -256,7 +385,7 @@ class BenchmarkOrchestrator:
                             )
                         else:
                             record = executor.run_sample(
-                                run_id=run_id,
+                                run_id=plan.run_id,
                                 provider=provider,
                                 provider_profile=provider_profile,
                                 sample=sample,
@@ -281,18 +410,28 @@ class BenchmarkOrchestrator:
                         )
             finally:
                 provider.teardown()
+        return results
+
+    def run(self, request: BenchmarkRunRequest) -> BenchmarkRunSummary:
+        plan = self._resolve_run_plan(request)
+        run_dir = self.artifact_store.make_benchmark_run(plan.run_id)
+        manifest_ref = self.artifact_store.save_manifest(run_dir, self._build_run_manifest(request, plan))
+
+        metric_engine = MetricEngine(enabled_metrics=plan.enabled_metrics)
+        executor = BatchExecutor(metric_engine=metric_engine)
+        results = self._execute_provider_matrix(plan=plan, executor=executor, run_dir=run_dir)
 
         self.artifact_store.save_json(run_dir / "metrics" / "results.json", results)
         self._save_csv(run_dir / "metrics" / "results.csv", results)
 
         summary = self._build_summary(
-            run_id=run_id,
+            run_id=plan.run_id,
             benchmark_profile=request.benchmark_profile,
-            dataset_id=dataset_id,
-            providers=provider_profiles,
+            dataset_id=plan.dataset_id,
+            providers=plan.provider_profiles,
             results=results,
-            scenario=scenario,
-            execution_mode=execution_mode,
+            scenario=plan.scenario,
+            execution_mode=plan.execution_mode,
         )
 
         summary_ref = self.artifact_store.save_json(run_dir / "reports" / "summary.json", summary)
@@ -303,10 +442,10 @@ class BenchmarkOrchestrator:
         )
 
         return BenchmarkRunSummary(
-            run_id=run_id,
+            run_id=plan.run_id,
             benchmark_profile=request.benchmark_profile,
-            dataset_id=dataset_id,
-            providers=provider_profiles,
+            dataset_id=plan.dataset_id,
+            providers=plan.provider_profiles,
             total_samples=summary["total_samples"],
             successful_samples=summary["successful_samples"],
             failed_samples=summary["failed_samples"],
@@ -318,10 +457,10 @@ class BenchmarkOrchestrator:
             },
             metadata={
                 "run_dir": str(run_dir),
-                "enabled_metrics": enabled_metrics,
-                "scenario": scenario,
-                "execution_mode": execution_mode,
-                "provider_execution": provider_execution,
+                "enabled_metrics": plan.enabled_metrics,
+                "scenario": plan.scenario,
+                "execution_mode": plan.execution_mode,
+                "provider_execution": plan.provider_execution,
             },
         )
 
@@ -391,7 +530,11 @@ class BenchmarkOrchestrator:
             for key, values in sorted(metric_values.items())
         }
         quality_metrics = {key: value for key, value in mean_metrics.items() if key in QUALITY_METRICS}
-        resource_metrics = {key: value for key, value in mean_metrics.items() if key in RESOURCE_METRICS or key not in QUALITY_METRICS}
+        resource_metrics = {
+            key: value
+            for key, value in mean_metrics.items()
+            if key in RESOURCE_METRICS or key not in QUALITY_METRICS
+        }
 
         return {
             "run_id": run_id,

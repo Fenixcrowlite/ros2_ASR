@@ -27,12 +27,16 @@ esac
 _root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 _preferred_install_prefix=""
 
+export ASR_PROJECT_ROOT="${ASR_PROJECT_ROOT:-$_root_dir}"
+export ASR_RUNTIME_LOG_DIR="${ASR_RUNTIME_LOG_DIR:-$_root_dir/logs/runtime}"
+mkdir -p "$ASR_RUNTIME_LOG_DIR"
+if [ -z "${ROS_LOG_DIR:-}" ]; then
+  export ROS_LOG_DIR="${ASR_RUNTIME_LOG_DIR}/ros"
+fi
+mkdir -p "$ROS_LOG_DIR"
+
 if [ -n "${ASR_COLCON_INSTALL_PREFIX:-}" ] && [ -f "${ASR_COLCON_INSTALL_PREFIX}/setup.bash" ]; then
   _preferred_install_prefix="${ASR_COLCON_INSTALL_PREFIX}"
-elif [ -f "$_root_dir/ros2_ws/install/setup.bash" ]; then
-  _preferred_install_prefix="$_root_dir/ros2_ws/install"
-elif [ -f "$_root_dir/install/setup.bash" ]; then
-  _preferred_install_prefix="$_root_dir/install"
 else
   _preferred_install_prefix="$_root_dir/ros2_ws/install"
 fi
@@ -99,10 +103,12 @@ PY
 )
 fi
 
-while IFS= read -r _pkg_dir; do
-  [ -n "$_pkg_dir" ] || continue
-  export PYTHONPATH="$(_prepend_unique_path "$_pkg_dir" "${PYTHONPATH:-}")"
-done < <(find "$_root_dir/ros2_ws/src" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)
+if [ "$_with_ros" -eq 0 ]; then
+  while IFS= read -r _pkg_dir; do
+    [ -n "$_pkg_dir" ] || continue
+    export PYTHONPATH="$(_prepend_unique_path "$_pkg_dir" "${PYTHONPATH:-}")"
+  done < <(find "$_root_dir/ros2_ws/src" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)
+fi
 
 if [ "$_with_ros" -eq 1 ]; then
   _nounset_was_on=0

@@ -24,6 +24,24 @@ class DatasetSample:
 REQUIRED_FIELDS = {"sample_id", "audio_path", "transcript", "language"}
 
 
+def _resolve_audio_path(manifest_path: Path, raw_audio_path: str) -> str:
+    candidate = Path(raw_audio_path).expanduser()
+    if candidate.is_absolute():
+        return str(candidate.resolve())
+
+    from_manifest = (manifest_path.parent / candidate).resolve()
+    if from_manifest.exists():
+        return str(from_manifest)
+
+    from_cwd = (Path.cwd() / candidate).resolve()
+    if from_cwd.exists():
+        return str(from_cwd)
+
+    # Preserve a deterministic manifest-relative resolution even when the file
+    # is not present yet so later error messages point to a stable location.
+    return str(from_manifest)
+
+
 def validate_sample(sample: DatasetSample) -> list[str]:
     errors: list[str] = []
     if not sample.sample_id:
@@ -58,7 +76,10 @@ def load_manifest(path: str) -> list[DatasetSample]:
                 raise ValueError(f"Manifest line {line_no}: missing fields: {sorted(missing)}")
             sample = DatasetSample(
                 sample_id=str(payload.get("sample_id", "")),
-                audio_path=str(payload.get("audio_path", "")),
+                audio_path=_resolve_audio_path(
+                    manifest_path,
+                    str(payload.get("audio_path", "")),
+                ),
                 transcript=str(payload.get("transcript", "")),
                 language=str(payload.get("language", "")),
                 duration_sec=float(payload.get("duration_sec", 0.0) or 0.0),
@@ -70,7 +91,9 @@ def load_manifest(path: str) -> list[DatasetSample]:
             if errors:
                 raise ValueError(f"Manifest line {line_no}: {'; '.join(errors)}")
             if sample.sample_id in seen_ids:
-                raise ValueError(f"Manifest line {line_no}: duplicate sample_id: {sample.sample_id}")
+                raise ValueError(
+                    f"Manifest line {line_no}: duplicate sample_id: {sample.sample_id}"
+                )
             seen_ids.add(sample.sample_id)
             samples.append(sample)
     return samples

@@ -2,6 +2,13 @@
 
 Это центральная страница Obsidian-вики проекта.
 
+Важно:
+
+- Primary runtime stack теперь `asr_launch` + `asr_runtime_nodes` + `asr_gateway`.
+- Часть wiki pages в разделе `02_ROS2` все еще описывает legacy `asr_ros` surface.
+- Если нужна актуальная operator path, начинай с `README.md`, `docs/run_guide.md`,
+  `docs/newbie_guide.md` и `docs/interfaces.md`.
+
 ## Быстрые входы
 
 - [[00_Start/How_To_Read_This_Wiki]]

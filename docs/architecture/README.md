@@ -1,6 +1,8 @@
 # Architecture Docs Index
 
 - `project_explained_from_zero.md`
+- `project_uml.md`
+- `uml/`
 - `repo_assessment.md`
 - `system_overview.md`
 - `runtime_architecture.md`

@@ -1,20 +1,25 @@
 # Web GUI Control Center
 
+Note:
+- The only active browser control plane is `web_ui` served by `asr_gateway`.
+- The historical `web_gui/` implementation has been removed from the repository.
+
 Пути:
 
-- `web_gui/README.md`
-- `web_gui/app/main.py`
-- запуск: `web_gui/run_web_gui.sh`
+- `web_ui/README.md`
+- `ros2_ws/src/asr_gateway/asr_gateway/api.py`
+- запуск: `scripts/run_web_ui.sh`
 
 ## Назначение
 
-Единый web-интерфейс для:
+Единый gateway-first web-интерфейс для:
 
-- настройки runtime (языки, модели, backend параметры, cloud secrets),
-- live sample eval (микрофон или свой WAV),
-- benchmark run (dataset/scenarios/metrics),
-- ROS2 bringup start/stop,
-- просмотра jobs/logs/artifacts.
+- управления runtime session,
+- работы с providers/profiles/datasets,
+- запуска benchmark runs,
+- просмотра results/logs/diagnostics,
+- credentials workflows (`AWS SSO`, `Google JSON`, `Azure env`),
+- runtime sample upload и генерации noisy WAV.
 
 ## Запуск
 
@@ -22,51 +27,39 @@
 make web-gui
 ```
 
-или
+Для LAN:
 
 ```bash
-bash web_gui/run_web_gui.sh
+make web-gui-lan
 ```
 
-URL по умолчанию: `http://localhost:8765`.
+URL по умолчанию: `http://localhost:8088`.
 
 ## Минимальный сценарий работы
 
-1. Нажать `Preflight` и убедиться, что `sounddevice/soundfile/ROS` отмечены как `ok`.
-2. Выбрать `Base config` и заполнить runtime поля.
-3. Для live запуска выбрать `interfaces`, `model runs`, `language mode` и (опционально) `use WAV`.
-4. Нажать `Run Live Sample Eval` или `Run Benchmark` / `Start ROS Bringup`.
-5. Смотреть статус в таблице Jobs, затем открыть Logs и Artifacts.
+1. Открыть `http://localhost:8088`.
+2. Перейти в `Logs & Diagnostics` и выполнить `Run Preflight`.
+3. В `Runtime` выбрать runtime/provider profile и при необходимости загрузить WAV.
+4. Для live pipeline нажать `Start Live Runtime`, а для одной транскрипции целого WAV нажать `Transcribe Whole File`.
+5. Для сравнений перейти в `Benchmark`, собрать run и следить за статусом на этой же странице.
 
-## Что происходит с runtime setup
+## Что происходит в новом UI
 
-1. Frontend отправляет payload в API `/api/jobs/*`.
-2. `config_builder.build_runtime_config(...)`:
-   - грузит base config,
-   - применяет runtime overrides,
-   - инжектит secrets,
-   - пишет итоговый YAML в `web_gui/runtime_configs/<timestamp>_<profile>.yaml`.
-3. `command_builder` собирает команду запуска:
-   - live: `python3 scripts/live_sample_eval.py --config <runtime.yaml> ...`
-   - benchmark: `python3 -m asr_benchmark.runner --config <runtime.yaml> ...`
-   - bringup: `ros2 launch asr_ros bringup.launch.py config:=<runtime.yaml> ...`
-4. `job_manager` стартует subprocess, передает env secrets, пишет лог в `web_gui/logs/*.log`.
-5. Конечный потребитель runtime-конфига:
-   - `asr_server_node` (через launch `config:=...`),
-   - `live_sample_eval.py` (прямой `--config`),
-   - `asr_benchmark.runner` (прямой `--config`).
+1. Frontend обращается к `asr_gateway` (`/api/runtime/*`, `/api/benchmark/*`, `/api/results/*`, `/api/secrets/*`).
+2. Gateway валидирует profiles / secret refs и проксирует вызовы в ROS/service-action слой.
+3. Runtime и benchmark артефакты читаются из `artifacts/`.
+4. `Runtime` страница ведёт каталог project WAV samples в `data/sample/`, включая `uploads/` и `generated_noise/`.
 
 ## Артефакты
 
-- runtime configs: `web_gui/runtime_configs/*.yaml`
-- логи jobs: `web_gui/logs/*.log`
-- live artifacts: `results/web_gui/live_sample/<timestamp>/...`
-- benchmark artifacts: `results/web_gui/benchmark/<timestamp>/...`
+- runtime sessions: `artifacts/runtime_sessions/<session_id>/...`
+- benchmark runs: `artifacts/benchmark_runs/<run_id>/...`
+- exports: `artifacts/exports/...`
+- uploaded samples: `data/sample/uploads/...`
+- generated noisy samples: `data/sample/generated_noise/...`
 
 ## Важные термины
 
 - [[00_Start/Glossary#Runtime Config]]
 - [[00_Start/Glossary#Language Mode]]
-- [[00_Start/Glossary#Model Run Spec]]
 - [[00_Start/Glossary#Preflight]]
-- [[00_Start/Glossary#Job]]

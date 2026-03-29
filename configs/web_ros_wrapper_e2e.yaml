@@ -77,7 +77,7 @@ web:
   action_chunk_sec: 0.8
   request_timeout_sec: 40.0
   ros_auto_launch: true
-  action_streaming: true
+  action_streaming: false
   bringup_input_mode: mic
   bringup_mic_capture_sec: 4.0
   bringup_continuous: true

@@ -18,4 +18,10 @@
 - `make clean`
 - `make dist`
 
+Примечание по archviz:
+
+- `make arch-static` всегда безопасен как purely static extractor;
+- `make arch-runtime` и `make arch` теперь fail-fast, если уже запущен другой
+  managed stack из того же workspace.
+
 См. исходник: `Makefile`.

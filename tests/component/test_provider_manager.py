@@ -88,3 +88,24 @@ def test_provider_manager_rejects_empty_vosk_model_directory(tmp_path: Path) -> 
     manager = ProviderManager(configs_root=str(configs))
     with pytest.raises(ValueError, match="does not contain a Vosk model"):
         manager.create_from_profile("providers/vosk_local")
+
+
+def test_provider_manager_rejects_legacy_whisper_cpu_fallback_setting(tmp_path: Path) -> None:
+    configs = tmp_path / "configs"
+
+    _write_yaml(
+        configs / "providers" / "whisper_local.yaml",
+        {
+            "provider_id": "whisper",
+            "settings": {
+                "model_size": "tiny",
+                "device": "cuda",
+                "compute_type": "float16",
+                "allow_cpu_fallback": True,
+            },
+        },
+    )
+
+    manager = ProviderManager(configs_root=str(configs))
+    with pytest.raises(ValueError, match="allow_cpu_fallback"):
+        manager.create_from_profile("providers/whisper_local")

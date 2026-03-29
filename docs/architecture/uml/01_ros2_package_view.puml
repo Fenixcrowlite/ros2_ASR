@@ -1,0 +1,162 @@
+@startuml
+title ROS2 Package Dependency View
+
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam linetype ortho
+skinparam componentStyle rectangle
+hide stereotype
+
+legend left
+  Solid arrows show direct workspace package dependencies from package.xml.
+  <<compat>> marks packages kept for migration compatibility.
+endlegend
+
+package "Contracts" {
+  component "asr_interfaces" as asr_interfaces
+}
+
+package "Core / Shared Services" {
+  component "asr_core" as asr_core
+  component "asr_config" as asr_config
+  component "asr_storage" as asr_storage
+  component "asr_datasets" as asr_datasets
+  component "asr_metrics" as asr_metrics
+  component "asr_reporting" as asr_reporting
+}
+
+package "Provider Abstraction" {
+  component "asr_provider_base" as asr_provider_base
+}
+
+package "Provider Adapters" {
+  component "asr_provider_whisper" as asr_provider_whisper
+  component "asr_provider_vosk" as asr_provider_vosk
+  component "asr_provider_google" as asr_provider_google
+  component "asr_provider_azure" as asr_provider_azure
+  component "asr_provider_aws" as asr_provider_aws
+}
+
+package "Backend Implementations" {
+  component "asr_backend_whisper" as asr_backend_whisper
+  component "asr_backend_vosk" as asr_backend_vosk
+  component "asr_backend_google" as asr_backend_google
+  component "asr_backend_azure" as asr_backend_azure
+  component "asr_backend_aws" as asr_backend_aws
+  component "asr_backend_mock" as asr_backend_mock
+}
+
+package "Runtime / Gateway / Launch" {
+  component "asr_runtime_nodes" as asr_runtime_nodes
+  component "asr_gateway" as asr_gateway
+  component "asr_launch" as asr_launch
+}
+
+package "Benchmark Baseline" {
+  component "asr_benchmark_core" as asr_benchmark_core
+  component "asr_benchmark_nodes" as asr_benchmark_nodes
+}
+
+package "Compatibility Layer" {
+  component "asr_ros" <<compat>> as asr_ros
+  component "asr_benchmark" <<compat>> as asr_benchmark
+}
+
+asr_config --> asr_core
+asr_storage --> asr_core
+asr_datasets --> asr_core
+asr_datasets --> asr_storage
+asr_metrics --> asr_core
+asr_reporting --> asr_storage
+asr_reporting --> asr_metrics
+
+asr_provider_base --> asr_core
+asr_provider_base --> asr_config
+
+asr_provider_whisper --> asr_provider_base
+asr_provider_whisper --> asr_core
+asr_provider_whisper --> asr_backend_whisper
+
+asr_provider_vosk --> asr_provider_base
+asr_provider_vosk --> asr_core
+asr_provider_vosk --> asr_backend_vosk
+
+asr_provider_google --> asr_provider_base
+asr_provider_google --> asr_core
+asr_provider_google --> asr_backend_google
+
+asr_provider_azure --> asr_provider_base
+asr_provider_azure --> asr_core
+asr_provider_azure --> asr_backend_azure
+
+asr_provider_aws --> asr_provider_base
+asr_provider_aws --> asr_core
+asr_provider_aws --> asr_backend_aws
+
+asr_backend_whisper --> asr_core
+asr_backend_vosk --> asr_core
+asr_backend_google --> asr_core
+asr_backend_azure --> asr_core
+asr_backend_aws --> asr_core
+asr_backend_mock --> asr_core
+
+asr_runtime_nodes --> asr_interfaces
+asr_runtime_nodes --> asr_core
+asr_runtime_nodes --> asr_config
+asr_runtime_nodes --> asr_storage
+asr_runtime_nodes --> asr_provider_base
+asr_runtime_nodes --> asr_provider_whisper
+asr_runtime_nodes --> asr_provider_vosk
+asr_runtime_nodes --> asr_provider_google
+asr_runtime_nodes --> asr_provider_azure
+asr_runtime_nodes --> asr_provider_aws
+
+asr_gateway --> asr_interfaces
+asr_gateway --> asr_core
+asr_gateway --> asr_config
+asr_gateway --> asr_datasets
+asr_gateway --> asr_storage
+asr_gateway --> asr_reporting
+asr_gateway --> asr_provider_base
+
+asr_launch --> asr_runtime_nodes
+asr_launch --> asr_gateway
+asr_launch --> asr_benchmark_nodes
+
+asr_benchmark_core --> asr_config
+asr_benchmark_core --> asr_core
+asr_benchmark_core --> asr_datasets
+asr_benchmark_core --> asr_metrics
+asr_benchmark_core --> asr_storage
+asr_benchmark_core --> asr_provider_base
+asr_benchmark_core --> asr_provider_whisper
+asr_benchmark_core --> asr_provider_vosk
+asr_benchmark_core --> asr_provider_google
+asr_benchmark_core --> asr_provider_azure
+asr_benchmark_core --> asr_provider_aws
+
+asr_benchmark_nodes --> asr_interfaces
+asr_benchmark_nodes --> asr_core
+asr_benchmark_nodes --> asr_datasets
+asr_benchmark_nodes --> asr_storage
+asr_benchmark_nodes --> asr_benchmark_core
+
+asr_ros --> asr_interfaces
+asr_ros --> asr_core
+asr_ros --> asr_metrics
+
+asr_benchmark --> asr_core
+asr_benchmark --> asr_metrics
+
+note bottom of asr_ros
+  Deprecated as the primary runtime package.
+  Replaced by asr_runtime_nodes in the new baseline.
+end note
+
+note bottom of asr_benchmark
+  Deprecated as the primary benchmark package.
+  Replaced by asr_benchmark_core + asr_benchmark_nodes.
+end note
+
+@enduml

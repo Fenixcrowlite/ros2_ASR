@@ -36,7 +36,7 @@ Migrate from legacy packages (`asr_ros`, `asr_benchmark`, `asr_backend_*`, flat 
 ## Phase 6: Gateway + web baseline
 - Implement `asr_gateway` API and ROS interaction façade.
 - Provide `web_ui` frontend/backend skeleton pages.
-- Keep legacy `web_gui` functional but mark deprecated.
+- Completed: remove legacy `web_gui` after the missing operator tooling is folded into `web_ui`.
 
 ## Phase 7: Launch, docs, and compatibility notes
 - Add `asr_launch` scenarios.
@@ -53,11 +53,10 @@ Migrate from legacy packages (`asr_ros`, `asr_benchmark`, `asr_backend_*`, flat 
 - `asr_benchmark` -> replaced by `asr_benchmark_core` + `asr_benchmark_nodes`.
 - `asr_backend_*` -> replaced by `asr_provider_*` packages.
 - Flat `configs/*.yaml` -> replaced by profile directories and resolved snapshots.
-- `web_gui` control-plane logic -> replaced by `asr_gateway`.
+- `web_gui` control-plane logic -> replaced by `asr_gateway` and removed from the repo.
 
 ## Verification checkpoints
 1. `colcon build --base-paths ros2_ws/src --symlink-install`
 2. Runtime minimal launch publishes normalized final result.
 3. Benchmark single-provider run generates immutable run folder with manifest + metrics.
 4. Gateway can trigger runtime and benchmark APIs.
-

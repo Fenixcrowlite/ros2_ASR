@@ -9,6 +9,12 @@ archviz diff --a docs/arch/merged_graph_prev.json --b docs/arch/merged_graph.jso
 archviz all --ws ros2_ws --out docs/arch --profile full --timeout-sec 20
 ```
 
+Важно:
+
+- `archviz runtime` и `archviz all` теперь завершаются с non-zero exit code,
+  если из того же workspace уже живет managed stack;
+- это intentional guardrail против смешанного runtime graph.
+
 ## Эквиваленты в Makefile
 
 - `make arch-static`

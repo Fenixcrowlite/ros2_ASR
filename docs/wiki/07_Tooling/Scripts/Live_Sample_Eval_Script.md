@@ -20,8 +20,9 @@
 ## Зависимости
 
 - Для записи с микрофона: `sounddevice` и `soundfile`.
-- Для `language-mode=auto`: `faster-whisper`.
+- Для `language-mode=auto`: рабочий `faster-whisper`; silent fallback к config-языку больше не используется.
 - Для ROS интерфейсов: собранный `install/setup.bash`.
+- `ros_action --action-streaming` допустим только для streaming-capable backend’ов.
 
 ## Пример
 

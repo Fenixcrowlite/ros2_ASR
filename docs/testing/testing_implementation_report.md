@@ -2,13 +2,13 @@
 
 ## What Was Found
 - Test suite existed but was architecture-misaligned and partially broken at collection time.
-- Legacy `web_gui` coverage and new `web_ui + asr_gateway` coverage were not separated.
+- Historical GUI coverage and new `web_ui + asr_gateway` coverage were not separated.
 - No structured contract/API/E2E layers were in place for the new ROS2-first ASR platform baseline.
 
 ## What Was Implemented
 - Restored pytest bootstrap by adding repository root to `sys.path`.
-- Added marker taxonomy for `unit/component/contract/api/gui/e2e/integration/regression/legacy`.
-- Updated CI fast suite to exclude `legacy/e2e/slow/cloud/ros`.
+- Added marker taxonomy for `unit/component/contract/api/gui/e2e/integration/regression`.
+- Updated CI fast suite to exclude `e2e/slow/cloud/ros`.
 - Added deterministic fake provider and fake gateway backend harness.
 - Added temp project-root strategy for gateway/API/UI tests.
 - Added new tests for:

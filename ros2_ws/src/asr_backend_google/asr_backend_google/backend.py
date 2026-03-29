@@ -284,7 +284,7 @@ class GoogleAsrBackend(AsrBackend):
         )
 
     @staticmethod
-    def _supports_default_model_fallback(error_message: str) -> bool:
+    def _is_unsupported_model_error(error_message: str) -> bool:
         text = str(error_message or "").lower()
         return (
             "incorrect model specified" in text
@@ -360,31 +360,14 @@ class GoogleAsrBackend(AsrBackend):
             preprocess_ms = (time.perf_counter() - preprocess_start) * 1000.0
             audio = self._speech.RecognitionAudio(content=audio_bytes)
             requested_model = str(self.model)
-            effective_model = requested_model
             config = self._build_recognition_config(
                 sample_rate=sample_rate,
                 language=language,
                 enable_word_timestamps=bool(request.enable_word_timestamps),
-                model=effective_model,
+                model=requested_model,
             )
             inf_start = time.perf_counter()
-            try:
-                response = self._client.recognize(config=config, audio=audio)
-            except Exception as primary_exc:
-                if (
-                    effective_model != "default"
-                    and self._supports_default_model_fallback(str(primary_exc))
-                ):
-                    fallback_config = self._build_recognition_config(
-                        sample_rate=sample_rate,
-                        language=language,
-                        enable_word_timestamps=bool(request.enable_word_timestamps),
-                        model="default",
-                    )
-                    response = self._client.recognize(config=fallback_config, audio=audio)
-                    effective_model = "default"
-                else:
-                    raise
+            response = self._client.recognize(config=config, audio=audio)
             inference_ms = (time.perf_counter() - inf_start) * 1000.0
 
             text_parts: list[str] = []
@@ -414,11 +397,9 @@ class GoogleAsrBackend(AsrBackend):
             post_ms = (time.perf_counter() - post_start) * 1000.0
             backend_info = {
                 "provider": "google",
-                "model": effective_model,
+                "model": requested_model,
                 "region": self.region,
             }
-            if effective_model != requested_model:
-                backend_info["requested_model"] = requested_model
 
             return AsrResponse(
                 text=text,
@@ -437,10 +418,18 @@ class GoogleAsrBackend(AsrBackend):
                 raw_response=response,
             )
         except Exception as exc:
+            error_message = str(exc)
+            error_code = "google_runtime_error"
+            if self._is_unsupported_model_error(error_message):
+                error_code = "google_model_unsupported"
+                error_message = (
+                    f"Google model '{self.model}' is not supported for language '{language}'. "
+                    f"{error_message}"
+                )
             return AsrResponse(
                 success=False,
-                error_code="google_runtime_error",
-                error_message=str(exc),
+                error_code=error_code,
+                error_message=error_message,
                 backend_info={"provider": "google", "model": self.model, "region": self.region},
                 language=language,
             )

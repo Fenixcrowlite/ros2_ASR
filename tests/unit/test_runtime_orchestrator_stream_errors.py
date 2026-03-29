@@ -76,6 +76,21 @@ class _FakeOrchestrator:
         self.last_error_message = result.error_message
         self.session_updated_at = self.get_clock().now()
 
+    def _should_accept_stream_chunk(self, msg) -> bool:
+        return AsrOrchestratorNode._should_accept_stream_chunk(self, msg)
+
+    def _stream_start_options(self, msg):
+        return AsrOrchestratorNode._stream_start_options(self, msg)
+
+    def _ensure_provider_stream_started(self, msg) -> None:
+        return AsrOrchestratorNode._ensure_provider_stream_started(self, msg)
+
+    def _forward_stream_audio(self, msg) -> None:
+        return AsrOrchestratorNode._forward_stream_audio(self, msg)
+
+    def _finish_provider_stream(self) -> None:
+        return AsrOrchestratorNode._finish_provider_stream(self)
+
     def _stop_audio_session(self, session_id: str) -> None:
         assert session_id == "s1"
         self.stop_calls += 1

@@ -79,10 +79,14 @@ class FakeProviderAdapter(AsrProviderAdapter):
         *,
         provider_id: str | None = None,
         supports_streaming: bool = True,
+        streaming_mode: str = "native",
+        supports_partials: bool | None = None,
         requires_network: bool = False,
     ) -> None:
         self.provider_id = provider_id or type(self).provider_id
         self._supports_streaming = supports_streaming
+        self._streaming_mode = streaming_mode if supports_streaming else "none"
+        self._supports_partials = supports_streaming if supports_partials is None else bool(supports_partials)
         self._requires_network = requires_network
         self._config: dict[str, Any] = {}
         self._credentials: dict[str, str] = {}
@@ -107,10 +111,10 @@ class FakeProviderAdapter(AsrProviderAdapter):
     def discover_capabilities(self) -> ProviderCapabilities:
         return ProviderCapabilities(
             supports_streaming=self._supports_streaming,
-            streaming_mode="native" if self._supports_streaming else "none",
+            streaming_mode=self._streaming_mode if self._supports_streaming else "none",
             supports_batch=True,
             supports_word_timestamps=True,
-            supports_partials=self._supports_streaming,
+            supports_partials=self._supports_partials if self._supports_streaming else False,
             supports_confidence=True,
             supports_language_auto_detect=not self._requires_network,
             supports_cpu=True,
@@ -144,7 +148,7 @@ class FakeProviderAdapter(AsrProviderAdapter):
 
     def push_audio(self, chunk: bytes) -> NormalizedAsrResult | None:
         self._stream_chunks.append(chunk)
-        if not self._supports_streaming:
+        if not self._supports_streaming or not self._supports_partials:
             return None
         return NormalizedAsrResult(
             request_id=self._stream_request_id,
@@ -208,9 +212,12 @@ def build_stub_provider_manager(configs_root: str):
             if settings_overrides:
                 settings.update(settings_overrides)
             credentials_ref = str(payload.get("credentials_ref", "")).strip()
+            supports_streaming = provider_id in {"vosk", "google", "azure", "aws"}
             provider = FakeProviderAdapter(
                 provider_id=provider_id,
-                supports_streaming=provider_id in {"whisper", "vosk", "google", "azure", "aws"},
+                supports_streaming=supports_streaming,
+                streaming_mode="native" if supports_streaming else "none",
+                supports_partials=supports_streaming,
                 requires_network=provider_id in {"azure", "google", "aws"},
             )
             credentials = {"ref": credentials_ref} if credentials_ref else {}
@@ -242,6 +249,12 @@ class FakeGatewayRosClient:
 
     def __post_init__(self) -> None:
         return None
+
+    def _runtime_capabilities(self) -> tuple[bool, str]:
+        provider_key = str(self.provider_profile or "").split("/")[-1]
+        if provider_key.startswith(("azure", "google", "aws", "vosk")):
+            return True, "native"
+        return False, "none"
 
     def start_runtime(
         self,
@@ -365,6 +378,7 @@ class FakeGatewayRosClient:
 
     def get_runtime_status(self) -> GatewayResponse:
         state = "active" if self.runtime_started else "idle"
+        streaming_supported, streaming_mode = self._runtime_capabilities()
         return GatewayResponse(
             True,
             "ok",
@@ -373,8 +387,8 @@ class FakeGatewayRosClient:
                 "model": self.provider_preset or "default",
                 "region": "",
                 "capabilities": ["batch", "timestamps"],
-                "streaming_supported": True,
-                "streaming_mode": "native",
+                "streaming_supported": streaming_supported,
+                "streaming_mode": streaming_mode,
                 "cloud_credentials_available": False,
                 "status_message": "runtime active" if self.runtime_started else "runtime idle",
                 "session_id": self.session_id if self.runtime_started else "",
@@ -565,7 +579,11 @@ class FakeGatewayRosClient:
             {
                 "run_id": run_id,
                 "provider_profile": providers[0] if providers else "providers/whisper_local",
-                "provider_id": "whisper",
+                "provider_id": (
+                    providers[0].split("/")[-1].replace("_local", "").replace("_cloud", "")
+                    if providers
+                    else "whisper"
+                ),
                 "execution_mode": execution_mode,
                 "streaming_mode": "native" if execution_mode == "streaming" else "none",
                 "sample_id": "sample_000",

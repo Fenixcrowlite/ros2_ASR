@@ -6,7 +6,11 @@ The repository already had a functional baseline:
 - ROS2 runtime package (`asr_ros`) with one-node-centric orchestration.
 - Provider packages (`asr_backend_*`) with substantial working integrations.
 - Benchmark package (`asr_benchmark`) and metrics package (`asr_metrics`).
-- Web backend (`web_gui`) with practical controls but mixed architectural responsibilities.
+- Historical web backend (`web_gui`) with practical controls but mixed architectural responsibilities.
+
+Current state after migration:
+- `web_gui` has been removed from the repository.
+- `web_ui` + `asr_gateway` is the only supported browser control plane.
 
 Main issues were architectural coupling (runtime/benchmark/web), flat config model, and missing first-class artifact/secrets/profile boundaries.
 
@@ -157,7 +161,7 @@ Implemented `web_ui` skeleton with required page set:
 - logs/diagnostics
 - secrets/credentials metadata
 
-Legacy `web_gui` is retained as compatibility layer and considered deprecated as architecture control plane.
+The legacy `web_gui` has been removed; `web_ui` + `asr_gateway` is now the only supported browser control plane.
 
 ## 11. Design decisions
 
@@ -188,7 +192,7 @@ Documented in:
 Deprecated-by-architecture (kept for compatibility):
 - `asr_ros` as primary runtime package
 - `asr_benchmark` as primary benchmark package
-- direct `web_gui` control-plane logic
+- direct `web_gui` control-plane logic (removed)
 - flat config-only operation model
 
 ## 13. What works end-to-end now
