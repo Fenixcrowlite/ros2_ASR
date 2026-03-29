@@ -5,7 +5,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
 
-from asr_metrics.quality import cer, wer
+from asr_metrics.quality import TextQualitySupport, text_quality_support
 
 
 @dataclass(slots=True)
@@ -14,11 +14,13 @@ class MetricContext:
     hypothesis_text: str
     latency_ms: float
     success: bool
+    execution_mode: str = "batch"
     audio_duration_sec: float = 0.0
     estimated_cost_usd: float = 0.0
     first_partial_latency_ms: float = 0.0
     finalization_latency_ms: float = 0.0
     partial_count: int = 0
+    quality_support: TextQualitySupport | None = None
 
 
 class MetricPlugin(ABC):
@@ -33,14 +35,22 @@ class WerMetric(MetricPlugin):
     name = "wer"
 
     def compute(self, context: MetricContext) -> float:
-        return float(wer(context.reference_text, context.hypothesis_text))
+        support = context.quality_support or text_quality_support(
+            context.reference_text,
+            context.hypothesis_text,
+        )
+        return float(support.wer)
 
 
 class CerMetric(MetricPlugin):
     name = "cer"
 
     def compute(self, context: MetricContext) -> float:
-        return float(cer(context.reference_text, context.hypothesis_text))
+        support = context.quality_support or text_quality_support(
+            context.reference_text,
+            context.hypothesis_text,
+        )
+        return float(support.cer)
 
 
 class LatencyMetric(MetricPlugin):
@@ -111,7 +121,10 @@ class SampleAccuracyMetric(MetricPlugin):
     name = "sample_accuracy"
 
     def compute(self, context: MetricContext) -> float:
-        return 1.0 if cer(context.reference_text, context.hypothesis_text) == 0.0 else 0.0
+        support = context.quality_support
+        if support is None:
+            support = text_quality_support(context.reference_text, context.hypothesis_text)
+        return 1.0 if support.exact_match else 0.0
 
 
 DEFAULT_PLUGINS: dict[str, MetricPlugin] = {

@@ -12,15 +12,30 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from asr_metrics.models import BenchmarkRecord
+from asr_metrics.quality import text_quality_support
+
+
+def _aggregate_metric(records: list[BenchmarkRecord], metric: str) -> float:
+    if metric == "wer":
+        supports = [text_quality_support(rec.transcript_ref, rec.transcript_hyp) for rec in records]
+        numerator = sum(item.word_edits for item in supports)
+        denominator = sum(item.reference_word_count for item in supports)
+        return float(numerator) / float(denominator) if denominator > 0 else 0.0
+    if metric == "cer":
+        supports = [text_quality_support(rec.transcript_ref, rec.transcript_hyp) for rec in records]
+        numerator = sum(item.char_edits for item in supports)
+        denominator = sum(item.reference_char_count for item in supports)
+        return float(numerator) / float(denominator) if denominator > 0 else 0.0
+    return float(mean(float(getattr(rec, metric)) for rec in records))
 
 
 def _aggregate(records: list[BenchmarkRecord], metric: str) -> tuple[list[str], list[float]]:
     """Aggregate metric by backend using arithmetic mean."""
-    grouped: dict[str, list[float]] = defaultdict(list)
+    grouped: dict[str, list[BenchmarkRecord]] = defaultdict(list)
     for rec in records:
-        grouped[rec.backend].append(float(getattr(rec, metric)))
+        grouped[rec.backend].append(rec)
     backends = sorted(grouped)
-    values = [mean(grouped[b]) for b in backends]
+    values = [_aggregate_metric(grouped[b], metric) for b in backends]
     return backends, values
 
 
@@ -62,15 +77,15 @@ def _scenario_latency(records: list[BenchmarkRecord], output_path: str) -> None:
 
 def _wer_cer_plot(records: list[BenchmarkRecord], output_path: str) -> None:
     """Generate combined WER/CER chart for backend comparison."""
-    grouped_wer: dict[str, list[float]] = defaultdict(list)
-    grouped_cer: dict[str, list[float]] = defaultdict(list)
+    grouped_wer: dict[str, list[BenchmarkRecord]] = defaultdict(list)
+    grouped_cer: dict[str, list[BenchmarkRecord]] = defaultdict(list)
     for rec in records:
-        grouped_wer[rec.backend].append(rec.wer)
-        grouped_cer[rec.backend].append(rec.cer)
+        grouped_wer[rec.backend].append(rec)
+        grouped_cer[rec.backend].append(rec)
 
     backends = sorted(grouped_wer)
-    wer_values = [mean(grouped_wer[b]) for b in backends]
-    cer_values = [mean(grouped_cer[b]) for b in backends]
+    wer_values = [_aggregate_metric(grouped_wer[b], "wer") for b in backends]
+    cer_values = [_aggregate_metric(grouped_cer[b], "cer") for b in backends]
     positions = list(range(len(backends)))
 
     fig, ax = plt.subplots(figsize=(8, 4.5))

@@ -51,6 +51,19 @@ export function initBenchmarkPage(ctx) {
   const streamingChunkInput = document.getElementById('benchmarkStreamingChunkMs');
 
   let providerProfiles = [];
+  function fmtMetric(value) {
+    if (value == null || value === '') {
+      return '—';
+    }
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) {
+      return ui.escapeHtml(String(value));
+    }
+    if (Number.isInteger(numeric)) {
+      return ui.escapeHtml(String(numeric));
+    }
+    return ui.escapeHtml(numeric.toFixed(4));
+  }
 
   function selectedProviders() {
     return Array.from(providersChecksRoot.querySelectorAll('input[type="checkbox"]:checked')).map((item) =>
@@ -88,6 +101,44 @@ export function initBenchmarkPage(ctx) {
 
   function providerRow(providerProfile) {
     return providerProfiles.find((item) => `providers/${item.provider_profile}` === providerProfile || item.provider_profile === providerProfile) || null;
+  }
+
+  function renderProviderSummaries(summary = {}) {
+    const providerSummaries = summary.provider_summaries || [];
+    if (!providerSummaries.length) {
+      return ui.renderEmpty('Per-provider metrics will appear after a completed run with stored provider summaries.');
+    }
+    return ui.table(
+      [
+        {
+          key: 'provider',
+          label: 'Provider',
+          value: (row) => ui.escapeHtml(row.provider_profile || row.provider_id || row.provider_key || 'unknown'),
+        },
+        {
+          key: 'preset',
+          label: 'Preset',
+          value: (row) => ui.escapeHtml(row.provider_preset || 'default'),
+        },
+        { key: 'samples', label: 'Samples', value: (row) => fmtMetric(row.total_samples) },
+        { key: 'success', label: 'Success', value: (row) => fmtMetric(row.successful_samples) },
+        { key: 'failed', label: 'Failed', value: (row) => fmtMetric(row.failed_samples) },
+        { key: 'wer', label: 'WER', value: (row) => fmtMetric(row.quality_metrics?.wer) },
+        { key: 'cer', label: 'CER', value: (row) => fmtMetric(row.quality_metrics?.cer) },
+        { key: 'acc', label: 'Exact Match', value: (row) => fmtMetric(row.quality_metrics?.sample_accuracy) },
+        { key: 'lat', label: 'Latency ms', value: (row) => fmtMetric(row.latency_metrics?.total_latency_ms) },
+        { key: 'rtf', label: 'RTF', value: (row) => fmtMetric(row.latency_metrics?.real_time_factor) },
+        { key: 'succ_rate', label: 'Success Rate', value: (row) => fmtMetric(row.reliability_metrics?.success_rate) },
+        { key: 'fail_rate', label: 'Failure Rate', value: (row) => fmtMetric(row.reliability_metrics?.failure_rate) },
+        { key: 'cost_mean', label: 'Mean Cost USD', value: (row) => fmtMetric(row.cost_metrics?.estimated_cost_usd) },
+        {
+          key: 'cost_total',
+          label: 'Total Cost USD',
+          value: (row) => fmtMetric(row.metric_statistics?.estimated_cost_usd?.sum),
+        },
+      ],
+      providerSummaries
+    );
   }
 
   function renderProviderTuning() {
@@ -170,16 +221,11 @@ export function initBenchmarkPage(ctx) {
   function renderQualityResourceView(summary = null) {
     if (summary) {
       qualityResourceRoot.innerHTML = `
-        ${ui.renderMetricBars('Quality metrics', summary.quality_metrics || {}, { wer: 'lower', cer: 'lower', sample_accuracy: 'higher' })}
-        ${ui.renderMetricBars('Resource metrics', summary.resource_metrics || {}, {
-          total_latency_ms: 'lower',
-          per_utterance_latency_ms: 'lower',
-          real_time_factor: 'lower',
-          estimated_cost_usd: 'lower',
-          first_partial_latency_ms: 'lower',
-          finalization_latency_ms: 'lower',
-          partial_count: 'higher',
-        })}
+        <div class="stack-item">
+          <strong>Per-provider metrics</strong>
+          <p class="helper">Rows are provider-specific. Mixed aggregate is intentionally hidden.</p>
+          ${renderProviderSummaries(summary)}
+        </div>
       `;
       return;
     }
@@ -363,7 +409,7 @@ export function initBenchmarkPage(ctx) {
 
       if (['completed', 'failed'].includes(String(stateName).toLowerCase())) {
         await refreshHistory();
-        if (summary.quality_metrics || summary.resource_metrics) {
+        if (summary.provider_summaries) {
           renderQualityResourceView(summary);
         }
       }
@@ -399,14 +445,19 @@ export function initBenchmarkPage(ctx) {
           value: (row) => ui.escapeHtml((row.providers || []).join(', ')),
         },
         {
-          key: 'quality_metrics',
-          label: 'Quality',
-          value: (row) => ui.escapeHtml(JSON.stringify(row.quality_metrics || {})),
-        },
-        {
-          key: 'resource_metrics',
-          label: 'Resources',
-          value: (row) => ui.escapeHtml(JSON.stringify(row.resource_metrics || {})),
+          key: 'provider_summaries',
+          label: 'Per Provider',
+          value: (row) =>
+            ui.escapeHtml(
+              (row.provider_summaries || [])
+                .map((item) => {
+                  const name = item.provider_profile || item.provider_id || item.provider_key || 'unknown';
+                  const wer = item.quality_metrics?.wer;
+                  const latency = item.latency_metrics?.total_latency_ms;
+                  return `${name}: wer=${wer ?? 'n/a'}, latency=${latency ?? 'n/a'}`;
+                })
+                .join(' | ')
+            ),
         },
       ],
       rows,

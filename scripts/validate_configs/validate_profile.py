@@ -25,12 +25,21 @@ def _bootstrap_imports() -> None:
 
 _bootstrap_imports()
 
-from asr_config import resolve_profile, validate_benchmark_payload, validate_runtime_payload
-
 
 def main() -> None:
+    from asr_config import (
+        resolve_profile,
+        validate_benchmark_payload,
+        validate_metric_payload,
+        validate_runtime_payload,
+    )
+
     parser = argparse.ArgumentParser(description="Validate profile")
-    parser.add_argument("--type", required=True, choices=["runtime", "benchmark", "providers", "datasets", "metrics", "deployment", "gui"])
+    parser.add_argument(
+        "--type",
+        required=True,
+        choices=["runtime", "benchmark", "providers", "datasets", "metrics", "deployment", "gui"],
+    )
     parser.add_argument("--id", required=True)
     args = parser.parse_args()
 
@@ -40,6 +49,8 @@ def main() -> None:
         errors = validate_runtime_payload(resolved.data)
     if args.type == "benchmark":
         errors = validate_benchmark_payload(resolved.data)
+    if args.type == "metrics":
+        errors = validate_metric_payload(resolved.data)
 
     if errors:
         print("INVALID")

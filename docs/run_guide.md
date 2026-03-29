@@ -219,6 +219,20 @@ python scripts/run_external_dataset_suite.py --mode both --api-base-url http://1
 - `results/external_dataset_suite_*.md`
 - `results/external_dataset_suite_*.json`
 
+Что считать каноническим:
+
+- `artifacts/benchmark_runs/<run_id>/reports/summary.json` это основной summary для gateway/core benchmark path;
+- `results/benchmark_results.json` это legacy flat export для `make bench`.
+- для multi-provider benchmark главным разрезом анализа являются `provider_summaries` внутри `summary.json`.
+
+Семантика summary:
+
+- для multi-provider run top-level metric groups пустые и не используются;
+- внутри `provider_summaries` `wer` и `cer` агрегируются как corpus-level rate;
+- `sample_accuracy` это exact normalized match rate;
+- `streaming_metrics` существуют только для streaming run;
+- `cost_metrics.estimated_cost_usd` это mean per sample, а total cost берется из `metric_statistics.estimated_cost_usd.sum`.
+
 CLI utilities теперь умеют bootstrapping repo imports без внешнего `PYTHONPATH`,
 поэтому их можно запускать и из временного `cwd`.
 

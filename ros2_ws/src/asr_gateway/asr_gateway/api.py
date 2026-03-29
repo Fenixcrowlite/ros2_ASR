@@ -27,6 +27,7 @@ from asr_config import (
     resolve_profile,
     resolve_secret_ref,
     validate_benchmark_payload,
+    validate_metric_payload,
     validate_runtime_payload,
     write_local_env_values,
 )
@@ -63,8 +64,14 @@ from asr_gateway.secret_state import (
     validate_secret_file as validate_secret_file_helper,
     mask_email as mask_email_helper,
 )
+from asr_metrics.quality import has_quality_reference
 from asr_provider_base import ProviderAudio, ProviderManager, create_provider, list_providers
-from asr_provider_base.catalog import default_preset_id, provider_presets, provider_ui, resolve_provider_execution
+from asr_provider_base.catalog import (
+    default_preset_id,
+    provider_presets,
+    provider_ui,
+    resolve_provider_execution,
+)
 from asr_reporting import export_csv, export_json, export_markdown
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
@@ -223,7 +230,9 @@ ros = GatewayRosClient(timeout_sec=5.0)
 if (PROJECT_ROOT / "web_ui" / "frontend").exists():
     # Serve the static browser UI from the same process that exposes the API so
     # operators only need one host/port.
-    app.mount("/ui", NoCacheStaticFiles(directory=str(PROJECT_ROOT / "web_ui" / "frontend")), name="ui")
+    app.mount(
+        "/ui", NoCacheStaticFiles(directory=str(PROJECT_ROOT / "web_ui" / "frontend")), name="ui"
+    )
 
 
 # Pydantic request models define the JSON contract between browser/scripts and
@@ -575,7 +584,9 @@ def _resolve_entrypoint_python(entrypoint: Path) -> tuple[str | None, str]:
     if not entrypoint.exists():
         return None, f"Entrypoint not found: {entrypoint}"
     try:
-        first_line = entrypoint.read_text(encoding="utf-8", errors="replace").splitlines()[0].strip()
+        first_line = (
+            entrypoint.read_text(encoding="utf-8", errors="replace").splitlines()[0].strip()
+        )
     except IndexError:
         return None, f"Entrypoint is empty: {entrypoint}"
     except Exception as exc:
@@ -658,11 +669,27 @@ def _run_preflight_checks() -> dict[str, Any]:
     ros_executable = shutil.which("ros2")
     mic_ok, mic_message, mic_details = _check_microphone_stack()
 
-    gateway_exec = install_setup.parent / "asr_gateway" / "lib" / "asr_gateway" / "asr_gateway_server"
-    runtime_exec = install_setup.parent / "asr_runtime_nodes" / "lib" / "asr_runtime_nodes" / "asr_orchestrator_node"
-    benchmark_exec = install_setup.parent / "asr_benchmark_nodes" / "lib" / "asr_benchmark_nodes" / "benchmark_manager_node"
+    gateway_exec = (
+        install_setup.parent / "asr_gateway" / "lib" / "asr_gateway" / "asr_gateway_server"
+    )
+    runtime_exec = (
+        install_setup.parent
+        / "asr_runtime_nodes"
+        / "lib"
+        / "asr_runtime_nodes"
+        / "asr_orchestrator_node"
+    )
+    benchmark_exec = (
+        install_setup.parent
+        / "asr_benchmark_nodes"
+        / "lib"
+        / "asr_benchmark_nodes"
+        / "benchmark_manager_node"
+    )
     runtime_python, runtime_python_message = _resolve_entrypoint_python(runtime_exec)
-    runtime_whisper_ok, runtime_whisper_message = _module_ok_via_python(runtime_python, "faster_whisper")
+    runtime_whisper_ok, runtime_whisper_message = _module_ok_via_python(
+        runtime_python, "faster_whisper"
+    )
 
     checks = {
         "modules": module_checks,
@@ -674,7 +701,8 @@ def _run_preflight_checks() -> dict[str, Any]:
         "ros": {
             "ros2_binary": {
                 "ok": bool(ros_executable or ros_setup.exists()),
-                "message": ros_executable or "ros2 not in current PATH, but /opt/ros/jazzy/setup.bash is available",
+                "message": ros_executable
+                or "ros2 not in current PATH, but /opt/ros/jazzy/setup.bash is available",
             },
             "jazzy_setup": {
                 "ok": ros_setup.exists(),
@@ -761,11 +789,19 @@ def _audio_input_completion(snapshot: dict[str, Any], session_id: str) -> tuple[
     return False, ""
 
 
-def _normalize_runtime_status_payload(snapshot: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+def _normalize_runtime_status_payload(
+    snapshot: dict[str, Any], payload: dict[str, Any]
+) -> dict[str, Any]:
     normalized = dict(payload)
-    session_id = str(normalized.get("session_id", "") or snapshot.get("active_session", {}).get("session_id", "") or "")
+    session_id = str(
+        normalized.get("session_id", "")
+        or snapshot.get("active_session", {}).get("session_id", "")
+        or ""
+    )
     audio_source = str(
-        normalized.get("audio_source", "") or snapshot.get("active_session", {}).get("audio_source", "") or ""
+        normalized.get("audio_source", "")
+        or snapshot.get("active_session", {}).get("audio_source", "")
+        or ""
     )
     is_completed, completion_message = _audio_input_completion(snapshot, session_id)
     if is_completed and audio_source == "file":
@@ -774,9 +810,13 @@ def _normalize_runtime_status_payload(snapshot: dict[str, Any], payload: dict[st
     return normalized
 
 
-def _normalize_runtime_session_snapshot(snapshot: dict[str, Any], *, audio_source: str) -> dict[str, Any]:
+def _normalize_runtime_session_snapshot(
+    snapshot: dict[str, Any], *, audio_source: str
+) -> dict[str, Any]:
     normalized = {
-        "recent_results": _merge_runtime_results(snapshot.get("recent_results", []), list(_RUNTIME_RESULTS)),
+        "recent_results": _merge_runtime_results(
+            snapshot.get("recent_results", []), list(_RUNTIME_RESULTS)
+        ),
         "recent_partials": list(snapshot.get("recent_partials", [])),
         "node_statuses": list(snapshot.get("node_statuses", [])),
         "session_statuses": [dict(item) for item in list(snapshot.get("session_statuses", []))],
@@ -792,7 +832,9 @@ def _normalize_runtime_session_snapshot(snapshot: dict[str, Any], *, audio_sourc
 
     if active_session_id:
         normalized["active_session"]["state"] = "completed"
-        normalized["active_session"]["status_message"] = completion_message or "completed source=file"
+        normalized["active_session"]["status_message"] = (
+            completion_message or "completed source=file"
+        )
         for item in normalized["session_statuses"]:
             if str(item.get("session_id", "") or "") == active_session_id:
                 item["state"] = "completed"
@@ -872,13 +914,19 @@ def _validate_profile(profile_type: str, profile_id: str) -> tuple[bool, str]:
     ptype = _normalize_profile_type(profile_type)
     pid = _normalize_profile_id(ptype, profile_id)
     try:
-        resolved = resolve_profile(profile_type=ptype, profile_id=pid, configs_root=str(CONFIGS_ROOT))
+        resolved = resolve_profile(
+            profile_type=ptype, profile_id=pid, configs_root=str(CONFIGS_ROOT)
+        )
         if ptype == "runtime":
             errors = validate_runtime_payload(resolved.data)
             if errors:
                 return False, "; ".join(errors)
         if ptype == "benchmark":
             errors = validate_benchmark_payload(resolved.data)
+            if errors:
+                return False, "; ".join(errors)
+        if ptype == "metrics":
+            errors = validate_metric_payload(resolved.data)
             if errors:
                 return False, "; ".join(errors)
         return True, "valid"
@@ -888,7 +936,9 @@ def _validate_profile(profile_type: str, profile_id: str) -> tuple[bool, str]:
 
 def _profile_links(profile_type: str, payload: dict[str, Any]) -> dict[str, Any]:
     if profile_type == "runtime":
-        orchestrator = payload.get("orchestrator", {}) if isinstance(payload.get("orchestrator"), dict) else {}
+        orchestrator = (
+            payload.get("orchestrator", {}) if isinstance(payload.get("orchestrator"), dict) else {}
+        )
         return {
             "provider_profile": orchestrator.get("provider_profile", ""),
             "language": orchestrator.get("language", ""),
@@ -1055,7 +1105,9 @@ def _mask_email(value: str) -> str:
     return mask_email_helper(value)
 
 
-def _google_secret_status(ref_source_path: str, resolved_file_path: str = "", resolved_source: str = "") -> dict[str, Any]:
+def _google_secret_status(
+    ref_source_path: str, resolved_file_path: str = "", resolved_source: str = ""
+) -> dict[str, Any]:
     return google_secret_status_helper(
         ref_source_path,
         resolved_file_path=resolved_file_path,
@@ -1122,7 +1174,9 @@ def _watch_aws_login_job(job_id: str, process: subprocess.Popen[str], ref_name: 
                 _SECRET_LOGIN_JOBS[job_id]["return_code"] = int(return_code)
                 _SECRET_LOGIN_JOBS[job_id]["completed_at"] = _now_iso()
                 if state != "cancelled":
-                    _SECRET_LOGIN_JOBS[job_id]["state"] = "completed" if return_code == 0 else "failed"
+                    _SECRET_LOGIN_JOBS[job_id]["state"] = (
+                        "completed" if return_code == 0 else "failed"
+                    )
                 _SECRET_LOGIN_JOBS[job_id]["validation"] = validation
                 _SECRET_LOGIN_JOBS[job_id].pop("_process", None)
     except Exception as exc:
@@ -1133,7 +1187,9 @@ def _watch_aws_login_job(job_id: str, process: subprocess.Popen[str], ref_name: 
                 _SECRET_LOGIN_JOBS[job_id]["return_code"] = -1
                 _SECRET_LOGIN_JOBS[job_id]["completed_at"] = _now_iso()
                 _SECRET_LOGIN_JOBS[job_id]["state"] = "failed"
-                _SECRET_LOGIN_JOBS[job_id]["validation"] = _validate_secret_file(_secret_ref_path(ref_name))
+                _SECRET_LOGIN_JOBS[job_id]["validation"] = _validate_secret_file(
+                    _secret_ref_path(ref_name)
+                )
                 _SECRET_LOGIN_JOBS[job_id].pop("_process", None)
 
 
@@ -1307,7 +1363,11 @@ def _preflight_runtime_request(
             detail=f"Runtime profile `{runtime_profile_id}` must resolve to an object.",
         )
 
-    audio_cfg = dict(runtime_payload.get("audio", {})) if isinstance(runtime_payload.get("audio"), dict) else {}
+    audio_cfg = (
+        dict(runtime_payload.get("audio", {}))
+        if isinstance(runtime_payload.get("audio"), dict)
+        else {}
+    )
     orchestrator_cfg = (
         dict(runtime_payload.get("orchestrator", {}))
         if isinstance(runtime_payload.get("orchestrator"), dict)
@@ -1376,7 +1436,9 @@ def _preflight_runtime_request(
                 detail=f"Microphone input is not available: {mic_message}",
             )
 
-    effective_processing_mode = str(orchestrator_cfg.get("processing_mode", "segmented") or "segmented").strip()
+    effective_processing_mode = str(
+        orchestrator_cfg.get("processing_mode", "segmented") or "segmented"
+    ).strip()
     if effective_processing_mode == "provider_stream" and not bool(
         provider_exec["capabilities"].get("supports_streaming", False)
     ):
@@ -1414,6 +1476,55 @@ def _normalize_dataset_profile(profile: str) -> str:
     return clean if clean.startswith("datasets/") else f"datasets/{clean}"
 
 
+def _quality_metrics_enabled(metric_names: list[str] | tuple[str, ...] | set[str]) -> bool:
+    return any(metric_name in {"wer", "cer", "sample_accuracy"} for metric_name in metric_names)
+
+
+def _default_benchmark_metrics() -> list[str]:
+    return [
+        "wer",
+        "cer",
+        "sample_accuracy",
+        "total_latency_ms",
+        "per_utterance_latency_ms",
+        "real_time_factor",
+        "success_rate",
+        "failure_rate",
+    ]
+
+
+def _validate_dataset_quality_references(
+    *,
+    manifest_path: str,
+    enabled_metrics: list[str] | tuple[str, ...] | set[str],
+) -> None:
+    if not _quality_metrics_enabled(enabled_metrics):
+        return
+
+    manifest_ref = Path(manifest_path)
+    if not manifest_ref.is_absolute():
+        manifest_ref = PROJECT_ROOT / manifest_ref
+    samples = load_manifest(str(manifest_ref))
+    invalid_sample_ids = [
+        str(sample.sample_id)
+        for sample in samples
+        if not has_quality_reference(str(sample.transcript or ""))
+    ]
+    if not invalid_sample_ids:
+        return
+
+    preview = ", ".join(invalid_sample_ids[:8])
+    if len(invalid_sample_ids) > 8:
+        preview += f" (+{len(invalid_sample_ids) - 8} more)"
+    raise HTTPException(
+        status_code=400,
+        detail=(
+            "Benchmark quality metrics require non-empty normalized reference transcripts. "
+            f"Invalid samples: {preview}"
+        ),
+    )
+
+
 def _preflight_benchmark_request(req: BenchmarkRunRequest) -> dict[str, Any]:
     benchmark_profile_id = _normalize_benchmark_profile(req.benchmark_profile)
     try:
@@ -1444,7 +1555,7 @@ def _preflight_benchmark_request(req: BenchmarkRunRequest) -> dict[str, Any]:
     )
     dataset_profile_id = dataset_profile.split("/", 1)[1]
     try:
-        resolve_profile(
+        dataset_cfg = resolve_profile(
             profile_type="datasets",
             profile_id=dataset_profile_id,
             configs_root=str(CONFIGS_ROOT),
@@ -1452,21 +1563,45 @@ def _preflight_benchmark_request(req: BenchmarkRunRequest) -> dict[str, Any]:
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
+    manifest_path = str(dataset_cfg.data.get("manifest_path", "") or "").strip()
+    if not manifest_path:
+        raise HTTPException(status_code=400, detail="Dataset profile is missing manifest_path")
+
     metric_profiles = benchmark_payload.get("metric_profiles", [])
+    enabled_metrics: list[str] = []
     if isinstance(metric_profiles, list):
         for metric_profile in metric_profiles:
             metric_ref = str(metric_profile or "").strip()
             if not metric_ref:
                 continue
-            metric_id = metric_ref.split("/", 1)[1] if metric_ref.startswith("metrics/") else metric_ref
+            metric_id = (
+                metric_ref.split("/", 1)[1] if metric_ref.startswith("metrics/") else metric_ref
+            )
             try:
-                resolve_profile(
+                resolved_metric = resolve_profile(
                     profile_type="metrics",
                     profile_id=metric_id,
                     configs_root=str(CONFIGS_ROOT),
                 )
+                errors = validate_metric_payload(resolved_metric.data)
+                if errors:
+                    raise HTTPException(status_code=400, detail="; ".join(errors))
+                enabled_metrics.extend(
+                    [
+                        str(metric_name).strip()
+                        for metric_name in resolved_metric.data.get("metrics", [])
+                        if str(metric_name or "").strip()
+                    ]
+                )
             except Exception as exc:
                 raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    enabled_metrics = sorted(set(enabled_metrics)) or _default_benchmark_metrics()
+
+    _validate_dataset_quality_references(
+        manifest_path=manifest_path,
+        enabled_metrics=enabled_metrics,
+    )
 
     selected_providers = req.providers or [
         str(item).strip()
@@ -1506,7 +1641,9 @@ def _preflight_benchmark_request(req: BenchmarkRunRequest) -> dict[str, Any]:
         },
         dict(req.benchmark_settings or {}),
     )
-    execution_mode = str(merged_settings.get("execution_mode", "batch") or "batch").strip() or "batch"
+    execution_mode = (
+        str(merged_settings.get("execution_mode", "batch") or "batch").strip() or "batch"
+    )
     if execution_mode not in {"batch", "streaming"}:
         raise HTTPException(
             status_code=400,
@@ -1596,7 +1733,13 @@ def _cloud_credential_overview() -> list[dict[str, Any]]:
         validation = item.get("validation", {})
         auth = validation.get("auth", {}) if isinstance(validation.get("auth"), dict) else {}
         runtime_ready = bool(auth.get("runtime_ready", validation.get("valid")))
-        tone = "valid" if runtime_ready and not auth.get("login_recommended") else "warning" if runtime_ready else "invalid"
+        tone = (
+            "valid"
+            if runtime_ready and not auth.get("login_recommended")
+            else "warning"
+            if runtime_ready
+            else "invalid"
+        )
         rows.append(
             {
                 "ref_name": item.get("name", ""),
@@ -1604,7 +1747,9 @@ def _cloud_credential_overview() -> list[dict[str, Any]]:
                 "valid": bool(validation.get("valid")),
                 "runtime_ready": runtime_ready,
                 "state": str(auth.get("status", "") or ("ready" if runtime_ready else "invalid")),
-                "message": str(auth.get("message", "") or "; ".join(validation.get("issues", [])) or "ok"),
+                "message": str(
+                    auth.get("message", "") or "; ".join(validation.get("issues", [])) or "ok"
+                ),
                 "tone": tone,
                 "linked_provider_profiles": item.get("linked_provider_profiles", []),
             }
@@ -1688,7 +1833,9 @@ def _project_relative(path: Path) -> str:
         return str(path.resolve())
 
 
-def _ensure_dataset_profile(dataset_profile: str, manifest_path: str, default_language: str) -> tuple[str, str]:
+def _ensure_dataset_profile(
+    dataset_profile: str, manifest_path: str, default_language: str
+) -> tuple[str, str]:
     path, pid = _profile_path("datasets", dataset_profile)
     payload = {
         "profile_id": f"datasets/{pid}",
@@ -1841,7 +1988,9 @@ def _dashboard_payload() -> dict[str, Any]:
     cloud_credentials = _cloud_credential_overview()
 
     with _BENCHMARK_LOCK:
-        active = [item for item in _BENCHMARK_JOBS.values() if item.get("state") in {"queued", "running"}]
+        active = [
+            item for item in _BENCHMARK_JOBS.values() if item.get("state") in {"queued", "running"}
+        ]
 
     return {
         "system": {
@@ -1900,7 +2049,16 @@ def _benchmark_worker(run_id: str, req: BenchmarkRunRequest) -> None:
         state["message"] = response.message
         if response.success:
             state["state"] = "completed"
-            state["result"] = response.payload
+            payload = dict(response.payload)
+            summary_payload = payload.get("summary", {})
+            if isinstance(summary_payload, dict):
+                summary_artifact_ref = Path(
+                    str(summary_payload.get("summary_artifact_ref", "") or "")
+                )
+                hydrated_summary = _read_json(summary_artifact_ref, {})
+                if isinstance(hydrated_summary, dict) and hydrated_summary:
+                    payload["summary"] = hydrated_summary
+            state["result"] = payload
         else:
             state["state"] = "failed"
             state["result"] = response.payload
@@ -2085,7 +2243,9 @@ def runtime_start(req: RuntimeStartRequest) -> dict[str, Any]:
             "provider_settings": req.provider_settings,
             "session_id": res.payload.get("session_id", req.session_id),
             "audio_source": preflight["audio_source"],
-            "audio_file_path": preflight["audio_file_path"] if preflight["audio_source"] == "file" else "",
+            "audio_file_path": preflight["audio_file_path"]
+            if preflight["audio_source"] == "file"
+            else "",
             "language": preflight["language"],
             "success": res.success,
             "resolved_config_ref": preflight["resolved_config_ref"],
@@ -2146,7 +2306,9 @@ def runtime_reconfigure(req: RuntimeReconfigureRequest) -> dict[str, Any]:
             "provider_preset": provider_exec["execution"].get("selected_preset", ""),
             "provider_settings": req.provider_settings,
             "audio_source": preflight["audio_source"],
-            "audio_file_path": preflight["audio_file_path"] if preflight["audio_source"] == "file" else "",
+            "audio_file_path": preflight["audio_file_path"]
+            if preflight["audio_source"] == "file"
+            else "",
             "language": preflight["language"],
             "success": res.success,
             "resolved_config_ref": preflight["resolved_config_ref"],
@@ -2457,13 +2619,17 @@ if MULTIPART_AVAILABLE:
 
         upload_name = str(file.filename or "").strip() or "service-account.json"
         if not upload_name.lower().endswith(".json"):
-            raise HTTPException(status_code=400, detail="Google service-account upload must be a JSON file.")
+            raise HTTPException(
+                status_code=400, detail="Google service-account upload must be a JSON file."
+            )
 
         content = await file.read()
         try:
             parsed = json.loads(content.decode("utf-8"))
         except Exception as exc:
-            raise HTTPException(status_code=400, detail=f"Uploaded Google credential file is not valid JSON: {exc}") from exc
+            raise HTTPException(
+                status_code=400, detail=f"Uploaded Google credential file is not valid JSON: {exc}"
+            ) from exc
 
         if not isinstance(parsed, dict) or str(parsed.get("type", "") or "") != "service_account":
             raise HTTPException(
@@ -2704,7 +2870,9 @@ if MULTIPART_AVAILABLE:
                 imported_root=str(PROJECT_ROOT / "datasets" / "imported"),
                 manifests_root=str(PROJECT_ROOT / "datasets" / "manifests"),
             )
-            resolved_profile_id, profile_path = _ensure_dataset_profile(profile_id, manifest_path, language or "en-US")
+            resolved_profile_id, profile_path = _ensure_dataset_profile(
+                profile_id, manifest_path, language or "en-US"
+            )
         except Exception as exc:
             raise HTTPException(status_code=400, detail=str(exc)) from exc
 
@@ -2783,7 +2951,10 @@ def benchmark_run(req: BenchmarkRunRequest) -> dict[str, Any]:
     run_id = req.run_id.strip() or make_run_id("bench")
 
     with _BENCHMARK_LOCK:
-        if run_id in _BENCHMARK_JOBS and _BENCHMARK_JOBS[run_id].get("state") in {"queued", "running"}:
+        if run_id in _BENCHMARK_JOBS and _BENCHMARK_JOBS[run_id].get("state") in {
+            "queued",
+            "running",
+        }:
             raise HTTPException(status_code=400, detail=f"Run is already active: {run_id}")
         _BENCHMARK_JOBS[run_id] = {
             "run_id": run_id,
@@ -2793,7 +2964,9 @@ def benchmark_run(req: BenchmarkRunRequest) -> dict[str, Any]:
             "dataset_profile": preflight["dataset_profile"],
             "providers": preflight["providers"],
             "scenario": preflight["scenario"],
-            "execution_mode": str(preflight["benchmark_settings"].get("execution_mode", "batch") or "batch"),
+            "execution_mode": str(
+                preflight["benchmark_settings"].get("execution_mode", "batch") or "batch"
+            ),
             "message": "Queued",
         }
 
@@ -2887,7 +3060,9 @@ def results_export(req: ResultExportRequest) -> dict[str, Any]:
     run_ids = [_clean_name(run_id, "run_id") for run_id in req.run_ids]
     compare_payload = _compare_runs(run_ids, [])
 
-    export_name = req.name.strip() or f"comparison_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+    export_name = (
+        req.name.strip() or f"comparison_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+    )
     export_name = _clean_name(export_name, "name")
     export_dir = ARTIFACTS_ROOT / "exports" / export_name
     export_dir.mkdir(parents=True, exist_ok=True)
@@ -2900,9 +3075,18 @@ def results_export(req: ResultExportRequest) -> dict[str, Any]:
 
     if "csv" in formats:
         rows: list[dict[str, Any]] = []
-        for run_id in compare_payload.get("run_ids", []):
-            row: dict[str, Any] = {"run_id": run_id}
-            row.update(compare_payload.get("by_run", {}).get(run_id, {}))
+        for subject in compare_payload.get("subjects", []):
+            if not isinstance(subject, dict):
+                continue
+            entity_id = str(subject.get("entity_id", "") or "")
+            row: dict[str, Any] = {
+                "entity_id": entity_id,
+                "run_id": str(subject.get("run_id", "") or ""),
+                "provider_profile": str(subject.get("provider_profile", "") or ""),
+                "provider_id": str(subject.get("provider_id", "") or ""),
+                "provider_preset": str(subject.get("provider_preset", "") or ""),
+            }
+            row.update(compare_payload.get("by_run", {}).get(entity_id, {}))
             rows.append(row)
         outputs["csv"] = export_csv(str(export_dir / "comparison.csv"), rows)
 
@@ -2912,6 +3096,22 @@ def results_export(req: ResultExportRequest) -> dict[str, Any]:
             metric = item.get("metric", "")
             best = item.get("best_run", "")
             bullets.append(f"{metric}: best={best}")
+        for run_id, provider_summaries in sorted(
+            (compare_payload.get("provider_summaries_by_run", {}) or {}).items()
+        ):
+            if not provider_summaries:
+                continue
+            provider_names = ", ".join(
+                str(
+                    item.get("provider_profile")
+                    or item.get("provider_id")
+                    or item.get("provider_key")
+                    or "unknown"
+                )
+                for item in provider_summaries
+                if isinstance(item, dict)
+            )
+            bullets.append(f"{run_id} providers: {provider_names}")
         outputs["md"] = export_markdown(
             str(export_dir / "comparison.md"),
             title=f"Run Comparison: {export_name}",
@@ -2994,8 +3194,12 @@ def logs(
 def artifacts() -> dict[str, Any]:
     root = ARTIFACTS_ROOT
     root.mkdir(parents=True, exist_ok=True)
-    benchmark_runs = sorted(path.name for path in (root / "benchmark_runs").glob("*") if path.is_dir())
-    runtime_sessions = sorted(path.name for path in (root / "runtime_sessions").glob("*") if path.is_dir())
+    benchmark_runs = sorted(
+        path.name for path in (root / "benchmark_runs").glob("*") if path.is_dir()
+    )
+    runtime_sessions = sorted(
+        path.name for path in (root / "runtime_sessions").glob("*") if path.is_dir()
+    )
     comparisons = sorted(path.name for path in (root / "comparisons").glob("*") if path.is_dir())
     exports = sorted(path.name for path in (root / "exports").glob("*") if path.is_dir())
     return {

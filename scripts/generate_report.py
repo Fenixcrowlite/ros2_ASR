@@ -5,7 +5,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 from statistics import mean
@@ -28,7 +27,26 @@ def _bootstrap_imports() -> None:
 
 _bootstrap_imports()
 
-from asr_metrics.io import load_benchmark_json
+from asr_metrics.io import load_benchmark_json  # noqa: E402
+from asr_metrics.quality import text_quality_support  # noqa: E402
+
+
+def _corpus_wer(records) -> float:
+    supports = [
+        text_quality_support(record.transcript_ref, record.transcript_hyp) for record in records
+    ]
+    numerator = sum(item.word_edits for item in supports)
+    denominator = sum(item.reference_word_count for item in supports)
+    return float(numerator) / float(denominator) if denominator > 0 else 0.0
+
+
+def _corpus_cer(records) -> float:
+    supports = [
+        text_quality_support(record.transcript_ref, record.transcript_hyp) for record in records
+    ]
+    numerator = sum(item.char_edits for item in supports)
+    denominator = sum(item.reference_char_count for item in supports)
+    return float(numerator) / float(denominator) if denominator > 0 else 0.0
 
 
 def main() -> None:
@@ -63,13 +81,16 @@ def main() -> None:
     lines.append("")
     lines.append("## Aggregate Metrics")
     lines.append("")
-    lines.append("| Backend | WER | CER | Latency (ms) | RTF | Error Rate | Cost Estimate |")
+    lines.append(
+        "| Backend | Corpus WER | Corpus CER | Mean Latency (ms) | "
+        "Mean RTF | Error Rate | Estimated Total Cost (USD) |"
+    )
     lines.append("|---|---:|---:|---:|---:|---:|---:|")
 
     for backend in backends:
         subset = [r for r in records if r.backend == backend]
-        wer = mean(r.wer for r in subset)
-        cer = mean(r.cer for r in subset)
+        wer = _corpus_wer(subset)
+        cer = _corpus_cer(subset)
         lat = mean(r.latency_ms for r in subset)
         rtf = mean(r.rtf for r in subset)
         err = mean(1.0 if not r.success else 0.0 for r in subset)
@@ -83,13 +104,14 @@ def main() -> None:
     lines.append("")
     lines.append("## Artifacts")
     lines.append("")
+    plots_root = input_path.parent / "plots"
     for plot_name in [
         "wer_cer_by_backend.png",
         "latency_by_backend.png",
         "rtf_by_backend.png",
     ]:
-        plot_path = os.path.join("results", "plots", plot_name)
-        if os.path.exists(plot_path):
+        plot_path = plots_root / plot_name
+        if plot_path.exists():
             lines.append(f"- ![]({plot_path})")
 
     output_path = Path(args.output)

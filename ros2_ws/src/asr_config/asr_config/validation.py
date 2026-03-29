@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from asr_metrics.definitions import validate_metric_names
+
 REQUIRED_RUNTIME_KEYS = (
     "audio",
     "preprocess",
@@ -57,7 +59,13 @@ def validate_runtime_payload(payload: dict[str, Any]) -> list[str]:
 
     vad = payload.get("vad", {})
     if isinstance(vad, dict):
-        for key in ("energy_threshold", "pre_roll_ms", "max_silence_ms", "min_segment_ms", "max_segment_ms"):
+        for key in (
+            "energy_threshold",
+            "pre_roll_ms",
+            "max_silence_ms",
+            "min_segment_ms",
+            "max_segment_ms",
+        ):
             value = int(vad.get(key, 0) or 0)
             if value < 0:
                 errors.append(f"vad.{key} must be >= 0")
@@ -70,11 +78,11 @@ def validate_runtime_payload(payload: dict[str, Any]) -> list[str]:
 
     orchestrator = payload.get("orchestrator", {})
     if isinstance(orchestrator, dict):
-        processing_mode = str(orchestrator.get("processing_mode", "segmented") or "segmented").strip()
+        processing_mode = str(
+            orchestrator.get("processing_mode", "segmented") or "segmented"
+        ).strip()
         if processing_mode not in {"segmented", "provider_stream"}:
-            errors.append(
-                "orchestrator.processing_mode must be one of: segmented, provider_stream"
-            )
+            errors.append("orchestrator.processing_mode must be one of: segmented, provider_stream")
         if not str(orchestrator.get("provider_profile", "") or "").strip():
             errors.append("orchestrator.provider_profile must be set")
     else:
@@ -139,4 +147,19 @@ def validate_benchmark_payload(payload: dict[str, Any]) -> list[str]:
             if chunk_ms <= 0:
                 errors.append("streaming.chunk_ms must be > 0")
 
+    return errors
+
+
+def validate_metric_payload(payload: dict[str, Any]) -> list[str]:
+    errors: list[str] = []
+    metrics = payload.get("metrics", [])
+    if not isinstance(metrics, list) or not metrics:
+        return ["metrics must be a non-empty list"]
+
+    normalized = [str(item or "").strip() for item in metrics]
+    if any(not item for item in normalized):
+        errors.append("metrics entries must be non-empty strings")
+        normalized = [item for item in normalized if item]
+
+    errors.extend(validate_metric_names(normalized))
     return errors

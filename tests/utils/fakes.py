@@ -86,7 +86,9 @@ class FakeProviderAdapter(AsrProviderAdapter):
         self.provider_id = provider_id or type(self).provider_id
         self._supports_streaming = supports_streaming
         self._streaming_mode = streaming_mode if supports_streaming else "none"
-        self._supports_partials = supports_streaming if supports_partials is None else bool(supports_partials)
+        self._supports_partials = (
+            supports_streaming if supports_partials is None else bool(supports_partials)
+        )
         self._requires_network = requires_network
         self._config: dict[str, Any] = {}
         self._credentials: dict[str, str] = {}
@@ -104,7 +106,11 @@ class FakeProviderAdapter(AsrProviderAdapter):
     def validate_config(self) -> list[str]:
         if self._config.get("invalid"):
             return ["invalid config requested by test fixture"]
-        if self._requires_network and not self._credentials and not self._config.get("allow_anonymous"):
+        if (
+            self._requires_network
+            and not self._credentials
+            and not self._config.get("allow_anonymous")
+        ):
             return ["network provider requires credentials"]
         return []
 
@@ -130,7 +136,9 @@ class FakeProviderAdapter(AsrProviderAdapter):
     ) -> NormalizedAsrResult:
         del options
         text = str(audio.metadata.get("text_override", "hello world"))
-        self._status = ProviderStatus(provider_id=self.provider_id, state="ready", message="recognize_once")
+        self._status = ProviderStatus(
+            provider_id=self.provider_id, state="ready", message="recognize_once"
+        )
         return make_normalized_result(
             provider_id=self.provider_id,
             session_id=audio.session_id,
@@ -159,7 +167,9 @@ class FakeProviderAdapter(AsrProviderAdapter):
             is_partial=True,
             language="en-US",
             latency=LatencyMetadata(
-                total_ms=(time.perf_counter() - self._stream_started_at) * 1000.0 if self._stream_started_at else 0.0,
+                total_ms=(time.perf_counter() - self._stream_started_at) * 1000.0
+                if self._stream_started_at
+                else 0.0,
                 first_partial_ms=5.0,
             ),
             confidence=0.0,
@@ -189,7 +199,11 @@ def build_stub_provider_manager(configs_root: str):
             self.configs_root = configs_root
 
         def resolve_profile_payload(self, provider_profile: str) -> dict[str, Any]:
-            profile_id = provider_profile.split("/", 1)[1] if provider_profile.startswith("providers/") else provider_profile
+            profile_id = (
+                provider_profile.split("/", 1)[1]
+                if provider_profile.startswith("providers/")
+                else provider_profile
+            )
             profile_path = Path(self.configs_root) / "providers" / f"{profile_id}.yaml"
             return yaml.safe_load(profile_path.read_text(encoding="utf-8")) or {}
 
@@ -202,10 +216,16 @@ def build_stub_provider_manager(configs_root: str):
         ) -> FakeProviderAdapter:
             payload = self.resolve_profile_payload(provider_profile)
             provider_id = str(payload.get("provider_id", "fake")).strip() or "fake"
-            settings = payload.get("settings", {}) if isinstance(payload.get("settings"), dict) else {}
+            settings = (
+                payload.get("settings", {}) if isinstance(payload.get("settings"), dict) else {}
+            )
             if preset_id:
                 ui = payload.get("ui", {}) if isinstance(payload.get("ui"), dict) else {}
-                model_presets = ui.get("model_presets", {}) if isinstance(ui.get("model_presets", {}), dict) else {}
+                model_presets = (
+                    ui.get("model_presets", {})
+                    if isinstance(ui.get("model_presets", {}), dict)
+                    else {}
+                )
                 preset = model_presets.get(preset_id, {}) if isinstance(model_presets, dict) else {}
                 if isinstance(preset, dict) and isinstance(preset.get("settings"), dict):
                     settings.update(preset.get("settings", {}))
@@ -430,7 +450,9 @@ class FakeGatewayRosClient:
 
     def record_runtime_result(self, payload: dict[str, Any]) -> None:
         request_id = str(payload.get("request_id", "") or "")
-        self._runtime_results = [item for item in self._runtime_results if item.get("request_id") != request_id]
+        self._runtime_results = [
+            item for item in self._runtime_results if item.get("request_id") != request_id
+        ]
         self._runtime_results.insert(
             0,
             {
@@ -454,12 +476,16 @@ class FakeGatewayRosClient:
             },
         )
 
-    def register_dataset(self, manifest_path: str, dataset_id: str, dataset_profile: str) -> GatewayResponse:
+    def register_dataset(
+        self, manifest_path: str, dataset_id: str, dataset_profile: str
+    ) -> GatewayResponse:
         del dataset_profile
         registry_path = self.project_root / "datasets" / "registry" / "datasets.json"
         payload = json.loads(registry_path.read_text(encoding="utf-8"))
         payload.setdefault("datasets", [])
-        payload["datasets"] = [row for row in payload["datasets"] if row.get("dataset_id") != dataset_id]
+        payload["datasets"] = [
+            row for row in payload["datasets"] if row.get("dataset_id") != dataset_id
+        ]
         payload["datasets"].append(
             {
                 "dataset_id": dataset_id,
@@ -471,7 +497,9 @@ class FakeGatewayRosClient:
         registry_path.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
         return GatewayResponse(True, "dataset registered", {"dataset_id": dataset_id})
 
-    def import_dataset(self, *, source_path: str, dataset_id: str, dataset_profile: str) -> GatewayResponse:
+    def import_dataset(
+        self, *, source_path: str, dataset_id: str, dataset_profile: str
+    ) -> GatewayResponse:
         del dataset_profile
         manifest_path = self.project_root / "datasets" / "manifests" / f"{dataset_id}.jsonl"
         audio_path = Path(source_path)
@@ -486,7 +514,9 @@ class FakeGatewayRosClient:
         }
         manifest_path.write_text(json.dumps(sample) + "\n", encoding="utf-8")
         self.register_dataset(str(manifest_path), dataset_id, "")
-        return GatewayResponse(True, "dataset imported", {"dataset_id": dataset_id, "manifest_ref": str(manifest_path)})
+        return GatewayResponse(
+            True, "dataset imported", {"dataset_id": dataset_id, "manifest_ref": str(manifest_path)}
+        )
 
     def run_benchmark(
         self,
@@ -529,6 +559,74 @@ class FakeGatewayRosClient:
             "sample_count": 1,
             "created_at": "2026-03-12T00:00:00+00:00",
         }
+        mean_metrics = {
+            "wer": 0.0,
+            "cer": 0.0,
+            "sample_accuracy": 1.0,
+            "total_latency_ms": 15.0,
+            "per_utterance_latency_ms": 15.0,
+            "real_time_factor": 0.25,
+            "estimated_cost_usd": 0.0,
+            "success_rate": 1.0,
+            "failure_rate": 0.0,
+        }
+        streaming_metrics = (
+            {
+                "first_partial_latency_ms": 25.0,
+                "finalization_latency_ms": 6.0,
+                "partial_count": 3.0,
+            }
+            if execution_mode == "streaming"
+            else {}
+        )
+        mean_metrics.update(streaming_metrics)
+        provider_summaries = [
+            {
+                "provider_key": provider,
+                "provider_profile": provider,
+                "provider_id": provider.split("/")[-1].replace("_local", "").replace("_cloud", ""),
+                "provider_preset": str(
+                    (provider_overrides.get(provider) or {}).get("preset_id", "") or ""
+                ),
+                "provider_label": "",
+                "total_samples": 1,
+                "successful_samples": 1,
+                "failed_samples": 0,
+                "mean_metrics": mean_metrics,
+                "quality_metrics": {"wer": 0.0, "cer": 0.0, "sample_accuracy": 1.0},
+                "latency_metrics": {
+                    "total_latency_ms": 15.0,
+                    "per_utterance_latency_ms": 15.0,
+                    "real_time_factor": 0.25,
+                },
+                "reliability_metrics": {
+                    "success_rate": 1.0,
+                    "failure_rate": 0.0,
+                },
+                "cost_metrics": {"estimated_cost_usd": 0.0},
+                "streaming_metrics": streaming_metrics,
+                "resource_metrics": {
+                    "total_latency_ms": 15.0,
+                    "per_utterance_latency_ms": 15.0,
+                    "real_time_factor": 0.25,
+                    "estimated_cost_usd": 0.0,
+                    **streaming_metrics,
+                },
+                "metric_statistics": {
+                    "estimated_cost_usd": {
+                        "aggregator": "mean",
+                        "count": 1,
+                        "sum": 0.0,
+                        "mean": 0.0,
+                        "min": 0.0,
+                        "max": 0.0,
+                        "p50": 0.0,
+                        "p95": 0.0,
+                    }
+                },
+            }
+            for provider in providers
+        ]
         summary = {
             "run_id": run_id,
             "benchmark_profile": benchmark_profile,
@@ -539,41 +637,38 @@ class FakeGatewayRosClient:
             "total_samples": 1,
             "successful_samples": 1,
             "failed_samples": 0,
-            "mean_metrics": {
-                "wer": 0.0,
-                "cer": 0.0,
-                "sample_accuracy": 1.0,
+            "mean_metrics": mean_metrics,
+            "quality_metrics": {"wer": 0.0, "cer": 0.0, "sample_accuracy": 1.0},
+            "latency_metrics": {
                 "total_latency_ms": 15.0,
                 "per_utterance_latency_ms": 15.0,
                 "real_time_factor": 0.25,
-                "estimated_cost_usd": 0.0,
-                "first_partial_latency_ms": 25.0 if execution_mode == "streaming" else 0.0,
-                "finalization_latency_ms": 6.0 if execution_mode == "streaming" else 0.0,
-                "partial_count": 3.0 if execution_mode == "streaming" else 0.0,
             },
-            "quality_metrics": {"wer": 0.0, "cer": 0.0, "sample_accuracy": 1.0},
+            "reliability_metrics": {
+                "success_rate": 1.0,
+                "failure_rate": 0.0,
+            },
+            "cost_metrics": {"estimated_cost_usd": 0.0},
+            "streaming_metrics": streaming_metrics,
             "resource_metrics": {
                 "total_latency_ms": 15.0,
                 "per_utterance_latency_ms": 15.0,
                 "real_time_factor": 0.25,
                 "estimated_cost_usd": 0.0,
-                "first_partial_latency_ms": 25.0 if execution_mode == "streaming" else 0.0,
-                "finalization_latency_ms": 6.0 if execution_mode == "streaming" else 0.0,
-                "partial_count": 3.0 if execution_mode == "streaming" else 0.0,
+                **streaming_metrics,
             },
+            "provider_summaries": provider_summaries,
             "noise_summary": {
                 "clean": {
                     "samples": 1,
                     "mean_metrics": {"wer": 0.0, "cer": 0.0, "total_latency_ms": 15.0},
                 }
             },
-            "providers_summary": {
-                provider: {
-                    "preset": str((provider_overrides.get(provider) or {}).get("preset_id", "") or "default"),
-                    "mean_metrics": {"wer": 0.0, "cer": 0.0, "total_latency_ms": 15.0},
-                }
-                for provider in providers
-            },
+            "providers_summary": {},
+        }
+        summary["providers_summary"] = {
+            str(provider_summary["provider_key"]): provider_summary
+            for provider_summary in provider_summaries
         }
         rows = [
             {
@@ -593,7 +688,9 @@ class FakeGatewayRosClient:
                 "error_message": "",
                 "scenario": scenario or "clean_baseline",
                 "noise_level": "clean",
-                "provider_preset": str((provider_overrides.get(providers[0]) or {}).get("preset_id", "") or "default")
+                "provider_preset": str(
+                    (provider_overrides.get(providers[0]) or {}).get("preset_id", "") or "default"
+                )
                 if providers
                 else "default",
                 "metrics": summary["mean_metrics"],

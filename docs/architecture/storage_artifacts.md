@@ -21,6 +21,17 @@
 - `reports/summary.json`, `reports/summary.md`
 - `logs/`
 
+`reports/summary.json` groups metrics into:
+
+- `provider_summaries`
+- `quality_metrics`
+- `latency_metrics`
+- `reliability_metrics`
+- `cost_metrics`
+- `streaming_metrics`
+- `metric_statistics`
+- `metric_metadata`
+
 ## Persistence utilities
 `asr_storage.ArtifactStore` handles:
 - root management,

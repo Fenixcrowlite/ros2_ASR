@@ -6,6 +6,11 @@ from collections.abc import Callable, Mapping
 from pathlib import Path
 from typing import Any
 
+from asr_config import resolve_profile
+from asr_datasets import DatasetRegistry
+from asr_datasets import load_manifest
+from asr_metrics.definitions import metric_preference as metric_preference_from_registry
+from asr_metrics.quality import text_quality_support
 from fastapi import HTTPException
 
 ReadJsonFn = Callable[[Path, Any], Any]
@@ -24,6 +29,144 @@ def _safe_mtime(path: Path) -> float:
 def run_dir(artifacts_root: Path, run_id: str, *, clean_name: CleanNameFn) -> Path:
     rid = clean_name(run_id, "run_id")
     return artifacts_root / "benchmark_runs" / rid
+
+
+def _resolve_project_path(project_root: Path, path_ref: Any) -> Path | None:
+    raw = str(path_ref or "").strip()
+    if not raw:
+        return None
+    path = Path(raw)
+    if not path.is_absolute():
+        path = project_root / path
+    return path
+
+
+def _dataset_manifest_path(
+    run_manifest: Mapping[str, Any],
+    *,
+    artifacts_root: Path,
+    read_json: ReadJsonFn,
+) -> Path | None:
+    project_root = artifacts_root.parent
+    candidates: list[Any] = [run_manifest.get("dataset_manifest")]
+
+    config_snapshots = run_manifest.get("config_snapshots", {})
+    if isinstance(config_snapshots, Mapping):
+        snapshot_path = _resolve_project_path(project_root, config_snapshots.get("dataset"))
+        if snapshot_path is not None and snapshot_path.exists():
+            snapshot_payload = read_json(snapshot_path, {})
+            if isinstance(snapshot_payload, Mapping):
+                candidates.append(snapshot_payload.get("manifest_path"))
+
+    dataset_profile = str(run_manifest.get("dataset_profile", "") or "").strip()
+    if dataset_profile:
+        dataset_profile_id = (
+            dataset_profile.split("/", 1)[1]
+            if dataset_profile.startswith("datasets/")
+            else dataset_profile
+        )
+        try:
+            resolved_dataset = resolve_profile(
+                profile_type="datasets",
+                profile_id=dataset_profile_id,
+                configs_root=str(project_root / "configs"),
+                write_snapshot=False,
+            )
+        except Exception:
+            resolved_dataset = None
+        if resolved_dataset is not None:
+            candidates.append(resolved_dataset.data.get("manifest_path"))
+
+        registry_path = project_root / "datasets" / "registry" / "datasets.json"
+        if registry_path.exists():
+            try:
+                registry = DatasetRegistry(str(registry_path))
+                for entry in registry.list():
+                    entry_profile = str(entry.metadata.get("dataset_profile", "") or "")
+                    if entry_profile == dataset_profile or entry.dataset_id == dataset_profile_id:
+                        candidates.append(entry.manifest_ref)
+            except Exception:
+                pass
+
+    for candidate in candidates:
+        path = _resolve_project_path(project_root, candidate)
+        if path is not None and path.exists():
+            return path
+    return None
+
+
+def _reference_texts_by_sample(
+    run_manifest: Mapping[str, Any],
+    *,
+    artifacts_root: Path,
+    read_json: ReadJsonFn,
+) -> dict[str, str]:
+    manifest_path = _dataset_manifest_path(
+        run_manifest,
+        artifacts_root=artifacts_root,
+        read_json=read_json,
+    )
+    if manifest_path is None:
+        return {}
+
+    try:
+        samples = load_manifest(str(manifest_path))
+    except Exception:
+        return {}
+
+    return {
+        str(sample.sample_id): str(sample.transcript or "")
+        for sample in samples
+        if str(sample.sample_id or "").strip()
+    }
+
+
+def _enrich_result_row(
+    row: Any,
+    *,
+    reference_texts_by_sample: Mapping[str, str],
+) -> Any:
+    if not isinstance(row, dict):
+        return row
+
+    enriched = dict(row)
+    sample_id = str(enriched.get("sample_id", "") or "")
+    reference_text = str(enriched.get("reference_text", "") or "")
+    single_reference_text = (
+        next(iter(reference_texts_by_sample.values()))
+        if len(reference_texts_by_sample) == 1
+        else ""
+    )
+    if not reference_text and sample_id:
+        reference_text = str(reference_texts_by_sample.get(sample_id, "") or "")
+    if not reference_text and single_reference_text:
+        reference_text = single_reference_text
+    if reference_text:
+        enriched["reference_text"] = reference_text
+
+    quality_support = enriched.get("quality_support")
+    if isinstance(quality_support, Mapping):
+        support_payload = dict(quality_support)
+    elif reference_text:
+        support_payload = text_quality_support(
+            reference_text,
+            str(enriched.get("text", "") or ""),
+        ).as_dict()
+        enriched["quality_support"] = support_payload
+    else:
+        support_payload = {}
+
+    if support_payload:
+        if not str(enriched.get("normalized_reference_text", "") or ""):
+            enriched["normalized_reference_text"] = str(
+                support_payload.get("normalized_reference", "") or ""
+            )
+        if not str(enriched.get("normalized_hypothesis_text", "") or ""):
+            enriched["normalized_hypothesis_text"] = str(
+                support_payload.get("normalized_hypothesis", "") or ""
+            )
+
+    return enriched
 
 
 def list_benchmark_history(
@@ -61,39 +204,55 @@ def list_benchmark_history(
                     "execution_mode",
                     run_manifest.get("execution_mode", "batch"),
                 ),
+                "aggregate_scope": summary.get("aggregate_scope", "provider_only"),
                 "providers": run_manifest.get("providers", []),
                 "total_samples": summary.get("total_samples", run_manifest.get("sample_count", 0)),
                 "successful_samples": summary.get("successful_samples", 0),
                 "failed_samples": summary.get("failed_samples", 0),
                 "mean_metrics": summary.get("mean_metrics", {}),
+                "metric_statistics": summary.get("metric_statistics", {}),
+                "metric_metadata": summary.get("metric_metadata", {}),
                 "quality_metrics": summary.get("quality_metrics", {}),
+                "latency_metrics": summary.get("latency_metrics", {}),
+                "reliability_metrics": summary.get("reliability_metrics", {}),
+                "cost_metrics": summary.get("cost_metrics", {}),
+                "streaming_metrics": summary.get("streaming_metrics", {}),
                 "resource_metrics": summary.get("resource_metrics", {}),
+                "provider_summaries": summary.get("provider_summaries", []),
                 "run_dir": str(run_dir_path),
             }
         )
 
     existing_ids = {row["run_id"] for row in rows}
-    for run_id, state in benchmark_jobs.items():
+    for run_id, job_state in benchmark_jobs.items():
         if run_id in existing_ids:
             continue
         rows.insert(
             0,
             {
                 "run_id": run_id,
-                "state": state.get("state", "unknown"),
-                "started_at": state.get("started_at", ""),
-                "completed_at": state.get("completed_at", ""),
-                "benchmark_profile": state.get("benchmark_profile", ""),
-                "dataset_profile": state.get("dataset_profile", ""),
-                "scenario": state.get("scenario", ""),
-                "execution_mode": state.get("execution_mode", "batch"),
-                "providers": state.get("providers", []),
+                "state": job_state.get("state", "unknown"),
+                "started_at": job_state.get("started_at", ""),
+                "completed_at": job_state.get("completed_at", ""),
+                "benchmark_profile": job_state.get("benchmark_profile", ""),
+                "dataset_profile": job_state.get("dataset_profile", ""),
+                "scenario": job_state.get("scenario", ""),
+                "execution_mode": job_state.get("execution_mode", "batch"),
+                "aggregate_scope": "provider_only",
+                "providers": job_state.get("providers", []),
                 "total_samples": 0,
                 "successful_samples": 0,
                 "failed_samples": 0,
                 "mean_metrics": {},
+                "metric_statistics": {},
+                "metric_metadata": {},
                 "quality_metrics": {},
+                "latency_metrics": {},
+                "reliability_metrics": {},
+                "cost_metrics": {},
+                "streaming_metrics": {},
                 "resource_metrics": {},
+                "provider_summaries": [],
                 "run_dir": "",
             },
         )
@@ -116,7 +275,22 @@ def run_detail(
     run_manifest = read_json(run_dir_path / "manifest" / "run_manifest.json", {})
     summary = read_json(run_dir_path / "reports" / "summary.json", {})
     metrics_rows = read_json(run_dir_path / "metrics" / "results.json", [])
-    results_head = metrics_rows[:100] if isinstance(metrics_rows, list) else []
+    reference_texts = _reference_texts_by_sample(
+        run_manifest,
+        artifacts_root=artifacts_root,
+        read_json=read_json,
+    )
+    results_head = (
+        [
+            _enrich_result_row(
+                row,
+                reference_texts_by_sample=reference_texts,
+            )
+            for row in metrics_rows[:100]
+        ]
+        if isinstance(metrics_rows, list)
+        else []
+    )
     results_count = len(metrics_rows) if isinstance(metrics_rows, list) else 0
     state = benchmark_jobs.get(run_id, {}).get("state", "completed")
 
@@ -138,11 +312,7 @@ def run_detail(
 
 
 def metric_preference(metric_name: str) -> str:
-    lowered = metric_name.lower()
-    lower_is_better_tokens = ("wer", "cer", "latency", "error", "failure", "timeout", "rtf")
-    if any(token in lowered for token in lower_is_better_tokens):
-        return "lower"
-    return "higher"
+    return metric_preference_from_registry(metric_name)
 
 
 def compare_runs(
@@ -156,40 +326,85 @@ def compare_runs(
         raise HTTPException(status_code=400, detail="run_ids must not be empty")
 
     details = [detail_loader(run_id) for run_id in run_ids]
-    summaries = [detail.get("summary", {}) for detail in details]
-
-    metric_names = sorted(
-        set(metrics)
-        if metrics
-        else {
-            key
-            for summary in summaries
-            for key in (summary.get("mean_metrics", {}) or {}).keys()
-        }
-    )
-
+    subjects: list[dict[str, Any]] = []
     by_run: dict[str, dict[str, float]] = {}
+    discovered_metric_names: set[str] = set()
+
     for detail in details:
         result_run_id = str(detail.get("run_id", ""))
-        mean_metrics = detail.get("summary", {}).get("mean_metrics", {})
-        row: dict[str, float] = {}
-        for metric in metric_names:
-            value = mean_metrics.get(metric)
-            if value is None:
-                continue
-            row[metric] = float(value)
+        summary = detail.get("summary", {})
+        provider_summaries = summary.get("provider_summaries", [])
+        if isinstance(provider_summaries, list) and provider_summaries:
+            for provider_summary in provider_summaries:
+                if not isinstance(provider_summary, dict):
+                    continue
+                provider_key = str(
+                    provider_summary.get("provider_key")
+                    or provider_summary.get("provider_profile")
+                    or provider_summary.get("provider_id")
+                    or result_run_id
+                )
+                entity_id = f"{result_run_id}::{provider_key}"
+                mean_metrics = provider_summary.get("mean_metrics", {})
+                row: dict[str, float] = {}
+                if isinstance(mean_metrics, dict):
+                    for metric_name, value in mean_metrics.items():
+                        if value is None:
+                            continue
+                        metric_key = str(metric_name or "").strip()
+                        if not metric_key:
+                            continue
+                        row[metric_key] = float(value)
+                        discovered_metric_names.add(metric_key)
+                subjects.append(
+                    {
+                        "entity_id": entity_id,
+                        "run_id": result_run_id,
+                        "provider_key": provider_key,
+                        "provider_profile": str(provider_summary.get("provider_profile", "") or ""),
+                        "provider_id": str(provider_summary.get("provider_id", "") or ""),
+                        "provider_preset": str(provider_summary.get("provider_preset", "") or ""),
+                    }
+                )
+                by_run[entity_id] = row
+            continue
+
+        mean_metrics = summary.get("mean_metrics", {})
+        row = {}
+        if isinstance(mean_metrics, dict):
+            for metric_name, value in mean_metrics.items():
+                if value is None:
+                    continue
+                metric_key = str(metric_name or "").strip()
+                if not metric_key:
+                    continue
+                row[metric_key] = float(value)
+                discovered_metric_names.add(metric_key)
+        subjects.append(
+            {
+                "entity_id": result_run_id,
+                "run_id": result_run_id,
+                "provider_key": "",
+                "provider_profile": "",
+                "provider_id": "",
+                "provider_preset": "",
+            }
+        )
         by_run[result_run_id] = row
 
+    metric_names = sorted(set(metrics) if metrics else discovered_metric_names)
+
     table: list[dict[str, Any]] = []
+    entity_ids = [str(subject.get("entity_id", "")) for subject in subjects]
     for metric in metric_names:
-        values = {run_id: by_run.get(run_id, {}).get(metric) for run_id in run_ids}
-        available = {run_id: val for run_id, val in values.items() if val is not None}
+        values = {entity_id: by_run.get(entity_id, {}).get(metric) for entity_id in entity_ids}
+        available = {entity_id: val for entity_id, val in values.items() if val is not None}
         best_run = ""
         if available:
             if metric_preference_func(metric) == "lower":
-                best_run = min(available, key=available.get)
+                best_run = min(available, key=lambda entity_id: available[entity_id])
             else:
-                best_run = max(available, key=available.get)
+                best_run = max(available, key=lambda entity_id: available[entity_id])
 
         table.append(
             {
@@ -202,7 +417,12 @@ def compare_runs(
 
     return {
         "run_ids": run_ids,
+        "subjects": subjects,
         "metrics": metric_names,
         "by_run": by_run,
+        "provider_summaries_by_run": {
+            str(detail.get("run_id", "")): detail.get("summary", {}).get("provider_summaries", [])
+            for detail in details
+        },
         "table": table,
     }

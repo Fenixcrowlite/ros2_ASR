@@ -10,12 +10,24 @@ from asr_core.audio import wav_duration_sec, wav_info, wav_pcm_chunks
 from asr_datasets import DatasetSample
 from asr_metrics.engine import MetricEngine
 from asr_metrics.plugins import MetricContext
+from asr_metrics.quality import require_quality_reference, text_quality_support
 from asr_provider_base import ProviderAudio
 
 
 class BatchExecutor:
     def __init__(self, metric_engine: MetricEngine) -> None:
         self.metric_engine = metric_engine
+
+    def _require_quality_reference(self, sample: DatasetSample) -> None:
+        if not any(
+            metric_name in {"wer", "cer", "sample_accuracy"}
+            for metric_name in self.metric_engine.enabled_metrics
+        ):
+            return
+        require_quality_reference(
+            sample.transcript,
+            context=f"Benchmark sample `{sample.sample_id}` quality metrics",
+        )
 
     def run_sample(
         self,
@@ -53,13 +65,17 @@ class BatchExecutor:
         result = provider.recognize_once(audio)
 
         estimated_cost_usd = float(execution_meta.get("estimated_cost_usd", 0.0) or 0.0)
+        self._require_quality_reference(sample)
+        quality_support = text_quality_support(sample.transcript, result.text)
         context = MetricContext(
             reference_text=sample.transcript,
             hypothesis_text=result.text,
             latency_ms=result.latency.total_ms,
             success=not result.degraded and not result.error_code,
+            execution_mode=str(execution_meta.get("execution_mode", "batch") or "batch"),
             audio_duration_sec=audio_duration_sec,
             estimated_cost_usd=estimated_cost_usd,
+            quality_support=quality_support,
         )
         metrics = self.metric_engine.evaluate(context)
 
@@ -70,6 +86,10 @@ class BatchExecutor:
             "sample_id": sample.sample_id,
             "success": context.success,
             "text": result.text,
+            "reference_text": sample.transcript,
+            "normalized_reference_text": quality_support.normalized_reference,
+            "normalized_hypothesis_text": quality_support.normalized_hypothesis,
+            "quality_support": quality_support.as_dict(),
             "error_code": result.error_code,
             "error_message": result.error_message,
             "metrics": metrics,
@@ -116,7 +136,9 @@ class BatchExecutor:
                 "language": sample.language,
                 "sample_rate_hz": sample_rate_hz,
                 "channels": channels,
-                "encoding": "pcm_s16le" if sample_width_bytes == 2 else f"pcm_s{sample_width_bytes * 8}le",
+                "encoding": "pcm_s16le"
+                if sample_width_bytes == 2
+                else f"pcm_s{sample_width_bytes * 8}le",
                 "sample_width_bytes": sample_width_bytes,
             }
         )
@@ -149,17 +171,21 @@ class BatchExecutor:
                 )
         finalization_latency_ms = float(result.latency.finalization_ms or 0.0)
         estimated_cost_usd = float(execution_meta.get("estimated_cost_usd", 0.0) or 0.0)
+        self._require_quality_reference(sample)
+        quality_support = text_quality_support(sample.transcript, result.text)
 
         context = MetricContext(
             reference_text=sample.transcript,
             hypothesis_text=result.text,
             latency_ms=result.latency.total_ms,
             success=not result.degraded and not result.error_code,
+            execution_mode="streaming",
             audio_duration_sec=audio_duration_sec,
             estimated_cost_usd=estimated_cost_usd,
             first_partial_latency_ms=first_partial_latency_ms,
             finalization_latency_ms=finalization_latency_ms,
             partial_count=partial_count,
+            quality_support=quality_support,
         )
         metrics = self.metric_engine.evaluate(context)
 
@@ -170,6 +196,10 @@ class BatchExecutor:
             "sample_id": sample.sample_id,
             "success": context.success,
             "text": result.text,
+            "reference_text": sample.transcript,
+            "normalized_reference_text": quality_support.normalized_reference,
+            "normalized_hypothesis_text": quality_support.normalized_hypothesis,
+            "quality_support": quality_support.as_dict(),
             "error_code": result.error_code,
             "error_message": result.error_message,
             "metrics": metrics,

@@ -42,6 +42,9 @@ def provider_presets(payload: dict[str, Any]) -> list[dict[str, Any]]:
                 "quality_tier": str(meta.get("quality_tier", "balanced")),
                 "resource_tier": str(meta.get("resource_tier", "medium")),
                 "estimated_cost_tier": str(meta.get("estimated_cost_tier", "unknown")),
+                "estimated_cost_usd_per_min": float(
+                    meta.get("estimated_cost_usd_per_min", 0.0) or 0.0
+                ),
                 "settings": dict(meta.get("settings", {})),
                 "tags": [str(item) for item in meta.get("tags", [])],
             }

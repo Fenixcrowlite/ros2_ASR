@@ -27,7 +27,7 @@ Primary architecture docs:
   - Cloud: `google`, `aws`, `azure`.
 - Runtime backend switch through ROS2 service and config.
 - Benchmark scenarios (clean/noisy, language variants, streaming simulation).
-- Metrics: WER, CER, latency breakdown, RTF, CPU/RAM/GPU, error rate, cost estimate.
+- Metrics: corpus-level WER/CER in summaries, exact-match sample accuracy, latency/RTF, success-failure rate, CPU/RAM/GPU, and cost estimate.
 - Reproducible scripts and report generation.
 
 ## Repository Layout
@@ -68,6 +68,15 @@ bash scripts/release_check.sh
 
 `make bench` runs the benchmark runner and generates `results/*.csv`, `results/*.json`,
 and `results/plots/*.png` in a single pass (no duplicate plotting step).
+
+For the newer gateway/core benchmark path, the canonical per-run artifacts live under
+`artifacts/benchmark_runs/<run_id>/...`. Those summaries expose grouped metric sections
+(`provider_summaries`, `quality_metrics`, `latency_metrics`, `reliability_metrics`,
+`cost_metrics`, `streaming_metrics`) plus `metric_statistics`/`metric_metadata`.
+For multi-provider runs, `provider_summaries` is the only metric analysis surface and
+the mixed top-level metric aggregate is intentionally left empty. `WER`/`CER` inside
+provider summaries are corpus-level aggregates, `sample_accuracy` is exact normalized
+match rate, and `metric_statistics.estimated_cost_usd.sum` is the total estimated run cost.
 
 Optional external-corpus smoke suite:
 

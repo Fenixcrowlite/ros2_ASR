@@ -11,7 +11,11 @@ from asr_config.secrets import (
     resolve_secret_ref,
     write_local_env_values,
 )
-from asr_config.validation import validate_benchmark_payload, validate_runtime_payload
+from asr_config.validation import (
+    validate_benchmark_payload,
+    validate_metric_payload,
+    validate_runtime_payload,
+)
 
 __all__ = [
     "ResolvedConfig",
@@ -27,4 +31,5 @@ __all__ = [
     "mask_secret_values",
     "validate_runtime_payload",
     "validate_benchmark_payload",
+    "validate_metric_payload",
 ]

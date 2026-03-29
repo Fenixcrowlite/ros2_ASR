@@ -3,6 +3,11 @@
 from __future__ import annotations
 
 import unicodedata
+from dataclasses import asdict, dataclass
+
+
+class MissingQualityReferenceError(ValueError):
+    """Raised when quality metrics cannot be computed from an empty reference."""
 
 
 def _levenshtein(a: list[str], b: list[str]) -> int:
@@ -43,19 +48,83 @@ def normalize_text(text: str) -> str:
     return " ".join("".join(normalized_chars).split())
 
 
+def has_quality_reference(reference: str) -> bool:
+    """Return True when the reference still contains lexical content after normalization."""
+    return bool(normalize_text(reference))
+
+
+def require_quality_reference(reference: str, *, context: str = "Quality metrics") -> str:
+    """Fail fast when the normalized reference is empty."""
+    normalized_reference = normalize_text(reference)
+    if normalized_reference:
+        return normalized_reference
+    raise MissingQualityReferenceError(
+        f"{context} requires a non-empty reference transcript after normalization."
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class TextQualitySupport:
+    """Support data required for logically-correct quality aggregation."""
+
+    normalized_reference: str
+    normalized_hypothesis: str
+    reference_word_count: int
+    reference_char_count: int
+    word_edits: int
+    char_edits: int
+    exact_match: bool
+
+    @property
+    def wer(self) -> float:
+        if self.reference_word_count <= 0:
+            return 0.0
+        return float(self.word_edits) / float(self.reference_word_count)
+
+    @property
+    def cer(self) -> float:
+        if self.reference_char_count <= 0:
+            return 0.0
+        return float(self.char_edits) / float(self.reference_char_count)
+
+    def as_dict(self) -> dict[str, object]:
+        payload = asdict(self)
+        payload["wer"] = self.wer
+        payload["cer"] = self.cer
+        return payload
+
+
+def text_quality_support(reference: str, hypothesis: str) -> TextQualitySupport:
+    """Return normalized text and edit counters used by WER/CER/sample accuracy."""
+    normalized_reference = normalize_text(reference)
+    normalized_hypothesis = normalize_text(hypothesis)
+    ref_words = normalized_reference.split()
+    hyp_words = normalized_hypothesis.split()
+    ref_chars = list(normalized_reference.replace(" ", ""))
+    hyp_chars = list(normalized_hypothesis.replace(" ", ""))
+
+    # Empty-reference rows are not expected in benchmark manifests, but when they
+    # appear we keep the existing 0/1 behaviour by forcing a denominator of 1
+    # only for non-empty hypotheses.
+    reference_word_count = len(ref_words) or len(hyp_words)
+    reference_char_count = len(ref_chars) or len(hyp_chars)
+
+    return TextQualitySupport(
+        normalized_reference=normalized_reference,
+        normalized_hypothesis=normalized_hypothesis,
+        reference_word_count=reference_word_count,
+        reference_char_count=reference_char_count,
+        word_edits=_levenshtein(ref_words, hyp_words),
+        char_edits=_levenshtein(ref_chars, hyp_chars),
+        exact_match=normalized_reference == normalized_hypothesis,
+    )
+
+
 def wer(reference: str, hypothesis: str) -> float:
     """Word Error Rate."""
-    ref = normalize_text(reference).split()
-    hyp = normalize_text(hypothesis).split()
-    if not ref:
-        return 0.0 if not hyp else 1.0
-    return _levenshtein(ref, hyp) / float(len(ref))
+    return text_quality_support(reference, hypothesis).wer
 
 
 def cer(reference: str, hypothesis: str) -> float:
-    """Character Error Rate."""
-    ref = list(normalize_text(reference).replace(" ", ""))
-    hyp = list(normalize_text(hypothesis).replace(" ", ""))
-    if not ref:
-        return 0.0 if not hyp else 1.0
-    return _levenshtein(ref, hyp) / float(len(ref))
+    """Character Error Rate with spaces removed after normalization."""
+    return text_quality_support(reference, hypothesis).cer

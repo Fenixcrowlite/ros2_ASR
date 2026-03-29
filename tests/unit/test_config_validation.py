@@ -1,6 +1,10 @@
 from __future__ import annotations
 
-from asr_config.validation import validate_benchmark_payload, validate_runtime_payload
+from asr_config.validation import (
+    validate_benchmark_payload,
+    validate_metric_payload,
+    validate_runtime_payload,
+)
 
 
 def test_validate_runtime_payload_rejects_invalid_runtime_shapes() -> None:
@@ -74,3 +78,9 @@ def test_validate_benchmark_payload_allows_minimal_profile_with_implicit_default
     )
 
     assert errors == []
+
+
+def test_validate_metric_payload_rejects_unknown_metric_names() -> None:
+    errors = validate_metric_payload({"metrics": ["wer", "unknown_metric"]})
+
+    assert "Unknown metric: unknown_metric" in errors

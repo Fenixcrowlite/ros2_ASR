@@ -34,7 +34,9 @@ def clone_project_layout(repo_root: Path, target_root: Path) -> Path:
     else:
         payload = {"datasets": []}
     payload.setdefault("datasets", [])
-    if manifest_path.exists() and not any(row.get("dataset_id") == "sample_dataset" for row in payload["datasets"]):
+    if manifest_path.exists() and not any(
+        row.get("dataset_id") == "sample_dataset" for row in payload["datasets"]
+    ):
         payload["datasets"].append(
             {
                 "dataset_id": "sample_dataset",
@@ -81,6 +83,66 @@ def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: floa
         "sample_count": 1,
         "created_at": "2026-03-12T00:00:00+00:00",
     }
+    mean_metrics = {
+        "wer": wer,
+        "cer": cer,
+        "sample_accuracy": 1.0 if wer == 0.0 and cer == 0.0 else 0.0,
+        "total_latency_ms": 15.0,
+        "per_utterance_latency_ms": 15.0,
+        "real_time_factor": 0.25,
+        "estimated_cost_usd": 0.0,
+        "success_rate": 1.0,
+        "failure_rate": 0.0,
+    }
+    provider_summaries = [
+        {
+            "provider_key": "providers/whisper_local",
+            "provider_profile": "providers/whisper_local",
+            "provider_id": "whisper",
+            "provider_preset": "",
+            "provider_label": "",
+            "total_samples": 1,
+            "successful_samples": 1,
+            "failed_samples": 0,
+            "mean_metrics": mean_metrics,
+            "metric_statistics": {
+                "estimated_cost_usd": {
+                    "aggregator": "mean",
+                    "count": 1,
+                    "sum": 0.0,
+                    "mean": 0.0,
+                    "min": 0.0,
+                    "max": 0.0,
+                    "p50": 0.0,
+                    "p95": 0.0,
+                }
+            },
+            "quality_metrics": {
+                "wer": wer,
+                "cer": cer,
+                "sample_accuracy": 1.0 if wer == 0.0 and cer == 0.0 else 0.0,
+            },
+            "latency_metrics": {
+                "total_latency_ms": 15.0,
+                "per_utterance_latency_ms": 15.0,
+                "real_time_factor": 0.25,
+            },
+            "reliability_metrics": {
+                "success_rate": 1.0,
+                "failure_rate": 0.0,
+            },
+            "cost_metrics": {
+                "estimated_cost_usd": 0.0,
+            },
+            "streaming_metrics": {},
+            "resource_metrics": {
+                "total_latency_ms": 15.0,
+                "per_utterance_latency_ms": 15.0,
+                "real_time_factor": 0.25,
+                "estimated_cost_usd": 0.0,
+            },
+        }
+    ]
     summary = {
         "run_id": run_id,
         "benchmark_profile": "default_benchmark",
@@ -91,32 +153,110 @@ def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: floa
         "total_samples": 1,
         "successful_samples": 1,
         "failed_samples": 0,
-        "mean_metrics": {
-            "wer": wer,
-            "cer": cer,
-            "sample_accuracy": 1.0 if wer == 0.0 and cer == 0.0 else 0.0,
-            "total_latency_ms": 15.0,
-            "per_utterance_latency_ms": 15.0,
-            "real_time_factor": 0.25,
-            "estimated_cost_usd": 0.0,
-            "first_partial_latency_ms": 0.0,
-            "finalization_latency_ms": 0.0,
-            "partial_count": 0.0,
+        "mean_metrics": mean_metrics,
+        "metric_statistics": {
+            "wer": {
+                "aggregator": "corpus_rate",
+                "count": 1,
+                "numerator": wer,
+                "denominator": 1,
+                "value": wer,
+            },
+            "cer": {
+                "aggregator": "corpus_rate",
+                "count": 1,
+                "numerator": cer,
+                "denominator": 1,
+                "value": cer,
+            },
+            "sample_accuracy": {
+                "aggregator": "rate",
+                "count": 1,
+                "numerator": 1 if wer == 0.0 and cer == 0.0 else 0,
+                "denominator": 1,
+                "value": 1.0 if wer == 0.0 and cer == 0.0 else 0.0,
+            },
+            "total_latency_ms": {
+                "aggregator": "mean",
+                "count": 1,
+                "sum": 15.0,
+                "mean": 15.0,
+                "min": 15.0,
+                "max": 15.0,
+                "p50": 15.0,
+                "p95": 15.0,
+            },
+            "per_utterance_latency_ms": {
+                "aggregator": "mean",
+                "count": 1,
+                "sum": 15.0,
+                "mean": 15.0,
+                "min": 15.0,
+                "max": 15.0,
+                "p50": 15.0,
+                "p95": 15.0,
+            },
+            "real_time_factor": {
+                "aggregator": "mean",
+                "count": 1,
+                "sum": 0.25,
+                "mean": 0.25,
+                "min": 0.25,
+                "max": 0.25,
+                "p50": 0.25,
+                "p95": 0.25,
+            },
+            "estimated_cost_usd": {
+                "aggregator": "mean",
+                "count": 1,
+                "sum": 0.0,
+                "mean": 0.0,
+                "min": 0.0,
+                "max": 0.0,
+                "p50": 0.0,
+                "p95": 0.0,
+            },
+            "success_rate": {
+                "aggregator": "rate",
+                "count": 1,
+                "numerator": 1,
+                "denominator": 1,
+                "value": 1.0,
+            },
+            "failure_rate": {
+                "aggregator": "rate",
+                "count": 1,
+                "numerator": 0,
+                "denominator": 1,
+                "value": 0.0,
+            },
         },
         "quality_metrics": {
             "wer": wer,
             "cer": cer,
             "sample_accuracy": 1.0 if wer == 0.0 and cer == 0.0 else 0.0,
         },
+        "latency_metrics": {
+            "total_latency_ms": 15.0,
+            "per_utterance_latency_ms": 15.0,
+            "real_time_factor": 0.25,
+        },
+        "reliability_metrics": {
+            "success_rate": 1.0,
+            "failure_rate": 0.0,
+        },
+        "cost_metrics": {
+            "estimated_cost_usd": 0.0,
+        },
+        "streaming_metrics": {},
         "resource_metrics": {
             "total_latency_ms": 15.0,
             "per_utterance_latency_ms": 15.0,
             "real_time_factor": 0.25,
             "estimated_cost_usd": 0.0,
-            "first_partial_latency_ms": 0.0,
-            "finalization_latency_ms": 0.0,
-            "partial_count": 0.0,
         },
+        "provider_summaries": provider_summaries,
+        "providers_summary": {},
         "noise_summary": {
             "clean": {
                 "samples": 1,
@@ -127,6 +267,10 @@ def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: floa
                 },
             }
         },
+    }
+    summary["providers_summary"] = {
+        str(provider_summary["provider_key"]): provider_summary
+        for provider_summary in provider_summaries
     }
     rows = [
         {
