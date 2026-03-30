@@ -15,7 +15,10 @@ def test_text_quality_metrics_handle_exact_and_empty_cases() -> None:
     assert cer("hello world", "hello world") == 0.0
     assert cer("one", "One.") == 0.0
     assert wer("", "") == 0.0
-    assert cer("", "speech") == 1.0
+    support = text_quality_support("", "speech")
+    assert support.reference_has_content is False
+    assert support.hypothesis_has_content is True
+    assert cer("", "speech") == 0.0
 
 
 def test_metric_engine_rejects_unknown_metrics() -> None:

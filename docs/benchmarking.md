@@ -5,7 +5,8 @@
 The repository currently has two benchmark artifact flows:
 
 - Core/gateway benchmark flow writes canonical run folders under `artifacts/benchmark_runs/<run_id>/...`.
-- Legacy `make bench` flow writes flat artifacts under `results/benchmark_results.json`, `results/benchmark_results.csv`, `results/report.md`, and `results/plots/`.
+- Default `make bench` flow now runs the canonical benchmark core and then exports local compatibility artifacts under `results/latest_benchmark_summary.json`, `results/latest_benchmark_run.json`, `results/benchmark_results.json`, `results/benchmark_results.csv`, and `results/plots/`.
+- Direct legacy `python -m asr_benchmark.runner` still exists as a compatibility-only path.
 
 Both flows now use the same normalized text-quality baseline for WER/CER plots and reports.
 
@@ -41,12 +42,17 @@ Core/gateway benchmark run:
 - `artifacts/benchmark_runs/<run_id>/reports/summary.json`
 - `artifacts/benchmark_runs/<run_id>/reports/summary.md`
 
-Legacy `make bench` run:
+Default `make bench` local outputs:
 
+- `results/latest_benchmark_summary.json`
+- `results/latest_benchmark_run.json`
 - `results/benchmark_results.json`
 - `results/benchmark_results.csv`
-- `results/report.md`
 - `results/plots/*.png`
+
+Local report render:
+
+- `results/report.md`
 
 `summary.json` contains grouped views such as:
 

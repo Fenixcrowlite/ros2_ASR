@@ -13,7 +13,10 @@ def _write_yaml(path: Path, payload: dict) -> None:
     path.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
 
 
-def test_resolve_profile_applies_inheritance_and_override_precedence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_resolve_profile_applies_inheritance_and_override_precedence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     configs = tmp_path / "configs"
     _write_yaml(
         configs / "runtime" / "_base.yaml",
@@ -66,7 +69,12 @@ def test_resolve_profile_detects_circular_inheritance(tmp_path: Path) -> None:
     _write_yaml(configs / "runtime" / "b.yaml", {"inherits": ["a"]})
 
     with pytest.raises(ValueError, match="Circular profile inheritance"):
-        resolve_profile(profile_type="runtime", profile_id="a", configs_root=str(configs), write_snapshot=False)
+        resolve_profile(
+            profile_type="runtime",
+            profile_id="a",
+            configs_root=str(configs),
+            write_snapshot=False,
+        )
 
 
 def test_list_profiles_excludes_base_files(tmp_path: Path) -> None:
@@ -78,7 +86,10 @@ def test_list_profiles_excludes_base_files(tmp_path: Path) -> None:
     assert list_profiles("providers", configs_root=str(configs)) == ["azure_cloud", "whisper_local"]
 
 
-def test_env_override_reader_uses_process_environment(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_env_override_reader_uses_process_environment(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     configs = tmp_path / "configs"
     _write_yaml(
         configs / "runtime" / "default_runtime.yaml",
@@ -102,3 +113,59 @@ def test_env_override_reader_uses_process_environment(tmp_path: Path, monkeypatc
     assert resolved.data["audio"]["source"] == "mic"
     assert resolved.data["orchestrator"]["language"] == "de-DE"
     assert "ASR_CFG__audio.source" in os.environ
+
+
+def test_resolve_profile_applies_scoped_deployment_defaults_without_leaking_scaffolding(
+    tmp_path: Path,
+) -> None:
+    configs = tmp_path / "configs"
+    _write_yaml(
+        configs / "deployment" / "dev_local.yaml",
+        {
+            "runtime_defaults": {
+                "audio": {"source": "mic"},
+                "session": {"max_concurrent_sessions": 2},
+            },
+            "benchmark_defaults": {
+                "execution_mode": "streaming",
+                "save_raw_outputs": False,
+            },
+        },
+    )
+    _write_yaml(
+        configs / "runtime" / "default_runtime.yaml",
+        {
+            "audio": {"sample_rate_hz": 16000, "chunk_ms": 500, "file_path": "demo.wav"},
+            "preprocess": {"target_sample_rate_hz": 16000},
+            "vad": {"energy_threshold": 100},
+            "orchestrator": {"provider_profile": "providers/whisper_local"},
+        },
+    )
+    _write_yaml(
+        configs / "benchmark" / "default_benchmark.yaml",
+        {
+            "dataset_profile": "datasets/sample_dataset",
+            "providers": ["providers/whisper_local"],
+            "metric_profiles": ["metrics/default_quality"],
+        },
+    )
+
+    runtime_resolved = resolve_profile(
+        profile_type="runtime",
+        profile_id="default_runtime",
+        configs_root=str(configs),
+        write_snapshot=False,
+    )
+    benchmark_resolved = resolve_profile(
+        profile_type="benchmark",
+        profile_id="default_benchmark",
+        configs_root=str(configs),
+        write_snapshot=False,
+    )
+
+    assert runtime_resolved.data["audio"]["source"] == "mic"
+    assert runtime_resolved.data["session"]["max_concurrent_sessions"] == 2
+    assert "runtime_defaults" not in runtime_resolved.data
+    assert benchmark_resolved.data["execution_mode"] == "streaming"
+    assert benchmark_resolved.data["save_raw_outputs"] is False
+    assert "benchmark_defaults" not in benchmark_resolved.data

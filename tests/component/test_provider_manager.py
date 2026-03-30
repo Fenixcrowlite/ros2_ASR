@@ -9,6 +9,10 @@ from asr_provider_base import ProviderManager, register_provider
 from tests.utils.fakes import FakeProviderAdapter
 
 
+class AdapterPathProvider(FakeProviderAdapter):
+    provider_id = "fake_adapter_path"
+
+
 def _write_yaml(path: Path, payload: dict) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(yaml.safe_dump(payload, sort_keys=False), encoding="utf-8")
@@ -109,3 +113,24 @@ def test_provider_manager_rejects_legacy_whisper_cpu_fallback_setting(tmp_path: 
     manager = ProviderManager(configs_root=str(configs))
     with pytest.raises(ValueError, match="allow_cpu_fallback"):
         manager.create_from_profile("providers/whisper_local")
+
+
+def test_provider_manager_uses_explicit_adapter_path_without_registry_registration(
+    tmp_path: Path,
+) -> None:
+    configs = tmp_path / "configs"
+
+    _write_yaml(
+        configs / "providers" / "adapter_path.yaml",
+        {
+            "provider_id": "fake_adapter_path",
+            "adapter": "tests.component.test_provider_manager.AdapterPathProvider",
+            "settings": {"temperature": 0.0},
+        },
+    )
+
+    manager = ProviderManager(configs_root=str(configs))
+    provider = manager.create_from_profile("providers/adapter_path")
+
+    assert provider.provider_id == "fake_adapter_path"
+    assert provider.get_status().state == "initialized"

@@ -211,6 +211,8 @@ python scripts/run_external_dataset_suite.py --mode both --api-base-url http://1
 
 Артефакты:
 
+- `results/latest_benchmark_summary.json`
+- `results/latest_benchmark_run.json`
 - `results/benchmark_results.csv`
 - `results/benchmark_results.json`
 - `results/report.md`
@@ -222,7 +224,9 @@ python scripts/run_external_dataset_suite.py --mode both --api-base-url http://1
 Что считать каноническим:
 
 - `artifacts/benchmark_runs/<run_id>/reports/summary.json` это основной summary для gateway/core benchmark path;
-- `results/benchmark_results.json` это legacy flat export для `make bench`.
+- `results/latest_benchmark_summary.json` это основной локальный summary pointer для `make bench`;
+- `results/benchmark_results.json` это compatibility flat export, построенный из canonical run artifacts;
+- `results/report.md` строится из `results/latest_benchmark_summary.json`, а не из flat export как источника истины.
 - для multi-provider benchmark главным разрезом анализа являются `provider_summaries` внутри `summary.json`.
 
 Семантика summary:

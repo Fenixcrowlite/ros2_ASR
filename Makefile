@@ -43,7 +43,7 @@ bench:
 	bash scripts/run_benchmarks.sh
 
 report:
-	bash -lc 'source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(PY_PATH) $(PY) scripts/generate_report.py --input results/benchmark_results.json --output results/report.md'
+	bash -lc 'source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(PY_PATH) $(PY) scripts/generate_report.py --input results/latest_benchmark_summary.json --output results/report.md'
 
 web-gui:
 	bash scripts/run_web_ui.sh --mode local --stack full
@@ -76,7 +76,7 @@ format:
 clean:
 	rm -rf build install log ros2_ws/build ros2_ws/install ros2_ws/log \
 		.pytest_cache .ruff_cache .mypy_cache dist
-	rm -f results/benchmark_results.csv results/benchmark_results.json results/report.md
+	rm -f results/benchmark_results.csv results/benchmark_results.json results/latest_benchmark_summary.json results/latest_benchmark_run.json results/report.md
 	rm -rf results/plots
 	find . -type d \( -path './.git' -o -path './.git/*' -o -path './.venv' -o -path './.venv/*' -o -path './.venv_*' -o -path './.venv_*/*' \) -prune -o -type d -name '__pycache__' -exec rm -rf {} +
 	find . -type d \( -path './.git' -o -path './.git/*' -o -path './.venv' -o -path './.venv/*' -o -path './.venv_*' -o -path './.venv_*/*' \) -prune -o -type f -name '*.pyc' -exec rm -f {} +

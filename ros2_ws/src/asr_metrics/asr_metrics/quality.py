@@ -69,6 +69,8 @@ class TextQualitySupport:
 
     normalized_reference: str
     normalized_hypothesis: str
+    reference_has_content: bool
+    hypothesis_has_content: bool
     reference_word_count: int
     reference_char_count: int
     word_edits: int
@@ -103,20 +105,21 @@ def text_quality_support(reference: str, hypothesis: str) -> TextQualitySupport:
     ref_chars = list(normalized_reference.replace(" ", ""))
     hyp_chars = list(normalized_hypothesis.replace(" ", ""))
 
-    # Empty-reference rows are not expected in benchmark manifests, but when they
-    # appear we keep the existing 0/1 behaviour by forcing a denominator of 1
-    # only for non-empty hypotheses.
-    reference_word_count = len(ref_words) or len(hyp_words)
-    reference_char_count = len(ref_chars) or len(hyp_chars)
+    reference_has_content = bool(normalized_reference)
+    hypothesis_has_content = bool(normalized_hypothesis)
+    reference_word_count = len(ref_words)
+    reference_char_count = len(ref_chars)
 
     return TextQualitySupport(
         normalized_reference=normalized_reference,
         normalized_hypothesis=normalized_hypothesis,
+        reference_has_content=reference_has_content,
+        hypothesis_has_content=hypothesis_has_content,
         reference_word_count=reference_word_count,
         reference_char_count=reference_char_count,
         word_edits=_levenshtein(ref_words, hyp_words),
         char_edits=_levenshtein(ref_chars, hyp_chars),
-        exact_match=normalized_reference == normalized_hypothesis,
+        exact_match=reference_has_content and normalized_reference == normalized_hypothesis,
     )
 
 

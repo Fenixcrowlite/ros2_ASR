@@ -29,6 +29,10 @@ def _percentile(sorted_values: list[float], percentile: float) -> float:
     return float(sorted_values[lower] + ((sorted_values[upper] - sorted_values[lower]) * weight))
 
 
+def _int_if_whole(value: float) -> int | float:
+    return int(value) if float(value).is_integer() else float(value)
+
+
 def _scalar_statistics(values: list[float], *, aggregator: str = "mean") -> dict[str, Any]:
     ordered = sorted(float(item) for item in values)
     return {
@@ -43,12 +47,40 @@ def _scalar_statistics(values: list[float], *, aggregator: str = "mean") -> dict
     }
 
 
-def _metric_groups(mean_metrics: dict[str, float]) -> dict[str, dict[str, float]]:
+def _rate_statistics(values: list[float]) -> dict[str, Any]:
+    numerator = float(sum(values))
+    denominator = len(values)
+    value = numerator / float(denominator) if denominator > 0 else 0.0
+    return {
+        "count": denominator,
+        "aggregator": "rate",
+        "numerator": _int_if_whole(numerator),
+        "denominator": denominator,
+        "value": value,
+    }
+
+
+def _sum_statistics(values: list[float]) -> dict[str, Any]:
+    total = float(sum(values))
+    return {
+        "count": len(values),
+        "aggregator": "sum",
+        "sum": total,
+        "value": total,
+    }
+
+
+def _metric_groups(
+    mean_metrics: dict[str, float],
+    metric_statistics: dict[str, dict[str, Any]],
+) -> dict[str, dict[str, float]]:
     quality_metrics: dict[str, float] = {}
     latency_metrics: dict[str, float] = {}
     reliability_metrics: dict[str, float] = {}
     cost_metrics: dict[str, float] = {}
+    cost_totals: dict[str, float] = {}
     streaming_metrics: dict[str, float] = {}
+    resource_metrics: dict[str, float] = {}
     other_metrics: dict[str, float] = {}
 
     for name, value in sorted(mean_metrics.items()):
@@ -66,19 +98,27 @@ def _metric_groups(mean_metrics: dict[str, float]) -> dict[str, dict[str, float]
             cost_metrics[name] = value
         elif definition.category == "streaming":
             streaming_metrics[name] = value
+        elif definition.category == "resource":
+            resource_metrics[name] = value
         else:
             other_metrics[name] = value
 
-    resource_metrics = {
-        **latency_metrics,
-        **cost_metrics,
-        **streaming_metrics,
-    }
+    for name in sorted(cost_metrics):
+        stats = metric_statistics.get(name, {})
+        if not isinstance(stats, dict):
+            continue
+        total = _coerce_float(stats.get("sum"))
+        if total is None:
+            total = _coerce_float(stats.get("value"))
+        if total is not None:
+            cost_totals[name] = total
+
     grouped = {
         "quality_metrics": quality_metrics,
         "latency_metrics": latency_metrics,
         "reliability_metrics": reliability_metrics,
         "cost_metrics": cost_metrics,
+        "cost_totals": cost_totals,
         "streaming_metrics": streaming_metrics,
         "resource_metrics": resource_metrics,
     }
@@ -178,14 +218,21 @@ def summarize_result_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
         series = metric_values.get(metric_name, [])
         if not series:
             continue
+        definition = metric_definition(metric_name)
+        aggregator = definition.summary_aggregator if definition is not None else "mean"
+        metric_counts[metric_name] = len(series)
+        if aggregator == "rate":
+            metric_statistics[metric_name] = _rate_statistics(series)
+            mean_metrics[metric_name] = float(metric_statistics[metric_name]["value"])
+            continue
+        if aggregator == "sum":
+            metric_statistics[metric_name] = _sum_statistics(series)
+            mean_metrics[metric_name] = float(metric_statistics[metric_name]["value"])
+            continue
+
         value = float(mean(series))
         mean_metrics[metric_name] = value
-        metric_counts[metric_name] = len(series)
-        definition = metric_definition(metric_name)
-        metric_statistics[metric_name] = _scalar_statistics(
-            series,
-            aggregator=definition.summary_aggregator if definition is not None else "mean",
-        )
+        metric_statistics[metric_name] = _scalar_statistics(series, aggregator=aggregator)
 
     return {
         "samples": total_samples,
@@ -196,5 +243,5 @@ def summarize_result_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "metric_counts": metric_counts,
         "metric_statistics": metric_statistics,
         "metric_metadata": metric_metadata(sorted(enabled_metric_names)),
-        **_metric_groups(mean_metrics),
+        **_metric_groups(mean_metrics, metric_statistics),
     }

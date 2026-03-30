@@ -70,6 +70,8 @@ def main() -> None:
         )
     if summary.get("cost_metrics"):
         bullets.append(f"overall_cost_metrics: {_json_metric_block(summary, 'cost_metrics')}")
+    if summary.get("cost_totals"):
+        bullets.append(f"overall_cost_totals: {_json_metric_block(summary, 'cost_totals')}")
     for provider_summary in summary.get("provider_summaries", []):
         if not isinstance(provider_summary, dict):
             continue
@@ -94,6 +96,10 @@ def main() -> None:
         bullets.append(
             f"provider_cost_metrics: {_json_metric_block(provider_summary, 'cost_metrics')}"
         )
+        if provider_summary.get("cost_totals"):
+            bullets.append(
+                f"provider_cost_totals: {_json_metric_block(provider_summary, 'cost_totals')}"
+            )
     path = export_markdown(args.output_md, f"Benchmark {summary.get('run_id', 'unknown')}", bullets)
     print(path)
 

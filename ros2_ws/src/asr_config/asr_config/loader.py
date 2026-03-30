@@ -22,7 +22,6 @@ import yaml  # type: ignore[import-untyped]
 
 from asr_config.models import ResolvedConfig
 
-
 PROFILE_DIRS = {
     "runtime": "runtime",
     "providers": "providers",
@@ -31,6 +30,15 @@ PROFILE_DIRS = {
     "metrics": "metrics",
     "deployment": "deployment",
     "gui": "gui",
+}
+
+DEPLOYMENT_SCOPED_DEFAULTS = {
+    "runtime": "runtime_defaults",
+    "providers": "provider_defaults",
+    "benchmark": "benchmark_defaults",
+    "datasets": "dataset_defaults",
+    "metrics": "metric_defaults",
+    "gui": "gui_defaults",
 }
 
 
@@ -51,6 +59,24 @@ def _load_yaml(path: Path) -> dict[str, Any]:
     if not isinstance(data, dict):
         raise ValueError(f"YAML root must be object: {path}")
     return data
+
+
+def _deployment_payload_for_profile(
+    *, profile_type: str, deployment_payload: dict[str, Any]
+) -> dict[str, Any]:
+    if profile_type == "deployment":
+        return dict(deployment_payload)
+
+    filtered = {
+        key: value
+        for key, value in deployment_payload.items()
+        if key not in DEPLOYMENT_SCOPED_DEFAULTS.values()
+    }
+    scoped_key = DEPLOYMENT_SCOPED_DEFAULTS.get(profile_type, "")
+    scoped_payload = deployment_payload.get(scoped_key, {})
+    if isinstance(scoped_payload, dict):
+        filtered = _deep_merge(filtered, scoped_payload)
+    return filtered
 
 
 def _profile_file(root: Path, profile_type: str, profile_id: str) -> Path:
@@ -163,7 +189,10 @@ def resolve_profile(
             str(root / PROFILE_DIRS.get(profile_type, profile_type) / "_base.yaml")
         )
 
-    deployment_defaults = _load_yaml(root / "deployment" / f"{deployment_profile}.yaml")
+    deployment_defaults = _deployment_payload_for_profile(
+        profile_type=profile_type,
+        deployment_payload=_load_yaml(root / "deployment" / f"{deployment_profile}.yaml"),
+    )
     if deployment_defaults:
         merge_order.append(str(root / "deployment" / f"{deployment_profile}.yaml"))
 

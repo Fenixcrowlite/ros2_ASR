@@ -5,8 +5,10 @@
 ## Назначение
 
 - build,
-- запуск benchmark runner,
-- генерация `results/*.json`, `results/*.csv`, `results/plots/*.png`.
+- запуск canonical benchmark core через `scripts/run_benchmark_core.py`,
+- генерация canonical run folder в `artifacts/benchmark_runs/<run_id>/...`,
+- генерация compatibility `results/*.json`, `results/*.csv`, `results/plots/*.png`,
+- публикация `results/latest_benchmark_summary.json`.
 
 ## Использование
 

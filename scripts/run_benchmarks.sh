@@ -55,8 +55,9 @@ set +u
 source "${ASR_COLCON_INSTALL_PREFIX}/setup.bash"
 set -u
 
-python3 -m asr_benchmark.runner \
-  --config configs/default.yaml \
-  --dataset data/transcripts/sample_manifest.csv \
-  --output-json results/benchmark_results.json \
-  --output-csv results/benchmark_results.csv
+python3 scripts/run_benchmark_core.py \
+  --benchmark-profile default_benchmark \
+  --configs-root "$ROOT_DIR/configs" \
+  --artifact-root "$ROOT_DIR/artifacts" \
+  --registry-path "$ROOT_DIR/datasets/registry/datasets.json" \
+  --results-dir "$ROOT_DIR/results"

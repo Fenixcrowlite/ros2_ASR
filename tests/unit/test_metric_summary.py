@@ -79,5 +79,33 @@ def test_summarize_result_rows_keeps_streaming_only_metrics_out_of_batch_summary
     assert "first_partial_latency_ms" not in summary["mean_metrics"]
     assert "partial_count" not in summary["mean_metrics"]
     assert summary["cost_metrics"]["estimated_cost_usd"] == 0.25
-    assert summary["resource_metrics"]["estimated_cost_usd"] == 0.25
+    assert summary["cost_totals"]["estimated_cost_usd"] == 0.25
+    assert summary["resource_metrics"] == {}
     assert summary["metric_statistics"]["estimated_cost_usd"]["sum"] == 0.25
+
+
+def test_summarize_result_rows_uses_rate_statistics_for_reliability_metrics() -> None:
+    rows = [
+        {"success": True, "metrics": {"success_rate": 1.0, "failure_rate": 0.0}},
+        {"success": False, "metrics": {"success_rate": 0.0, "failure_rate": 1.0}},
+        {"success": True, "metrics": {"success_rate": 1.0, "failure_rate": 0.0}},
+    ]
+
+    summary = summarize_result_rows(rows)
+
+    assert summary["mean_metrics"]["success_rate"] == 2 / 3
+    assert summary["mean_metrics"]["failure_rate"] == 1 / 3
+    assert summary["metric_statistics"]["success_rate"] == {
+        "count": 3,
+        "aggregator": "rate",
+        "numerator": 2,
+        "denominator": 3,
+        "value": 2 / 3,
+    }
+    assert summary["metric_statistics"]["failure_rate"] == {
+        "count": 3,
+        "aggregator": "rate",
+        "numerator": 1,
+        "denominator": 3,
+        "value": 1 / 3,
+    }

@@ -7,8 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from asr_config import resolve_profile
-from asr_datasets import DatasetRegistry
-from asr_datasets import load_manifest
+from asr_datasets import DatasetRegistry, load_manifest
 from asr_metrics.definitions import metric_preference as metric_preference_from_registry
 from asr_metrics.quality import text_quality_support
 from fastapi import HTTPException
@@ -216,6 +215,7 @@ def list_benchmark_history(
                 "latency_metrics": summary.get("latency_metrics", {}),
                 "reliability_metrics": summary.get("reliability_metrics", {}),
                 "cost_metrics": summary.get("cost_metrics", {}),
+                "cost_totals": summary.get("cost_totals", {}),
                 "streaming_metrics": summary.get("streaming_metrics", {}),
                 "resource_metrics": summary.get("resource_metrics", {}),
                 "provider_summaries": summary.get("provider_summaries", []),
@@ -250,6 +250,7 @@ def list_benchmark_history(
                 "latency_metrics": {},
                 "reliability_metrics": {},
                 "cost_metrics": {},
+                "cost_totals": {},
                 "streaming_metrics": {},
                 "resource_metrics": {},
                 "provider_summaries": [],

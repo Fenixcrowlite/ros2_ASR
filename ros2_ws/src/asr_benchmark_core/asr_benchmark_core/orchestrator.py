@@ -54,6 +54,23 @@ def _deep_merge(base: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
     return merged
 
 
+def _as_bool(value: Any, *, default: bool) -> bool:
+    if value is None:
+        return default
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    normalized = str(value).strip().lower()
+    if not normalized:
+        return default
+    if normalized in {"1", "true", "yes", "on"}:
+        return True
+    if normalized in {"0", "false", "no", "off"}:
+        return False
+    return default
+
+
 def _quality_metrics_enabled(enabled_metrics: list[str] | tuple[str, ...] | set[str]) -> bool:
     return any(metric_name in {"wer", "cer", "sample_accuracy"} for metric_name in enabled_metrics)
 
@@ -161,6 +178,16 @@ class BenchmarkOrchestrator:
     ) -> tuple[dict[str, Any], str, list[Any]]:
         benchmark_settings = _deep_merge(
             {
+                "execution_mode": str(
+                    benchmark_cfg.data.get("execution_mode", "batch") or "batch"
+                ).strip()
+                or "batch",
+                "save_raw_outputs": _as_bool(
+                    benchmark_cfg.data.get("save_raw_outputs", True), default=True
+                ),
+                "save_normalized_outputs": _as_bool(
+                    benchmark_cfg.data.get("save_normalized_outputs", True), default=True
+                ),
                 "batch": dict(benchmark_cfg.data.get("batch", {}))
                 if isinstance(benchmark_cfg.data.get("batch", {}), dict)
                 else {},
@@ -404,6 +431,12 @@ class BenchmarkOrchestrator:
         results: list[dict[str, Any]] = []
         session_id = f"benchmark_{plan.run_id}"
         derived_audio_root = run_dir / "derived_audio"
+        save_raw_outputs = _as_bool(
+            plan.benchmark_settings.get("save_raw_outputs", True), default=True
+        )
+        save_normalized_outputs = _as_bool(
+            plan.benchmark_settings.get("save_normalized_outputs", True), default=True
+        )
 
         for provider_profile in plan.provider_profiles:
             execution = plan.provider_execution.get(provider_profile, {})
@@ -462,12 +495,14 @@ class BenchmarkOrchestrator:
                                 sample.sample_id,
                             ]
                         )
-                        self.artifact_store.save_raw_output(run_dir, sample_key, record)
-                        self.artifact_store.save_normalized_output(
-                            run_dir,
-                            sample_key,
-                            record.get("normalized_result", {}),
-                        )
+                        if save_raw_outputs:
+                            self.artifact_store.save_raw_output(run_dir, sample_key, record)
+                        if save_normalized_outputs:
+                            self.artifact_store.save_normalized_output(
+                                run_dir,
+                                sample_key,
+                                record.get("normalized_result", {}),
+                            )
             finally:
                 provider.teardown()
         return results
@@ -643,6 +678,7 @@ class BenchmarkOrchestrator:
                 "latency_metrics": {},
                 "reliability_metrics": {},
                 "cost_metrics": {},
+                "cost_totals": {},
                 "streaming_metrics": {},
                 "resource_metrics": {},
             }
@@ -707,6 +743,7 @@ class BenchmarkOrchestrator:
                     ("latency_metrics", provider_summary.get("latency_metrics", {})),
                     ("reliability_metrics", provider_summary.get("reliability_metrics", {})),
                     ("cost_metrics", provider_summary.get("cost_metrics", {})),
+                    ("cost_totals", provider_summary.get("cost_totals", {})),
                     ("streaming_metrics", provider_summary.get("streaming_metrics", {})),
                 ):
                     if not metrics:

@@ -333,6 +333,216 @@ def test_generate_report_cli_rejects_missing_input(repo_root: Path, tmp_path: Pa
     assert "Benchmark JSON not found:" in result.stderr
 
 
+def test_generate_report_cli_accepts_canonical_summary_json(
+    repo_root: Path, tmp_path: Path
+) -> None:
+    input_json = tmp_path / "summary.json"
+    input_json.write_text(
+        json.dumps(
+            {
+                "run_id": "bench_cli_summary",
+                "benchmark_profile": "default_benchmark",
+                "dataset_id": "sample_dataset",
+                "providers": ["providers/fake_cli"],
+                "scenario": "clean_baseline",
+                "execution_mode": "batch",
+                "aggregate_scope": "single_provider",
+                "total_samples": 1,
+                "successful_samples": 1,
+                "failed_samples": 0,
+                "provider_summaries": [
+                    {
+                        "provider_key": "providers/fake_cli",
+                        "provider_profile": "providers/fake_cli",
+                        "provider_id": "fake_cli",
+                        "provider_preset": "",
+                        "quality_metrics": {
+                            "wer": 0.0,
+                            "cer": 0.0,
+                            "sample_accuracy": 1.0,
+                        },
+                        "latency_metrics": {
+                            "total_latency_ms": 12.0,
+                            "real_time_factor": 0.2,
+                        },
+                        "reliability_metrics": {
+                            "success_rate": 1.0,
+                        },
+                        "cost_totals": {
+                            "estimated_cost_usd": 0.0,
+                        },
+                        "metric_statistics": {
+                            "estimated_cost_usd": {
+                                "sum": 0.0,
+                            }
+                        },
+                    }
+                ],
+                "noise_summary": {
+                    "clean": {
+                        "mean_metrics": {
+                            "wer": 0.0,
+                            "cer": 0.0,
+                            "total_latency_ms": 12.0,
+                            "real_time_factor": 0.2,
+                        }
+                    }
+                },
+            },
+            ensure_ascii=True,
+        ),
+        encoding="utf-8",
+    )
+    output_md = tmp_path / "report.md"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "generate_report.py"),
+            "--input",
+            str(input_json),
+            "--output",
+            str(output_md),
+        ],
+        cwd=tmp_path,
+        env={k: v for k, v in os.environ.items() if k != "PYTHONPATH"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0
+    report_text = output_md.read_text(encoding="utf-8")
+    assert "Run ID: bench_cli_summary" in report_text
+    assert (
+        "| providers/fake_cli | 0.000 | 0.000 | 1.000 | 12.0 | 0.200 | 1.000 | 0.0000 |"
+        in report_text
+    )
+
+
+def test_run_benchmark_core_cli_exports_canonical_and_compatibility_artifacts(
+    repo_root: Path, tmp_path: Path, sample_wav: str
+) -> None:
+    env = os.environ.copy()
+    env["PYTHONPATH"] = _pythonpath(repo_root)
+
+    configs = tmp_path / "configs"
+    datasets_root = tmp_path / "datasets"
+    artifacts = tmp_path / "artifacts"
+    results = tmp_path / "results"
+    registry = datasets_root / "registry" / "datasets.json"
+    manifest = datasets_root / "manifests" / "cli_dataset.jsonl"
+    imported_audio = datasets_root / "imported" / "cli_sample.wav"
+
+    imported_audio.parent.mkdir(parents=True, exist_ok=True)
+    manifest.parent.mkdir(parents=True, exist_ok=True)
+    registry.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(sample_wav, imported_audio)
+    manifest.write_text(
+        json.dumps(
+            {
+                "sample_id": "cli_sample_001",
+                "audio_path": str(imported_audio),
+                "transcript": "hello world",
+                "language": "en-US",
+                "split": "test",
+            },
+            ensure_ascii=True,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    registry.write_text('{"datasets": []}\n', encoding="utf-8")
+
+    (configs / "providers").mkdir(parents=True, exist_ok=True)
+    (configs / "datasets").mkdir(parents=True, exist_ok=True)
+    (configs / "benchmark").mkdir(parents=True, exist_ok=True)
+    (configs / "metrics").mkdir(parents=True, exist_ok=True)
+
+    (configs / "providers" / "fake_cli.yaml").write_text(
+        "\n".join(
+            [
+                "profile_id: providers/fake_cli",
+                "provider_id: fake",
+                "adapter: tests.utils.fakes.FakeProviderAdapter",
+                "settings: {}",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (configs / "datasets" / "cli_dataset.yaml").write_text(
+        "\n".join(
+            [
+                "dataset_id: cli_dataset",
+                f"manifest_path: {manifest}",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    (configs / "metrics" / "quality.yaml").write_text(
+        "metrics:\n  - wer\n  - cer\n  - sample_accuracy\n",
+        encoding="utf-8",
+    )
+    (configs / "metrics" / "timing.yaml").write_text(
+        "metrics:\n  - total_latency_ms\n  - real_time_factor\n  - success_rate\n",
+        encoding="utf-8",
+    )
+    (configs / "benchmark" / "cli_benchmark.yaml").write_text(
+        "\n".join(
+            [
+                "dataset_profile: datasets/cli_dataset",
+                "providers:",
+                "  - providers/fake_cli",
+                "metric_profiles:",
+                "  - metrics/quality",
+                "  - metrics/timing",
+                "execution_mode: batch",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "run_benchmark_core.py"),
+            "--benchmark-profile",
+            "cli_benchmark",
+            "--configs-root",
+            str(configs),
+            "--artifact-root",
+            str(artifacts),
+            "--registry-path",
+            str(registry),
+            "--results-dir",
+            str(results),
+            "--run-id",
+            "bench_cli_run",
+        ],
+        cwd=tmp_path,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    assert payload["run_id"] == "bench_cli_run"
+    assert (artifacts / "benchmark_runs" / "bench_cli_run" / "reports" / "summary.json").exists()
+    assert (artifacts / "benchmark_runs" / "bench_cli_run" / "metrics" / "results.json").exists()
+    assert (results / "latest_benchmark_summary.json").exists()
+    assert (results / "latest_benchmark_run.json").exists()
+    assert (results / "benchmark_results.json").exists()
+    assert (results / "benchmark_results.csv").exists()
+    assert (results / "plots" / "wer_cer_by_backend.png").exists()
+    compat_payload = json.loads((results / "benchmark_results.json").read_text(encoding="utf-8"))
+    assert compat_payload[0]["backend"] == "providers/fake_cli"
+
+
 def test_generate_plots_cli_creates_output(repo_root: Path, tmp_path: Path) -> None:
     env = {k: v for k, v in os.environ.items() if k != "PYTHONPATH"}
     input_json = tmp_path / "benchmark_results.json"

@@ -522,6 +522,15 @@ def test_benchmark_orchestrator_uses_preset_cost_and_omits_streaming_metrics_in_
     assert summary.mean_metrics["estimated_cost_usd"] == 0.25
     assert "first_partial_latency_ms" not in summary.mean_metrics
     assert "partial_count" not in summary.mean_metrics
+    summary_payload = json.loads(
+        (
+            artifacts / "benchmark_runs" / "bench_cost_run" / "reports" / "summary.json"
+        ).read_text(encoding="utf-8")
+    )
+    assert summary_payload["cost_metrics"]["estimated_cost_usd"] == 0.25
+    assert summary_payload["cost_totals"]["estimated_cost_usd"] == 0.25
+    assert summary_payload["resource_metrics"] == {}
+    assert summary_payload["metric_statistics"]["estimated_cost_usd"]["sum"] == 0.25
 
     csv_text = (
         artifacts / "benchmark_runs" / "bench_cost_run" / "metrics" / "results.csv"
@@ -608,3 +617,151 @@ def test_benchmark_orchestrator_rejects_empty_normalized_reference_for_quality_m
                 run_id="bench_bad_ref_run",
             )
         )
+
+
+def test_benchmark_orchestrator_honors_profile_execution_mode_without_request_override(
+    tmp_path: Path,
+    sample_wav: str,
+) -> None:
+    class FakeStreamingProfileProvider(FakeProviderAdapter):
+        provider_id = "fake_stream_profile"
+
+    register_provider("fake_stream_profile", FakeStreamingProfileProvider)
+    configs = tmp_path / "configs"
+    artifacts = tmp_path / "artifacts"
+    registry = tmp_path / "datasets" / "registry" / "datasets.json"
+    imported_audio = tmp_path / "datasets" / "imported" / "bench.wav"
+    manifest_path = tmp_path / "datasets" / "manifests" / "bench.jsonl"
+
+    imported_audio.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    registry.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(sample_wav, imported_audio)
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "sample_id": "sample_00001",
+                "audio_path": str(imported_audio),
+                "transcript": "stream 8 chunks",
+                "language": "en-US",
+                "split": "test",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    registry.write_text('{"datasets": []}\n', encoding="utf-8")
+
+    _write_yaml(
+        configs / "providers" / "fake_stream.yaml",
+        {"provider_id": "fake_stream_profile", "settings": {}},
+    )
+    _write_yaml(
+        configs / "datasets" / "bench_dataset.yaml",
+        {"dataset_id": "bench_dataset", "manifest_path": str(manifest_path)},
+    )
+    _write_yaml(
+        configs / "metrics" / "streaming.yaml",
+        {"metrics": ["wer", "partial_count", "first_partial_latency_ms"]},
+    )
+    _write_yaml(
+        configs / "benchmark" / "bench.yaml",
+        {
+            "dataset_profile": "datasets/bench_dataset",
+            "providers": ["providers/fake_stream"],
+            "metric_profiles": ["metrics/streaming"],
+            "execution_mode": "streaming",
+            "streaming": {"chunk_ms": 250},
+        },
+    )
+
+    summary = BenchmarkOrchestrator(
+        configs_root=str(configs),
+        artifact_root=str(artifacts),
+        registry_path=str(registry),
+    ).run(
+        BenchmarkRunRequest(
+            benchmark_profile="bench",
+            dataset_profile="bench_dataset",
+            providers=["providers/fake_stream"],
+            run_id="bench_streaming_from_profile",
+        )
+    )
+
+    assert summary.metadata["execution_mode"] == "streaming"
+    assert summary.mean_metrics["partial_count"] > 0
+
+
+def test_benchmark_orchestrator_respects_artifact_save_flags(
+    tmp_path: Path,
+    sample_wav: str,
+) -> None:
+    class FakeArtifactToggleProvider(FakeProviderAdapter):
+        provider_id = "fake_artifact_toggle"
+
+    register_provider("fake_artifact_toggle", FakeArtifactToggleProvider)
+    configs = tmp_path / "configs"
+    artifacts = tmp_path / "artifacts"
+    registry = tmp_path / "datasets" / "registry" / "datasets.json"
+    imported_audio = tmp_path / "datasets" / "imported" / "bench.wav"
+    manifest_path = tmp_path / "datasets" / "manifests" / "bench.jsonl"
+
+    imported_audio.parent.mkdir(parents=True, exist_ok=True)
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    registry.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copy2(sample_wav, imported_audio)
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "sample_id": "sample_00001",
+                "audio_path": str(imported_audio),
+                "transcript": "hello world",
+                "language": "en-US",
+                "split": "test",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    registry.write_text('{"datasets": []}\n', encoding="utf-8")
+
+    _write_yaml(
+        configs / "providers" / "fake_artifact_toggle.yaml",
+        {"provider_id": "fake_artifact_toggle", "settings": {}},
+    )
+    _write_yaml(
+        configs / "datasets" / "bench_dataset.yaml",
+        {"dataset_id": "bench_dataset", "manifest_path": str(manifest_path)},
+    )
+    _write_yaml(
+        configs / "metrics" / "quality.yaml",
+        {"metrics": ["wer"]},
+    )
+    _write_yaml(
+        configs / "benchmark" / "bench.yaml",
+        {
+            "dataset_profile": "datasets/bench_dataset",
+            "providers": ["providers/fake_artifact_toggle"],
+            "metric_profiles": ["metrics/quality"],
+            "save_raw_outputs": False,
+            "save_normalized_outputs": False,
+        },
+    )
+
+    summary = BenchmarkOrchestrator(
+        configs_root=str(configs),
+        artifact_root=str(artifacts),
+        registry_path=str(registry),
+    ).run(
+        BenchmarkRunRequest(
+            benchmark_profile="bench",
+            dataset_profile="bench_dataset",
+            providers=["providers/fake_artifact_toggle"],
+            run_id="bench_artifact_toggle",
+        )
+    )
+
+    run_dir = artifacts / "benchmark_runs" / summary.run_id
+    assert list((run_dir / "raw_outputs").iterdir()) == []
+    assert list((run_dir / "normalized_outputs").iterdir()) == []
+    assert (run_dir / "metrics" / "results.json").exists()

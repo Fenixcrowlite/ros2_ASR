@@ -16,8 +16,10 @@ from launch_ros.actions import Node
 def generate_launch_description() -> LaunchDescription:
     assert_no_conflicting_managed_stack()
     runtime_profile = DeclareLaunchArgument("runtime_profile", default_value="default_runtime")
-    provider_profile = DeclareLaunchArgument("provider_profile", default_value="providers/whisper_local")
-    namespace = DeclareLaunchArgument("namespace", default_value="/asr")
+    provider_profile = DeclareLaunchArgument(
+        "provider_profile",
+        default_value="providers/whisper_local",
+    )
 
     node_env = runtime_python_env()
 
@@ -27,11 +29,7 @@ def generate_launch_description() -> LaunchDescription:
         name="audio_input_node",
         output="screen",
         additional_env=node_env,
-        parameters=[
-            {"input_mode": "file"},
-            {"file_path": "data/sample/vosk_test.wav"},
-            {"chunk_ms": 500},
-        ],
+        parameters=[{"runtime_profile": LaunchConfiguration("runtime_profile")}],
     )
 
     audio_preprocess = Node(
@@ -40,6 +38,7 @@ def generate_launch_description() -> LaunchDescription:
         name="audio_preprocess_node",
         output="screen",
         additional_env=node_env,
+        parameters=[{"runtime_profile": LaunchConfiguration("runtime_profile")}],
     )
 
     vad_segmenter = Node(
@@ -48,6 +47,7 @@ def generate_launch_description() -> LaunchDescription:
         name="vad_segmenter_node",
         output="screen",
         additional_env=node_env,
+        parameters=[{"runtime_profile": LaunchConfiguration("runtime_profile")}],
     )
 
     orchestrator = Node(
@@ -65,7 +65,6 @@ def generate_launch_description() -> LaunchDescription:
     return LaunchDescription([
         runtime_profile,
         provider_profile,
-        namespace,
         audio_input,
         audio_preprocess,
         vad_segmenter,

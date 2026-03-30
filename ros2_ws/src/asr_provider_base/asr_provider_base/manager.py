@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any
 
 from asr_config import load_secret_ref, resolve_profile, resolve_secret_ref
+
 from asr_provider_base.adapter import AsrProviderAdapter
 from asr_provider_base.catalog import resolve_provider_execution
 from asr_provider_base.registry import create_provider
@@ -71,7 +72,10 @@ class ProviderManager:
             credentials = resolve_secret_ref(secret_ref)
 
         # 4. Instantiate and validate the adapter before handing it to caller.
-        provider = create_provider(provider_id)
+        provider = create_provider(
+            provider_id,
+            adapter_path=str(payload.get("adapter", "") or "").strip(),
+        )
         provider.initialize(config=settings, credentials_ref=credentials)
         errors = provider.validate_config()
         if errors:

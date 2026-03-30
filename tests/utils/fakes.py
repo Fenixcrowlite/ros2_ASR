@@ -604,14 +604,9 @@ class FakeGatewayRosClient:
                     "failure_rate": 0.0,
                 },
                 "cost_metrics": {"estimated_cost_usd": 0.0},
+                "cost_totals": {"estimated_cost_usd": 0.0},
                 "streaming_metrics": streaming_metrics,
-                "resource_metrics": {
-                    "total_latency_ms": 15.0,
-                    "per_utterance_latency_ms": 15.0,
-                    "real_time_factor": 0.25,
-                    "estimated_cost_usd": 0.0,
-                    **streaming_metrics,
-                },
+                "resource_metrics": {},
                 "metric_statistics": {
                     "estimated_cost_usd": {
                         "aggregator": "mean",
@@ -649,14 +644,9 @@ class FakeGatewayRosClient:
                 "failure_rate": 0.0,
             },
             "cost_metrics": {"estimated_cost_usd": 0.0},
+            "cost_totals": {"estimated_cost_usd": 0.0},
             "streaming_metrics": streaming_metrics,
-            "resource_metrics": {
-                "total_latency_ms": 15.0,
-                "per_utterance_latency_ms": 15.0,
-                "real_time_factor": 0.25,
-                "estimated_cost_usd": 0.0,
-                **streaming_metrics,
-            },
+            "resource_metrics": {},
             "provider_summaries": provider_summaries,
             "noise_summary": {
                 "clean": {

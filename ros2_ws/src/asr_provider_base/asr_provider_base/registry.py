@@ -36,6 +36,28 @@ def _ensure_provider(provider_id: str) -> None:
     _REGISTRY[provider_id] = cls
 
 
-def create_provider(provider_id: str, **kwargs: Any) -> AsrProviderAdapter:
+def _provider_class_from_adapter_path(adapter_path: str) -> type[AsrProviderAdapter]:
+    module_name, separator, class_name = str(adapter_path or "").strip().rpartition(".")
+    if not separator or not module_name or not class_name:
+        raise ValueError(f"Invalid provider adapter path: {adapter_path!r}")
+    module = import_module(module_name)
+    cls = getattr(module, class_name)
+    if not isinstance(cls, type) or not issubclass(cls, AsrProviderAdapter):
+        raise TypeError(
+            "Provider adapter path does not resolve to AsrProviderAdapter: "
+            f"{adapter_path}"
+        )
+    return cls
+
+
+def create_provider(
+    provider_id: str,
+    *,
+    adapter_path: str = "",
+    **kwargs: Any,
+) -> AsrProviderAdapter:
+    if str(adapter_path or "").strip():
+        cls = _provider_class_from_adapter_path(adapter_path)
+        return cls(**kwargs)
     _ensure_provider(provider_id)
     return _REGISTRY[provider_id](**kwargs)

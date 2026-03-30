@@ -66,8 +66,13 @@ make arch
 bash scripts/release_check.sh
 ```
 
-`make bench` runs the benchmark runner and generates `results/*.csv`, `results/*.json`,
-and `results/plots/*.png` in a single pass (no duplicate plotting step).
+`make bench` now runs the canonical `asr_benchmark_core` flow via
+`scripts/run_benchmark_core.py`. It writes the source-of-truth run under
+`artifacts/benchmark_runs/<run_id>/...`, publishes a local summary pointer at
+`results/latest_benchmark_summary.json`, and then emits compatibility
+`results/*.csv`, `results/*.json`, and `results/plots/*.png`.
+
+`make report` renders `results/report.md` from `results/latest_benchmark_summary.json`.
 
 For the newer gateway/core benchmark path, the canonical per-run artifacts live under
 `artifacts/benchmark_runs/<run_id>/...`. Those summaries expose grouped metric sections

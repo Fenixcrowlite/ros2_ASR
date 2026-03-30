@@ -3,7 +3,8 @@
 Есть два artifact surface:
 
 - core/gateway benchmark: `artifacts/benchmark_runs/<run_id>/...`
-- legacy `make bench`: `results/benchmark_results.*` + `results/report.md` + `results/plots/*.png`
+- local `make bench` bridge: `results/latest_benchmark_summary.json` + `results/latest_benchmark_run.json` + `results/benchmark_results.*` + `results/report.md` + `results/plots/*.png`
+- direct legacy flat benchmark: `python -m asr_benchmark.runner`
 
 ## Canonical run folder
 
@@ -39,10 +40,15 @@
 
 После `make bench` ожидаются:
 
+- `results/latest_benchmark_summary.json`
+- `results/latest_benchmark_run.json`
 - `results/benchmark_results.csv`
 - `results/benchmark_results.json`
-- `results/report.md`
 - `results/plots/*.png`
+
+После `make report` ожидается:
+
+- `results/report.md`
 
 ## Связанные
 

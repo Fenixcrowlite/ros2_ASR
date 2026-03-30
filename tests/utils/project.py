@@ -134,13 +134,11 @@ def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: floa
             "cost_metrics": {
                 "estimated_cost_usd": 0.0,
             },
-            "streaming_metrics": {},
-            "resource_metrics": {
-                "total_latency_ms": 15.0,
-                "per_utterance_latency_ms": 15.0,
-                "real_time_factor": 0.25,
+            "cost_totals": {
                 "estimated_cost_usd": 0.0,
             },
+            "streaming_metrics": {},
+            "resource_metrics": {},
         }
     ]
     summary = {
@@ -248,13 +246,11 @@ def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: floa
         "cost_metrics": {
             "estimated_cost_usd": 0.0,
         },
-        "streaming_metrics": {},
-        "resource_metrics": {
-            "total_latency_ms": 15.0,
-            "per_utterance_latency_ms": 15.0,
-            "real_time_factor": 0.25,
+        "cost_totals": {
             "estimated_cost_usd": 0.0,
         },
+        "streaming_metrics": {},
+        "resource_metrics": {},
         "provider_summaries": provider_summaries,
         "providers_summary": {},
         "noise_summary": {
