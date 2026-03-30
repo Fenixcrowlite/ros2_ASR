@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from asr_backend_aws.backend import AwsAsrBackend
 from asr_backend_azure.backend import AzureAsrBackend
 from asr_backend_google.backend import GoogleAsrBackend
@@ -64,6 +66,23 @@ def test_google_backend_normalizes_slovak_on_credential_error(
     response = backend.recognize_once(AsrRequest(wav_path=sample_wav, language="sk"))
     assert not response.success
     assert response.error_code == "credential_missing"
+    assert response.language == "sk-SK"
+
+
+def test_google_backend_surfaces_client_import_reason(
+    sample_wav: str, tmp_path: Path, monkeypatch
+) -> None:
+    creds = tmp_path / "google.json"
+    creds.write_text("{}", encoding="utf-8")
+    backend = GoogleAsrBackend(config={"credentials_json": str(creds)})
+    backend._client_error = "ModuleNotFoundError: No module named 'google'"
+    monkeypatch.setattr(backend, "_load_client", lambda: False)
+
+    response = backend.recognize_once(AsrRequest(wav_path=sample_wav, language="sk"))
+
+    assert response.success is False
+    assert response.error_code == "client_init_error"
+    assert "ModuleNotFoundError" in response.error_message
     assert response.language == "sk-SK"
 
 

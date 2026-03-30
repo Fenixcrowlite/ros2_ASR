@@ -23,7 +23,7 @@ function statusBadgeClass(state) {
   if (['ok', 'ready', 'running', 'completed', 'healthy', 'valid'].includes(value)) {
     return 'badge badge-ok';
   }
-  if (['warning', 'warn', 'degraded', 'queued', 'idle'].includes(value)) {
+  if (['warning', 'warn', 'degraded', 'queued', 'idle', 'interrupted', 'incomplete', 'partial'].includes(value)) {
     return 'badge badge-warn';
   }
   if (['error', 'failed', 'invalid', 'unavailable'].includes(value)) {

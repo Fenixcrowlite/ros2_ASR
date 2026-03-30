@@ -3,7 +3,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 
 import asr_gateway.ros_client as ros_client_module
-from asr_gateway.ros_client import GatewayRosClient, RuntimeObserver
+from asr_gateway.ros_client import GatewayResponse, GatewayRosClient, RuntimeObserver
 
 
 class _DoneFuture:
@@ -206,6 +206,30 @@ def test_run_benchmark_uses_action_helper_and_maps_summary(monkeypatch) -> None:
     assert response.success is True
     assert response.payload["summary"]["total_samples"] == 10
     assert node.destroyed is True
+
+
+def test_run_benchmark_uses_extended_goal_and_result_timeouts() -> None:
+    node = _FakeNode(_FakeServiceClient(result=None))
+    client = _make_client_with_node(node)
+    captured: dict[str, object] = {}
+
+    def fake_call_action(*args, **kwargs):
+        del args
+        captured.update(kwargs)
+        return GatewayResponse(True, "queued", {})
+
+    client._call_action = fake_call_action
+
+    response = client.run_benchmark(
+        "default_benchmark",
+        "sample_dataset",
+        ["providers/whisper_local"],
+        run_id="bench_timeout_contract",
+    )
+
+    assert response.success is True
+    assert captured["goal_timeout_sec"] == 30.0
+    assert captured["result_timeout_sec"] == 3600.0
 
 
 def test_runtime_observer_stop_records_cleanup_failures() -> None:

@@ -4,6 +4,7 @@ provider_id: aws
 adapter: asr_provider_aws.aws_provider.AwsProvider
 settings:
   region: eu-north-1
+  streaming_region: eu-central-1
   s3_bucket: ros2ws-asr-787345513049-eu-north-1
   media_format: wav
   cleanup: true
@@ -20,6 +21,7 @@ ui:
       settings: {}
   advanced_fields:
     - region
+    - streaming_region
     - s3_bucket
     - language_model_name
     - enable_partial_results_stabilization

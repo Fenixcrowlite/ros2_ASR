@@ -55,7 +55,7 @@ def test_validate_benchmark_payload_rejects_invalid_runtime_controls() -> None:
             "metric_profiles": [],
             "execution_mode": "interactive",
             "batch": {"max_samples": -1, "timeout_sec": 0},
-            "streaming": {"chunk_ms": 0},
+            "streaming": {"chunk_ms": 0, "replay_rate": -1},
         }
     )
 
@@ -66,6 +66,7 @@ def test_validate_benchmark_payload_rejects_invalid_runtime_controls() -> None:
     assert "batch.max_samples must be >= 0" in errors
     assert "batch.timeout_sec must be > 0" in errors
     assert "streaming.chunk_ms must be > 0" in errors
+    assert "streaming.replay_rate must be >= 0" in errors
 
 
 def test_validate_benchmark_payload_allows_minimal_profile_with_implicit_defaults() -> None:

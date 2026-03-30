@@ -419,6 +419,9 @@ class BenchmarkOrchestrator:
             "streaming_chunk_ms": int(
                 plan.benchmark_settings.get("streaming", {}).get("chunk_ms", 500) or 500
             ),
+            "streaming_replay_rate": float(
+                plan.benchmark_settings.get("streaming", {}).get("replay_rate", 1.0) or 0.0
+            ),
         }
 
     def _execute_provider_matrix(

@@ -8,6 +8,7 @@ import json
 import logging
 import os
 import queue
+import socket
 import threading
 import time
 import uuid
@@ -33,6 +34,28 @@ from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabili
 from asr_core.streaming import StreamAccumulator
 
 LOGGER = logging.getLogger(__name__)
+
+
+def _aws_streaming_host(region: str) -> str:
+    normalized_region = str(region or "us-east-1").strip() or "us-east-1"
+    return f"transcribestreaming.{normalized_region}.amazonaws.com"
+
+
+def _ensure_streaming_endpoint_resolves(region: str) -> None:
+    host = _aws_streaming_host(region)
+    try:
+        socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)
+    except socket.gaierror as exc:
+        raise RuntimeError(
+            "AWS streaming endpoint "
+            f"`{host}` could not be resolved. Configure `streaming_region` "
+            "or `ASR_AWS_STREAMING_REGION` to a region that supports Amazon "
+            "Transcribe Streaming."
+        ) from exc
+
+
+def _aws_streaming_session_id() -> str:
+    return str(uuid.uuid4())
 
 
 class AwsStreamingSession:
@@ -75,6 +98,12 @@ class AwsStreamingSession:
     def _classify_error(exc: Exception) -> tuple[str, str]:
         message = str(exc).strip() or exc.__class__.__name__
         lowered = message.lower()
+        if "sessionid" in lowered and "failed to satisfy constraint" in lowered:
+            return "aws_stream_session_id_invalid", message
+        if "streaming endpoint" in lowered and "could not be resolved" in lowered:
+            return "aws_stream_endpoint_unreachable", message
+        if "aws_io_dns_invalid_name" in lowered or "dns resolution" in lowered:
+            return "aws_stream_endpoint_unreachable", message
         if "error loading sso token" in lowered or (
             "token for" in lowered and "does not exist" in lowered
         ):
@@ -158,6 +187,7 @@ class AwsStreamingSession:
     async def _run_async(self) -> None:
         from amazon_transcribe.client import TranscribeStreamingClient
 
+        _ensure_streaming_endpoint_resolves(self._region)
         client = TranscribeStreamingClient(
             region=self._region,
             credential_resolver=self._credential_resolver,
@@ -166,7 +196,7 @@ class AwsStreamingSession:
             language_code=self._language,
             media_sample_rate_hz=self._sample_rate,
             media_encoding="pcm",
-            session_id=f"asr-{uuid.uuid4().hex[:24]}",
+            session_id=_aws_streaming_session_id(),
             enable_partial_results_stabilization=self._enable_partial_results_stabilization,
             partial_results_stability=self._partial_results_stability,
             language_model_name=self._language_model_name or None,
@@ -227,6 +257,19 @@ class AwsAsrBackend(AsrBackend):
     def __init__(self, config: dict | None = None, client: object | None = None) -> None:
         super().__init__(config=config, client=client)
         self.region = env_or(self.config, "region", "AWS_REGION", "us-east-1")
+        self.streaming_region = (
+            str(
+                env_or(
+                    self.config,
+                    "streaming_region",
+                    "ASR_AWS_STREAMING_REGION",
+                    self.region or "us-east-1",
+                )
+                or self.region
+                or "us-east-1"
+            ).strip()
+            or "us-east-1"
+        )
         self.s3_bucket = env_or(self.config, "s3_bucket", "ASR_AWS_S3_BUCKET", "")
         self.media_format = env_or(self.config, "media_format", "ASR_AWS_MEDIA_FORMAT", "wav")
         self.profile = env_or(self.config, "profile", "AWS_PROFILE", "")
@@ -747,7 +790,7 @@ class AwsAsrBackend(AsrBackend):
             raise RuntimeError("; ".join(validation_errors))
         resolver = self._streaming_credential_resolver()
         return AwsStreamingSession(
-            region=self.region,
+            region=self.streaming_region,
             credential_resolver=resolver,
             language=language,
             sample_rate=sample_rate,

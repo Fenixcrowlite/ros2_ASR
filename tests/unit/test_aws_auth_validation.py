@@ -1,9 +1,13 @@
 from __future__ import annotations
 
 import sys
-from types import SimpleNamespace
+import uuid
 from pathlib import Path
+from types import SimpleNamespace
 
+import pytest
+
+import asr_backend_aws.backend as aws_backend_module
 from asr_backend_aws.backend import AwsAsrBackend
 
 
@@ -155,3 +159,60 @@ output = json
     assert calls[0]["region_name"] == "eu-north-1"
     assert s3["name"] == "s3"
     assert transcribe["name"] == "transcribe"
+
+
+def test_aws_create_stream_session_uses_streaming_region_override(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: list[dict[str, object]] = []
+
+    class _FakeStreamingSession:
+        def __init__(self, **kwargs):
+            calls.append(kwargs)
+
+    backend = AwsAsrBackend(
+        config={
+            "profile": "ros2ws",
+            "region": "eu-north-1",
+            "streaming_region": "eu-central-1",
+            "s3_bucket": "dummy",
+        }
+    )
+    monkeypatch.setattr(backend, "auth_validation_errors", lambda: [])
+    monkeypatch.setattr(backend, "_streaming_credential_resolver", lambda: "resolver")
+    monkeypatch.setattr(aws_backend_module, "AwsStreamingSession", _FakeStreamingSession)
+
+    backend.create_stream_session(language="en-US", sample_rate=16000)
+
+    assert calls
+    assert calls[0]["region"] == "eu-central-1"
+
+
+def test_aws_streaming_endpoint_validation_reports_unresolvable_region(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        aws_backend_module.socket,
+        "getaddrinfo",
+        lambda *args, **kwargs: (_ for _ in ()).throw(
+            aws_backend_module.socket.gaierror(-2, "Name or service not known")
+        ),
+    )
+
+    with pytest.raises(RuntimeError, match="transcribestreaming.eu-north-1.amazonaws.com"):
+        aws_backend_module._ensure_streaming_endpoint_resolves("eu-north-1")
+
+
+def test_aws_streaming_session_classifies_dns_resolution_failure() -> None:
+    error_code, _ = aws_backend_module.AwsStreamingSession._classify_error(
+        RuntimeError("AWS_IO_DNS_INVALID_NAME: Host name was invalid for dns resolution.")
+    )
+
+    assert error_code == "aws_stream_endpoint_unreachable"
+
+
+def test_aws_streaming_session_id_matches_aws_uuid_constraints() -> None:
+    session_id = aws_backend_module._aws_streaming_session_id()
+
+    assert len(session_id) == 36
+    assert str(uuid.UUID(session_id)) == session_id

@@ -1,4 +1,4 @@
-profile_id: benchmark/default
+profile_id: benchmark/default_benchmark
 inherits: []
 dataset_profile: datasets/sample_dataset
 providers:
@@ -14,6 +14,7 @@ batch:
   timeout_sec: 180
 streaming:
   chunk_ms: 500
+  replay_rate: 1.0
 noise:
   mode: white
   levels:

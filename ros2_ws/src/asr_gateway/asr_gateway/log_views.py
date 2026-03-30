@@ -13,6 +13,8 @@ ROS_TIME_RE = re.compile(r"\[(\d{9,}(?:\.\d+)?)\]")
 ISO_TIME_RE = re.compile(
     r"(\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)"
 )
+EMPTY_JSON_ERROR_RE = re.compile(r'^\s*"error"\s*:\s*(""|null)\s*,?\s*$')
+LOG_LIKE_SUFFIXES = {".log", ".txt", ".out", ".err"}
 
 
 def _safe_mtime(path: Path) -> float:
@@ -49,39 +51,76 @@ def _tail_rows(path: Path, limit: int) -> list[tuple[int, str]]:
 
 
 def detect_severity(line: str) -> str:
+    if EMPTY_JSON_ERROR_RE.match(line.strip()):
+        return "info"
     lowered = line.lower()
-    if "error" in lowered:
+    if re.search(r"\berror\b", lowered):
         return "error"
-    if "warn" in lowered:
+    if re.search(r"\bwarn(?:ing)?\b", lowered):
         return "warning"
-    if "debug" in lowered:
+    if re.search(r"\bdebug\b", lowered):
         return "debug"
     return "info"
 
 
+def _is_log_like_file(path: Path) -> bool:
+    suffix = path.suffix.lower()
+    return suffix in LOG_LIKE_SUFFIXES
+
+
 def _runtime_log_bases(logs_root: Path) -> list[Path]:
     local_runtime_root = logs_root / "runtime"
-    bases = [local_runtime_root]
+    local_ros_log_dir = local_runtime_root / "ros"
     env_ros_log_dir = str(os.getenv("ROS_LOG_DIR", "")).strip()
-    if env_ros_log_dir:
-        bases.append(Path(env_ros_log_dir).expanduser())
-
     default_ros_log_dir = Path.home() / ".ros" / "log"
-    if not env_ros_log_dir and not _base_has_log_files(local_runtime_root) and default_ros_log_dir.exists():
-        latest = default_ros_log_dir / "latest"
-        if latest.exists():
-            bases.append(latest)
-        bases.append(default_ros_log_dir)
+
+    preferred: list[Path] = []
+    if env_ros_log_dir:
+        latest_env_base = _latest_log_base(Path(env_ros_log_dir).expanduser())
+        if latest_env_base is not None:
+            preferred.append(latest_env_base)
+    else:
+        latest_default_base = _latest_log_base(default_ros_log_dir)
+        if latest_default_base is not None:
+            preferred.append(latest_default_base)
+
+    latest_local_base = _latest_log_base(local_ros_log_dir)
+    if latest_local_base is not None and not preferred:
+        preferred.append(latest_local_base)
+    elif latest_local_base is None and _base_has_log_files(local_runtime_root):
+        preferred.append(local_runtime_root)
 
     deduped: list[Path] = []
     seen: set[Path] = set()
-    for base in bases:
+    for base in preferred:
         resolved = base.expanduser().resolve()
         if resolved in seen:
             continue
         seen.add(resolved)
         deduped.append(base)
     return deduped
+
+
+def _latest_log_base(base: Path) -> Path | None:
+    if not base.exists():
+        return None
+
+    latest = base / "latest"
+    if latest.exists() and latest.is_dir() and _base_has_log_files(latest):
+        return latest
+
+    try:
+        subdirs = [path for path in base.iterdir() if path.is_dir() and path.name != "latest"]
+    except OSError:
+        subdirs = []
+    subdirs.sort(key=_safe_mtime, reverse=True)
+    for path in subdirs:
+        if _base_has_log_files(path):
+            return path
+
+    if _base_has_log_files(base):
+        return base
+    return None
 
 
 def _base_has_log_files(base: Path) -> bool:
@@ -117,7 +156,7 @@ def _component_files(logs_root: Path, component: str) -> list[tuple[str, Path]]:
         candidates = [
             path
             for path in base.rglob("*")
-            if path.is_file() and path.name != ".gitkeep"
+            if path.is_file() and path.name != ".gitkeep" and _is_log_like_file(path)
         ]
         candidates.sort(key=_safe_mtime, reverse=True)
         for path in candidates[:3]:

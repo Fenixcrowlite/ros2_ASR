@@ -44,6 +44,8 @@ from asr_gateway.result_views import (
     compare_runs as compare_runs_helper,
     list_benchmark_history as list_benchmark_history_helper,
     metric_preference as metric_preference_helper,
+    resolved_run_message as resolved_run_message_helper,
+    resolved_run_state as resolved_run_state_helper,
     run_detail as run_detail_helper,
     run_dir as run_dir_helper,
 )
@@ -690,6 +692,9 @@ def _run_preflight_checks() -> dict[str, Any]:
     runtime_whisper_ok, runtime_whisper_message = _module_ok_via_python(
         runtime_python, "faster_whisper"
     )
+    runtime_google_ok, runtime_google_message = _module_ok_via_python(
+        runtime_python, "google.cloud.speech"
+    )
 
     checks = {
         "modules": module_checks,
@@ -731,6 +736,10 @@ def _run_preflight_checks() -> dict[str, Any]:
             "runtime_faster_whisper": {
                 "ok": runtime_whisper_ok,
                 "message": runtime_whisper_message,
+            },
+            "runtime_google_cloud_speech": {
+                "ok": runtime_google_ok,
+                "message": runtime_google_message,
             },
         },
     }
@@ -2951,6 +2960,19 @@ def benchmark_run(req: BenchmarkRunRequest) -> dict[str, Any]:
     run_id = req.run_id.strip() or make_run_id("bench")
 
     with _BENCHMARK_LOCK:
+        active_run_id = next(
+            (
+                rid
+                for rid, job in _BENCHMARK_JOBS.items()
+                if rid != run_id and str(job.get("state", "") or "").strip().lower() in {"queued", "running"}
+            ),
+            "",
+        )
+        if active_run_id:
+            raise HTTPException(
+                status_code=409,
+                detail=f"Another benchmark run is already active: {active_run_id}",
+            )
         if run_id in _BENCHMARK_JOBS and _BENCHMARK_JOBS[run_id].get("state") in {
             "queued",
             "running",
@@ -2997,6 +3019,35 @@ def benchmark_status(run_id: str) -> dict[str, Any]:
 
     ros_status = ros.get_benchmark_status(rid)
     ros_payload = ros_status.payload if ros_status.success else {}
+    run_dir = _run_dir(rid)
+    detail = _run_detail(rid) if run_dir.exists() else None
+
+    if detail is not None:
+        resolved_state = resolved_run_state_helper(
+            run_dir_path=run_dir,
+            summary=detail.get("summary", {}),
+            job=job,
+        )
+        if resolved_state == "completed" or (
+            resolved_state == "interrupted" and str(job.get("state", "") or "").strip().lower() not in {"queued", "running"}
+        ):
+            return {
+                "run_id": rid,
+                "state": resolved_state,
+                "message": resolved_run_message_helper(
+                    run_dir_path=run_dir,
+                    summary=detail.get("summary", {}),
+                    job=job,
+                ),
+                "created_at": job.get("created_at", ""),
+                "started_at": job.get("started_at", detail.get("run_manifest", {}).get("created_at", "")),
+                "completed_at": job.get("completed_at", ""),
+                "result": {
+                    "summary": detail.get("summary", {}),
+                    "artifacts": detail.get("artifacts", {}),
+                },
+                "ros_status": ros_payload,
+            }
 
     if job:
         return {
@@ -3013,14 +3064,15 @@ def benchmark_status(run_id: str) -> dict[str, Any]:
     if ros_status.success:
         return {"run_id": rid, **ros_payload}
 
-    run_dir = _run_dir(rid)
-    if run_dir.exists():
-        detail = _run_detail(rid)
+    if detail is not None:
         return {
             "run_id": rid,
-            "state": "completed",
-            "message": "Loaded from artifacts",
-            "result": detail.get("summary", {}),
+            "state": detail.get("state", "completed"),
+            "message": detail.get("message", "Loaded from artifacts"),
+            "result": {
+                "summary": detail.get("summary", {}),
+                "artifacts": detail.get("artifacts", {}),
+            },
         }
 
     raise HTTPException(status_code=404, detail=f"Run status not found: {rid}")

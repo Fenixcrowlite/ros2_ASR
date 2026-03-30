@@ -9,7 +9,7 @@ from typing import Any
 import rclpy
 from asr_benchmark_core import BenchmarkOrchestrator, BenchmarkRunRequest
 from asr_core import make_run_id
-from asr_core.shutdown import safe_shutdown_node
+from asr_core.shutdown import safe_shutdown_node, spin_node_until_shutdown
 from asr_datasets import DatasetEntry, DatasetRegistry, import_from_folder, load_manifest
 from asr_interfaces.action import ImportDataset, RunBenchmarkExperiment
 from asr_interfaces.msg import BenchmarkJobStatus, DatasetStatus, ExperimentSummary
@@ -258,9 +258,7 @@ def main() -> None:
     rclpy.init()
     node = BenchmarkManagerNode()
     try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
+        spin_node_until_shutdown(node=node, rclpy_module=rclpy)
     finally:
         safe_shutdown_node(node=node, rclpy_module=rclpy)
 

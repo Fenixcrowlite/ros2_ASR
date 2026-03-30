@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from time import perf_counter
+from time import perf_counter, sleep
 from typing import Any
 
 from asr_core import make_request_id
@@ -17,6 +17,10 @@ from asr_provider_base import ProviderAudio
 class BatchExecutor:
     def __init__(self, metric_engine: MetricEngine) -> None:
         self.metric_engine = metric_engine
+
+    @staticmethod
+    def _stream_replay_rate(execution_meta: dict[str, Any]) -> float:
+        return max(float(execution_meta.get("streaming_replay_rate", 1.0) or 0.0), 0.0)
 
     def _require_quality_reference(self, sample: DatasetSample) -> None:
         if not any(
@@ -146,6 +150,8 @@ class BatchExecutor:
         partial_count = 0
         first_partial_latency_ms = 0.0
         start = perf_counter()
+        replay_rate = self._stream_replay_rate(execution_meta)
+        streamed_audio_sec = 0.0
         for chunk in wav_pcm_chunks(active_audio_path, chunk_sec):
             updates = []
             partial = provider.push_audio(chunk)
@@ -160,6 +166,16 @@ class BatchExecutor:
                     first_partial_latency_ms = float(
                         update.latency.first_partial_ms or (perf_counter() - start) * 1000.0
                     )
+            if replay_rate > 0.0:
+                bytes_per_second = max(
+                    int(sample_rate_hz) * max(int(channels), 1) * max(int(sample_width_bytes), 1),
+                    1,
+                )
+                streamed_audio_sec += len(chunk) / float(bytes_per_second)
+                target_elapsed_sec = streamed_audio_sec / replay_rate
+                remaining_sec = target_elapsed_sec - (perf_counter() - start)
+                if remaining_sec > 0.0:
+                    sleep(remaining_sec)
         result = provider.stop_stream()
         for update in provider.drain_stream_results():
             if not update.is_partial or not update.text:

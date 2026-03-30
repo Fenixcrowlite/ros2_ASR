@@ -14,7 +14,7 @@ import rclpy
 from asr_config import resolve_profile, validate_runtime_payload
 from asr_core.ids import make_session_id
 from asr_core.namespaces import TOPICS
-from asr_core.shutdown import safe_shutdown_node
+from asr_core.shutdown import safe_shutdown_node, spin_node_until_shutdown
 from asr_interfaces.msg import AudioChunk, NodeStatus
 from asr_interfaces.srv import ReconfigureRuntime, StartRuntimeSession, StopRuntimeSession
 from rclpy.node import Node
@@ -612,9 +612,7 @@ def main() -> None:
     rclpy.init()
     node = AudioInputNode()
     try:
-        rclpy.spin(node)
-    except KeyboardInterrupt:
-        pass
+        spin_node_until_shutdown(node=node, rclpy_module=rclpy)
     finally:
         safe_shutdown_node(node=node, rclpy_module=rclpy)
 

@@ -632,6 +632,8 @@ class GatewayRosClient:
             goal_rejected_message="Benchmark goal not accepted",
             result_timeout_message="Timed out waiting for benchmark result",
             no_result_message="No benchmark result",
+            goal_timeout_sec=max(self.timeout_sec, 30.0),
+            result_timeout_sec=max(self.timeout_sec, 3600.0),
         )
 
     def get_benchmark_status(self, run_id: str) -> GatewayResponse:

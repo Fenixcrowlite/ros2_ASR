@@ -10,7 +10,10 @@ setup(
         ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
         (f"share/{package_name}", ["package.xml"]),
     ],
-    install_requires=["setuptools"],
+    install_requires=[
+        "setuptools",
+        "google-cloud-speech>=2.26.0",
+    ],
     zip_safe=True,
     maintainer="ASR Team",
     maintainer_email="maintainer@example.com",

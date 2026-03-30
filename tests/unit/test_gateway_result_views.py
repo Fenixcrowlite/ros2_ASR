@@ -47,6 +47,53 @@ def test_list_benchmark_history_merges_disk_and_memory(tmp_path: Path) -> None:
     assert "provider_summaries" in disk_row
 
 
+def test_list_benchmark_history_prefers_completed_artifacts_over_stale_failed_job_state(
+    tmp_path: Path,
+) -> None:
+    artifacts_root = tmp_path / "artifacts"
+    seed_benchmark_run(tmp_path, "bench_reconciled", wer=0.0, cer=0.0)
+
+    rows = list_benchmark_history(
+        artifacts_root=artifacts_root,
+        read_json=_read_json,
+        benchmark_jobs={
+            "bench_reconciled": {
+                "state": "failed",
+                "message": "Timed out waiting for benchmark result",
+                "completed_at": "2026-03-30T13:52:56+00:00",
+            }
+        },
+        limit=10,
+    )
+
+    row = next(item for item in rows if item["run_id"] == "bench_reconciled")
+    assert row["state"] == "completed"
+    assert row["message"] == "Recovered from stored artifacts after gateway timeout"
+
+
+def test_list_benchmark_history_marks_partial_artifact_run_as_interrupted(tmp_path: Path) -> None:
+    artifacts_root = tmp_path / "artifacts"
+    run_dir = artifacts_root / "benchmark_runs" / "bench_partial"
+    (run_dir / "manifest").mkdir(parents=True, exist_ok=True)
+    (run_dir / "raw_outputs").mkdir(parents=True, exist_ok=True)
+    (run_dir / "manifest" / "run_manifest.json").write_text(
+        json.dumps({"run_id": "bench_partial", "created_at": "2026-03-30T13:00:00+00:00"}),
+        encoding="utf-8",
+    )
+    (run_dir / "raw_outputs" / "sample.json").write_text('{"ok": true}\n', encoding="utf-8")
+
+    rows = list_benchmark_history(
+        artifacts_root=artifacts_root,
+        read_json=_read_json,
+        benchmark_jobs={},
+        limit=10,
+    )
+
+    row = next(item for item in rows if item["run_id"] == "bench_partial")
+    assert row["state"] == "interrupted"
+    assert row["message"] == "Run started but no final summary was written"
+
+
 def test_run_detail_tolerates_non_list_results_payload(tmp_path: Path) -> None:
     artifacts_root = tmp_path / "artifacts"
     run_dir = seed_benchmark_run(tmp_path, "bench_broken", wer=0.1, cer=0.05)
@@ -63,6 +110,27 @@ def test_run_detail_tolerates_non_list_results_payload(tmp_path: Path) -> None:
     assert payload["results_head"] == []
     assert payload["results_count"] == 0
     assert "provider_summaries" in payload["summary"]
+
+
+def test_run_detail_prefers_completed_artifacts_over_failed_job_state(tmp_path: Path) -> None:
+    artifacts_root = tmp_path / "artifacts"
+    seed_benchmark_run(tmp_path, "bench_detail_recovered", wer=0.1, cer=0.05)
+
+    payload = run_detail(
+        "bench_detail_recovered",
+        artifacts_root=artifacts_root,
+        clean_name=_clean_name,
+        read_json=_read_json,
+        benchmark_jobs={
+            "bench_detail_recovered": {
+                "state": "failed",
+                "message": "Timed out waiting for benchmark result",
+            }
+        },
+    )
+
+    assert payload["state"] == "completed"
+    assert payload["message"] == "Recovered from stored artifacts after gateway timeout"
 
 
 def test_run_detail_hydrates_quality_details_from_dataset_manifest(tmp_path: Path) -> None:

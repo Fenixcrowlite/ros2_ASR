@@ -146,6 +146,10 @@ def validate_benchmark_payload(payload: dict[str, Any]) -> list[str]:
             chunk_ms = int(streaming_cfg.get("chunk_ms", 0) or 0)
             if chunk_ms <= 0:
                 errors.append("streaming.chunk_ms must be > 0")
+        if "replay_rate" in streaming_cfg:
+            replay_rate = float(streaming_cfg.get("replay_rate", 0.0) or 0.0)
+            if replay_rate < 0.0:
+                errors.append("streaming.replay_rate must be >= 0")
 
     return errors
 

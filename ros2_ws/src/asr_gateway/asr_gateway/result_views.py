@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from collections.abc import Callable, Mapping
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -28,6 +29,110 @@ def _safe_mtime(path: Path) -> float:
 def run_dir(artifacts_root: Path, run_id: str, *, clean_name: CleanNameFn) -> Path:
     rid = clean_name(run_id, "run_id")
     return artifacts_root / "benchmark_runs" / rid
+
+
+def _iso_from_mtime(path: Path) -> str:
+    timestamp = _safe_mtime(path)
+    if timestamp <= 0:
+        return ""
+    return datetime.fromtimestamp(timestamp, tz=UTC).isoformat()
+
+
+def _summary_artifact_path(run_dir_path: Path) -> Path:
+    return run_dir_path / "reports" / "summary.json"
+
+
+def _job_state(job: Mapping[str, Any]) -> str:
+    return str(job.get("state", "") or "").strip().lower()
+
+
+def _job_has_summary(job: Mapping[str, Any]) -> bool:
+    result = job.get("result", {})
+    if not isinstance(result, Mapping):
+        return False
+    summary = result.get("summary", {})
+    return isinstance(summary, Mapping) and bool(summary)
+
+
+def _run_has_partial_artifacts(run_dir_path: Path) -> bool:
+    if not run_dir_path.exists():
+        return False
+
+    candidate_paths = [
+        run_dir_path / "manifest" / "run_manifest.json",
+        run_dir_path / "metrics" / "results.json",
+        run_dir_path / "metrics" / "results.csv",
+        run_dir_path / "reports" / "summary.md",
+        run_dir_path / "raw_outputs",
+        run_dir_path / "normalized_outputs",
+        run_dir_path / "derived_audio",
+    ]
+    for path in candidate_paths:
+        if path.is_file():
+            return True
+        if path.is_dir():
+            try:
+                if any(path.iterdir()):
+                    return True
+            except OSError:
+                continue
+    return False
+
+
+def resolved_run_state(
+    *,
+    run_dir_path: Path,
+    summary: Mapping[str, Any] | None,
+    job: Mapping[str, Any],
+) -> str:
+    if _summary_artifact_path(run_dir_path).exists():
+        return "completed"
+    if _job_has_summary(job):
+        return "completed"
+
+    normalized_job_state = _job_state(job)
+    if normalized_job_state in {"queued", "running"}:
+        return normalized_job_state
+    if _run_has_partial_artifacts(run_dir_path):
+        return "interrupted"
+    return normalized_job_state or ("completed" if summary else "unknown")
+
+
+def resolved_run_message(
+    *,
+    run_dir_path: Path,
+    summary: Mapping[str, Any] | None,
+    job: Mapping[str, Any],
+) -> str:
+    del summary
+    message = str(job.get("message", "") or "").strip()
+    state = resolved_run_state(run_dir_path=run_dir_path, summary={}, job=job)
+    normalized_job_state = _job_state(job)
+    if state == "completed" and normalized_job_state in {"failed", "unknown"}:
+        if "timed out" in message.lower():
+            return "Recovered from stored artifacts after gateway timeout"
+        return message or "Recovered from stored artifacts"
+    if state == "interrupted":
+        return message or "Run started but no final summary was written"
+    return message
+
+
+def resolved_run_completed_at(
+    *,
+    run_dir_path: Path,
+    summary: Mapping[str, Any] | None,
+    job: Mapping[str, Any],
+) -> str:
+    del summary
+    explicit = str(job.get("completed_at", "") or "").strip()
+    if explicit:
+        return explicit
+    state = resolved_run_state(run_dir_path=run_dir_path, summary={}, job=job)
+    if state == "completed":
+        return _iso_from_mtime(_summary_artifact_path(run_dir_path))
+    if state == "interrupted":
+        return _iso_from_mtime(run_dir_path)
+    return ""
 
 
 def _resolve_project_path(project_root: Path, path_ref: Any) -> Path | None:
@@ -188,14 +293,27 @@ def list_benchmark_history(
         summary = read_json(run_dir_path / "reports" / "summary.json", {})
         run_manifest = read_json(run_dir_path / "manifest" / "run_manifest.json", {})
         job = benchmark_jobs.get(run_id, {})
-        state = str(job.get("state", "completed" if summary else "unknown"))
+        state = resolved_run_state(
+            run_dir_path=run_dir_path,
+            summary=summary if isinstance(summary, Mapping) else {},
+            job=job,
+        )
 
         rows.append(
             {
                 "run_id": run_id,
                 "state": state,
                 "started_at": job.get("started_at", run_manifest.get("created_at", "")),
-                "completed_at": job.get("completed_at", ""),
+                "completed_at": resolved_run_completed_at(
+                    run_dir_path=run_dir_path,
+                    summary=summary if isinstance(summary, Mapping) else {},
+                    job=job,
+                ),
+                "message": resolved_run_message(
+                    run_dir_path=run_dir_path,
+                    summary=summary if isinstance(summary, Mapping) else {},
+                    job=job,
+                ),
                 "benchmark_profile": run_manifest.get("benchmark_profile", ""),
                 "dataset_profile": run_manifest.get("dataset_profile", ""),
                 "scenario": run_manifest.get("scenario", summary.get("scenario", "")),
@@ -293,11 +411,21 @@ def run_detail(
         else []
     )
     results_count = len(metrics_rows) if isinstance(metrics_rows, list) else 0
-    state = benchmark_jobs.get(run_id, {}).get("state", "completed")
+    job = benchmark_jobs.get(run_id, {})
+    state = resolved_run_state(
+        run_dir_path=run_dir_path,
+        summary=summary if isinstance(summary, Mapping) else {},
+        job=job,
+    )
 
     return {
         "run_id": run_id,
         "state": state,
+        "message": resolved_run_message(
+            run_dir_path=run_dir_path,
+            summary=summary if isinstance(summary, Mapping) else {},
+            job=job,
+        ),
         "run_manifest": run_manifest,
         "summary": summary,
         "results_head": results_head,

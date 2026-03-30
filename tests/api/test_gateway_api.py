@@ -153,6 +153,7 @@ def test_runtime_noise_generation_and_preflight(
     assert "modules" in preflight_payload["checks"]
     assert "microphone" in preflight_payload["checks"]
     assert "ros" in preflight_payload["checks"]
+    assert "runtime_google_cloud_speech" in preflight_payload["checks"]["ros"]
 
     noise = client.post(
         "/api/runtime/generate_noise",
@@ -365,6 +366,58 @@ def test_benchmark_run_rejects_empty_normalized_references(
 
     assert response.status_code == 400
     assert "non-empty normalized reference transcripts" in response.json()["detail"]
+
+
+def test_benchmark_history_and_status_reconcile_completed_artifacts_over_timeout_state(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    gateway_api._BENCHMARK_JOBS["bench_seed_a"] = {
+        "run_id": "bench_seed_a",
+        "state": "failed",
+        "message": "Timed out waiting for benchmark result",
+        "created_at": "2026-03-30T13:00:00+00:00",
+        "started_at": "2026-03-30T13:00:01+00:00",
+        "completed_at": "2026-03-30T13:03:01+00:00",
+    }
+
+    status = client.get("/api/benchmark/status/bench_seed_a")
+    assert status.status_code == 200
+    assert status.json()["state"] == "completed"
+    assert status.json()["message"] == "Recovered from stored artifacts after gateway timeout"
+    assert status.json()["result"]["summary"]["run_id"] == "bench_seed_a"
+
+    history = client.get("/api/benchmark/history")
+    assert history.status_code == 200
+    row = next(item for item in history.json()["runs"] if item["run_id"] == "bench_seed_a")
+    assert row["state"] == "completed"
+    assert row["message"] == "Recovered from stored artifacts after gateway timeout"
+
+
+def test_benchmark_run_rejects_parallel_active_run(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    gateway_api._BENCHMARK_JOBS["bench_active"] = {
+        "run_id": "bench_active",
+        "state": "running",
+        "started_at": "2026-03-30T13:00:00+00:00",
+    }
+
+    response = client.post(
+        "/api/benchmark/run",
+        json={
+            "benchmark_profile": "default_benchmark",
+            "dataset_profile": "sample_dataset",
+            "providers": ["providers/azure_cloud"],
+            "run_id": "bench_parallel_attempt",
+        },
+    )
+
+    assert response.status_code == 409
+    assert "Another benchmark run is already active: bench_active" in response.json()["detail"]
 
 
 def test_datasets_secrets_logs_and_results_endpoints(

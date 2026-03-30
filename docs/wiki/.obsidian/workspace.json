@@ -69,12 +69,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "03_Core/Backend_Interface.md",
+                "file": "01_Architecture/Failure_Model.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "Backend_Interface"
+              "title": "Failure_Model"
             }
           }
         ],
@@ -152,7 +152,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "03_Core/Backend_Interface.md",
+                "file": "01_Architecture/Failure_Model.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -162,7 +162,7 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "Backlinks for Backend_Interface"
+              "title": "Backlinks for Failure_Model"
             }
           },
           {
@@ -207,13 +207,13 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "03_Core/Backend_Interface.md",
+                "file": "01_Architecture/Failure_Model.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "Outline of Backend_Interface"
+              "title": "Outline of Failure_Model"
             }
           }
         ]
@@ -229,12 +229,12 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "03_Core/Backend_Interface.md",
+                "file": "01_Architecture/Failure_Model.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "Outgoing links from Backend_Interface"
+              "title": "Outgoing links from Failure_Model"
             }
           }
         ]
@@ -254,11 +254,11 @@
       "bases:Create new base": false
     }
   },
-  "active": "3ef87837f3f2f850",
+  "active": "257cbf216fe7d80b",
   "lastOpenFiles": [
+    "03_Core/Backend_Interface.md",
     "03_Core/Audio_Utilities.md",
     "03_Core/Config_Loading.md",
-    "03_Core/Backend_Interface.md",
     "01_Architecture/Dependency_Graph.md",
     "00_Start/Glossary.md",
     "06_Operations/Live_Run_Playbook.md",

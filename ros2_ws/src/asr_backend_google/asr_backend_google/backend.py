@@ -204,12 +204,14 @@ class GoogleAsrBackend(AsrBackend):
         )
         self._speech: Any = None
         self._client: Any = client
+        self._client_error = ""
 
     def has_credentials(self) -> bool:
         return bool(self.credentials) and Path(self.credentials).exists()
 
     def _load_client(self) -> bool:
         if self._client is not None:
+            self._client_error = ""
             return True
         try:
             from google.cloud import speech
@@ -229,9 +231,20 @@ class GoogleAsrBackend(AsrBackend):
                     self._client = speech.SpeechClient(client_options=client_options)
                 else:
                     self._client = speech.SpeechClient()
+            self._client_error = ""
             return True
-        except Exception:
+        except Exception as exc:
+            detail = str(exc).strip()
+            self._client_error = (
+                f"{exc.__class__.__name__}: {detail}" if detail else exc.__class__.__name__
+            )
             return False
+
+    def _client_init_error_message(self) -> str:
+        detail = str(self._client_error or "").strip()
+        if not detail:
+            return "Unable to initialize google-cloud-speech client"
+        return f"Unable to initialize google-cloud-speech client: {detail}"
 
     def _request_audio(self, request: AsrRequest) -> tuple[bytes, int, float]:
         if request.wav_path:
@@ -308,7 +321,7 @@ class GoogleAsrBackend(AsrBackend):
         if not Path(self.credentials).exists():
             raise RuntimeError(f"Google credentials file not found: {self.credentials}")
         if not self._load_client():
-            raise RuntimeError("Unable to initialize google-cloud-speech client")
+            raise RuntimeError(self._client_init_error_message())
         return GoogleStreamingSession(
             client=self._client,
             speech_module=self._speech,
@@ -350,7 +363,7 @@ class GoogleAsrBackend(AsrBackend):
             return AsrResponse(
                 success=False,
                 error_code="client_init_error",
-                error_message="Unable to initialize google-cloud-speech client",
+                error_message=self._client_init_error_message(),
                 backend_info={"provider": "google", "model": self.model, "region": self.region},
                 language=language,
             )
