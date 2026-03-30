@@ -398,7 +398,11 @@ def test_datasets_secrets_logs_and_results_endpoints(
 
     logs = client.get("/api/logs?component=runtime&severity=all&limit=10")
     assert logs.status_code == 200
-    assert any("sample error" in item["message"] for item in logs.json()["entries"])
+    logs_payload = logs.json()
+    assert logs_payload["entry_count"] == len(logs_payload["entries"])
+    assert logs_payload["files"]
+    assert any("sample error" in item["message"] for item in logs_payload["entries"])
+    assert all("source" in item for item in logs_payload["entries"])
 
     diagnostics = client.get("/api/diagnostics/issues")
     assert diagnostics.status_code == 200

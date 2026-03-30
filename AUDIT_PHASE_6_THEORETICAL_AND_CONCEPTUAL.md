@@ -1,56 +1,29 @@
-# Audit Phase 6 Theoretical And Conceptual Alignment
+# Audit Phase 6: Theoretical And Conceptual Alignment
 
-## Project Idea Being Tested
+## Intended project idea
 
-“A ROS2-based platform for integrating and comparing ASR solutions in robotics applications.”
+Platform for integrating and comparing ASR solutions in ROS2/robotics contexts.
 
-## How Well The Repository Matches That Idea Now
+## What now aligns well
 
-### Strong alignment
+- normalized provider-agnostic result model exists
+- canonical benchmark run artifact exists
+- provider comparison can be profile-driven and reproducible
+- gateway/UI are increasingly projection layers rather than metric calculators
+- benchmark summary now has a clearer single source of truth
 
-- provider abstraction exists and is shared by runtime and benchmark paths
-- benchmark runs create persistent manifests and summaries
-- resolved config snapshots improve traceability
-- artifact store gives input -> run -> output lineage
-- runtime and benchmark concerns are separated in the modular stack
+## What still weakens research-grade clarity
 
-### Weak alignment
+- two architectural generations remain in the tree
+- “platform” docs still overstate some capabilities compared to canonical metric registry
+- resource/confidence metrics are not yet standardized enough for strong comparative claims
+- some operator scripts still depend on legacy backend-centric paths
 
-- legacy flat benchmark package still coexists with the canonical benchmark core
-- legacy monolithic runtime path still coexists with the canonical runtime nodes
-- GUI profile exists without real effect
-- some docs/graphs still expose compatibility surfaces prominently
+## Alignment verdict
 
-## Research-Quality Assessment
+The repository is now materially closer to a defensible bachelor-thesis platform because:
 
-### Good enough to support thesis arguments
-
-- explicit provider profiles
-- reproducible benchmark manifests
-- normalized result schema
-- corpus-level quality aggregation
-- stored run metadata and artifacts
-
-### Still weaker than an ideal research platform
-
-- latency semantics are not yet fully separated into provider latency vs full pipeline latency
-- resource metrics are not in the canonical benchmark path
-- confidence and language-detection metrics are not normalized across providers
-- a direct compatibility benchmark runner can still generate flatter, weaker artifacts than the canonical one
-
-## Conceptual Repairs Performed
-
-1. Strengthened the claim that configs/profiles are real control surfaces by activating previously decorative fields.
-2. Reduced false benchmark semantics around empty-reference quality evaluation.
-3. Restored profile-driven behavior in the minimal canonical runtime launch.
-4. Moved the default operator benchmark/report path onto canonical benchmark artifacts with compatibility export only as a shadow surface.
-
-## Conclusion
-
-The repository is now more credible as a platform baseline than as a collection of demos:
-
-- more reproducible
-- more profile-driven
-- more explicit about canonical vs compatibility layers
-
-But it is not yet conceptually finished until the old flat benchmark/operator path is either migrated or formally isolated as legacy.
+- benchmark runs are traceable
+- provider selection is profile-driven
+- WER/CER semantics are explicit
+- operator benchmark flow no longer hides a legacy execution path behind `make bench`

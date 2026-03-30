@@ -170,6 +170,9 @@ def test_benchmark_to_results_and_diagnostics_flow(live_gateway: str, browser_pa
     issues_text = page.locator("#diagnosticsIssues").inner_text().lower()
     assert "secret ref" in issues_text
     assert "ensure required env vars/files exist" in issues_text
+    logs_text = page.locator("#logsViewer").inner_text().lower()
+    assert "sample error" in logs_text
+    assert "runtime.log" in page.locator("#logsMeta").inner_text().lower()
 
 
 def test_benchmark_invalid_streaming_combo_surfaces_error_in_gui(

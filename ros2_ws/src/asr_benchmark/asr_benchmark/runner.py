@@ -1,6 +1,8 @@
-"""Benchmark runner.
+"""Legacy compatibility benchmark runner.
 
-Runs configured backends over dataset scenarios and produces CSV/JSON/plots.
+This module preserves the original backend-centric benchmark flow for older ROS2
+launch wrappers and flat exports. Canonical benchmarking now lives in
+`asr_benchmark_core` and `asr_benchmark_nodes`.
 """
 
 from __future__ import annotations

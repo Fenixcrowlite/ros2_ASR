@@ -1,4 +1,4 @@
-"""ROS2 wrapper node for launching benchmark runner from launch files."""
+"""Legacy ROS2 wrapper node around the compatibility benchmark runner."""
 
 from __future__ import annotations
 
@@ -9,7 +9,7 @@ from asr_benchmark.runner import run_benchmark
 
 
 class AsrBenchmarkNode(Node):
-    """One-shot node that executes benchmark and exits."""
+    """One-shot compatibility node for the legacy flat benchmark flow."""
 
     def __init__(self) -> None:
         super().__init__("asr_benchmark_node")

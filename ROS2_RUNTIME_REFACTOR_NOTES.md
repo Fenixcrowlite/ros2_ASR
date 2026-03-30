@@ -1,23 +1,22 @@
 # ROS2 Runtime Refactor Notes
 
-## Completed
+## Stable target
 
-- Repaired `runtime_minimal.launch.py` so that runtime profile data reaches:
-  - `audio_input_node`
-  - `audio_preprocess_node`
-  - `vad_segmenter_node`
-- This removed a false split where launch defaults silently overrode runtime profile audio configuration.
+- keep `asr_runtime_nodes` as the runtime control/data plane
+- keep `asr_interfaces` as the transport contract
+- keep `asr_launch` as canonical launch ownership
 
-## Current Runtime Layering
+## Transitional areas
 
-- transport and stage control: `asr_runtime_nodes`
-- provider resolution: `asr_provider_base`
-- provider execution: `asr_provider_*`
-- result normalization: provider adapters + `asr_core.normalized`
-- HTTP/UI bridge: `asr_gateway`
+- `asr_ros` should be treated as legacy compatibility runtime code
+- old benchmark node wrappers should not be promoted over `asr_benchmark_nodes`
 
-## Deferred
+## Practical rule
 
-1. Quarantine `asr_ros` more aggressively or move it to an explicit compatibility zone.
-2. Audit all launch defaults for remaining decorative arguments.
-3. Add canonical ROS2 smoke tests for the new runtime stack that are independent of legacy `asr_ros`.
+When new runtime behavior is added, it should land in:
+
+- `asr_runtime_nodes`
+- `asr_provider_*`
+- `asr_gateway` only for operator projection/API glue
+
+and not in the legacy node/backend wrappers.

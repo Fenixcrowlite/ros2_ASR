@@ -5,6 +5,7 @@ export function initLogsPage(ctx) {
   const preflightSummaryRoot = document.getElementById('diagnosticsPreflightSummary');
   const preflightDetailsRoot = document.getElementById('diagnosticsPreflightDetails');
   const issuesRoot = document.getElementById('diagnosticsIssues');
+  const logsMeta = document.getElementById('logsMeta');
   const logsViewer = document.getElementById('logsViewer');
 
   async function loadHealth() {
@@ -123,14 +124,33 @@ export function initLogsPage(ctx) {
 
     const payload = await api.logs({ component, severity, limit: String(limit) });
     const rows = payload.entries || [];
+    const files = payload.files || [];
+    logsMeta.innerHTML = ui.renderKeyValueList([
+      { key: 'Entries returned', value: String(payload.entry_count ?? rows.length) },
+      { key: 'Files scanned', value: files.length ? files.map((item) => String(item).split('/').slice(-2).join('/')).join(', ') : 'none' },
+      { key: 'Filters', value: `component=${component}, severity=${severity}, limit=${limit}` },
+    ]);
     if (!rows.length) {
-      logsViewer.textContent = 'No log entries for selected filters.';
+      logsViewer.innerHTML = ui.renderEmpty('No log entries for selected filters.');
       return;
     }
 
-    logsViewer.textContent = rows
-      .map((item) => `[${item.component}] [${item.severity}] ${item.message}`)
-      .join('\n');
+    logsViewer.innerHTML = rows
+      .map(
+        (item) => `
+          <article class="log-entry log-entry--${ui.escapeHtml(item.severity || 'info')}">
+            <div class="log-entry__head">
+              <span class="${ui.statusBadgeClass(item.severity || 'info')}">${ui.escapeHtml(item.severity || 'info')}</span>
+              <strong>${ui.escapeHtml(item.component || 'unknown')}</strong>
+              <code>${ui.escapeHtml(item.source || item.file || '')}</code>
+              <span>${ui.escapeHtml(ui.fmtDate(item.timestamp || ''))}</span>
+              <span>line ${ui.escapeHtml(String(item.line_number || '—'))}</span>
+            </div>
+            <pre class="log-entry__body">${ui.escapeHtml(item.message || '')}</pre>
+          </article>
+        `
+      )
+      .join('');
   }
 
   document.getElementById('logsRefreshBtn')?.addEventListener('click', async () => {
@@ -138,9 +158,21 @@ export function initLogsPage(ctx) {
       await loadLogs();
       ui.toast('Logs refreshed', 'info');
     } catch (error) {
-      logsViewer.textContent = `Failed to load logs: ${error.message}`;
+      logsMeta.innerHTML = '';
+      logsViewer.innerHTML = ui.renderEmpty(`Failed to load logs: ${error.message}`);
       ui.toast(`Logs refresh failed: ${error.message}`, 'error');
     }
+  });
+
+  ['logsComponent', 'logsSeverity', 'logsLimit'].forEach((id) => {
+    document.getElementById(id)?.addEventListener('change', async () => {
+      try {
+        await loadLogs();
+      } catch (error) {
+        logsMeta.innerHTML = '';
+        logsViewer.innerHTML = ui.renderEmpty(`Failed to load logs: ${error.message}`);
+      }
+    });
   });
 
   document.getElementById('diagnosticsPreflightBtn')?.addEventListener('click', async () => {
@@ -158,6 +190,7 @@ export function initLogsPage(ctx) {
     refresh: async () => {
       preflightSummaryRoot.innerHTML = ui.renderEmpty('Run preflight to check modules, audio devices, ROS setup, and installed gateway/runtime entrypoints.');
       preflightDetailsRoot.innerHTML = '';
+      logsMeta.innerHTML = '';
       await Promise.all([loadHealth(), loadIssues(), loadLogs()]);
     },
     poll: async () => {

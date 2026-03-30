@@ -698,7 +698,51 @@ button:disabled {
   font-family: "IBM Plex Mono", monospace;
   font-size: 0.77rem;
   line-height: 1.35;
+  white-space: normal;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.log-entry {
+  border: 1px solid #273847;
+  border-radius: 10px;
+  background: rgba(8, 13, 18, 0.84);
+  padding: 10px;
+}
+
+.log-entry--error {
+  border-color: color-mix(in srgb, var(--error) 45%, #273847 55%);
+}
+
+.log-entry--warning {
+  border-color: color-mix(in srgb, var(--warn) 45%, #273847 55%);
+}
+
+.log-entry__head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.log-entry__head strong {
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.log-entry__head code,
+.log-entry__head span:last-child {
+  color: #9cb2c6;
+}
+
+.log-entry__body {
+  margin: 0;
+  color: #d8e3ed;
+  font-family: "IBM Plex Mono", monospace;
   white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .check-list {

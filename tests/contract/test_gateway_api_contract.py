@@ -89,3 +89,22 @@ def test_dashboard_contract_contains_operator_and_engineering_views(repo_root: P
     assert response.status_code == 200
     assert {"system", "runtime", "benchmark", "cloud_credentials", "alerts", "quick_actions"} <= set(payload.keys())
     assert {"gateway", "runtime", "benchmark_active", "providers_configured", "providers_invalid"} <= set(payload["system"].keys())
+
+
+def test_logs_contract_exposes_files_and_entry_metadata(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    gateway_api, _fake_ros = _load_gateway(repo_root, tmp_path, monkeypatch)
+    client = TestClient(gateway_api.app)
+
+    response = client.get("/api/logs?component=runtime&severity=all&limit=10")
+    payload = response.json()
+
+    assert response.status_code == 200
+    assert {"component", "severity", "limit", "files", "entry_count", "entries"} <= set(payload.keys())
+    assert payload["files"]
+    assert payload["entry_count"] == len(payload["entries"])
+    if payload["entries"]:
+        assert {"component", "file", "source", "severity", "timestamp", "line_number", "message"} <= set(
+            payload["entries"][0].keys()
+        )

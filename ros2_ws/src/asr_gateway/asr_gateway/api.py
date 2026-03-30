@@ -3181,11 +3181,14 @@ def logs(
     severity: str = Query(default="all"),
     limit: int = Query(default=200, ge=1, le=2000),
 ) -> dict[str, Any]:
+    files = [str(path) for path in _log_files(component=component)]
     entries = _collect_logs(component=component, severity=severity, limit=limit)
     return {
         "component": component,
         "severity": severity,
         "limit": limit,
+        "files": files,
+        "entry_count": len(entries),
         "entries": entries,
     }
 

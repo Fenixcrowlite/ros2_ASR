@@ -93,6 +93,8 @@
   - Human-readable issues and suggested fixes.
 - `GET /api/logs`
   - Filterable logs tail (`component`, `severity`, `limit`).
+  - Returns `files`, `entry_count`, and per-entry metadata:
+    `component`, `file`, `source`, `severity`, `timestamp`, `line_number`, `message`.
 
 ## Secrets
 - `GET /api/secrets/refs`
