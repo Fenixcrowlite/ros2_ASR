@@ -1,0 +1,1845 @@
+{
+  "run_id": "thesis_20260330_self_audit_2_iter03_sk_balanced",
+  "benchmark_profile": "benchmark/fleurs_sk_sk_test_subset_whisper",
+  "dataset_id": "fleurs_sk_sk_test_subset",
+  "providers": [
+    "providers/whisper_local"
+  ],
+  "scenario": "clean_baseline",
+  "execution_mode": "batch",
+  "aggregate_scope": "single_provider",
+  "samples": 2,
+  "total_samples": 2,
+  "successful_samples": 2,
+  "failed_samples": 0,
+  "mean_metrics": {
+    "cer": 0.20618556701030927,
+    "confidence": 0.6505668741602589,
+    "cpu_percent": 5.65,
+    "estimated_cost_usd": 0.0,
+    "failure_rate": 0.0,
+    "gpu_memory_mb": 778.0,
+    "gpu_util_percent": 31.0,
+    "inference_ms": 724.8411605105503,
+    "memory_mb": 778.666015625,
+    "per_utterance_latency_ms": 1055.883533495944,
+    "postprocess_ms": 0.07942899537738413,
+    "preprocess_ms": 330.96294399001636,
+    "real_time_factor": 0.24442132229330665,
+    "sample_accuracy": 0.0,
+    "success_rate": 1.0,
+    "total_latency_ms": 1055.883533495944,
+    "wer": 0.7142857142857143
+  },
+  "metric_counts": {
+    "cer": 2,
+    "confidence": 2,
+    "cpu_percent": 2,
+    "estimated_cost_usd": 2,
+    "failure_rate": 2,
+    "gpu_memory_mb": 2,
+    "gpu_util_percent": 2,
+    "inference_ms": 2,
+    "memory_mb": 2,
+    "per_utterance_latency_ms": 2,
+    "postprocess_ms": 2,
+    "preprocess_ms": 2,
+    "real_time_factor": 2,
+    "sample_accuracy": 2,
+    "success_rate": 2,
+    "total_latency_ms": 2,
+    "wer": 2
+  },
+  "metric_statistics": {
+    "cer": {
+      "count": 2,
+      "aggregator": "corpus_rate",
+      "numerator": 20,
+      "denominator": 97,
+      "value": 0.20618556701030927
+    },
+    "confidence": {
+      "count": 2,
+      "aggregator": "mean",
+      "sum": 1.3011337483205179,
+      "mean": 0.6505668741602589,
+      "min": 0.4862864863927718,
+      "max": 0.814847261927746,
+      "p50": 0.6505668741602589,
+      "p95": 0.7984192231509972
+    },
+    "cpu_percent": {
+      "count": 2,
+      "aggregator": "mean",
+      "sum": 11.3,
+      "mean": 5.65,
+      "min": 5.0,
+      "max": 6.3,
+      "p50": 5.65,
+      "p95": 6.234999999999999
+    },
+    "estimated_cost_usd": {
+      "count": 2,
+      "aggregator": "mean",
+      "sum": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
+    },
+    "failure_rate": {
+      "count": 2,
+      "aggregator": "rate",
+      "numerator": 0,
+      "denominator": 2,
+      "value": 0.0
+    },
+    "gpu_memory_mb": {
+      "count": 2,
+      "aggregator": "mean",
+      "sum": 1556.0,
+      "mean": 778.0,
+      "min": 778.0,
+      "max": 778.0,
+      "p50": 778.0,
+      "p95": 778.0
+    },
+    "gpu_util_percent": {
+      "count": 2,
+      "aggregator": "mean",
+      "sum": 62.0,
+      "mean": 31.0,
+      "min": 30.0,
+      "max": 32.0,
+      "p50": 31.0,
+      "p95": 31.9
+    },
+    "inference_ms": {
+      "count": 2,
+      "aggregator": "mean",
+      "sum": 1449.6823210211005,
+      "mean": 724.8411605105503,
+      "min": 722.5874220021069,
+      "max": 727.0948990189936,
+      "p50": 724.8411605105503,
+      "p95": 726.8695251681493
+    },
+    "memory_mb": {
+      "count": 2,
+      "aggregator": "mean",
+      "sum": 1557.33203125,
+      "mean": 778.666015625,
+      "min": 778.32421875,
+      "max": 779.0078125,
+      "p50": 778.666015625,
+      "p95": 778.9736328125
+    },
+    "per_utterance_latency_ms": {
+      "count": 2,
+      "aggregator": "mean",
+      "sum": 2111.767066991888,
+      "mean": 1055.883533495944,
+      "min": 722.669225971913,
+      "max": 1389.097841019975,
+      "p50": 1055.883533495944,
+      "p95": 1355.776410267572
+    },
+    "postprocess_ms": {
+      "count": 2,
+      "aggregator": "mean",
+      "sum": 0.15885799075476825,
+      "mean": 0.07942899537738413,
+      "min": 0.07706499309279025,
+      "max": 0.081792997661978,
+      "p50": 0.07942899537738413,
+      "p95": 0.08155659743351862
+    },
+    "preprocess_ms": {
+      "count": 2,
+      "aggregator": "mean",
+      "sum": 661.9258879800327,
+      "mean": 330.96294399001636,
+      "min": 0.004738976713269949,
+      "max": 661.9211490033194,
+      "p50": 330.96294399001636,
+      "p95": 628.8253285019891
+    },
+    "real_time_factor": {
+      "count": 2,
+      "aggregator": "mean",
+      "sum": 0.4888426445866133,
+      "mean": 0.24442132229330665,
+      "min": 0.16276333918286326,
+      "max": 0.32607930540375,
+      "p50": 0.24442132229330665,
+      "p95": 0.31791350709270566
+    },
+    "sample_accuracy": {
+      "count": 2,
+      "aggregator": "rate",
+      "numerator": 0,
+      "denominator": 2,
+      "value": 0.0
+    },
+    "success_rate": {
+      "count": 2,
+      "aggregator": "rate",
+      "numerator": 2,
+      "denominator": 2,
+      "value": 1.0
+    },
+    "total_latency_ms": {
+      "count": 2,
+      "aggregator": "mean",
+      "sum": 2111.767066991888,
+      "mean": 1055.883533495944,
+      "min": 722.669225971913,
+      "max": 1389.097841019975,
+      "p50": 1055.883533495944,
+      "p95": 1355.776410267572
+    },
+    "wer": {
+      "count": 2,
+      "aggregator": "corpus_rate",
+      "numerator": 10,
+      "denominator": 14,
+      "value": 0.7142857142857143
+    }
+  },
+  "metric_metadata": {
+    "cer": {
+      "name": "cer",
+      "display_name": "CER",
+      "unit": "ratio",
+      "category": "quality",
+      "preferred_direction": "lower",
+      "description": "Corpus-level character error rate after normalization and whitespace removal.",
+      "summary_aggregator": "corpus_rate",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "confidence": {
+      "name": "confidence",
+      "display_name": "Confidence",
+      "unit": "ratio",
+      "category": "quality",
+      "preferred_direction": "higher",
+      "description": "Average confidence exposed by the provider for the recognized utterance.",
+      "summary_aggregator": "mean",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "cpu_percent": {
+      "name": "cpu_percent",
+      "display_name": "CPU Usage",
+      "unit": "percent",
+      "category": "resource",
+      "preferred_direction": "lower",
+      "description": "Host CPU utilization sampled during the run.",
+      "summary_aggregator": "mean",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "estimated_cost_usd": {
+      "name": "estimated_cost_usd",
+      "display_name": "Estimated Cost",
+      "unit": "usd",
+      "category": "cost",
+      "preferred_direction": "lower",
+      "description": "Estimated provider cost for the sample using the selected preset pricing metadata.",
+      "summary_aggregator": "mean",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "failure_rate": {
+      "name": "failure_rate",
+      "display_name": "Failure Rate",
+      "unit": "ratio",
+      "category": "reliability",
+      "preferred_direction": "lower",
+      "description": "Share of samples that ended in degraded/error result.",
+      "summary_aggregator": "rate",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "gpu_memory_mb": {
+      "name": "gpu_memory_mb",
+      "display_name": "GPU Memory",
+      "unit": "mb",
+      "category": "resource",
+      "preferred_direction": "lower",
+      "description": "NVIDIA GPU memory sampled during the run when available.",
+      "summary_aggregator": "mean",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "gpu_util_percent": {
+      "name": "gpu_util_percent",
+      "display_name": "GPU Usage",
+      "unit": "percent",
+      "category": "resource",
+      "preferred_direction": "lower",
+      "description": "NVIDIA GPU utilization sampled during the run when available.",
+      "summary_aggregator": "mean",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "inference_ms": {
+      "name": "inference_ms",
+      "display_name": "Inference",
+      "unit": "ms",
+      "category": "latency",
+      "preferred_direction": "lower",
+      "description": "Core model inference latency.",
+      "summary_aggregator": "mean",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "memory_mb": {
+      "name": "memory_mb",
+      "display_name": "Memory",
+      "unit": "mb",
+      "category": "resource",
+      "preferred_direction": "lower",
+      "description": "Resident memory sampled during the run.",
+      "summary_aggregator": "mean",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "per_utterance_latency_ms": {
+      "name": "per_utterance_latency_ms",
+      "display_name": "Per-Utterance Latency",
+      "unit": "ms",
+      "category": "latency",
+      "preferred_direction": "lower",
+      "description": "Alias of total latency retained for backward-compatible dashboards and exports.",
+      "summary_aggregator": "mean",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "postprocess_ms": {
+      "name": "postprocess_ms",
+      "display_name": "Postprocess",
+      "unit": "ms",
+      "category": "latency",
+      "preferred_direction": "lower",
+      "description": "Provider-side postprocessing latency after inference.",
+      "summary_aggregator": "mean",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "preprocess_ms": {
+      "name": "preprocess_ms",
+      "display_name": "Preprocess",
+      "unit": "ms",
+      "category": "latency",
+      "preferred_direction": "lower",
+      "description": "Provider-side preprocessing latency before the inference stage.",
+      "summary_aggregator": "mean",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "real_time_factor": {
+      "name": "real_time_factor",
+      "display_name": "RTF",
+      "unit": "ratio",
+      "category": "latency",
+      "preferred_direction": "lower",
+      "description": "Processing time divided by audio duration.",
+      "summary_aggregator": "mean",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "sample_accuracy": {
+      "name": "sample_accuracy",
+      "display_name": "Sample Accuracy",
+      "unit": "ratio",
+      "category": "quality",
+      "preferred_direction": "higher",
+      "description": "Share of samples whose normalized reference and hypothesis match exactly.",
+      "summary_aggregator": "rate",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "success_rate": {
+      "name": "success_rate",
+      "display_name": "Success Rate",
+      "unit": "ratio",
+      "category": "reliability",
+      "preferred_direction": "higher",
+      "description": "Share of samples completed without degraded/error result.",
+      "summary_aggregator": "rate",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "total_latency_ms": {
+      "name": "total_latency_ms",
+      "display_name": "Total Latency",
+      "unit": "ms",
+      "category": "latency",
+      "preferred_direction": "lower",
+      "description": "End-to-end latency for the sample or utterance.",
+      "summary_aggregator": "mean",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    },
+    "wer": {
+      "name": "wer",
+      "display_name": "WER",
+      "unit": "ratio",
+      "category": "quality",
+      "preferred_direction": "lower",
+      "description": "Corpus-level word error rate against the normalized reference transcript.",
+      "summary_aggregator": "corpus_rate",
+      "applicable_execution_modes": [
+        "batch",
+        "streaming"
+      ]
+    }
+  },
+  "quality_metrics": {
+    "cer": 0.20618556701030927,
+    "confidence": 0.6505668741602589,
+    "sample_accuracy": 0.0,
+    "wer": 0.7142857142857143
+  },
+  "latency_metrics": {
+    "inference_ms": 724.8411605105503,
+    "per_utterance_latency_ms": 1055.883533495944,
+    "postprocess_ms": 0.07942899537738413,
+    "preprocess_ms": 330.96294399001636,
+    "real_time_factor": 0.24442132229330665,
+    "total_latency_ms": 1055.883533495944
+  },
+  "reliability_metrics": {
+    "failure_rate": 0.0,
+    "success_rate": 1.0
+  },
+  "cost_metrics": {
+    "estimated_cost_usd": 0.0
+  },
+  "cost_totals": {
+    "estimated_cost_usd": 0.0
+  },
+  "streaming_metrics": {},
+  "resource_metrics": {
+    "cpu_percent": 5.65,
+    "gpu_memory_mb": 778.0,
+    "gpu_util_percent": 31.0,
+    "memory_mb": 778.666015625
+  },
+  "provider_summaries": [
+    {
+      "provider_key": "providers/whisper_local:balanced",
+      "provider_profile": "providers/whisper_local",
+      "provider_id": "whisper",
+      "provider_preset": "balanced",
+      "provider_label": "",
+      "samples": 2,
+      "total_samples": 2,
+      "successful_samples": 2,
+      "failed_samples": 0,
+      "mean_metrics": {
+        "cer": 0.20618556701030927,
+        "confidence": 0.6505668741602589,
+        "cpu_percent": 5.65,
+        "estimated_cost_usd": 0.0,
+        "failure_rate": 0.0,
+        "gpu_memory_mb": 778.0,
+        "gpu_util_percent": 31.0,
+        "inference_ms": 724.8411605105503,
+        "memory_mb": 778.666015625,
+        "per_utterance_latency_ms": 1055.883533495944,
+        "postprocess_ms": 0.07942899537738413,
+        "preprocess_ms": 330.96294399001636,
+        "real_time_factor": 0.24442132229330665,
+        "sample_accuracy": 0.0,
+        "success_rate": 1.0,
+        "total_latency_ms": 1055.883533495944,
+        "wer": 0.7142857142857143
+      },
+      "metric_counts": {
+        "cer": 2,
+        "confidence": 2,
+        "cpu_percent": 2,
+        "estimated_cost_usd": 2,
+        "failure_rate": 2,
+        "gpu_memory_mb": 2,
+        "gpu_util_percent": 2,
+        "inference_ms": 2,
+        "memory_mb": 2,
+        "per_utterance_latency_ms": 2,
+        "postprocess_ms": 2,
+        "preprocess_ms": 2,
+        "real_time_factor": 2,
+        "sample_accuracy": 2,
+        "success_rate": 2,
+        "total_latency_ms": 2,
+        "wer": 2
+      },
+      "metric_statistics": {
+        "cer": {
+          "count": 2,
+          "aggregator": "corpus_rate",
+          "numerator": 20,
+          "denominator": 97,
+          "value": 0.20618556701030927
+        },
+        "confidence": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 1.3011337483205179,
+          "mean": 0.6505668741602589,
+          "min": 0.4862864863927718,
+          "max": 0.814847261927746,
+          "p50": 0.6505668741602589,
+          "p95": 0.7984192231509972
+        },
+        "cpu_percent": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 11.3,
+          "mean": 5.65,
+          "min": 5.0,
+          "max": 6.3,
+          "p50": 5.65,
+          "p95": 6.234999999999999
+        },
+        "estimated_cost_usd": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "p50": 0.0,
+          "p95": 0.0
+        },
+        "failure_rate": {
+          "count": 2,
+          "aggregator": "rate",
+          "numerator": 0,
+          "denominator": 2,
+          "value": 0.0
+        },
+        "gpu_memory_mb": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 1556.0,
+          "mean": 778.0,
+          "min": 778.0,
+          "max": 778.0,
+          "p50": 778.0,
+          "p95": 778.0
+        },
+        "gpu_util_percent": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 62.0,
+          "mean": 31.0,
+          "min": 30.0,
+          "max": 32.0,
+          "p50": 31.0,
+          "p95": 31.9
+        },
+        "inference_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 1449.6823210211005,
+          "mean": 724.8411605105503,
+          "min": 722.5874220021069,
+          "max": 727.0948990189936,
+          "p50": 724.8411605105503,
+          "p95": 726.8695251681493
+        },
+        "memory_mb": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 1557.33203125,
+          "mean": 778.666015625,
+          "min": 778.32421875,
+          "max": 779.0078125,
+          "p50": 778.666015625,
+          "p95": 778.9736328125
+        },
+        "per_utterance_latency_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 2111.767066991888,
+          "mean": 1055.883533495944,
+          "min": 722.669225971913,
+          "max": 1389.097841019975,
+          "p50": 1055.883533495944,
+          "p95": 1355.776410267572
+        },
+        "postprocess_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 0.15885799075476825,
+          "mean": 0.07942899537738413,
+          "min": 0.07706499309279025,
+          "max": 0.081792997661978,
+          "p50": 0.07942899537738413,
+          "p95": 0.08155659743351862
+        },
+        "preprocess_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 661.9258879800327,
+          "mean": 330.96294399001636,
+          "min": 0.004738976713269949,
+          "max": 661.9211490033194,
+          "p50": 330.96294399001636,
+          "p95": 628.8253285019891
+        },
+        "real_time_factor": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 0.4888426445866133,
+          "mean": 0.24442132229330665,
+          "min": 0.16276333918286326,
+          "max": 0.32607930540375,
+          "p50": 0.24442132229330665,
+          "p95": 0.31791350709270566
+        },
+        "sample_accuracy": {
+          "count": 2,
+          "aggregator": "rate",
+          "numerator": 0,
+          "denominator": 2,
+          "value": 0.0
+        },
+        "success_rate": {
+          "count": 2,
+          "aggregator": "rate",
+          "numerator": 2,
+          "denominator": 2,
+          "value": 1.0
+        },
+        "total_latency_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 2111.767066991888,
+          "mean": 1055.883533495944,
+          "min": 722.669225971913,
+          "max": 1389.097841019975,
+          "p50": 1055.883533495944,
+          "p95": 1355.776410267572
+        },
+        "wer": {
+          "count": 2,
+          "aggregator": "corpus_rate",
+          "numerator": 10,
+          "denominator": 14,
+          "value": 0.7142857142857143
+        }
+      },
+      "metric_metadata": {
+        "cer": {
+          "name": "cer",
+          "display_name": "CER",
+          "unit": "ratio",
+          "category": "quality",
+          "preferred_direction": "lower",
+          "description": "Corpus-level character error rate after normalization and whitespace removal.",
+          "summary_aggregator": "corpus_rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "confidence": {
+          "name": "confidence",
+          "display_name": "Confidence",
+          "unit": "ratio",
+          "category": "quality",
+          "preferred_direction": "higher",
+          "description": "Average confidence exposed by the provider for the recognized utterance.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "cpu_percent": {
+          "name": "cpu_percent",
+          "display_name": "CPU Usage",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Host CPU utilization sampled during the run.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "estimated_cost_usd": {
+          "name": "estimated_cost_usd",
+          "display_name": "Estimated Cost",
+          "unit": "usd",
+          "category": "cost",
+          "preferred_direction": "lower",
+          "description": "Estimated provider cost for the sample using the selected preset pricing metadata.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "failure_rate": {
+          "name": "failure_rate",
+          "display_name": "Failure Rate",
+          "unit": "ratio",
+          "category": "reliability",
+          "preferred_direction": "lower",
+          "description": "Share of samples that ended in degraded/error result.",
+          "summary_aggregator": "rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "gpu_memory_mb": {
+          "name": "gpu_memory_mb",
+          "display_name": "GPU Memory",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "NVIDIA GPU memory sampled during the run when available.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "gpu_util_percent": {
+          "name": "gpu_util_percent",
+          "display_name": "GPU Usage",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "NVIDIA GPU utilization sampled during the run when available.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "inference_ms": {
+          "name": "inference_ms",
+          "display_name": "Inference",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Core model inference latency.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "memory_mb": {
+          "name": "memory_mb",
+          "display_name": "Memory",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Resident memory sampled during the run.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "per_utterance_latency_ms": {
+          "name": "per_utterance_latency_ms",
+          "display_name": "Per-Utterance Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Alias of total latency retained for backward-compatible dashboards and exports.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "postprocess_ms": {
+          "name": "postprocess_ms",
+          "display_name": "Postprocess",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider-side postprocessing latency after inference.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "preprocess_ms": {
+          "name": "preprocess_ms",
+          "display_name": "Preprocess",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider-side preprocessing latency before the inference stage.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "real_time_factor": {
+          "name": "real_time_factor",
+          "display_name": "RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Processing time divided by audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "sample_accuracy": {
+          "name": "sample_accuracy",
+          "display_name": "Sample Accuracy",
+          "unit": "ratio",
+          "category": "quality",
+          "preferred_direction": "higher",
+          "description": "Share of samples whose normalized reference and hypothesis match exactly.",
+          "summary_aggregator": "rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "success_rate": {
+          "name": "success_rate",
+          "display_name": "Success Rate",
+          "unit": "ratio",
+          "category": "reliability",
+          "preferred_direction": "higher",
+          "description": "Share of samples completed without degraded/error result.",
+          "summary_aggregator": "rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "total_latency_ms": {
+          "name": "total_latency_ms",
+          "display_name": "Total Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "End-to-end latency for the sample or utterance.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "wer": {
+          "name": "wer",
+          "display_name": "WER",
+          "unit": "ratio",
+          "category": "quality",
+          "preferred_direction": "lower",
+          "description": "Corpus-level word error rate against the normalized reference transcript.",
+          "summary_aggregator": "corpus_rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        }
+      },
+      "quality_metrics": {
+        "cer": 0.20618556701030927,
+        "confidence": 0.6505668741602589,
+        "sample_accuracy": 0.0,
+        "wer": 0.7142857142857143
+      },
+      "latency_metrics": {
+        "inference_ms": 724.8411605105503,
+        "per_utterance_latency_ms": 1055.883533495944,
+        "postprocess_ms": 0.07942899537738413,
+        "preprocess_ms": 330.96294399001636,
+        "real_time_factor": 0.24442132229330665,
+        "total_latency_ms": 1055.883533495944
+      },
+      "reliability_metrics": {
+        "failure_rate": 0.0,
+        "success_rate": 1.0
+      },
+      "cost_metrics": {
+        "estimated_cost_usd": 0.0
+      },
+      "cost_totals": {
+        "estimated_cost_usd": 0.0
+      },
+      "streaming_metrics": {},
+      "resource_metrics": {
+        "cpu_percent": 5.65,
+        "gpu_memory_mb": 778.0,
+        "gpu_util_percent": 31.0,
+        "memory_mb": 778.666015625
+      }
+    }
+  ],
+  "providers_summary": {
+    "providers/whisper_local:balanced": {
+      "provider_key": "providers/whisper_local:balanced",
+      "provider_profile": "providers/whisper_local",
+      "provider_id": "whisper",
+      "provider_preset": "balanced",
+      "provider_label": "",
+      "samples": 2,
+      "total_samples": 2,
+      "successful_samples": 2,
+      "failed_samples": 0,
+      "mean_metrics": {
+        "cer": 0.20618556701030927,
+        "confidence": 0.6505668741602589,
+        "cpu_percent": 5.65,
+        "estimated_cost_usd": 0.0,
+        "failure_rate": 0.0,
+        "gpu_memory_mb": 778.0,
+        "gpu_util_percent": 31.0,
+        "inference_ms": 724.8411605105503,
+        "memory_mb": 778.666015625,
+        "per_utterance_latency_ms": 1055.883533495944,
+        "postprocess_ms": 0.07942899537738413,
+        "preprocess_ms": 330.96294399001636,
+        "real_time_factor": 0.24442132229330665,
+        "sample_accuracy": 0.0,
+        "success_rate": 1.0,
+        "total_latency_ms": 1055.883533495944,
+        "wer": 0.7142857142857143
+      },
+      "metric_counts": {
+        "cer": 2,
+        "confidence": 2,
+        "cpu_percent": 2,
+        "estimated_cost_usd": 2,
+        "failure_rate": 2,
+        "gpu_memory_mb": 2,
+        "gpu_util_percent": 2,
+        "inference_ms": 2,
+        "memory_mb": 2,
+        "per_utterance_latency_ms": 2,
+        "postprocess_ms": 2,
+        "preprocess_ms": 2,
+        "real_time_factor": 2,
+        "sample_accuracy": 2,
+        "success_rate": 2,
+        "total_latency_ms": 2,
+        "wer": 2
+      },
+      "metric_statistics": {
+        "cer": {
+          "count": 2,
+          "aggregator": "corpus_rate",
+          "numerator": 20,
+          "denominator": 97,
+          "value": 0.20618556701030927
+        },
+        "confidence": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 1.3011337483205179,
+          "mean": 0.6505668741602589,
+          "min": 0.4862864863927718,
+          "max": 0.814847261927746,
+          "p50": 0.6505668741602589,
+          "p95": 0.7984192231509972
+        },
+        "cpu_percent": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 11.3,
+          "mean": 5.65,
+          "min": 5.0,
+          "max": 6.3,
+          "p50": 5.65,
+          "p95": 6.234999999999999
+        },
+        "estimated_cost_usd": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "p50": 0.0,
+          "p95": 0.0
+        },
+        "failure_rate": {
+          "count": 2,
+          "aggregator": "rate",
+          "numerator": 0,
+          "denominator": 2,
+          "value": 0.0
+        },
+        "gpu_memory_mb": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 1556.0,
+          "mean": 778.0,
+          "min": 778.0,
+          "max": 778.0,
+          "p50": 778.0,
+          "p95": 778.0
+        },
+        "gpu_util_percent": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 62.0,
+          "mean": 31.0,
+          "min": 30.0,
+          "max": 32.0,
+          "p50": 31.0,
+          "p95": 31.9
+        },
+        "inference_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 1449.6823210211005,
+          "mean": 724.8411605105503,
+          "min": 722.5874220021069,
+          "max": 727.0948990189936,
+          "p50": 724.8411605105503,
+          "p95": 726.8695251681493
+        },
+        "memory_mb": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 1557.33203125,
+          "mean": 778.666015625,
+          "min": 778.32421875,
+          "max": 779.0078125,
+          "p50": 778.666015625,
+          "p95": 778.9736328125
+        },
+        "per_utterance_latency_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 2111.767066991888,
+          "mean": 1055.883533495944,
+          "min": 722.669225971913,
+          "max": 1389.097841019975,
+          "p50": 1055.883533495944,
+          "p95": 1355.776410267572
+        },
+        "postprocess_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 0.15885799075476825,
+          "mean": 0.07942899537738413,
+          "min": 0.07706499309279025,
+          "max": 0.081792997661978,
+          "p50": 0.07942899537738413,
+          "p95": 0.08155659743351862
+        },
+        "preprocess_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 661.9258879800327,
+          "mean": 330.96294399001636,
+          "min": 0.004738976713269949,
+          "max": 661.9211490033194,
+          "p50": 330.96294399001636,
+          "p95": 628.8253285019891
+        },
+        "real_time_factor": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 0.4888426445866133,
+          "mean": 0.24442132229330665,
+          "min": 0.16276333918286326,
+          "max": 0.32607930540375,
+          "p50": 0.24442132229330665,
+          "p95": 0.31791350709270566
+        },
+        "sample_accuracy": {
+          "count": 2,
+          "aggregator": "rate",
+          "numerator": 0,
+          "denominator": 2,
+          "value": 0.0
+        },
+        "success_rate": {
+          "count": 2,
+          "aggregator": "rate",
+          "numerator": 2,
+          "denominator": 2,
+          "value": 1.0
+        },
+        "total_latency_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 2111.767066991888,
+          "mean": 1055.883533495944,
+          "min": 722.669225971913,
+          "max": 1389.097841019975,
+          "p50": 1055.883533495944,
+          "p95": 1355.776410267572
+        },
+        "wer": {
+          "count": 2,
+          "aggregator": "corpus_rate",
+          "numerator": 10,
+          "denominator": 14,
+          "value": 0.7142857142857143
+        }
+      },
+      "metric_metadata": {
+        "cer": {
+          "name": "cer",
+          "display_name": "CER",
+          "unit": "ratio",
+          "category": "quality",
+          "preferred_direction": "lower",
+          "description": "Corpus-level character error rate after normalization and whitespace removal.",
+          "summary_aggregator": "corpus_rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "confidence": {
+          "name": "confidence",
+          "display_name": "Confidence",
+          "unit": "ratio",
+          "category": "quality",
+          "preferred_direction": "higher",
+          "description": "Average confidence exposed by the provider for the recognized utterance.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "cpu_percent": {
+          "name": "cpu_percent",
+          "display_name": "CPU Usage",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Host CPU utilization sampled during the run.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "estimated_cost_usd": {
+          "name": "estimated_cost_usd",
+          "display_name": "Estimated Cost",
+          "unit": "usd",
+          "category": "cost",
+          "preferred_direction": "lower",
+          "description": "Estimated provider cost for the sample using the selected preset pricing metadata.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "failure_rate": {
+          "name": "failure_rate",
+          "display_name": "Failure Rate",
+          "unit": "ratio",
+          "category": "reliability",
+          "preferred_direction": "lower",
+          "description": "Share of samples that ended in degraded/error result.",
+          "summary_aggregator": "rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "gpu_memory_mb": {
+          "name": "gpu_memory_mb",
+          "display_name": "GPU Memory",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "NVIDIA GPU memory sampled during the run when available.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "gpu_util_percent": {
+          "name": "gpu_util_percent",
+          "display_name": "GPU Usage",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "NVIDIA GPU utilization sampled during the run when available.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "inference_ms": {
+          "name": "inference_ms",
+          "display_name": "Inference",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Core model inference latency.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "memory_mb": {
+          "name": "memory_mb",
+          "display_name": "Memory",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Resident memory sampled during the run.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "per_utterance_latency_ms": {
+          "name": "per_utterance_latency_ms",
+          "display_name": "Per-Utterance Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Alias of total latency retained for backward-compatible dashboards and exports.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "postprocess_ms": {
+          "name": "postprocess_ms",
+          "display_name": "Postprocess",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider-side postprocessing latency after inference.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "preprocess_ms": {
+          "name": "preprocess_ms",
+          "display_name": "Preprocess",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider-side preprocessing latency before the inference stage.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "real_time_factor": {
+          "name": "real_time_factor",
+          "display_name": "RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Processing time divided by audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "sample_accuracy": {
+          "name": "sample_accuracy",
+          "display_name": "Sample Accuracy",
+          "unit": "ratio",
+          "category": "quality",
+          "preferred_direction": "higher",
+          "description": "Share of samples whose normalized reference and hypothesis match exactly.",
+          "summary_aggregator": "rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "success_rate": {
+          "name": "success_rate",
+          "display_name": "Success Rate",
+          "unit": "ratio",
+          "category": "reliability",
+          "preferred_direction": "higher",
+          "description": "Share of samples completed without degraded/error result.",
+          "summary_aggregator": "rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "total_latency_ms": {
+          "name": "total_latency_ms",
+          "display_name": "Total Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "End-to-end latency for the sample or utterance.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "wer": {
+          "name": "wer",
+          "display_name": "WER",
+          "unit": "ratio",
+          "category": "quality",
+          "preferred_direction": "lower",
+          "description": "Corpus-level word error rate against the normalized reference transcript.",
+          "summary_aggregator": "corpus_rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        }
+      },
+      "quality_metrics": {
+        "cer": 0.20618556701030927,
+        "confidence": 0.6505668741602589,
+        "sample_accuracy": 0.0,
+        "wer": 0.7142857142857143
+      },
+      "latency_metrics": {
+        "inference_ms": 724.8411605105503,
+        "per_utterance_latency_ms": 1055.883533495944,
+        "postprocess_ms": 0.07942899537738413,
+        "preprocess_ms": 330.96294399001636,
+        "real_time_factor": 0.24442132229330665,
+        "total_latency_ms": 1055.883533495944
+      },
+      "reliability_metrics": {
+        "failure_rate": 0.0,
+        "success_rate": 1.0
+      },
+      "cost_metrics": {
+        "estimated_cost_usd": 0.0
+      },
+      "cost_totals": {
+        "estimated_cost_usd": 0.0
+      },
+      "streaming_metrics": {},
+      "resource_metrics": {
+        "cpu_percent": 5.65,
+        "gpu_memory_mb": 778.0,
+        "gpu_util_percent": 31.0,
+        "memory_mb": 778.666015625
+      }
+    }
+  },
+  "noise_summary": {
+    "clean": {
+      "samples": 2,
+      "total_samples": 2,
+      "successful_samples": 2,
+      "failed_samples": 0,
+      "mean_metrics": {
+        "cer": 0.20618556701030927,
+        "confidence": 0.6505668741602589,
+        "cpu_percent": 5.65,
+        "estimated_cost_usd": 0.0,
+        "failure_rate": 0.0,
+        "gpu_memory_mb": 778.0,
+        "gpu_util_percent": 31.0,
+        "inference_ms": 724.8411605105503,
+        "memory_mb": 778.666015625,
+        "per_utterance_latency_ms": 1055.883533495944,
+        "postprocess_ms": 0.07942899537738413,
+        "preprocess_ms": 330.96294399001636,
+        "real_time_factor": 0.24442132229330665,
+        "sample_accuracy": 0.0,
+        "success_rate": 1.0,
+        "total_latency_ms": 1055.883533495944,
+        "wer": 0.7142857142857143
+      },
+      "metric_counts": {
+        "cer": 2,
+        "confidence": 2,
+        "cpu_percent": 2,
+        "estimated_cost_usd": 2,
+        "failure_rate": 2,
+        "gpu_memory_mb": 2,
+        "gpu_util_percent": 2,
+        "inference_ms": 2,
+        "memory_mb": 2,
+        "per_utterance_latency_ms": 2,
+        "postprocess_ms": 2,
+        "preprocess_ms": 2,
+        "real_time_factor": 2,
+        "sample_accuracy": 2,
+        "success_rate": 2,
+        "total_latency_ms": 2,
+        "wer": 2
+      },
+      "metric_statistics": {
+        "cer": {
+          "count": 2,
+          "aggregator": "corpus_rate",
+          "numerator": 20,
+          "denominator": 97,
+          "value": 0.20618556701030927
+        },
+        "confidence": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 1.3011337483205179,
+          "mean": 0.6505668741602589,
+          "min": 0.4862864863927718,
+          "max": 0.814847261927746,
+          "p50": 0.6505668741602589,
+          "p95": 0.7984192231509972
+        },
+        "cpu_percent": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 11.3,
+          "mean": 5.65,
+          "min": 5.0,
+          "max": 6.3,
+          "p50": 5.65,
+          "p95": 6.234999999999999
+        },
+        "estimated_cost_usd": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "p50": 0.0,
+          "p95": 0.0
+        },
+        "failure_rate": {
+          "count": 2,
+          "aggregator": "rate",
+          "numerator": 0,
+          "denominator": 2,
+          "value": 0.0
+        },
+        "gpu_memory_mb": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 1556.0,
+          "mean": 778.0,
+          "min": 778.0,
+          "max": 778.0,
+          "p50": 778.0,
+          "p95": 778.0
+        },
+        "gpu_util_percent": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 62.0,
+          "mean": 31.0,
+          "min": 30.0,
+          "max": 32.0,
+          "p50": 31.0,
+          "p95": 31.9
+        },
+        "inference_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 1449.6823210211005,
+          "mean": 724.8411605105503,
+          "min": 722.5874220021069,
+          "max": 727.0948990189936,
+          "p50": 724.8411605105503,
+          "p95": 726.8695251681493
+        },
+        "memory_mb": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 1557.33203125,
+          "mean": 778.666015625,
+          "min": 778.32421875,
+          "max": 779.0078125,
+          "p50": 778.666015625,
+          "p95": 778.9736328125
+        },
+        "per_utterance_latency_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 2111.767066991888,
+          "mean": 1055.883533495944,
+          "min": 722.669225971913,
+          "max": 1389.097841019975,
+          "p50": 1055.883533495944,
+          "p95": 1355.776410267572
+        },
+        "postprocess_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 0.15885799075476825,
+          "mean": 0.07942899537738413,
+          "min": 0.07706499309279025,
+          "max": 0.081792997661978,
+          "p50": 0.07942899537738413,
+          "p95": 0.08155659743351862
+        },
+        "preprocess_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 661.9258879800327,
+          "mean": 330.96294399001636,
+          "min": 0.004738976713269949,
+          "max": 661.9211490033194,
+          "p50": 330.96294399001636,
+          "p95": 628.8253285019891
+        },
+        "real_time_factor": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 0.4888426445866133,
+          "mean": 0.24442132229330665,
+          "min": 0.16276333918286326,
+          "max": 0.32607930540375,
+          "p50": 0.24442132229330665,
+          "p95": 0.31791350709270566
+        },
+        "sample_accuracy": {
+          "count": 2,
+          "aggregator": "rate",
+          "numerator": 0,
+          "denominator": 2,
+          "value": 0.0
+        },
+        "success_rate": {
+          "count": 2,
+          "aggregator": "rate",
+          "numerator": 2,
+          "denominator": 2,
+          "value": 1.0
+        },
+        "total_latency_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 2111.767066991888,
+          "mean": 1055.883533495944,
+          "min": 722.669225971913,
+          "max": 1389.097841019975,
+          "p50": 1055.883533495944,
+          "p95": 1355.776410267572
+        },
+        "wer": {
+          "count": 2,
+          "aggregator": "corpus_rate",
+          "numerator": 10,
+          "denominator": 14,
+          "value": 0.7142857142857143
+        }
+      },
+      "metric_metadata": {
+        "cer": {
+          "name": "cer",
+          "display_name": "CER",
+          "unit": "ratio",
+          "category": "quality",
+          "preferred_direction": "lower",
+          "description": "Corpus-level character error rate after normalization and whitespace removal.",
+          "summary_aggregator": "corpus_rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "confidence": {
+          "name": "confidence",
+          "display_name": "Confidence",
+          "unit": "ratio",
+          "category": "quality",
+          "preferred_direction": "higher",
+          "description": "Average confidence exposed by the provider for the recognized utterance.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "cpu_percent": {
+          "name": "cpu_percent",
+          "display_name": "CPU Usage",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Host CPU utilization sampled during the run.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "estimated_cost_usd": {
+          "name": "estimated_cost_usd",
+          "display_name": "Estimated Cost",
+          "unit": "usd",
+          "category": "cost",
+          "preferred_direction": "lower",
+          "description": "Estimated provider cost for the sample using the selected preset pricing metadata.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "failure_rate": {
+          "name": "failure_rate",
+          "display_name": "Failure Rate",
+          "unit": "ratio",
+          "category": "reliability",
+          "preferred_direction": "lower",
+          "description": "Share of samples that ended in degraded/error result.",
+          "summary_aggregator": "rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "gpu_memory_mb": {
+          "name": "gpu_memory_mb",
+          "display_name": "GPU Memory",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "NVIDIA GPU memory sampled during the run when available.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "gpu_util_percent": {
+          "name": "gpu_util_percent",
+          "display_name": "GPU Usage",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "NVIDIA GPU utilization sampled during the run when available.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "inference_ms": {
+          "name": "inference_ms",
+          "display_name": "Inference",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Core model inference latency.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "memory_mb": {
+          "name": "memory_mb",
+          "display_name": "Memory",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Resident memory sampled during the run.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "per_utterance_latency_ms": {
+          "name": "per_utterance_latency_ms",
+          "display_name": "Per-Utterance Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Alias of total latency retained for backward-compatible dashboards and exports.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "postprocess_ms": {
+          "name": "postprocess_ms",
+          "display_name": "Postprocess",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider-side postprocessing latency after inference.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "preprocess_ms": {
+          "name": "preprocess_ms",
+          "display_name": "Preprocess",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider-side preprocessing latency before the inference stage.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "real_time_factor": {
+          "name": "real_time_factor",
+          "display_name": "RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Processing time divided by audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "sample_accuracy": {
+          "name": "sample_accuracy",
+          "display_name": "Sample Accuracy",
+          "unit": "ratio",
+          "category": "quality",
+          "preferred_direction": "higher",
+          "description": "Share of samples whose normalized reference and hypothesis match exactly.",
+          "summary_aggregator": "rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "success_rate": {
+          "name": "success_rate",
+          "display_name": "Success Rate",
+          "unit": "ratio",
+          "category": "reliability",
+          "preferred_direction": "higher",
+          "description": "Share of samples completed without degraded/error result.",
+          "summary_aggregator": "rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "total_latency_ms": {
+          "name": "total_latency_ms",
+          "display_name": "Total Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "End-to-end latency for the sample or utterance.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        },
+        "wer": {
+          "name": "wer",
+          "display_name": "WER",
+          "unit": "ratio",
+          "category": "quality",
+          "preferred_direction": "lower",
+          "description": "Corpus-level word error rate against the normalized reference transcript.",
+          "summary_aggregator": "corpus_rate",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ]
+        }
+      },
+      "quality_metrics": {
+        "cer": 0.20618556701030927,
+        "confidence": 0.6505668741602589,
+        "sample_accuracy": 0.0,
+        "wer": 0.7142857142857143
+      },
+      "latency_metrics": {
+        "inference_ms": 724.8411605105503,
+        "per_utterance_latency_ms": 1055.883533495944,
+        "postprocess_ms": 0.07942899537738413,
+        "preprocess_ms": 330.96294399001636,
+        "real_time_factor": 0.24442132229330665,
+        "total_latency_ms": 1055.883533495944
+      },
+      "reliability_metrics": {
+        "failure_rate": 0.0,
+        "success_rate": 1.0
+      },
+      "cost_metrics": {
+        "estimated_cost_usd": 0.0
+      },
+      "cost_totals": {
+        "estimated_cost_usd": 0.0
+      },
+      "streaming_metrics": {},
+      "resource_metrics": {
+        "cpu_percent": 5.65,
+        "gpu_memory_mb": 778.0,
+        "gpu_util_percent": 31.0,
+        "memory_mb": 778.666015625
+      }
+    }
+  }
+}

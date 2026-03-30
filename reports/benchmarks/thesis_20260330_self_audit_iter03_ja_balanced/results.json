@@ -1,0 +1,1043 @@
+[
+  {
+    "run_id": "thesis_20260330_self_audit_iter03_ja_balanced",
+    "provider_profile": "providers/whisper_local",
+    "provider_id": "whisper",
+    "sample_id": "fleurs_ja_jp_17808260654685775088",
+    "success": true,
+    "text": "\u6280\u8853\u7d50\u5b9a\u8ad6\u306e\u307b\u3068\u3093\u3069\u306e\u89e3\u91c8\u306f\u30012\u3064\u306e\u4e00\u822c\u8ad6\u3092\u5171\u6709\u3057\u3066\u3044\u307e\u3059\u3002 1\u3064\u306f\u6280\u8853\u306e\u767a\u5c55\u6642\u4ee3\u304c\u6587\u5316\u7684\u3001\u653f\u6cbb\u7684\u306a\u5f71\u97ff\u3092\u5927\u304d\u304f\u8d85\u3048\u305f\u9053\u3092\u7acb\u3063\u3066\u3044\u308b\u3053\u3068\u3002 \u3082\u30461\u3064\u306f\u6280\u8853\u304c\u793e\u4f1a\u7684\u306b\u6761\u4ef6\u3064\u3051\u3089\u308c\u305f\u3082\u306e\u3067\u306f\u306a\u304f\u3001 \u3080\u3057\u308d\u5185\u5728\u3059\u308b\u793e\u4f1a\u306b\u5f71\u97ff\u3092\u4e0e\u3048\u308b\u3053\u3068\u3067\u3059\u3002",
+    "reference_text": "\u6280\u8853\u6c7a\u5b9a\u8ad6\u306e\u307b\u3068\u3093\u3069\u306e\u89e3\u91c8\u306f 2\u3064\u306e\u4e00\u822c\u8ad6\u3092\u5171\u6709\u3057\u3066\u3044\u307e\u3059 1\u3064\u306f\u6280\u8853\u306e\u767a\u5c55\u81ea\u4f53\u304c\u6587\u5316\u7684 \u653f\u6cbb\u7684\u306a\u5f71\u97ff\u3092\u5927\u304d\u304f\u8d85\u3048\u305f\u9053\u3092\u305f\u3069\u3063\u3066\u3044\u308b\u3053\u3068 \u3082\u30461\u3064\u306f\u6280\u8853\u304c\u793e\u4f1a\u7684\u306b\u6761\u4ef6\u3065\u3051\u3089\u308c\u305f\u3082\u306e\u3067\u306f\u306a\u304f \u3080\u3057\u308d\u5185\u5728\u3059\u308b\u793e\u4f1a\u306b \u5f71\u97ff \u3092\u4e0e\u3048\u308b\u3053\u3068\u3067\u3059",
+    "normalized_reference_text": "\u6280\u8853\u6c7a\u5b9a\u8ad6\u306e\u307b\u3068\u3093\u3069\u306e\u89e3\u91c8\u306f 2\u3064\u306e\u4e00\u822c\u8ad6\u3092\u5171\u6709\u3057\u3066\u3044\u307e\u3059 1\u3064\u306f\u6280\u8853\u306e\u767a\u5c55\u81ea\u4f53\u304c\u6587\u5316\u7684 \u653f\u6cbb\u7684\u306a\u5f71\u97ff\u3092\u5927\u304d\u304f\u8d85\u3048\u305f\u9053\u3092\u305f\u3069\u3063\u3066\u3044\u308b\u3053\u3068 \u3082\u30461\u3064\u306f\u6280\u8853\u304c\u793e\u4f1a\u7684\u306b\u6761\u4ef6\u3065\u3051\u3089\u308c\u305f\u3082\u306e\u3067\u306f\u306a\u304f \u3080\u3057\u308d\u5185\u5728\u3059\u308b\u793e\u4f1a\u306b \u5f71\u97ff \u3092\u4e0e\u3048\u308b\u3053\u3068\u3067\u3059",
+    "normalized_hypothesis_text": "\u6280\u8853\u7d50\u5b9a\u8ad6\u306e\u307b\u3068\u3093\u3069\u306e\u89e3\u91c8\u306f2\u3064\u306e\u4e00\u822c\u8ad6\u3092\u5171\u6709\u3057\u3066\u3044\u307e\u3059 1\u3064\u306f\u6280\u8853\u306e\u767a\u5c55\u6642\u4ee3\u304c\u6587\u5316\u7684\u653f\u6cbb\u7684\u306a\u5f71\u97ff\u3092\u5927\u304d\u304f\u8d85\u3048\u305f\u9053\u3092\u7acb\u3063\u3066\u3044\u308b\u3053\u3068 \u3082\u30461\u3064\u306f\u6280\u8853\u304c\u793e\u4f1a\u7684\u306b\u6761\u4ef6\u3064\u3051\u3089\u308c\u305f\u3082\u306e\u3067\u306f\u306a\u304f \u3080\u3057\u308d\u5185\u5728\u3059\u308b\u793e\u4f1a\u306b\u5f71\u97ff\u3092\u4e0e\u3048\u308b\u3053\u3068\u3067\u3059",
+    "quality_support": {
+      "normalized_reference": "\u6280\u8853\u6c7a\u5b9a\u8ad6\u306e\u307b\u3068\u3093\u3069\u306e\u89e3\u91c8\u306f 2\u3064\u306e\u4e00\u822c\u8ad6\u3092\u5171\u6709\u3057\u3066\u3044\u307e\u3059 1\u3064\u306f\u6280\u8853\u306e\u767a\u5c55\u81ea\u4f53\u304c\u6587\u5316\u7684 \u653f\u6cbb\u7684\u306a\u5f71\u97ff\u3092\u5927\u304d\u304f\u8d85\u3048\u305f\u9053\u3092\u305f\u3069\u3063\u3066\u3044\u308b\u3053\u3068 \u3082\u30461\u3064\u306f\u6280\u8853\u304c\u793e\u4f1a\u7684\u306b\u6761\u4ef6\u3065\u3051\u3089\u308c\u305f\u3082\u306e\u3067\u306f\u306a\u304f \u3080\u3057\u308d\u5185\u5728\u3059\u308b\u793e\u4f1a\u306b \u5f71\u97ff \u3092\u4e0e\u3048\u308b\u3053\u3068\u3067\u3059",
+      "normalized_hypothesis": "\u6280\u8853\u7d50\u5b9a\u8ad6\u306e\u307b\u3068\u3093\u3069\u306e\u89e3\u91c8\u306f2\u3064\u306e\u4e00\u822c\u8ad6\u3092\u5171\u6709\u3057\u3066\u3044\u307e\u3059 1\u3064\u306f\u6280\u8853\u306e\u767a\u5c55\u6642\u4ee3\u304c\u6587\u5316\u7684\u653f\u6cbb\u7684\u306a\u5f71\u97ff\u3092\u5927\u304d\u304f\u8d85\u3048\u305f\u9053\u3092\u7acb\u3063\u3066\u3044\u308b\u3053\u3068 \u3082\u30461\u3064\u306f\u6280\u8853\u304c\u793e\u4f1a\u7684\u306b\u6761\u4ef6\u3064\u3051\u3089\u308c\u305f\u3082\u306e\u3067\u306f\u306a\u304f \u3080\u3057\u308d\u5185\u5728\u3059\u308b\u793e\u4f1a\u306b\u5f71\u97ff\u3092\u4e0e\u3048\u308b\u3053\u3068\u3067\u3059",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 8,
+      "reference_char_count": 110,
+      "word_edits": 8,
+      "char_edits": 6,
+      "exact_match": false,
+      "wer": 1.0,
+      "cer": 0.05454545454545454
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.05454545454545454,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "per_utterance_latency_ms": 2084.1344239888713,
+      "real_time_factor": 0.09213680035317733,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 2084.1344239888713,
+      "wer": 1.0,
+      "confidence": 0.8760058787904582,
+      "preprocess_ms": 559.4145609939005,
+      "inference_ms": 1524.3270359933376,
+      "postprocess_ms": 0.39282700163312256,
+      "cpu_percent": 5.0,
+      "memory_mb": 772.4296875,
+      "gpu_util_percent": 30.0,
+      "gpu_memory_mb": 778.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "clean_baseline",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "balanced",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_ja_jp_test_subset/fleurs_ja_jp_17808260654685775088.wav",
+    "audio_duration_sec": 22.62,
+    "confidence": 0.8760058787904582,
+    "preprocess_ms": 559.4145609939005,
+    "inference_ms": 1524.3270359933376,
+    "postprocess_ms": 0.39282700163312256,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_iter03_ja_balanced/metrics/traces/trace_f9fac68c1a904ce69031841b9c08fa76.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_a6b95167578b4b59ab7b777c55fa4c74",
+      "session_id": "benchmark_thesis_20260330_self_audit_iter03_ja_balanced",
+      "provider_id": "whisper",
+      "text": "\u6280\u8853\u7d50\u5b9a\u8ad6\u306e\u307b\u3068\u3093\u3069\u306e\u89e3\u91c8\u306f\u30012\u3064\u306e\u4e00\u822c\u8ad6\u3092\u5171\u6709\u3057\u3066\u3044\u307e\u3059\u3002 1\u3064\u306f\u6280\u8853\u306e\u767a\u5c55\u6642\u4ee3\u304c\u6587\u5316\u7684\u3001\u653f\u6cbb\u7684\u306a\u5f71\u97ff\u3092\u5927\u304d\u304f\u8d85\u3048\u305f\u9053\u3092\u7acb\u3063\u3066\u3044\u308b\u3053\u3068\u3002 \u3082\u30461\u3064\u306f\u6280\u8853\u304c\u793e\u4f1a\u7684\u306b\u6761\u4ef6\u3064\u3051\u3089\u308c\u305f\u3082\u306e\u3067\u306f\u306a\u304f\u3001 \u3080\u3057\u308d\u5185\u5728\u3059\u308b\u793e\u4f1a\u306b\u5f71\u97ff\u3092\u4e0e\u3048\u308b\u3053\u3068\u3067\u3059\u3002",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 1.07,
+      "utterance_end_sec": 20.75,
+      "words": [
+        {
+          "word": "\u6280",
+          "start_sec": 1.07,
+          "end_sec": 1.57,
+          "confidence": 0.26025205850601196,
+          "confidence_available": true
+        },
+        {
+          "word": "\u8853",
+          "start_sec": 1.57,
+          "end_sec": 1.73,
+          "confidence": 0.9975630044937134,
+          "confidence_available": true
+        },
+        {
+          "word": "\u7d50",
+          "start_sec": 1.73,
+          "end_sec": 1.97,
+          "confidence": 0.46358275413513184,
+          "confidence_available": true
+        },
+        {
+          "word": "\u5b9a",
+          "start_sec": 1.97,
+          "end_sec": 2.27,
+          "confidence": 0.4837769865989685,
+          "confidence_available": true
+        },
+        {
+          "word": "\u8ad6",
+          "start_sec": 2.27,
+          "end_sec": 2.43,
+          "confidence": 0.4044750928878784,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306e",
+          "start_sec": 2.43,
+          "end_sec": 2.59,
+          "confidence": 0.9676066637039185,
+          "confidence_available": true
+        },
+        {
+          "word": "\u307b",
+          "start_sec": 2.59,
+          "end_sec": 2.73,
+          "confidence": 0.44255590438842773,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3068",
+          "start_sec": 2.73,
+          "end_sec": 2.85,
+          "confidence": 0.9923691749572754,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3093",
+          "start_sec": 2.85,
+          "end_sec": 2.97,
+          "confidence": 0.9936590790748596,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3069",
+          "start_sec": 2.97,
+          "end_sec": 3.07,
+          "confidence": 0.7088679671287537,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306e",
+          "start_sec": 3.07,
+          "end_sec": 3.19,
+          "confidence": 0.931483805179596,
+          "confidence_available": true
+        },
+        {
+          "word": "\u89e3",
+          "start_sec": 3.19,
+          "end_sec": 3.39,
+          "confidence": 0.8136709928512573,
+          "confidence_available": true
+        },
+        {
+          "word": "\u91c8",
+          "start_sec": 3.39,
+          "end_sec": 3.61,
+          "confidence": 0.8867902159690857,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306f\u3001",
+          "start_sec": 3.61,
+          "end_sec": 3.83,
+          "confidence": 0.985446572303772,
+          "confidence_available": true
+        },
+        {
+          "word": "2",
+          "start_sec": 4.27,
+          "end_sec": 4.39,
+          "confidence": 0.7776839733123779,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3064",
+          "start_sec": 4.39,
+          "end_sec": 4.59,
+          "confidence": 0.9981321692466736,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306e",
+          "start_sec": 4.59,
+          "end_sec": 4.71,
+          "confidence": 0.9116674661636353,
+          "confidence_available": true
+        },
+        {
+          "word": "\u4e00",
+          "start_sec": 4.71,
+          "end_sec": 4.85,
+          "confidence": 0.8696688413619995,
+          "confidence_available": true
+        },
+        {
+          "word": "\u822c",
+          "start_sec": 4.85,
+          "end_sec": 5.05,
+          "confidence": 0.8145453333854675,
+          "confidence_available": true
+        },
+        {
+          "word": "\u8ad6",
+          "start_sec": 5.05,
+          "end_sec": 5.25,
+          "confidence": 0.9958398342132568,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3092",
+          "start_sec": 5.25,
+          "end_sec": 5.47,
+          "confidence": 0.934101939201355,
+          "confidence_available": true
+        },
+        {
+          "word": "\u5171",
+          "start_sec": 5.47,
+          "end_sec": 5.61,
+          "confidence": 0.9255288243293762,
+          "confidence_available": true
+        },
+        {
+          "word": "\u6709",
+          "start_sec": 5.61,
+          "end_sec": 5.79,
+          "confidence": 0.9470055103302002,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3057\u3066",
+          "start_sec": 5.79,
+          "end_sec": 6.05,
+          "confidence": 0.9893396496772766,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3044\u307e\u3059\u3002",
+          "start_sec": 6.05,
+          "end_sec": 6.33,
+          "confidence": 0.9890651702880859,
+          "confidence_available": true
+        },
+        {
+          "word": "1",
+          "start_sec": 6.89,
+          "end_sec": 7.07,
+          "confidence": 0.7524310350418091,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3064",
+          "start_sec": 7.07,
+          "end_sec": 7.27,
+          "confidence": 0.9945665597915649,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306f",
+          "start_sec": 7.27,
+          "end_sec": 7.37,
+          "confidence": 0.9903968572616577,
+          "confidence_available": true
+        },
+        {
+          "word": "\u6280",
+          "start_sec": 7.37,
+          "end_sec": 7.51,
+          "confidence": 0.951073944568634,
+          "confidence_available": true
+        },
+        {
+          "word": "\u8853",
+          "start_sec": 7.51,
+          "end_sec": 7.67,
+          "confidence": 0.9994827508926392,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306e",
+          "start_sec": 7.67,
+          "end_sec": 7.87,
+          "confidence": 0.7698947787284851,
+          "confidence_available": true
+        },
+        {
+          "word": "\u767a",
+          "start_sec": 7.87,
+          "end_sec": 8.01,
+          "confidence": 0.9485442042350769,
+          "confidence_available": true
+        },
+        {
+          "word": "\u5c55",
+          "start_sec": 8.01,
+          "end_sec": 8.23,
+          "confidence": 0.6902616620063782,
+          "confidence_available": true
+        },
+        {
+          "word": "\u6642",
+          "start_sec": 8.23,
+          "end_sec": 8.41,
+          "confidence": 0.4934493899345398,
+          "confidence_available": true
+        },
+        {
+          "word": "\u4ee3",
+          "start_sec": 8.41,
+          "end_sec": 8.51,
+          "confidence": 0.852256715297699,
+          "confidence_available": true
+        },
+        {
+          "word": "\u304c",
+          "start_sec": 8.51,
+          "end_sec": 8.69,
+          "confidence": 0.9885401129722595,
+          "confidence_available": true
+        },
+        {
+          "word": "\u6587",
+          "start_sec": 8.69,
+          "end_sec": 8.87,
+          "confidence": 0.45297685265541077,
+          "confidence_available": true
+        },
+        {
+          "word": "\u5316",
+          "start_sec": 8.87,
+          "end_sec": 9.05,
+          "confidence": 0.9801502227783203,
+          "confidence_available": true
+        },
+        {
+          "word": "\u7684\u3001",
+          "start_sec": 9.05,
+          "end_sec": 9.23,
+          "confidence": 0.9927887320518494,
+          "confidence_available": true
+        },
+        {
+          "word": "\u653f\u6cbb",
+          "start_sec": 9.57,
+          "end_sec": 9.69,
+          "confidence": 0.5452987551689148,
+          "confidence_available": true
+        },
+        {
+          "word": "\u7684",
+          "start_sec": 9.69,
+          "end_sec": 10.01,
+          "confidence": 0.9905795454978943,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306a",
+          "start_sec": 10.01,
+          "end_sec": 10.27,
+          "confidence": 0.9982413053512573,
+          "confidence_available": true
+        },
+        {
+          "word": "\u5f71",
+          "start_sec": 10.27,
+          "end_sec": 10.43,
+          "confidence": 0.9471443891525269,
+          "confidence_available": true
+        },
+        {
+          "word": "\u97ff",
+          "start_sec": 10.43,
+          "end_sec": 10.61,
+          "confidence": 0.9921240508556366,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3092",
+          "start_sec": 10.61,
+          "end_sec": 10.83,
+          "confidence": 0.9713172912597656,
+          "confidence_available": true
+        },
+        {
+          "word": "\u5927",
+          "start_sec": 10.83,
+          "end_sec": 11.05,
+          "confidence": 0.939464807510376,
+          "confidence_available": true
+        },
+        {
+          "word": "\u304d",
+          "start_sec": 11.05,
+          "end_sec": 11.13,
+          "confidence": 0.9972546696662903,
+          "confidence_available": true
+        },
+        {
+          "word": "\u304f",
+          "start_sec": 11.13,
+          "end_sec": 11.27,
+          "confidence": 0.996051013469696,
+          "confidence_available": true
+        },
+        {
+          "word": "\u8d85",
+          "start_sec": 11.27,
+          "end_sec": 11.43,
+          "confidence": 0.5939745903015137,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3048",
+          "start_sec": 11.43,
+          "end_sec": 11.51,
+          "confidence": 0.9899168610572815,
+          "confidence_available": true
+        },
+        {
+          "word": "\u305f",
+          "start_sec": 11.51,
+          "end_sec": 11.61,
+          "confidence": 0.9787686467170715,
+          "confidence_available": true
+        },
+        {
+          "word": "\u9053",
+          "start_sec": 11.61,
+          "end_sec": 11.77,
+          "confidence": 0.7151302695274353,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3092",
+          "start_sec": 11.77,
+          "end_sec": 11.99,
+          "confidence": 0.9192590117454529,
+          "confidence_available": true
+        },
+        {
+          "word": "\u7acb",
+          "start_sec": 11.99,
+          "end_sec": 12.09,
+          "confidence": 0.2725180983543396,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3063\u3066",
+          "start_sec": 12.09,
+          "end_sec": 12.37,
+          "confidence": 0.6788126826286316,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3044\u308b",
+          "start_sec": 12.37,
+          "end_sec": 12.51,
+          "confidence": 0.993970513343811,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3053\u3068\u3002",
+          "start_sec": 12.51,
+          "end_sec": 12.75,
+          "confidence": 0.9655197858810425,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3082\u3046",
+          "start_sec": 13.23,
+          "end_sec": 13.47,
+          "confidence": 0.9400122165679932,
+          "confidence_available": true
+        },
+        {
+          "word": "1",
+          "start_sec": 13.47,
+          "end_sec": 13.67,
+          "confidence": 0.9233169555664062,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3064",
+          "start_sec": 13.67,
+          "end_sec": 13.85,
+          "confidence": 0.9996039271354675,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306f",
+          "start_sec": 13.85,
+          "end_sec": 13.99,
+          "confidence": 0.9962732791900635,
+          "confidence_available": true
+        },
+        {
+          "word": "\u6280",
+          "start_sec": 13.99,
+          "end_sec": 14.19,
+          "confidence": 0.9591088891029358,
+          "confidence_available": true
+        },
+        {
+          "word": "\u8853",
+          "start_sec": 14.19,
+          "end_sec": 14.35,
+          "confidence": 0.9997091591358185,
+          "confidence_available": true
+        },
+        {
+          "word": "\u304c",
+          "start_sec": 14.35,
+          "end_sec": 14.53,
+          "confidence": 0.9985713958740234,
+          "confidence_available": true
+        },
+        {
+          "word": "\u793e",
+          "start_sec": 14.53,
+          "end_sec": 14.71,
+          "confidence": 0.9110991954803467,
+          "confidence_available": true
+        },
+        {
+          "word": "\u4f1a",
+          "start_sec": 14.71,
+          "end_sec": 14.83,
+          "confidence": 0.9883344173431396,
+          "confidence_available": true
+        },
+        {
+          "word": "\u7684",
+          "start_sec": 14.83,
+          "end_sec": 15.01,
+          "confidence": 0.9938262104988098,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306b",
+          "start_sec": 15.01,
+          "end_sec": 15.23,
+          "confidence": 0.9958130717277527,
+          "confidence_available": true
+        },
+        {
+          "word": "\u6761",
+          "start_sec": 15.23,
+          "end_sec": 15.39,
+          "confidence": 0.9466614723205566,
+          "confidence_available": true
+        },
+        {
+          "word": "\u4ef6",
+          "start_sec": 15.39,
+          "end_sec": 15.55,
+          "confidence": 0.9970480799674988,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3064",
+          "start_sec": 15.55,
+          "end_sec": 15.75,
+          "confidence": 0.36934924125671387,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3051",
+          "start_sec": 15.75,
+          "end_sec": 15.87,
+          "confidence": 0.9380893707275391,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3089",
+          "start_sec": 15.87,
+          "end_sec": 15.97,
+          "confidence": 0.997011661529541,
+          "confidence_available": true
+        },
+        {
+          "word": "\u308c\u305f",
+          "start_sec": 15.97,
+          "end_sec": 16.13,
+          "confidence": 0.9577082991600037,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3082\u306e",
+          "start_sec": 16.13,
+          "end_sec": 16.37,
+          "confidence": 0.5257224440574646,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3067\u306f",
+          "start_sec": 16.37,
+          "end_sec": 16.59,
+          "confidence": 0.9648869037628174,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306a\u304f\u3001",
+          "start_sec": 16.59,
+          "end_sec": 16.87,
+          "confidence": 0.993412435054779,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3080",
+          "start_sec": 17.27,
+          "end_sec": 17.33,
+          "confidence": 0.7812190055847168,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3057",
+          "start_sec": 17.33,
+          "end_sec": 17.43,
+          "confidence": 0.9884948134422302,
+          "confidence_available": true
+        },
+        {
+          "word": "\u308d",
+          "start_sec": 17.43,
+          "end_sec": 17.59,
+          "confidence": 0.9993047714233398,
+          "confidence_available": true
+        },
+        {
+          "word": "\u5185",
+          "start_sec": 17.59,
+          "end_sec": 17.85,
+          "confidence": 0.36965227127075195,
+          "confidence_available": true
+        },
+        {
+          "word": "\u5728",
+          "start_sec": 17.85,
+          "end_sec": 18.05,
+          "confidence": 0.8632903695106506,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3059\u308b",
+          "start_sec": 18.05,
+          "end_sec": 18.35,
+          "confidence": 0.9966422319412231,
+          "confidence_available": true
+        },
+        {
+          "word": "\u793e",
+          "start_sec": 18.35,
+          "end_sec": 18.83,
+          "confidence": 0.9904521703720093,
+          "confidence_available": true
+        },
+        {
+          "word": "\u4f1a",
+          "start_sec": 18.83,
+          "end_sec": 19.05,
+          "confidence": 0.9967595934867859,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306b",
+          "start_sec": 19.05,
+          "end_sec": 19.23,
+          "confidence": 0.9962349534034729,
+          "confidence_available": true
+        },
+        {
+          "word": "\u5f71",
+          "start_sec": 19.23,
+          "end_sec": 19.57,
+          "confidence": 0.9977182149887085,
+          "confidence_available": true
+        },
+        {
+          "word": "\u97ff",
+          "start_sec": 19.57,
+          "end_sec": 19.75,
+          "confidence": 0.9996014833450317,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3092",
+          "start_sec": 19.75,
+          "end_sec": 19.93,
+          "confidence": 0.9972584247589111,
+          "confidence_available": true
+        },
+        {
+          "word": "\u4e0e",
+          "start_sec": 19.93,
+          "end_sec": 20.05,
+          "confidence": 0.9877466857433319,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3048\u308b",
+          "start_sec": 20.05,
+          "end_sec": 20.23,
+          "confidence": 0.9946669340133667,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3053\u3068",
+          "start_sec": 20.23,
+          "end_sec": 20.43,
+          "confidence": 0.993170976638794,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3067\u3059\u3002",
+          "start_sec": 20.43,
+          "end_sec": 20.75,
+          "confidence": 0.998112678527832,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.8760058787904582,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "ja-JP",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 2084.1344239888713,
+        "preprocess_ms": 559.4145609939005,
+        "inference_ms": 1524.3270359933376,
+        "postprocess_ms": 0.39282700163312256,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 0.39282700163312256
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": []
+    }
+  },
+  {
+    "run_id": "thesis_20260330_self_audit_iter03_ja_balanced",
+    "provider_profile": "providers/whisper_local",
+    "provider_id": "whisper",
+    "sample_id": "fleurs_ja_jp_9364520089078562923",
+    "success": true,
+    "text": "\u8fd1\u304f\u304c\u8584\u3044\u305f\u3081\u3001\u8fd1\u3044\u65b9\u306b\u6d77\u304c\u591a\u304f\u306a\u308b\u3053\u3068\u304c\u3042\u308a\u307e\u3059\u3002 \u5e4c\u5cb8\u304c\u4e0d\u5e38\u3057\u3084\u3059\u304f\u306a\u3063\u3066\u3044\u307e\u3057\u305f\u3002",
+    "reference_text": "\u5730\u6bbb\u304c\u8584\u3044\u305f\u3081 \u8fd1\u3044\u65b9\u306b\u306f\u6d77\u304c\u591a\u304f\u306a\u308b\u3053\u3068\u304c\u3042\u308a\u307e\u3059 \u6eb6\u5ca9\u304c\u6d6e\u4e0a\u3057\u3084\u3059\u304f\u306a\u3063\u3066\u3044\u307e\u3057\u305f",
+    "normalized_reference_text": "\u5730\u6bbb\u304c\u8584\u3044\u305f\u3081 \u8fd1\u3044\u65b9\u306b\u306f\u6d77\u304c\u591a\u304f\u306a\u308b\u3053\u3068\u304c\u3042\u308a\u307e\u3059 \u6eb6\u5ca9\u304c\u6d6e\u4e0a\u3057\u3084\u3059\u304f\u306a\u3063\u3066\u3044\u307e\u3057\u305f",
+    "normalized_hypothesis_text": "\u8fd1\u304f\u304c\u8584\u3044\u305f\u3081\u8fd1\u3044\u65b9\u306b\u6d77\u304c\u591a\u304f\u306a\u308b\u3053\u3068\u304c\u3042\u308a\u307e\u3059 \u5e4c\u5cb8\u304c\u4e0d\u5e38\u3057\u3084\u3059\u304f\u306a\u3063\u3066\u3044\u307e\u3057\u305f",
+    "quality_support": {
+      "normalized_reference": "\u5730\u6bbb\u304c\u8584\u3044\u305f\u3081 \u8fd1\u3044\u65b9\u306b\u306f\u6d77\u304c\u591a\u304f\u306a\u308b\u3053\u3068\u304c\u3042\u308a\u307e\u3059 \u6eb6\u5ca9\u304c\u6d6e\u4e0a\u3057\u3084\u3059\u304f\u306a\u3063\u3066\u3044\u307e\u3057\u305f",
+      "normalized_hypothesis": "\u8fd1\u304f\u304c\u8584\u3044\u305f\u3081\u8fd1\u3044\u65b9\u306b\u6d77\u304c\u591a\u304f\u306a\u308b\u3053\u3068\u304c\u3042\u308a\u307e\u3059 \u5e4c\u5cb8\u304c\u4e0d\u5e38\u3057\u3084\u3059\u304f\u306a\u3063\u3066\u3044\u307e\u3057\u305f",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 3,
+      "reference_char_count": 41,
+      "word_edits": 3,
+      "char_edits": 7,
+      "exact_match": false,
+      "wer": 1.0,
+      "cer": 0.17073170731707318
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.17073170731707318,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "per_utterance_latency_ms": 829.8777339805383,
+      "real_time_factor": 0.07726980763319724,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 829.8777339805383,
+      "wer": 1.0,
+      "confidence": 0.8251967177351528,
+      "preprocess_ms": 0.004748988430947065,
+      "inference_ms": 829.5150230114814,
+      "postprocess_ms": 0.35796198062598705,
+      "cpu_percent": 6.3,
+      "memory_mb": 771.71875,
+      "gpu_util_percent": 30.0,
+      "gpu_memory_mb": 778.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "clean_baseline",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "balanced",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_ja_jp_test_subset/fleurs_ja_jp_9364520089078562923.wav",
+    "audio_duration_sec": 10.74,
+    "confidence": 0.8251967177351528,
+    "preprocess_ms": 0.004748988430947065,
+    "inference_ms": 829.5150230114814,
+    "postprocess_ms": 0.35796198062598705,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_iter03_ja_balanced/metrics/traces/trace_07dc6ea865a843789bd65bd92b5068e2.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_20b47a1b36dd41f1a69a6cff5056f226",
+      "session_id": "benchmark_thesis_20260330_self_audit_iter03_ja_balanced",
+      "provider_id": "whisper",
+      "text": "\u8fd1\u304f\u304c\u8584\u3044\u305f\u3081\u3001\u8fd1\u3044\u65b9\u306b\u6d77\u304c\u591a\u304f\u306a\u308b\u3053\u3068\u304c\u3042\u308a\u307e\u3059\u3002 \u5e4c\u5cb8\u304c\u4e0d\u5e38\u3057\u3084\u3059\u304f\u306a\u3063\u3066\u3044\u307e\u3057\u305f\u3002",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 1.78,
+      "utterance_end_sec": 7.98,
+      "words": [
+        {
+          "word": "\u8fd1",
+          "start_sec": 1.78,
+          "end_sec": 2.28,
+          "confidence": 0.7520112991333008,
+          "confidence_available": true
+        },
+        {
+          "word": "\u304f",
+          "start_sec": 2.28,
+          "end_sec": 2.5,
+          "confidence": 0.9817439317703247,
+          "confidence_available": true
+        },
+        {
+          "word": "\u304c",
+          "start_sec": 2.5,
+          "end_sec": 2.58,
+          "confidence": 0.5685089230537415,
+          "confidence_available": true
+        },
+        {
+          "word": "\u8584",
+          "start_sec": 2.58,
+          "end_sec": 2.78,
+          "confidence": 0.9202065169811249,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3044",
+          "start_sec": 2.78,
+          "end_sec": 2.88,
+          "confidence": 0.8502009510993958,
+          "confidence_available": true
+        },
+        {
+          "word": "\u305f\u3081\u3001",
+          "start_sec": 2.88,
+          "end_sec": 3.08,
+          "confidence": 0.9294376373291016,
+          "confidence_available": true
+        },
+        {
+          "word": "\u8fd1",
+          "start_sec": 3.58,
+          "end_sec": 3.74,
+          "confidence": 0.9405907988548279,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3044",
+          "start_sec": 3.74,
+          "end_sec": 3.9,
+          "confidence": 0.9764458537101746,
+          "confidence_available": true
+        },
+        {
+          "word": "\u65b9",
+          "start_sec": 3.9,
+          "end_sec": 4.02,
+          "confidence": 0.862369954586029,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306b",
+          "start_sec": 4.02,
+          "end_sec": 4.22,
+          "confidence": 0.8664419054985046,
+          "confidence_available": true
+        },
+        {
+          "word": "\u6d77",
+          "start_sec": 4.22,
+          "end_sec": 4.44,
+          "confidence": 0.9556235671043396,
+          "confidence_available": true
+        },
+        {
+          "word": "\u304c",
+          "start_sec": 4.44,
+          "end_sec": 4.62,
+          "confidence": 0.9340744614601135,
+          "confidence_available": true
+        },
+        {
+          "word": "\u591a",
+          "start_sec": 4.62,
+          "end_sec": 4.72,
+          "confidence": 0.685308039188385,
+          "confidence_available": true
+        },
+        {
+          "word": "\u304f",
+          "start_sec": 4.72,
+          "end_sec": 4.84,
+          "confidence": 0.9913593530654907,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306a\u308b",
+          "start_sec": 4.84,
+          "end_sec": 5.0,
+          "confidence": 0.8294523358345032,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3053\u3068",
+          "start_sec": 5.0,
+          "end_sec": 5.24,
+          "confidence": 0.9596326947212219,
+          "confidence_available": true
+        },
+        {
+          "word": "\u304c",
+          "start_sec": 5.24,
+          "end_sec": 5.34,
+          "confidence": 0.977873682975769,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3042\u308a\u307e\u3059\u3002",
+          "start_sec": 5.34,
+          "end_sec": 5.6,
+          "confidence": 0.9674083590507507,
+          "confidence_available": true
+        },
+        {
+          "word": "\u5e4c",
+          "start_sec": 6.18,
+          "end_sec": 6.36,
+          "confidence": 0.3770247623324394,
+          "confidence_available": true
+        },
+        {
+          "word": "\u5cb8",
+          "start_sec": 6.36,
+          "end_sec": 6.52,
+          "confidence": 0.4867628365755081,
+          "confidence_available": true
+        },
+        {
+          "word": "\u304c",
+          "start_sec": 6.52,
+          "end_sec": 6.64,
+          "confidence": 0.9845913648605347,
+          "confidence_available": true
+        },
+        {
+          "word": "\u4e0d",
+          "start_sec": 6.64,
+          "end_sec": 6.82,
+          "confidence": 0.5731797218322754,
+          "confidence_available": true
+        },
+        {
+          "word": "\u5e38",
+          "start_sec": 6.82,
+          "end_sec": 6.96,
+          "confidence": 0.17690692842006683,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3057",
+          "start_sec": 6.96,
+          "end_sec": 7.14,
+          "confidence": 0.22784419357776642,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3084",
+          "start_sec": 7.14,
+          "end_sec": 7.24,
+          "confidence": 0.9666364192962646,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3059",
+          "start_sec": 7.24,
+          "end_sec": 7.34,
+          "confidence": 0.9981410503387451,
+          "confidence_available": true
+        },
+        {
+          "word": "\u304f",
+          "start_sec": 7.34,
+          "end_sec": 7.44,
+          "confidence": 0.9952608942985535,
+          "confidence_available": true
+        },
+        {
+          "word": "\u306a",
+          "start_sec": 7.44,
+          "end_sec": 7.56,
+          "confidence": 0.8875088691711426,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3063\u3066",
+          "start_sec": 7.56,
+          "end_sec": 7.74,
+          "confidence": 0.9850584268569946,
+          "confidence_available": true
+        },
+        {
+          "word": "\u3044\u307e\u3057\u305f\u3002",
+          "start_sec": 7.74,
+          "end_sec": 7.98,
+          "confidence": 0.9654511213302612,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.8251967177351528,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "ja-JP",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 829.8777339805383,
+        "preprocess_ms": 0.004748988430947065,
+        "inference_ms": 829.5150230114814,
+        "postprocess_ms": 0.35796198062598705,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 0.35796198062598705
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": []
+    }
+  }
+]

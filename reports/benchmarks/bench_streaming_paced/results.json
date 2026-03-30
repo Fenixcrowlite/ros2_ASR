@@ -1,0 +1,103 @@
+[
+  {
+    "run_id": "bench_streaming_paced",
+    "provider_profile": "providers/fake_stream",
+    "provider_id": "fake_stream_paced_component",
+    "sample_id": "sample_00001",
+    "success": true,
+    "text": "stream 34 chunks",
+    "reference_text": "stream 8 chunks",
+    "normalized_reference_text": "stream 8 chunks",
+    "normalized_hypothesis_text": "stream 34 chunks",
+    "quality_support": {
+      "normalized_reference": "stream 8 chunks",
+      "normalized_hypothesis": "stream 34 chunks",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 3,
+      "reference_char_count": 13,
+      "word_edits": 1,
+      "char_edits": 2,
+      "exact_match": false,
+      "wer": 0.3333333333333333,
+      "cer": 0.15384615384615385
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "wer": 0.3333333333333333,
+      "confidence": 0.92,
+      "preprocess_ms": 0.0,
+      "inference_ms": 0.0,
+      "postprocess_ms": 0.0,
+      "cpu_percent": 2.5,
+      "memory_mb": 65.87109375,
+      "gpu_util_percent": 31.0,
+      "gpu_memory_mb": 778.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "clean_baseline",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "",
+    "input_audio_path": "/tmp/pytest-of-fenix/pytest-43/test_benchmark_orchestrator_st1/datasets/imported/bench.wav",
+    "audio_duration_sec": 8.308,
+    "partial_count": 34,
+    "first_partial_latency_ms": 5.0,
+    "finalization_latency_ms": 3.0,
+    "confidence": 0.92,
+    "preprocess_ms": 0.0,
+    "inference_ms": 0.0,
+    "postprocess_ms": 0.0,
+    "trace_artifact_ref": "/tmp/pytest-of-fenix/pytest-43/test_benchmark_orchestrator_st1/artifacts/benchmark_runs/bench_streaming_paced/metrics/traces/trace_1fe2180603354a7ca789a38785226c98.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_085e58d29def499f9d0bebd51bb73c97",
+      "session_id": "benchmark_bench_streaming_paced",
+      "provider_id": "fake_stream_paced_component",
+      "text": "stream 34 chunks",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.0,
+      "utterance_end_sec": 0.8,
+      "words": [
+        {
+          "word": "hello",
+          "start_sec": 0.0,
+          "end_sec": 0.4,
+          "confidence": 0.91,
+          "confidence_available": true
+        },
+        {
+          "word": "world",
+          "start_sec": 0.41,
+          "end_sec": 0.8,
+          "confidence": 0.93,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.92,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 15.0,
+        "preprocess_ms": 0.0,
+        "inference_ms": 0.0,
+        "postprocess_ms": 0.0,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 3.0
+      },
+      "raw_metadata_ref": "artifact://fake/raw",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "fake"
+      ]
+    }
+  }
+]

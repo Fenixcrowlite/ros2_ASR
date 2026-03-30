@@ -20,6 +20,7 @@ from asr_metrics.summary import summarize_result_rows
 from asr_provider_base import ProviderManager
 from asr_provider_base.catalog import resolve_provider_execution
 from asr_storage import ArtifactStore
+from metrics import FileTraceExporter, load_observability_config
 
 from asr_benchmark_core.executor import BatchExecutor
 from asr_benchmark_core.models import BenchmarkRunRequest, BenchmarkRunSummary
@@ -112,6 +113,12 @@ class BenchmarkOrchestrator:
         self.artifact_store = ArtifactStore(root=artifact_root)
         self.provider_manager = ProviderManager(configs_root=configs_root)
         self.dataset_registry = DatasetRegistry(registry_path=registry_path)
+        try:
+            self.observability_config = load_observability_config(configs_root=configs_root)
+            self.trace_exporter = FileTraceExporter(self.observability_config)
+        except Exception:
+            self.observability_config = None
+            self.trace_exporter = None
 
     @staticmethod
     def _default_enabled_metrics() -> list[str]:
@@ -518,7 +525,12 @@ class BenchmarkOrchestrator:
         )
 
         metric_engine = MetricEngine(enabled_metrics=plan.enabled_metrics)
-        executor = BatchExecutor(metric_engine=metric_engine)
+        executor = BatchExecutor(
+            metric_engine=metric_engine,
+            observability_config=self.observability_config,
+            trace_exporter=self.trace_exporter,
+            run_dir=str(run_dir),
+        )
         results = self._execute_provider_matrix(plan=plan, executor=executor, run_dir=run_dir)
 
         self.artifact_store.save_json(run_dir / "metrics" / "results.json", results)
@@ -539,6 +551,12 @@ class BenchmarkOrchestrator:
             run_dir,
             "summary.md",
             self._to_markdown(summary),
+        )
+        self._export_reports_copy(
+            run_id=plan.run_id,
+            summary=summary,
+            results=results,
+            summary_markdown=self._to_markdown(summary),
         )
 
         return BenchmarkRunSummary(
@@ -563,6 +581,27 @@ class BenchmarkOrchestrator:
                 "provider_execution": plan.provider_execution,
             },
         )
+
+    def _export_reports_copy(
+        self,
+        *,
+        run_id: str,
+        summary: dict[str, Any],
+        results: list[dict[str, Any]],
+        summary_markdown: str,
+    ) -> None:
+        reports_root = Path("reports") / "benchmarks" / run_id
+        reports_root.mkdir(parents=True, exist_ok=True)
+        (reports_root / "summary.json").write_text(
+            json.dumps(summary, ensure_ascii=True, indent=2),
+            encoding="utf-8",
+        )
+        (reports_root / "summary.md").write_text(summary_markdown, encoding="utf-8")
+        (reports_root / "results.json").write_text(
+            json.dumps(results, ensure_ascii=True, indent=2),
+            encoding="utf-8",
+        )
+        self._save_csv(reports_root / "results.csv", results)
 
     @staticmethod
     def _save_csv(path: Path, rows: list[dict[str, Any]]) -> None:

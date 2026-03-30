@@ -18,6 +18,9 @@ class NormalizedWord:
 @dataclass(slots=True)
 class LatencyMetadata:
     total_ms: float = 0.0
+    preprocess_ms: float = 0.0
+    inference_ms: float = 0.0
+    postprocess_ms: float = 0.0
     first_partial_ms: float = 0.0
     finalization_ms: float = 0.0
 
@@ -32,6 +35,7 @@ class NormalizedAsrResult:
     is_partial: bool
     utterance_start_sec: float = 0.0
     utterance_end_sec: float = 0.0
+    audio_duration_sec: float = 0.0
     words: list[NormalizedWord] = field(default_factory=list)
     confidence: float = 0.0
     confidence_available: bool = False

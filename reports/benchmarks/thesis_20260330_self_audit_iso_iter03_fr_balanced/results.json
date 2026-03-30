@@ -1,0 +1,476 @@
+[
+  {
+    "run_id": "thesis_20260330_self_audit_iso_iter03_fr_balanced",
+    "provider_profile": "providers/whisper_local",
+    "provider_id": "whisper",
+    "sample_id": "fleurs_fr_fr_7105431834829365765",
+    "success": true,
+    "text": "Les voyages \u00e0 destination de payer o\u00f9 les taxes sont \u00e9lev\u00e9s peuvent parfois faire des \u00e9conomies consid\u00e9rables en particulier sur des produits comme les voissants alcoolis\u00e9s ou le tabard.",
+    "reference_text": "les voyageurs \u00e0 destination de pays o\u00f9 les taxes sont \u00e9lev\u00e9es peuvent parfois faire des \u00e9conomies consid\u00e9rables en particulier sur des produits comme les boissons alcoolis\u00e9es ou le tabac",
+    "normalized_reference_text": "les voyageurs \u00e0 destination de pays o\u00f9 les taxes sont \u00e9lev\u00e9es peuvent parfois faire des \u00e9conomies consid\u00e9rables en particulier sur des produits comme les boissons alcoolis\u00e9es ou le tabac",
+    "normalized_hypothesis_text": "les voyages \u00e0 destination de payer o\u00f9 les taxes sont \u00e9lev\u00e9s peuvent parfois faire des \u00e9conomies consid\u00e9rables en particulier sur des produits comme les voissants alcoolis\u00e9s ou le tabard",
+    "quality_support": {
+      "normalized_reference": "les voyageurs \u00e0 destination de pays o\u00f9 les taxes sont \u00e9lev\u00e9es peuvent parfois faire des \u00e9conomies consid\u00e9rables en particulier sur des produits comme les boissons alcoolis\u00e9es ou le tabac",
+      "normalized_hypothesis": "les voyages \u00e0 destination de payer o\u00f9 les taxes sont \u00e9lev\u00e9s peuvent parfois faire des \u00e9conomies consid\u00e9rables en particulier sur des produits comme les voissants alcoolis\u00e9s ou le tabard",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 29,
+      "reference_char_count": 158,
+      "word_edits": 6,
+      "char_edits": 11,
+      "exact_match": false,
+      "wer": 0.20689655172413793,
+      "cer": 0.06962025316455696
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.06962025316455696,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "per_utterance_latency_ms": 1214.423082972644,
+      "real_time_factor": 0.1289196478739537,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 1214.423082972644,
+      "wer": 0.20689655172413793,
+      "confidence": 0.831292513574379,
+      "preprocess_ms": 338.595319975866,
+      "inference_ms": 875.7285370083991,
+      "postprocess_ms": 0.0992259883787483,
+      "cpu_percent": 3.8,
+      "memory_mb": 442.75390625,
+      "gpu_util_percent": 35.0,
+      "gpu_memory_mb": 778.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "clean_baseline",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "balanced",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_fr_fr_test_subset/fleurs_fr_fr_7105431834829365765.wav",
+    "audio_duration_sec": 9.42,
+    "confidence": 0.831292513574379,
+    "preprocess_ms": 338.595319975866,
+    "inference_ms": 875.7285370083991,
+    "postprocess_ms": 0.0992259883787483,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_iso_iter03_fr_balanced/metrics/traces/trace_2ef4a669522e42f48db2bb3e442a397c.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_8b10bf6d19824572b7e9a1406a8bf1d8",
+      "session_id": "benchmark_thesis_20260330_self_audit_iso_iter03_fr_balanced",
+      "provider_id": "whisper",
+      "text": "Les voyages \u00e0 destination de payer o\u00f9 les taxes sont \u00e9lev\u00e9s peuvent parfois faire des \u00e9conomies consid\u00e9rables en particulier sur des produits comme les voissants alcoolis\u00e9s ou le tabard.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.0,
+      "utterance_end_sec": 8.8,
+      "words": [
+        {
+          "word": "Les",
+          "start_sec": 0.0,
+          "end_sec": 0.12,
+          "confidence": 0.3081035315990448,
+          "confidence_available": true
+        },
+        {
+          "word": "voyages",
+          "start_sec": 0.12,
+          "end_sec": 0.4,
+          "confidence": 0.7691759765148163,
+          "confidence_available": true
+        },
+        {
+          "word": "\u00e0",
+          "start_sec": 0.4,
+          "end_sec": 0.58,
+          "confidence": 0.8208268284797668,
+          "confidence_available": true
+        },
+        {
+          "word": "destination",
+          "start_sec": 0.58,
+          "end_sec": 0.82,
+          "confidence": 0.7944154739379883,
+          "confidence_available": true
+        },
+        {
+          "word": "de",
+          "start_sec": 0.82,
+          "end_sec": 1.24,
+          "confidence": 0.977146327495575,
+          "confidence_available": true
+        },
+        {
+          "word": "payer",
+          "start_sec": 1.24,
+          "end_sec": 1.5,
+          "confidence": 0.3102768659591675,
+          "confidence_available": true
+        },
+        {
+          "word": "o\u00f9",
+          "start_sec": 1.5,
+          "end_sec": 1.64,
+          "confidence": 0.6882373094558716,
+          "confidence_available": true
+        },
+        {
+          "word": "les",
+          "start_sec": 1.64,
+          "end_sec": 1.76,
+          "confidence": 0.8631948828697205,
+          "confidence_available": true
+        },
+        {
+          "word": "taxes",
+          "start_sec": 1.76,
+          "end_sec": 1.9,
+          "confidence": 0.6324108242988586,
+          "confidence_available": true
+        },
+        {
+          "word": "sont",
+          "start_sec": 1.9,
+          "end_sec": 2.22,
+          "confidence": 0.9808103442192078,
+          "confidence_available": true
+        },
+        {
+          "word": "\u00e9lev\u00e9s",
+          "start_sec": 2.22,
+          "end_sec": 2.48,
+          "confidence": 0.8640294273694357,
+          "confidence_available": true
+        },
+        {
+          "word": "peuvent",
+          "start_sec": 2.48,
+          "end_sec": 2.7,
+          "confidence": 0.9771605730056763,
+          "confidence_available": true
+        },
+        {
+          "word": "parfois",
+          "start_sec": 2.7,
+          "end_sec": 3.0,
+          "confidence": 0.9842365980148315,
+          "confidence_available": true
+        },
+        {
+          "word": "faire",
+          "start_sec": 3.0,
+          "end_sec": 3.2,
+          "confidence": 0.995895266532898,
+          "confidence_available": true
+        },
+        {
+          "word": "des",
+          "start_sec": 3.2,
+          "end_sec": 3.36,
+          "confidence": 0.994464099407196,
+          "confidence_available": true
+        },
+        {
+          "word": "\u00e9conomies",
+          "start_sec": 3.36,
+          "end_sec": 3.82,
+          "confidence": 0.9808458685874939,
+          "confidence_available": true
+        },
+        {
+          "word": "consid\u00e9rables",
+          "start_sec": 3.82,
+          "end_sec": 4.52,
+          "confidence": 0.8458903059363365,
+          "confidence_available": true
+        },
+        {
+          "word": "en",
+          "start_sec": 4.52,
+          "end_sec": 4.62,
+          "confidence": 0.9166745543479919,
+          "confidence_available": true
+        },
+        {
+          "word": "particulier",
+          "start_sec": 4.62,
+          "end_sec": 5.2,
+          "confidence": 0.9749727249145508,
+          "confidence_available": true
+        },
+        {
+          "word": "sur",
+          "start_sec": 5.2,
+          "end_sec": 5.78,
+          "confidence": 0.940510094165802,
+          "confidence_available": true
+        },
+        {
+          "word": "des",
+          "start_sec": 5.78,
+          "end_sec": 5.96,
+          "confidence": 0.9798123836517334,
+          "confidence_available": true
+        },
+        {
+          "word": "produits",
+          "start_sec": 5.96,
+          "end_sec": 6.38,
+          "confidence": 0.9940496683120728,
+          "confidence_available": true
+        },
+        {
+          "word": "comme",
+          "start_sec": 6.38,
+          "end_sec": 6.94,
+          "confidence": 0.8542795777320862,
+          "confidence_available": true
+        },
+        {
+          "word": "les",
+          "start_sec": 6.94,
+          "end_sec": 7.12,
+          "confidence": 0.9802948832511902,
+          "confidence_available": true
+        },
+        {
+          "word": "voissants",
+          "start_sec": 7.12,
+          "end_sec": 7.56,
+          "confidence": 0.4889211008946101,
+          "confidence_available": true
+        },
+        {
+          "word": "alcoolis\u00e9s",
+          "start_sec": 7.56,
+          "end_sec": 8.12,
+          "confidence": 0.7646055594086647,
+          "confidence_available": true
+        },
+        {
+          "word": "ou",
+          "start_sec": 8.12,
+          "end_sec": 8.38,
+          "confidence": 0.9826943278312683,
+          "confidence_available": true
+        },
+        {
+          "word": "le",
+          "start_sec": 8.38,
+          "end_sec": 8.5,
+          "confidence": 0.9761267900466919,
+          "confidence_available": true
+        },
+        {
+          "word": "tabard.",
+          "start_sec": 8.5,
+          "end_sec": 8.8,
+          "confidence": 0.36703120172023773,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.831292513574379,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "fr-FR",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 1214.423082972644,
+        "preprocess_ms": 338.595319975866,
+        "inference_ms": 875.7285370083991,
+        "postprocess_ms": 0.0992259883787483,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 0.0992259883787483
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": []
+    }
+  },
+  {
+    "run_id": "thesis_20260330_self_audit_iso_iter03_fr_balanced",
+    "provider_profile": "providers/whisper_local",
+    "provider_id": "whisper",
+    "sample_id": "fleurs_fr_fr_17999210160761730950",
+    "success": true,
+    "text": "Le coup pas Hiroshima, c'est annul\u00e9 les derniers concerts de sa tourn\u00e9e.",
+    "reference_text": "le groupe aerosmith a annul\u00e9 les derniers concerts de sa tourn\u00e9e",
+    "normalized_reference_text": "le groupe aerosmith a annul\u00e9 les derniers concerts de sa tourn\u00e9e",
+    "normalized_hypothesis_text": "le coup pas hiroshima cest annul\u00e9 les derniers concerts de sa tourn\u00e9e",
+    "quality_support": {
+      "normalized_reference": "le groupe aerosmith a annul\u00e9 les derniers concerts de sa tourn\u00e9e",
+      "normalized_hypothesis": "le coup pas hiroshima cest annul\u00e9 les derniers concerts de sa tourn\u00e9e",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 11,
+      "reference_char_count": 54,
+      "word_edits": 4,
+      "char_edits": 13,
+      "exact_match": false,
+      "wer": 0.36363636363636365,
+      "cer": 0.24074074074074073
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.24074074074074073,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "per_utterance_latency_ms": 701.506793993758,
+      "real_time_factor": 0.11691779899895967,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 701.506793993758,
+      "wer": 0.36363636363636365,
+      "confidence": 0.6705097311210064,
+      "preprocess_ms": 0.004578992957249284,
+      "inference_ms": 701.351562020136,
+      "postprocess_ms": 0.15065298066474497,
+      "cpu_percent": 3.8,
+      "memory_mb": 442.78515625,
+      "gpu_util_percent": 35.0,
+      "gpu_memory_mb": 778.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "clean_baseline",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "balanced",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_fr_fr_test_subset/fleurs_fr_fr_17999210160761730950.wav",
+    "audio_duration_sec": 6.0,
+    "confidence": 0.6705097311210064,
+    "preprocess_ms": 0.004578992957249284,
+    "inference_ms": 701.351562020136,
+    "postprocess_ms": 0.15065298066474497,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_iso_iter03_fr_balanced/metrics/traces/trace_c81e5db405754062b4cbdd71da8a9e23.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_b133bcae89e2432ba789dc4965099bba",
+      "session_id": "benchmark_thesis_20260330_self_audit_iso_iter03_fr_balanced",
+      "provider_id": "whisper",
+      "text": "Le coup pas Hiroshima, c'est annul\u00e9 les derniers concerts de sa tourn\u00e9e.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 1.58,
+      "utterance_end_sec": 4.86,
+      "words": [
+        {
+          "word": "Le",
+          "start_sec": 1.58,
+          "end_sec": 2.0,
+          "confidence": 0.8240048885345459,
+          "confidence_available": true
+        },
+        {
+          "word": "coup",
+          "start_sec": 2.0,
+          "end_sec": 2.14,
+          "confidence": 0.09390848129987717,
+          "confidence_available": true
+        },
+        {
+          "word": "pas",
+          "start_sec": 2.14,
+          "end_sec": 2.3,
+          "confidence": 0.2016092985868454,
+          "confidence_available": true
+        },
+        {
+          "word": "Hiroshima,",
+          "start_sec": 2.3,
+          "end_sec": 2.66,
+          "confidence": 0.33453094959259033,
+          "confidence_available": true
+        },
+        {
+          "word": "c",
+          "start_sec": 2.84,
+          "end_sec": 2.96,
+          "confidence": 0.6380204558372498,
+          "confidence_available": true
+        },
+        {
+          "word": "'est",
+          "start_sec": 2.96,
+          "end_sec": 2.96,
+          "confidence": 0.9928309917449951,
+          "confidence_available": true
+        },
+        {
+          "word": "annul\u00e9",
+          "start_sec": 2.96,
+          "end_sec": 3.34,
+          "confidence": 0.6494507988293966,
+          "confidence_available": true
+        },
+        {
+          "word": "les",
+          "start_sec": 3.34,
+          "end_sec": 3.52,
+          "confidence": 0.5459488034248352,
+          "confidence_available": true
+        },
+        {
+          "word": "derniers",
+          "start_sec": 3.52,
+          "end_sec": 3.84,
+          "confidence": 0.9745157361030579,
+          "confidence_available": true
+        },
+        {
+          "word": "concerts",
+          "start_sec": 3.84,
+          "end_sec": 4.16,
+          "confidence": 0.5962625741958618,
+          "confidence_available": true
+        },
+        {
+          "word": "de",
+          "start_sec": 4.16,
+          "end_sec": 4.34,
+          "confidence": 0.9409219622612,
+          "confidence_available": true
+        },
+        {
+          "word": "sa",
+          "start_sec": 4.34,
+          "end_sec": 4.52,
+          "confidence": 0.902658224105835,
+          "confidence_available": true
+        },
+        {
+          "word": "tourn\u00e9e.",
+          "start_sec": 4.52,
+          "end_sec": 4.86,
+          "confidence": 0.8105916281541189,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.6705097311210064,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "fr-FR",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 701.506793993758,
+        "preprocess_ms": 0.004578992957249284,
+        "inference_ms": 701.351562020136,
+        "postprocess_ms": 0.15065298066474497,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 0.15065298066474497
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": []
+    }
+  }
+]

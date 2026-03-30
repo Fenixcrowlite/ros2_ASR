@@ -10,6 +10,7 @@ import shlex
 import shutil
 import subprocess
 import threading
+import time
 from collections import deque
 from contextlib import asynccontextmanager
 from copy import deepcopy
@@ -2139,6 +2140,7 @@ def runtime_samples() -> dict[str, Any]:
 
 @app.post("/api/runtime/generate_noise")
 def runtime_generate_noise(req: NoiseGenerateRequest) -> dict[str, Any]:
+    generation_started = time.perf_counter()
     if not req.snr_levels:
         raise HTTPException(status_code=400, detail="At least one SNR level is required.")
 
@@ -2150,6 +2152,7 @@ def runtime_generate_noise(req: NoiseGenerateRequest) -> dict[str, Any]:
 
     generated: list[dict[str, Any]] = []
     for snr_db in req.snr_levels:
+        variant_started = time.perf_counter()
         target = _noise_output_target(source, float(snr_db))
         output_path = Path(
             apply_noise_to_wav(
@@ -2164,15 +2167,30 @@ def runtime_generate_noise(req: NoiseGenerateRequest) -> dict[str, Any]:
                 "path": _project_relative_path(output_path),
                 "snr_db": float(snr_db),
                 "name": output_path.name,
+                "generation_ms": max((time.perf_counter() - variant_started) * 1000.0, 0.0),
                 **_wav_metadata_from_file(output_path),
             }
         )
 
-    return {
+    payload = {
         "source_wav": _project_relative_path(source),
         "generated": generated,
         "catalog": _list_runtime_samples(),
+        "metrics": {
+            "variant_count": len(generated),
+            "total_generation_ms": max((time.perf_counter() - generation_started) * 1000.0, 0.0),
+        },
     }
+    _record_runtime_event(
+        "runtime_generate_noise",
+        f"Generated {len(generated)} noise variants",
+        {
+            "source_wav": payload["source_wav"],
+            "snr_levels": [float(item["snr_db"]) for item in generated],
+            "total_generation_ms": payload["metrics"]["total_generation_ms"],
+        },
+    )
+    return payload
 
 
 if MULTIPART_AVAILABLE:
@@ -2363,6 +2381,14 @@ def runtime_recognize_once(req: RecognizeRequest) -> dict[str, Any]:
             "session_id": req.session_id,
             "provider_profile": provider_exec["normalized_profile"],
             "provider_preset": provider_exec["execution"].get("selected_preset", ""),
+            "confidence": payload.get("confidence", 0.0),
+            "audio_duration_sec": payload.get("audio_duration_sec", 0.0),
+            "preprocess_ms": payload.get("preprocess_ms", 0.0),
+            "inference_ms": payload.get("inference_ms", 0.0),
+            "postprocess_ms": payload.get("postprocess_ms", 0.0),
+            "latency_ms": payload.get("latency_ms", 0.0),
+            "service_latency_ms": payload.get("service_latency_ms", 0.0),
+            "gateway_request_ms": payload.get("gateway_request_ms", 0.0),
             "success": res.success,
         },
     )

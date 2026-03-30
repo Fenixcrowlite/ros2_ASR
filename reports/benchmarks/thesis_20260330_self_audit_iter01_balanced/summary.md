@@ -1,0 +1,27 @@
+# Benchmark Summary: thesis_20260330_self_audit_iter01_balanced
+
+- benchmark_profile: `benchmark/default_benchmark`
+- dataset_id: `sample_dataset`
+- providers: `providers/whisper_local`
+- scenario: `clean_baseline`
+- execution_mode: `batch`
+- aggregate_scope: `single_provider`
+- total_samples: `1`
+- successful_samples: `1`
+- failed_samples: `0`
+
+## Per-Provider Summary
+
+### providers/whisper_local (preset: `balanced`)
+- samples: `1`
+- successful_samples: `1`
+- failed_samples: `0`
+- quality_metrics: `{"cer": 0.0, "confidence": 0.8086438129491665, "sample_accuracy": 1.0, "wer": 0.0}`
+- latency_metrics: `{"inference_ms": 813.3158730051946, "per_utterance_latency_ms": 1585.0952550244983, "postprocess_ms": 0.11495500802993774, "preprocess_ms": 771.6644270112738, "real_time_factor": 0.19079143657011294, "total_latency_ms": 1585.0952550244983}`
+- reliability_metrics: `{"failure_rate": 0.0, "success_rate": 1.0}`
+- cost_metrics: `{"estimated_cost_usd": 0.0}`
+- cost_totals: `{"estimated_cost_usd": 0.0}`
+- estimated_cost_total_usd: `0.0`
+
+## Noise Summary
+- clean: `{"cer": 0.0, "confidence": 0.8086438129491665, "cpu_percent": 6.3, "estimated_cost_usd": 0.0, "failure_rate": 0.0, "gpu_memory_mb": 775.0, "gpu_util_percent": 32.0, "inference_ms": 813.3158730051946, "memory_mb": 394.06640625, "per_utterance_latency_ms": 1585.0952550244983, "postprocess_ms": 0.11495500802993774, "preprocess_ms": 771.6644270112738, "real_time_factor": 0.19079143657011294, "sample_accuracy": 1.0, "success_rate": 1.0, "total_latency_ms": 1585.0952550244983, "wer": 0.0}`

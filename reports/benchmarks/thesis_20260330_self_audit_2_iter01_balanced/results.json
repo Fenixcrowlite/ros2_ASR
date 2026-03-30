@@ -1,0 +1,197 @@
+[
+  {
+    "run_id": "thesis_20260330_self_audit_2_iter01_balanced",
+    "provider_profile": "providers/whisper_local",
+    "provider_id": "whisper",
+    "sample_id": "sample_vosk_numbers",
+    "success": true,
+    "text": "1-0-0-0-1 9-0-2-1-0 0-1-8-0-3",
+    "reference_text": "10001 90210 01803",
+    "normalized_reference_text": "10001 90210 01803",
+    "normalized_hypothesis_text": "10001 90210 01803",
+    "quality_support": {
+      "normalized_reference": "10001 90210 01803",
+      "normalized_hypothesis": "10001 90210 01803",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 3,
+      "reference_char_count": 15,
+      "word_edits": 0,
+      "char_edits": 0,
+      "exact_match": true,
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.0,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "per_utterance_latency_ms": 1518.92625799519,
+      "real_time_factor": 0.18282694487183318,
+      "sample_accuracy": 1.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 1518.92625799519,
+      "wer": 0.0,
+      "confidence": 0.8086438129491665,
+      "preprocess_ms": 740.8799479890149,
+      "inference_ms": 777.9535659938119,
+      "postprocess_ms": 0.09274401236325502,
+      "cpu_percent": 5.0,
+      "memory_mb": 383.14453125,
+      "gpu_util_percent": 30.0,
+      "gpu_memory_mb": 776.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "clean_baseline",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "balanced",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/data/sample/vosk_test.wav",
+    "audio_duration_sec": 8.308,
+    "confidence": 0.8086438129491665,
+    "preprocess_ms": 740.8799479890149,
+    "inference_ms": 777.9535659938119,
+    "postprocess_ms": 0.09274401236325502,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_2_iter01_balanced/metrics/traces/trace_d4bf14a8704b4d079f5185820212bcfb.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_e780eea0791f472188c769b5f76d05c9",
+      "session_id": "benchmark_thesis_20260330_self_audit_2_iter01_balanced",
+      "provider_id": "whisper",
+      "text": "1-0-0-0-1 9-0-2-1-0 0-1-8-0-3",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.5,
+      "utterance_end_sec": 7.7,
+      "words": [
+        {
+          "word": "1",
+          "start_sec": 0.5,
+          "end_sec": 1.04,
+          "confidence": 0.23979315161705017,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.04,
+          "end_sec": 1.4,
+          "confidence": 0.4198528081178665,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.4,
+          "end_sec": 1.78,
+          "confidence": 0.9039614498615265,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.78,
+          "end_sec": 2.14,
+          "confidence": 0.9847233593463898,
+          "confidence_available": true
+        },
+        {
+          "word": "-1",
+          "start_sec": 2.14,
+          "end_sec": 2.58,
+          "confidence": 0.9558501839637756,
+          "confidence_available": true
+        },
+        {
+          "word": "9",
+          "start_sec": 3.48,
+          "end_sec": 4.12,
+          "confidence": 0.09854521602392197,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 4.12,
+          "end_sec": 4.26,
+          "confidence": 0.9383908212184906,
+          "confidence_available": true
+        },
+        {
+          "word": "-2",
+          "start_sec": 4.26,
+          "end_sec": 4.5,
+          "confidence": 0.9624924957752228,
+          "confidence_available": true
+        },
+        {
+          "word": "-1",
+          "start_sec": 4.5,
+          "end_sec": 4.66,
+          "confidence": 0.9112588465213776,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 4.66,
+          "end_sec": 4.9,
+          "confidence": 0.9958544075489044,
+          "confidence_available": true
+        },
+        {
+          "word": "0",
+          "start_sec": 6.26,
+          "end_sec": 6.58,
+          "confidence": 0.5935066938400269,
+          "confidence_available": true
+        },
+        {
+          "word": "-1",
+          "start_sec": 6.58,
+          "end_sec": 6.82,
+          "confidence": 0.9510578215122223,
+          "confidence_available": true
+        },
+        {
+          "word": "-8",
+          "start_sec": 6.82,
+          "end_sec": 7.06,
+          "confidence": 0.9746360778808594,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 7.06,
+          "end_sec": 7.38,
+          "confidence": 0.9336732923984528,
+          "confidence_available": true
+        },
+        {
+          "word": "-3",
+          "start_sec": 7.38,
+          "end_sec": 7.7,
+          "confidence": 0.914079874753952,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.8086438129491665,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 1518.92625799519,
+        "preprocess_ms": 740.8799479890149,
+        "inference_ms": 777.9535659938119,
+        "postprocess_ms": 0.09274401236325502,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 0.09274401236325502
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": []
+    }
+  }
+]

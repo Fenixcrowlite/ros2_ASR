@@ -27,6 +27,7 @@ def to_asr_result_msg(result: NormalizedAsrResult) -> AsrResult:
     msg.backend = result.provider_id
     msg.text = result.text
     msg.partials = []
+    msg.audio_duration_sec = float(result.audio_duration_sec)
     msg.confidence = float(result.confidence)
     msg.confidence_available = bool(result.confidence_available)
     msg.word_timestamps = [
@@ -48,6 +49,9 @@ def to_asr_result_msg(result: NormalizedAsrResult) -> AsrResult:
     msg.error_message = result.error_message
     msg.utterance_start = _sec_to_time(result.utterance_start_sec)
     msg.utterance_end = _sec_to_time(result.utterance_end_sec)
+    msg.preprocess_ms = float(result.latency.preprocess_ms)
+    msg.inference_ms = float(result.latency.inference_ms)
+    msg.postprocess_ms = float(result.latency.postprocess_ms)
     msg.total_ms = float(result.latency.total_ms)
     msg.first_partial_latency_ms = float(result.latency.first_partial_ms)
     msg.finalization_latency_ms = float(result.latency.finalization_ms)

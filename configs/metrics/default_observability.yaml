@@ -1,0 +1,31 @@
+profile_id: metrics/default_observability
+inherits: []
+metrics:
+  - wer
+  - cer
+  - total_latency_ms
+  - per_utterance_latency_ms
+  - real_time_factor
+  - first_partial_latency_ms
+  - finalization_latency_ms
+  - partial_count
+  - success_rate
+  - failure_rate
+collectors:
+  pipeline:
+    enabled: true
+  system:
+    enabled: true
+    include_gpu: true
+  ros:
+    enabled: true
+validators:
+  warn_only: true
+  require_ordered_timestamps: true
+exporters:
+  artifact_root: artifacts
+  reports_root: reports
+  json: true
+  csv: true
+  runtime_index_filename: trace_index.csv
+  benchmark_index_filename: trace_index.csv

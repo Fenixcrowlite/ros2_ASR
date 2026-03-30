@@ -605,7 +605,11 @@ def test_benchmark_orchestrator_uses_preset_cost_and_omits_streaming_metrics_in_
     )
     assert summary_payload["cost_metrics"]["estimated_cost_usd"] == 0.25
     assert summary_payload["cost_totals"]["estimated_cost_usd"] == 0.25
-    assert summary_payload["resource_metrics"] == {}
+    resource_metrics = summary_payload["resource_metrics"]
+    assert resource_metrics["cpu_percent"] >= 0.0
+    assert resource_metrics["memory_mb"] >= 0.0
+    assert resource_metrics["gpu_util_percent"] >= 0.0
+    assert resource_metrics["gpu_memory_mb"] >= 0.0
     assert summary_payload["metric_statistics"]["estimated_cost_usd"]["sum"] == 0.25
 
     csv_text = (

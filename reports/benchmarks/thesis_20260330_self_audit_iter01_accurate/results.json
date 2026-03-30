@@ -1,0 +1,113 @@
+[
+  {
+    "run_id": "thesis_20260330_self_audit_iter01_accurate",
+    "provider_profile": "providers/whisper_local",
+    "provider_id": "whisper",
+    "sample_id": "sample_vosk_numbers",
+    "success": true,
+    "text": "1001 90210 01803",
+    "reference_text": "10001 90210 01803",
+    "normalized_reference_text": "10001 90210 01803",
+    "normalized_hypothesis_text": "1001 90210 01803",
+    "quality_support": {
+      "normalized_reference": "10001 90210 01803",
+      "normalized_hypothesis": "1001 90210 01803",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 3,
+      "reference_char_count": 15,
+      "word_edits": 1,
+      "char_edits": 1,
+      "exact_match": false,
+      "wer": 0.3333333333333333,
+      "cer": 0.06666666666666667
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.06666666666666667,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "per_utterance_latency_ms": 3935.0595209980384,
+      "real_time_factor": 0.47364702948941245,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 3935.0595209980384,
+      "wer": 0.3333333333333333,
+      "confidence": 0.8086618960581042,
+      "preprocess_ms": 1971.3643539871555,
+      "inference_ms": 1963.6260870029218,
+      "postprocess_ms": 0.06908000796101987,
+      "cpu_percent": 5.1,
+      "memory_mb": 759.9765625,
+      "gpu_util_percent": 33.0,
+      "gpu_memory_mb": 778.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "clean_baseline",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "accurate",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/data/sample/vosk_test.wav",
+    "audio_duration_sec": 8.308,
+    "confidence": 0.8086618960581042,
+    "preprocess_ms": 1971.3643539871555,
+    "inference_ms": 1963.6260870029218,
+    "postprocess_ms": 0.06908000796101987,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_iter01_accurate/metrics/traces/trace_de1dc94f01e844228805171e3b228e56.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_f06f42e5721c40698dd98893eb3f5796",
+      "session_id": "benchmark_thesis_20260330_self_audit_iter01_accurate",
+      "provider_id": "whisper",
+      "text": "1001 90210 01803",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.5,
+      "utterance_end_sec": 7.78,
+      "words": [
+        {
+          "word": "1001",
+          "start_sec": 0.5,
+          "end_sec": 2.54,
+          "confidence": 0.5634389966726303,
+          "confidence_available": true
+        },
+        {
+          "word": "90210",
+          "start_sec": 2.54,
+          "end_sec": 4.82,
+          "confidence": 0.9209146300951639,
+          "confidence_available": true
+        },
+        {
+          "word": "01803",
+          "start_sec": 4.82,
+          "end_sec": 7.78,
+          "confidence": 0.8435605963071188,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.8086618960581042,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 3935.0595209980384,
+        "preprocess_ms": 1971.3643539871555,
+        "inference_ms": 1963.6260870029218,
+        "postprocess_ms": 0.06908000796101987,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 0.06908000796101987
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": []
+    }
+  }
+]

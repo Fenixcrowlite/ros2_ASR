@@ -36,6 +36,7 @@ def _normalize(
         is_partial=is_partial,
         utterance_start_sec=words[0].start_sec if words else 0.0,
         utterance_end_sec=words[-1].end_sec if words else 0.0,
+        audio_duration_sec=float(getattr(response, "audio_duration_sec", 0.0) or 0.0),
         words=words,
         confidence=float(response.confidence),
         confidence_available=response.confidence > 0,
@@ -44,6 +45,9 @@ def _normalize(
         language_detected=False,
         latency=LatencyMetadata(
             total_ms=float(response.timings.total_ms),
+            preprocess_ms=float(response.timings.preprocess_ms),
+            inference_ms=float(response.timings.inference_ms),
+            postprocess_ms=float(response.timings.postprocess_ms),
             first_partial_ms=0.0,
             finalization_ms=float(response.timings.postprocess_ms),
         ),

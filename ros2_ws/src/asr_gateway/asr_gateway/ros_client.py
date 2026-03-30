@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import logging
 import threading
+import time
 import uuid
 from collections import deque
 from collections.abc import Callable
@@ -191,9 +192,15 @@ class RuntimeObserver:
             "provider_id": msg.provider_id or msg.backend,
             "text": msg.text,
             "language": msg.language,
+            "confidence": float(msg.confidence),
+            "confidence_available": bool(msg.confidence_available),
             "success": bool(msg.success),
             "error_code": msg.error_code,
             "error_message": msg.error_message,
+            "audio_duration_sec": float(msg.audio_duration_sec),
+            "preprocess_ms": float(msg.preprocess_ms),
+            "inference_ms": float(msg.inference_ms),
+            "postprocess_ms": float(msg.postprocess_ms),
             "latency_ms": float(msg.total_ms),
             "degraded": bool(msg.degraded),
             "raw_metadata_ref": msg.raw_metadata_ref,
@@ -261,9 +268,15 @@ class RuntimeObserver:
             "provider_id": str(payload.get("provider_id", "") or ""),
             "text": str(payload.get("text", "") or ""),
             "language": str(payload.get("language", "") or ""),
+            "confidence": float(payload.get("confidence", 0.0) or 0.0),
+            "confidence_available": bool(payload.get("confidence_available", False)),
             "success": bool(payload.get("success", True)),
             "error_code": str(payload.get("error_code", "") or ""),
             "error_message": str(payload.get("error_message", "") or ""),
+            "audio_duration_sec": float(payload.get("audio_duration_sec", 0.0) or 0.0),
+            "preprocess_ms": float(payload.get("preprocess_ms", 0.0) or 0.0),
+            "inference_ms": float(payload.get("inference_ms", 0.0) or 0.0),
+            "postprocess_ms": float(payload.get("postprocess_ms", 0.0) or 0.0),
             "latency_ms": float(payload.get("latency_ms", 0.0) or 0.0),
             "degraded": bool(payload.get("degraded", False)),
             "raw_metadata_ref": str(payload.get("raw_metadata_ref", "") or ""),
@@ -349,20 +362,33 @@ class GatewayRosClient:
         timeout_sec: float | None = None,
     ) -> GatewayResponse:
         node = self._node()
+        gateway_started_ns = time.perf_counter_ns()
         try:
             client = node.create_client(service_type, service_name)
             effective_timeout = self.timeout_sec if timeout_sec is None else timeout_sec
+            wait_started_ns = time.perf_counter_ns()
             if not client.wait_for_service(timeout_sec=effective_timeout):
                 return GatewayResponse(False, unavailable_message, {})
+            wait_ms = max((time.perf_counter_ns() - wait_started_ns) / 1_000_000.0, 0.0)
             request = service_type.Request()
             request_builder(request)
+            call_started_ns = time.perf_counter_ns()
             future = client.call_async(request)
             if not self._await_future(node, future, timeout_sec=effective_timeout):
                 return GatewayResponse(False, no_response_message, {})
+            call_ms = max((time.perf_counter_ns() - call_started_ns) / 1_000_000.0, 0.0)
             response = future.result()
             if response is None:
                 return GatewayResponse(False, no_response_message, {})
-            return response_builder(response)
+            gateway_response = response_builder(response)
+            gateway_response.payload.setdefault("service_wait_ms", wait_ms)
+            gateway_response.payload.setdefault("service_call_ms", call_ms)
+            gateway_response.payload.setdefault("service_latency_ms", call_ms)
+            gateway_response.payload.setdefault(
+                "gateway_request_ms",
+                max((time.perf_counter_ns() - gateway_started_ns) / 1_000_000.0, 0.0),
+            )
+            return gateway_response
         finally:
             node.destroy_node()
 
@@ -570,10 +596,16 @@ class GatewayRosClient:
                     "session_id": response.result.session_id,
                     "text": response.result.text,
                     "provider_id": response.result.provider_id,
+                    "confidence": float(response.result.confidence),
+                    "confidence_available": bool(response.result.confidence_available),
                     "success": bool(response.result.success),
                     "error_code": response.result.error_code,
                     "error_message": response.result.error_message,
                     "language": response.result.language,
+                    "audio_duration_sec": float(response.result.audio_duration_sec),
+                    "preprocess_ms": float(response.result.preprocess_ms),
+                    "inference_ms": float(response.result.inference_ms),
+                    "postprocess_ms": float(response.result.postprocess_ms),
                     "latency_ms": float(response.result.total_ms),
                     "degraded": bool(response.result.degraded),
                     "raw_metadata_ref": response.result.raw_metadata_ref,

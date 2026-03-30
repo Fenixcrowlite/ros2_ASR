@@ -11,7 +11,7 @@ from typing import Any, cast
 import rclpy
 from asr_config import list_profiles, resolve_profile, validate_runtime_payload
 from asr_core import TOPICS, make_request_id, make_session_id
-from asr_core.audio import sample_width_from_encoding
+from asr_core.audio import sample_width_from_encoding, wav_duration_sec
 from asr_core.normalized import LatencyMetadata, NormalizedAsrResult
 from asr_core.shutdown import safe_shutdown_node, spin_node_until_shutdown
 from asr_interfaces.msg import (
@@ -36,6 +36,8 @@ from asr_provider_base import ProviderAudio, ProviderManager, list_providers
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
+
+from metrics import FileTraceExporter, PipelineTraceCollector, build_runtime_trace, load_observability_config
 
 from asr_runtime_nodes.converters import to_asr_result_msg, to_partial_msg
 
@@ -116,6 +118,13 @@ class AsrOrchestratorNode(Node):
         self.max_concurrent_sessions = 1
         self._stream_active = False
         self._stream_request_id = ""
+        try:
+            self._observability_config = load_observability_config(configs_root=self.configs_root)
+            self._trace_exporter = FileTraceExporter(self._observability_config)
+        except Exception as exc:
+            self._observability_config = None
+            self._trace_exporter = None
+            self.get_logger().warning(f"Observability config unavailable: {exc}")
         self._load_runtime_configuration(overrides={})
 
         # Final/partial result topics are the main outward-facing runtime data
@@ -622,6 +631,15 @@ class AsrOrchestratorNode(Node):
             raise FileNotFoundError(f"WAV file not found: {wav_path}")
         return path.read_bytes()
 
+    def _export_runtime_trace(self, trace) -> str:
+        if self._trace_exporter is None:
+            return ""
+        try:
+            return self._trace_exporter.export_runtime_trace(trace)
+        except Exception as exc:
+            self.get_logger().warning(f"Runtime trace export failed: {exc}")
+            return ""
+
     def _resolve_recognize_provider(
         self,
         *,
@@ -1093,9 +1111,38 @@ class AsrOrchestratorNode(Node):
             response.result.success = False
             response.result.error_message = "Provider is not initialized"
             return response
+        collector = PipelineTraceCollector(
+            trace_type="runtime_recognize_once",
+            request_id="",
+            session_id=str(request.session_id or self.session_id or ""),
+            provider_id=str(getattr(self, "provider_id", "") or ""),
+            metadata={
+                "runtime_profile": str(getattr(self, "runtime_profile", "") or ""),
+                "provider_profile": str(getattr(self, "provider_profile", "") or ""),
+                "api": "/asr/runtime/recognize_once",
+            },
+        )
         wav_path = str(request.wav_path).strip()
+        audio_duration_sec = 0.0
         try:
-            audio_bytes = self._read_recognize_audio_bytes(wav_path)
+            with collector.stage(
+                "audio_load",
+                component=(
+                    self.get_name()
+                    if callable(getattr(self, "get_name", None))
+                    else "asr_orchestrator_node"
+                ),
+                code_path="asr_runtime_nodes.asr_orchestrator_node._on_recognize_once",
+                input_summary={"wav_path": wav_path},
+            ) as stage_output:
+                audio_bytes = self._read_recognize_audio_bytes(wav_path)
+                if wav_path:
+                    try:
+                        audio_duration_sec = float(wav_duration_sec(wav_path))
+                    except Exception:
+                        audio_duration_sec = 0.0
+                stage_output["bytes_read"] = len(audio_bytes)
+                stage_output["audio_duration_sec"] = audio_duration_sec
         except FileNotFoundError as exc:
             response.result.success = False
             response.result.error_message = str(exc)
@@ -1143,9 +1190,35 @@ class AsrOrchestratorNode(Node):
             audio_bytes=audio_bytes,
             enable_word_timestamps=bool(request.enable_word_timestamps),
         )
+        collector.trace.request_id = req.request_id
+        collector.trace.session_id = clean_session_id
+        collector.update_metadata(
+            resolved_profile=resolved_profile,
+            requested_language=clean_language,
+            wav_path=wav_path,
+        )
         try:
             try:
-                result = active_provider.recognize_once(req)
+                with collector.stage(
+                    "provider_recognize",
+                    component=(
+                        getattr(active_provider, "provider_id", "")
+                        or str(getattr(self, "provider_id", "") or "provider")
+                    ),
+                    code_path=(
+                        f"{type(active_provider).__module__}."
+                        f"{type(active_provider).__name__}.recognize_once"
+                    ),
+                    input_summary={
+                        "audio_duration_sec": audio_duration_sec,
+                        "enable_word_timestamps": bool(request.enable_word_timestamps),
+                    },
+                ) as stage_output:
+                    result = active_provider.recognize_once(req)
+                    stage_output["provider_id"] = result.provider_id
+                    stage_output["success"] = not bool(result.error_code)
+                    stage_output["text_length"] = len(str(result.text or ""))
+                    stage_output["latency_ms"] = float(result.latency.total_ms)
             except Exception as exc:
                 self.last_error_code = "recognize_once_failed"
                 self.last_error_message = str(exc)
@@ -1155,6 +1228,34 @@ class AsrOrchestratorNode(Node):
                 response.result.error_message = self.last_error_message
                 response.resolved_profile = resolved_profile
                 return response
+
+            if getattr(self, "_observability_config", None) is not None:
+                trace = build_runtime_trace(
+                    collector=collector,
+                    config=self._observability_config,
+                    provider_id=result.provider_id or getattr(active_provider, "provider_id", ""),
+                    text=result.text,
+                    confidence=result.confidence,
+                    success=not result.degraded and not result.error_code,
+                    degraded=result.degraded,
+                    error_code=result.error_code,
+                    error_message=result.error_message,
+                    language=result.language or clean_language,
+                    audio_duration_sec=audio_duration_sec,
+                    preprocess_ms=float(result.latency.preprocess_ms),
+                    inference_ms=float(result.latency.inference_ms),
+                    postprocess_ms=float(result.latency.postprocess_ms),
+                    total_latency_ms=float(result.latency.total_ms),
+                )
+                if trace.validation.corrupted:
+                    result.tags.append("metrics_corrupted")
+                    self.get_logger().warning(
+                        "Runtime trace validation failed for request "
+                        f"{req.request_id}: {'; '.join(trace.validation.errors)}"
+                    )
+                trace_path = self._export_runtime_trace(trace)
+                if trace_path:
+                    result.raw_metadata_ref = trace_path
 
             self._copy_result_message(to_asr_result_msg(result), response.result)
             response.resolved_profile = resolved_profile

@@ -1,0 +1,698 @@
+[
+  {
+    "run_id": "thesis_20260330_self_audit_2_iter02_noise_balanced",
+    "provider_profile": "providers/whisper_local",
+    "provider_id": "whisper",
+    "sample_id": "sample_vosk_numbers",
+    "success": true,
+    "text": "1-0-0-0-1 9-0-2-1-0 0-1-8-0-3",
+    "reference_text": "10001 90210 01803",
+    "normalized_reference_text": "10001 90210 01803",
+    "normalized_hypothesis_text": "10001 90210 01803",
+    "quality_support": {
+      "normalized_reference": "10001 90210 01803",
+      "normalized_hypothesis": "10001 90210 01803",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 3,
+      "reference_char_count": 15,
+      "word_edits": 0,
+      "char_edits": 0,
+      "exact_match": true,
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.0,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "per_utterance_latency_ms": 1444.2216199822724,
+      "real_time_factor": 0.17383505295886764,
+      "sample_accuracy": 1.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 1444.2216199822724,
+      "wer": 0.0,
+      "confidence": 0.8086438129491665,
+      "preprocess_ms": 660.50268500112,
+      "inference_ms": 783.6135879915673,
+      "postprocess_ms": 0.1053469895850867,
+      "cpu_percent": 6.2,
+      "memory_mb": 715.984375,
+      "gpu_util_percent": 30.0,
+      "gpu_memory_mb": 776.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "noise_robustness",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "balanced",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/data/sample/vosk_test.wav",
+    "audio_duration_sec": 8.308,
+    "confidence": 0.8086438129491665,
+    "preprocess_ms": 660.50268500112,
+    "inference_ms": 783.6135879915673,
+    "postprocess_ms": 0.1053469895850867,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_2_iter02_noise_balanced/metrics/traces/trace_2c373d8774be44fbb80b05d6004cd74c.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_9cbe7d9610b349f287c3e1c3f4ce19fa",
+      "session_id": "benchmark_thesis_20260330_self_audit_2_iter02_noise_balanced",
+      "provider_id": "whisper",
+      "text": "1-0-0-0-1 9-0-2-1-0 0-1-8-0-3",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.5,
+      "utterance_end_sec": 7.7,
+      "words": [
+        {
+          "word": "1",
+          "start_sec": 0.5,
+          "end_sec": 1.04,
+          "confidence": 0.23979315161705017,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.04,
+          "end_sec": 1.4,
+          "confidence": 0.4198528081178665,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.4,
+          "end_sec": 1.78,
+          "confidence": 0.9039614498615265,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.78,
+          "end_sec": 2.14,
+          "confidence": 0.9847233593463898,
+          "confidence_available": true
+        },
+        {
+          "word": "-1",
+          "start_sec": 2.14,
+          "end_sec": 2.58,
+          "confidence": 0.9558501839637756,
+          "confidence_available": true
+        },
+        {
+          "word": "9",
+          "start_sec": 3.48,
+          "end_sec": 4.12,
+          "confidence": 0.09854521602392197,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 4.12,
+          "end_sec": 4.26,
+          "confidence": 0.9383908212184906,
+          "confidence_available": true
+        },
+        {
+          "word": "-2",
+          "start_sec": 4.26,
+          "end_sec": 4.5,
+          "confidence": 0.9624924957752228,
+          "confidence_available": true
+        },
+        {
+          "word": "-1",
+          "start_sec": 4.5,
+          "end_sec": 4.66,
+          "confidence": 0.9112588465213776,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 4.66,
+          "end_sec": 4.9,
+          "confidence": 0.9958544075489044,
+          "confidence_available": true
+        },
+        {
+          "word": "0",
+          "start_sec": 6.26,
+          "end_sec": 6.58,
+          "confidence": 0.5935066938400269,
+          "confidence_available": true
+        },
+        {
+          "word": "-1",
+          "start_sec": 6.58,
+          "end_sec": 6.82,
+          "confidence": 0.9510578215122223,
+          "confidence_available": true
+        },
+        {
+          "word": "-8",
+          "start_sec": 6.82,
+          "end_sec": 7.06,
+          "confidence": 0.9746360778808594,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 7.06,
+          "end_sec": 7.38,
+          "confidence": 0.9336732923984528,
+          "confidence_available": true
+        },
+        {
+          "word": "-3",
+          "start_sec": 7.38,
+          "end_sec": 7.7,
+          "confidence": 0.914079874753952,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.8086438129491665,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 1444.2216199822724,
+        "preprocess_ms": 660.50268500112,
+        "inference_ms": 783.6135879915673,
+        "postprocess_ms": 0.1053469895850867,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 0.1053469895850867
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": []
+    }
+  },
+  {
+    "run_id": "thesis_20260330_self_audit_2_iter02_noise_balanced",
+    "provider_profile": "providers/whisper_local",
+    "provider_id": "whisper",
+    "sample_id": "sample_vosk_numbers",
+    "success": true,
+    "text": "1-0-0-0-1 902-10 0-1-803",
+    "reference_text": "10001 90210 01803",
+    "normalized_reference_text": "10001 90210 01803",
+    "normalized_hypothesis_text": "10001 90210 01803",
+    "quality_support": {
+      "normalized_reference": "10001 90210 01803",
+      "normalized_hypothesis": "10001 90210 01803",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 3,
+      "reference_char_count": 15,
+      "word_edits": 0,
+      "char_edits": 0,
+      "exact_match": true,
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.0,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "per_utterance_latency_ms": 721.8590639822651,
+      "real_time_factor": 0.08688722484138964,
+      "sample_accuracy": 1.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 721.8590639822651,
+      "wer": 0.0,
+      "confidence": 0.7381789052980186,
+      "preprocess_ms": 0.006963004125282168,
+      "inference_ms": 721.7740039923228,
+      "postprocess_ms": 0.07809698581695557,
+      "cpu_percent": 7.4,
+      "memory_mb": 719.234375,
+      "gpu_util_percent": 31.0,
+      "gpu_memory_mb": 776.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "noise_robustness",
+    "noise_level": "light",
+    "noise_mode": "white",
+    "noise_snr_db": 30.0,
+    "provider_preset": "balanced",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_2_iter02_noise_balanced/derived_audio/sample_vosk_numbers__light.wav",
+    "audio_duration_sec": 8.308,
+    "confidence": 0.7381789052980186,
+    "preprocess_ms": 0.006963004125282168,
+    "inference_ms": 721.7740039923228,
+    "postprocess_ms": 0.07809698581695557,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_2_iter02_noise_balanced/metrics/traces/trace_59003e899b8e4bda8d16428e2b546ec5.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_f8490f9d185e46328ea013fa697148f4",
+      "session_id": "benchmark_thesis_20260330_self_audit_2_iter02_noise_balanced",
+      "provider_id": "whisper",
+      "text": "1-0-0-0-1 902-10 0-1-803",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.5,
+      "utterance_end_sec": 7.74,
+      "words": [
+        {
+          "word": "1",
+          "start_sec": 0.5,
+          "end_sec": 1.04,
+          "confidence": 0.20765188336372375,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.04,
+          "end_sec": 1.38,
+          "confidence": 0.44707176089286804,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.38,
+          "end_sec": 1.78,
+          "confidence": 0.9143356084823608,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.78,
+          "end_sec": 2.14,
+          "confidence": 0.9849304258823395,
+          "confidence_available": true
+        },
+        {
+          "word": "-1",
+          "start_sec": 2.14,
+          "end_sec": 2.58,
+          "confidence": 0.9689518213272095,
+          "confidence_available": true
+        },
+        {
+          "word": "902",
+          "start_sec": 3.64,
+          "end_sec": 4.48,
+          "confidence": 0.533442884683609,
+          "confidence_available": true
+        },
+        {
+          "word": "-10",
+          "start_sec": 4.48,
+          "end_sec": 4.78,
+          "confidence": 0.6824620366096497,
+          "confidence_available": true
+        },
+        {
+          "word": "0",
+          "start_sec": 6.16,
+          "end_sec": 6.58,
+          "confidence": 0.6718618869781494,
+          "confidence_available": true
+        },
+        {
+          "word": "-1",
+          "start_sec": 6.58,
+          "end_sec": 6.82,
+          "confidence": 0.7195029258728027,
+          "confidence_available": true
+        },
+        {
+          "word": "-803",
+          "start_sec": 6.82,
+          "end_sec": 7.74,
+          "confidence": 0.8025622367858887,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.7381789052980186,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 721.8590639822651,
+        "preprocess_ms": 0.006963004125282168,
+        "inference_ms": 721.7740039923228,
+        "postprocess_ms": 0.07809698581695557,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 0.07809698581695557
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": []
+    }
+  },
+  {
+    "run_id": "thesis_20260330_self_audit_2_iter02_noise_balanced",
+    "provider_profile": "providers/whisper_local",
+    "provider_id": "whisper",
+    "sample_id": "sample_vosk_numbers",
+    "success": true,
+    "text": "1-0-0-0-1 902-10 0-1-8-0-3",
+    "reference_text": "10001 90210 01803",
+    "normalized_reference_text": "10001 90210 01803",
+    "normalized_hypothesis_text": "10001 90210 01803",
+    "quality_support": {
+      "normalized_reference": "10001 90210 01803",
+      "normalized_hypothesis": "10001 90210 01803",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 3,
+      "reference_char_count": 15,
+      "word_edits": 0,
+      "char_edits": 0,
+      "exact_match": true,
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.0,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "per_utterance_latency_ms": 739.8813370091375,
+      "real_time_factor": 0.08905649217731554,
+      "sample_accuracy": 1.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 739.8813370091375,
+      "wer": 0.0,
+      "confidence": 0.7477221112415708,
+      "preprocess_ms": 0.0074950221460312605,
+      "inference_ms": 739.790756982984,
+      "postprocess_ms": 0.08308500400744379,
+      "cpu_percent": 5.1,
+      "memory_mb": 720.08984375,
+      "gpu_util_percent": 30.0,
+      "gpu_memory_mb": 776.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "noise_robustness",
+    "noise_level": "medium",
+    "noise_mode": "white",
+    "noise_snr_db": 20.0,
+    "provider_preset": "balanced",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_2_iter02_noise_balanced/derived_audio/sample_vosk_numbers__medium.wav",
+    "audio_duration_sec": 8.308,
+    "confidence": 0.7477221112415708,
+    "preprocess_ms": 0.0074950221460312605,
+    "inference_ms": 739.790756982984,
+    "postprocess_ms": 0.08308500400744379,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_2_iter02_noise_balanced/metrics/traces/trace_f6561b4369a4432fb9b3490dbb692e7a.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_1c4dd2d4b9db434e96918682f246435d",
+      "session_id": "benchmark_thesis_20260330_self_audit_2_iter02_noise_balanced",
+      "provider_id": "whisper",
+      "text": "1-0-0-0-1 902-10 0-1-8-0-3",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.5,
+      "utterance_end_sec": 7.72,
+      "words": [
+        {
+          "word": "1",
+          "start_sec": 0.5,
+          "end_sec": 1.04,
+          "confidence": 0.169894278049469,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.04,
+          "end_sec": 1.4,
+          "confidence": 0.4497647285461426,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.4,
+          "end_sec": 1.78,
+          "confidence": 0.9115847051143646,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.78,
+          "end_sec": 2.14,
+          "confidence": 0.984770268201828,
+          "confidence_available": true
+        },
+        {
+          "word": "-1",
+          "start_sec": 2.14,
+          "end_sec": 2.58,
+          "confidence": 0.9757911264896393,
+          "confidence_available": true
+        },
+        {
+          "word": "902",
+          "start_sec": 3.76,
+          "end_sec": 4.48,
+          "confidence": 0.5867856740951538,
+          "confidence_available": true
+        },
+        {
+          "word": "-10",
+          "start_sec": 4.48,
+          "end_sec": 4.78,
+          "confidence": 0.6821981370449066,
+          "confidence_available": true
+        },
+        {
+          "word": "0",
+          "start_sec": 6.22,
+          "end_sec": 6.58,
+          "confidence": 0.6199460029602051,
+          "confidence_available": true
+        },
+        {
+          "word": "-1",
+          "start_sec": 6.58,
+          "end_sec": 6.82,
+          "confidence": 0.6976810991764069,
+          "confidence_available": true
+        },
+        {
+          "word": "-8",
+          "start_sec": 6.82,
+          "end_sec": 7.06,
+          "confidence": 0.814222127199173,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 7.06,
+          "end_sec": 7.38,
+          "confidence": 0.7897944450378418,
+          "confidence_available": true
+        },
+        {
+          "word": "-3",
+          "start_sec": 7.38,
+          "end_sec": 7.72,
+          "confidence": 0.835934579372406,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.7477221112415708,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 739.8813370091375,
+        "preprocess_ms": 0.0074950221460312605,
+        "inference_ms": 739.790756982984,
+        "postprocess_ms": 0.08308500400744379,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 0.08308500400744379
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": []
+    }
+  },
+  {
+    "run_id": "thesis_20260330_self_audit_2_iter02_noise_balanced",
+    "provider_profile": "providers/whisper_local",
+    "provider_id": "whisper",
+    "sample_id": "sample_vosk_numbers",
+    "success": true,
+    "text": "1-0-0-0-1 902-10 0-1-8-03",
+    "reference_text": "10001 90210 01803",
+    "normalized_reference_text": "10001 90210 01803",
+    "normalized_hypothesis_text": "10001 90210 01803",
+    "quality_support": {
+      "normalized_reference": "10001 90210 01803",
+      "normalized_hypothesis": "10001 90210 01803",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 3,
+      "reference_char_count": 15,
+      "word_edits": 0,
+      "char_edits": 0,
+      "exact_match": true,
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.0,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "per_utterance_latency_ms": 749.039129994344,
+      "real_time_factor": 0.09015877828530862,
+      "sample_accuracy": 1.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 749.039129994344,
+      "wer": 0.0,
+      "confidence": 0.723194484554586,
+      "preprocess_ms": 0.007613998604938388,
+      "inference_ms": 748.9105089916848,
+      "postprocess_ms": 0.12100700405426323,
+      "cpu_percent": 3.8,
+      "memory_mb": 721.91015625,
+      "gpu_util_percent": 30.0,
+      "gpu_memory_mb": 776.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "noise_robustness",
+    "noise_level": "heavy",
+    "noise_mode": "white",
+    "noise_snr_db": 10.0,
+    "provider_preset": "balanced",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_2_iter02_noise_balanced/derived_audio/sample_vosk_numbers__heavy.wav",
+    "audio_duration_sec": 8.308,
+    "confidence": 0.723194484554586,
+    "preprocess_ms": 0.007613998604938388,
+    "inference_ms": 748.9105089916848,
+    "postprocess_ms": 0.12100700405426323,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_2_iter02_noise_balanced/metrics/traces/trace_25f21d4fac3c4322ac3371a10c72dc13.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_bad6bf2145214db39820e56dbcdb6480",
+      "session_id": "benchmark_thesis_20260330_self_audit_2_iter02_noise_balanced",
+      "provider_id": "whisper",
+      "text": "1-0-0-0-1 902-10 0-1-8-03",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.5,
+      "utterance_end_sec": 7.48,
+      "words": [
+        {
+          "word": "1",
+          "start_sec": 0.5,
+          "end_sec": 1.04,
+          "confidence": 0.15006700158119202,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.04,
+          "end_sec": 1.4,
+          "confidence": 0.5019177347421646,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.4,
+          "end_sec": 1.76,
+          "confidence": 0.9248298704624176,
+          "confidence_available": true
+        },
+        {
+          "word": "-0",
+          "start_sec": 1.76,
+          "end_sec": 2.18,
+          "confidence": 0.9867645502090454,
+          "confidence_available": true
+        },
+        {
+          "word": "-1",
+          "start_sec": 2.18,
+          "end_sec": 2.6,
+          "confidence": 0.9730295836925507,
+          "confidence_available": true
+        },
+        {
+          "word": "902",
+          "start_sec": 3.64,
+          "end_sec": 4.48,
+          "confidence": 0.6318515837192535,
+          "confidence_available": true
+        },
+        {
+          "word": "-10",
+          "start_sec": 4.48,
+          "end_sec": 4.78,
+          "confidence": 0.7090586423873901,
+          "confidence_available": true
+        },
+        {
+          "word": "0",
+          "start_sec": 6.16,
+          "end_sec": 6.58,
+          "confidence": 0.4220661222934723,
+          "confidence_available": true
+        },
+        {
+          "word": "-1",
+          "start_sec": 6.58,
+          "end_sec": 6.84,
+          "confidence": 0.6806556880474091,
+          "confidence_available": true
+        },
+        {
+          "word": "-8",
+          "start_sec": 6.84,
+          "end_sec": 7.06,
+          "confidence": 0.8277743458747864,
+          "confidence_available": true
+        },
+        {
+          "word": "-03",
+          "start_sec": 7.06,
+          "end_sec": 7.48,
+          "confidence": 0.6365101039409637,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.723194484554586,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 749.039129994344,
+        "preprocess_ms": 0.007613998604938388,
+        "inference_ms": 748.9105089916848,
+        "postprocess_ms": 0.12100700405426323,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 0.12100700405426323
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": []
+    }
+  }
+]

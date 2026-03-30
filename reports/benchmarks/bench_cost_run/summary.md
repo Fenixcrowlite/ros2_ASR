@@ -1,0 +1,26 @@
+# Benchmark Summary: bench_cost_run
+
+- benchmark_profile: `bench`
+- dataset_id: `bench_dataset`
+- providers: `providers/fake_cost`
+- scenario: `clean_baseline`
+- execution_mode: `batch`
+- aggregate_scope: `single_provider`
+- total_samples: `1`
+- successful_samples: `1`
+- failed_samples: `0`
+
+## Per-Provider Summary
+
+### providers/fake_cost (preset: `standard`)
+- samples: `1`
+- successful_samples: `1`
+- failed_samples: `0`
+- quality_metrics: `{"confidence": 0.92, "wer": 0.0}`
+- latency_metrics: `{"inference_ms": 0.0, "postprocess_ms": 0.0, "preprocess_ms": 0.0, "total_latency_ms": 15.0}`
+- cost_metrics: `{"estimated_cost_usd": 0.25}`
+- cost_totals: `{"estimated_cost_usd": 0.25}`
+- estimated_cost_total_usd: `0.25`
+
+## Noise Summary
+- clean: `{"confidence": 0.92, "cpu_percent": 3.7, "estimated_cost_usd": 0.25, "gpu_memory_mb": 778.0, "gpu_util_percent": 31.0, "inference_ms": 0.0, "memory_mb": 65.88671875, "postprocess_ms": 0.0, "preprocess_ms": 0.0, "total_latency_ms": 15.0, "wer": 0.0}`

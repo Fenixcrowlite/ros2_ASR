@@ -1,0 +1,102 @@
+[
+  {
+    "run_id": "bench_cost_run",
+    "provider_profile": "providers/fake_cost",
+    "provider_id": "fake_cost_component",
+    "sample_id": "sample_00001",
+    "success": true,
+    "text": "hello world",
+    "reference_text": "hello world",
+    "normalized_reference_text": "hello world",
+    "normalized_hypothesis_text": "hello world",
+    "quality_support": {
+      "normalized_reference": "hello world",
+      "normalized_hypothesis": "hello world",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 2,
+      "reference_char_count": 10,
+      "word_edits": 0,
+      "char_edits": 0,
+      "exact_match": true,
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "estimated_cost_usd": 0.25,
+      "total_latency_ms": 15.0,
+      "wer": 0.0,
+      "confidence": 0.92,
+      "preprocess_ms": 0.0,
+      "inference_ms": 0.0,
+      "postprocess_ms": 0.0,
+      "cpu_percent": 3.7,
+      "memory_mb": 65.88671875,
+      "gpu_util_percent": 31.0,
+      "gpu_memory_mb": 778.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "clean_baseline",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "standard",
+    "input_audio_path": "/tmp/pytest-of-fenix/pytest-43/test_benchmark_orchestrator_us0/datasets/imported/bench.wav",
+    "audio_duration_sec": 30.0,
+    "confidence": 0.92,
+    "preprocess_ms": 0.0,
+    "inference_ms": 0.0,
+    "postprocess_ms": 0.0,
+    "trace_artifact_ref": "/tmp/pytest-of-fenix/pytest-43/test_benchmark_orchestrator_us0/artifacts/benchmark_runs/bench_cost_run/metrics/traces/trace_05f6922e985c447eb61b73f36db0b243.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_6051369589104bbcbb5b42039dcea5b2",
+      "session_id": "benchmark_bench_cost_run",
+      "provider_id": "fake_cost_component",
+      "text": "hello world",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.0,
+      "utterance_end_sec": 0.8,
+      "words": [
+        {
+          "word": "hello",
+          "start_sec": 0.0,
+          "end_sec": 0.4,
+          "confidence": 0.91,
+          "confidence_available": true
+        },
+        {
+          "word": "world",
+          "start_sec": 0.41,
+          "end_sec": 0.8,
+          "confidence": 0.93,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.92,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 15.0,
+        "preprocess_ms": 0.0,
+        "inference_ms": 0.0,
+        "postprocess_ms": 0.0,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 3.0
+      },
+      "raw_metadata_ref": "artifact://fake/raw",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "fake"
+      ]
+    }
+  }
+]

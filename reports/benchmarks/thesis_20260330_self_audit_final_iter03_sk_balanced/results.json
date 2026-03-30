@@ -1,0 +1,303 @@
+[
+  {
+    "run_id": "thesis_20260330_self_audit_final_iter03_sk_balanced",
+    "provider_profile": "providers/whisper_local",
+    "provider_id": "whisper",
+    "sample_id": "fleurs_sk_1731",
+    "success": true,
+    "text": "Na s\u00falo strovi a zreagne potrebujete nev\u00ednutne aj ht\u00fa.",
+    "reference_text": "na s\u00faostroviach a jazer\u00e1ch nepotrebujete nevyhnutne jachtu",
+    "normalized_reference_text": "na s\u00faostroviach a jazer\u00e1ch nepotrebujete nevyhnutne jachtu",
+    "normalized_hypothesis_text": "na s\u00falo strovi a zreagne potrebujete nev\u00ednutne aj ht\u00fa",
+    "quality_support": {
+      "normalized_reference": "na s\u00faostroviach a jazer\u00e1ch nepotrebujete nevyhnutne jachtu",
+      "normalized_hypothesis": "na s\u00falo strovi a zreagne potrebujete nev\u00ednutne aj ht\u00fa",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 7,
+      "reference_char_count": 52,
+      "word_edits": 7,
+      "char_edits": 15,
+      "exact_match": false,
+      "wer": 1.0,
+      "cer": 0.28846153846153844
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.28846153846153844,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "per_utterance_latency_ms": 1707.6280539913569,
+      "real_time_factor": 0.4008516558665157,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 1707.6280539913569,
+      "wer": 1.0,
+      "confidence": 0.4862864863927718,
+      "preprocess_ms": 988.7378639832605,
+      "inference_ms": 718.7981879978906,
+      "postprocess_ms": 0.0920020102057606,
+      "cpu_percent": 6.2,
+      "memory_mb": 434.20703125,
+      "gpu_util_percent": 40.0,
+      "gpu_memory_mb": 904.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "clean_baseline",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "balanced",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_sk_sk_test_subset/8207956000835058817.wav",
+    "audio_duration_sec": 4.26,
+    "confidence": 0.4862864863927718,
+    "preprocess_ms": 988.7378639832605,
+    "inference_ms": 718.7981879978906,
+    "postprocess_ms": 0.0920020102057606,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_sk_balanced/metrics/traces/trace_b7337913eaab45ef903ee9b6b8af412c.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_0870426a40914351b30be351fc8509d8",
+      "session_id": "benchmark_thesis_20260330_self_audit_final_iter03_sk_balanced",
+      "provider_id": "whisper",
+      "text": "Na s\u00falo strovi a zreagne potrebujete nev\u00ednutne aj ht\u00fa.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.24,
+      "utterance_end_sec": 3.6,
+      "audio_duration_sec": 4.26,
+      "words": [
+        {
+          "word": "Na",
+          "start_sec": 0.24,
+          "end_sec": 0.72,
+          "confidence": 0.7081581354141235,
+          "confidence_available": true
+        },
+        {
+          "word": "s\u00falo",
+          "start_sec": 0.72,
+          "end_sec": 1.04,
+          "confidence": 0.4284370541572571,
+          "confidence_available": true
+        },
+        {
+          "word": "strovi",
+          "start_sec": 1.04,
+          "end_sec": 1.38,
+          "confidence": 0.29765601456165314,
+          "confidence_available": true
+        },
+        {
+          "word": "a",
+          "start_sec": 1.38,
+          "end_sec": 1.48,
+          "confidence": 0.2294386476278305,
+          "confidence_available": true
+        },
+        {
+          "word": "zreagne",
+          "start_sec": 1.48,
+          "end_sec": 2.12,
+          "confidence": 0.3736865445971489,
+          "confidence_available": true
+        },
+        {
+          "word": "potrebujete",
+          "start_sec": 2.12,
+          "end_sec": 2.68,
+          "confidence": 0.8189454525709152,
+          "confidence_available": true
+        },
+        {
+          "word": "nev\u00ednutne",
+          "start_sec": 2.68,
+          "end_sec": 3.22,
+          "confidence": 0.44472930431365965,
+          "confidence_available": true
+        },
+        {
+          "word": "aj",
+          "start_sec": 3.22,
+          "end_sec": 3.34,
+          "confidence": 0.28797417879104614,
+          "confidence_available": true
+        },
+        {
+          "word": "ht\u00fa.",
+          "start_sec": 3.34,
+          "end_sec": 3.6,
+          "confidence": 0.43813130756219226,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.4862864863927718,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "sk-SK",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 1707.6280539913569,
+        "preprocess_ms": 988.7378639832605,
+        "inference_ms": 718.7981879978906,
+        "postprocess_ms": 0.0920020102057606,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 0.0920020102057606
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": []
+    }
+  },
+  {
+    "run_id": "thesis_20260330_self_audit_final_iter03_sk_balanced",
+    "provider_profile": "providers/whisper_local",
+    "provider_id": "whisper",
+    "sample_id": "fleurs_sk_1957",
+    "success": true,
+    "text": "Klebete je ozna\u010doval ako politick\u00e9 t\u00e1ranie a pochabosti.",
+    "reference_text": "klebety ozna\u010doval ako politick\u00e9 t\u00e1ranie a pochabos\u0165",
+    "normalized_reference_text": "klebety ozna\u010doval ako politick\u00e9 t\u00e1ranie a pochabos\u0165",
+    "normalized_hypothesis_text": "klebete je ozna\u010doval ako politick\u00e9 t\u00e1ranie a pochabosti",
+    "quality_support": {
+      "normalized_reference": "klebety ozna\u010doval ako politick\u00e9 t\u00e1ranie a pochabos\u0165",
+      "normalized_hypothesis": "klebete je ozna\u010doval ako politick\u00e9 t\u00e1ranie a pochabosti",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 7,
+      "reference_char_count": 45,
+      "word_edits": 3,
+      "char_edits": 5,
+      "exact_match": false,
+      "wer": 0.42857142857142855,
+      "cer": 0.1111111111111111
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.1111111111111111,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "per_utterance_latency_ms": 717.1912530029658,
+      "real_time_factor": 0.16152956148715444,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 717.1912530029658,
+      "wer": 0.42857142857142855,
+      "confidence": 0.814847261927746,
+      "preprocess_ms": 0.00451799132861197,
+      "inference_ms": 717.0908650150523,
+      "postprocess_ms": 0.09586999658495188,
+      "cpu_percent": 1.2,
+      "memory_mb": 435.73046875,
+      "gpu_util_percent": 0.0,
+      "gpu_memory_mb": 901.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "clean_baseline",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "balanced",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_sk_sk_test_subset/15713138414078615163.wav",
+    "audio_duration_sec": 4.44,
+    "confidence": 0.814847261927746,
+    "preprocess_ms": 0.00451799132861197,
+    "inference_ms": 717.0908650150523,
+    "postprocess_ms": 0.09586999658495188,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_sk_balanced/metrics/traces/trace_ecffb0dc39754f7f8839abc100265801.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_fa1f5875cabb4a518513acf10890f0f1",
+      "session_id": "benchmark_thesis_20260330_self_audit_final_iter03_sk_balanced",
+      "provider_id": "whisper",
+      "text": "Klebete je ozna\u010doval ako politick\u00e9 t\u00e1ranie a pochabosti.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.3,
+      "utterance_end_sec": 3.96,
+      "audio_duration_sec": 4.44,
+      "words": [
+        {
+          "word": "Klebete",
+          "start_sec": 0.3,
+          "end_sec": 1.0,
+          "confidence": 0.5931816697120667,
+          "confidence_available": true
+        },
+        {
+          "word": "je",
+          "start_sec": 1.0,
+          "end_sec": 1.1,
+          "confidence": 0.8189195990562439,
+          "confidence_available": true
+        },
+        {
+          "word": "ozna\u010doval",
+          "start_sec": 1.1,
+          "end_sec": 1.64,
+          "confidence": 0.8205204129219055,
+          "confidence_available": true
+        },
+        {
+          "word": "ako",
+          "start_sec": 1.64,
+          "end_sec": 1.84,
+          "confidence": 0.9725652933120728,
+          "confidence_available": true
+        },
+        {
+          "word": "politick\u00e9",
+          "start_sec": 1.84,
+          "end_sec": 2.58,
+          "confidence": 0.8929498593012491,
+          "confidence_available": true
+        },
+        {
+          "word": "t\u00e1ranie",
+          "start_sec": 2.58,
+          "end_sec": 3.12,
+          "confidence": 0.6535373429457346,
+          "confidence_available": true
+        },
+        {
+          "word": "a",
+          "start_sec": 3.12,
+          "end_sec": 3.3,
+          "confidence": 0.9597073197364807,
+          "confidence_available": true
+        },
+        {
+          "word": "pochabosti.",
+          "start_sec": 3.3,
+          "end_sec": 3.96,
+          "confidence": 0.6984046638011933,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.814847261927746,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "sk-SK",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 717.1912530029658,
+        "preprocess_ms": 0.00451799132861197,
+        "inference_ms": 717.0908650150523,
+        "postprocess_ms": 0.09586999658495188,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 0.09586999658495188
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": []
+    }
+  }
+]

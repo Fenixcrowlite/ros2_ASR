@@ -1,0 +1,709 @@
+{
+  "suite_id": "thesis_20260330_self_audit_final",
+  "generated_at": "2026-03-30T21:18:04.729540+00:00",
+  "noise_generation": {
+    "source_wav": "data/sample/vosk_test.wav",
+    "generated": [
+      {
+        "path": "data/sample/generated_noise/vosk_test_snr30p0_3.wav",
+        "snr_db": 30.0,
+        "name": "vosk_test_snr30p0_3.wav",
+        "generation_ms": 175.33493100199848,
+        "channels": 1,
+        "sample_rate_hz": 16000,
+        "sample_width_bytes": 2,
+        "frame_count": 132928,
+        "duration_sec": 8.308
+      },
+      {
+        "path": "data/sample/generated_noise/vosk_test_snr10p0_3.wav",
+        "snr_db": 10.0,
+        "name": "vosk_test_snr10p0_3.wav",
+        "generation_ms": 175.24280800716951,
+        "channels": 1,
+        "sample_rate_hz": 16000,
+        "sample_width_bytes": 2,
+        "frame_count": 132928,
+        "duration_sec": 8.308
+      }
+    ],
+    "catalog": {
+      "root": "data/sample",
+      "upload_root": "data/sample/uploads",
+      "default_sample": "data/sample/vosk_test.wav",
+      "sample_count": 23,
+      "samples": [
+        {
+          "path": "data/sample/generated_noise/legacy_web_gui/en_hello_snr10p0.wav",
+          "name": "en_hello_snr10p0.wav",
+          "uploaded": false,
+          "size_bytes": 35244,
+          "modified_at": "2026-03-12T09:17:44.121310+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 17600,
+          "duration_sec": 1.1
+        },
+        {
+          "path": "data/sample/generated_noise/legacy_web_gui/en_hello_snr20p0.wav",
+          "name": "en_hello_snr20p0.wav",
+          "uploaded": false,
+          "size_bytes": 35244,
+          "modified_at": "2026-03-12T09:17:44.119756+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 17600,
+          "duration_sec": 1.1
+        },
+        {
+          "path": "data/sample/generated_noise/legacy_web_gui/en_hello_snr20p0_snr0p0.wav",
+          "name": "en_hello_snr20p0_snr0p0.wav",
+          "uploaded": false,
+          "size_bytes": 35244,
+          "modified_at": "2026-03-07T16:10:30.210796+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 17600,
+          "duration_sec": 1.1
+        },
+        {
+          "path": "data/sample/generated_noise/legacy_web_gui/en_hello_snr20p0_snr10p0.wav",
+          "name": "en_hello_snr20p0_snr10p0.wav",
+          "uploaded": false,
+          "size_bytes": 35244,
+          "modified_at": "2026-03-07T16:10:30.210386+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 17600,
+          "duration_sec": 1.1
+        },
+        {
+          "path": "data/sample/generated_noise/legacy_web_gui/en_hello_snr20p0_snr20p0.wav",
+          "name": "en_hello_snr20p0_snr20p0.wav",
+          "uploaded": false,
+          "size_bytes": 35244,
+          "modified_at": "2026-03-07T16:10:30.209964+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 17600,
+          "duration_sec": 1.1
+        },
+        {
+          "path": "data/sample/generated_noise/legacy_web_gui/en_hello_snr20p0_snr30p0.wav",
+          "name": "en_hello_snr20p0_snr30p0.wav",
+          "uploaded": false,
+          "size_bytes": 35244,
+          "modified_at": "2026-03-07T16:10:30.209455+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 17600,
+          "duration_sec": 1.1
+        },
+        {
+          "path": "data/sample/generated_noise/legacy_web_gui/en_hello_snr20p0_snr30p0_snr0p0.wav",
+          "name": "en_hello_snr20p0_snr30p0_snr0p0.wav",
+          "uploaded": false,
+          "size_bytes": 35244,
+          "modified_at": "2026-03-07T16:10:44.323224+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 17600,
+          "duration_sec": 1.1
+        },
+        {
+          "path": "data/sample/generated_noise/legacy_web_gui/en_hello_snr20p0_snr30p0_snr10p0.wav",
+          "name": "en_hello_snr20p0_snr30p0_snr10p0.wav",
+          "uploaded": false,
+          "size_bytes": 35244,
+          "modified_at": "2026-03-07T16:10:44.322837+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 17600,
+          "duration_sec": 1.1
+        },
+        {
+          "path": "data/sample/generated_noise/legacy_web_gui/en_hello_snr20p0_snr30p0_snr20p0.wav",
+          "name": "en_hello_snr20p0_snr30p0_snr20p0.wav",
+          "uploaded": false,
+          "size_bytes": 35244,
+          "modified_at": "2026-03-07T16:10:44.322449+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 17600,
+          "duration_sec": 1.1
+        },
+        {
+          "path": "data/sample/generated_noise/legacy_web_gui/en_hello_snr20p0_snr30p0_snr30p0.wav",
+          "name": "en_hello_snr20p0_snr30p0_snr30p0.wav",
+          "uploaded": false,
+          "size_bytes": 35244,
+          "modified_at": "2026-03-07T16:10:44.322014+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 17600,
+          "duration_sec": 1.1
+        },
+        {
+          "path": "data/sample/generated_noise/vosk_test_snr10p0.wav",
+          "name": "vosk_test_snr10p0.wav",
+          "uploaded": false,
+          "size_bytes": 265900,
+          "modified_at": "2026-03-30T21:13:45.424340+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 132928,
+          "duration_sec": 8.308
+        },
+        {
+          "path": "data/sample/generated_noise/vosk_test_snr10p0_1.wav",
+          "name": "vosk_test_snr10p0_1.wav",
+          "uploaded": false,
+          "size_bytes": 265900,
+          "modified_at": "2026-03-30T21:14:36.120201+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 132928,
+          "duration_sec": 8.308
+        },
+        {
+          "path": "data/sample/generated_noise/vosk_test_snr10p0_2.wav",
+          "name": "vosk_test_snr10p0_2.wav",
+          "uploaded": false,
+          "size_bytes": 265900,
+          "modified_at": "2026-03-30T21:15:58.765952+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 132928,
+          "duration_sec": 8.308
+        },
+        {
+          "path": "data/sample/generated_noise/vosk_test_snr10p0_3.wav",
+          "name": "vosk_test_snr10p0_3.wav",
+          "uploaded": false,
+          "size_bytes": 265900,
+          "modified_at": "2026-03-30T21:18:06.401697+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 132928,
+          "duration_sec": 8.308
+        },
+        {
+          "path": "data/sample/generated_noise/vosk_test_snr30p0.wav",
+          "name": "vosk_test_snr30p0.wav",
+          "uploaded": false,
+          "size_bytes": 265900,
+          "modified_at": "2026-03-30T21:13:45.251121+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 132928,
+          "duration_sec": 8.308
+        },
+        {
+          "path": "data/sample/generated_noise/vosk_test_snr30p0_1.wav",
+          "name": "vosk_test_snr30p0_1.wav",
+          "uploaded": false,
+          "size_bytes": 265900,
+          "modified_at": "2026-03-30T21:14:35.945715+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 132928,
+          "duration_sec": 8.308
+        },
+        {
+          "path": "data/sample/generated_noise/vosk_test_snr30p0_2.wav",
+          "name": "vosk_test_snr30p0_2.wav",
+          "uploaded": false,
+          "size_bytes": 265900,
+          "modified_at": "2026-03-30T21:15:58.593057+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 132928,
+          "duration_sec": 8.308
+        },
+        {
+          "path": "data/sample/generated_noise/vosk_test_snr30p0_3.wav",
+          "name": "vosk_test_snr30p0_3.wav",
+          "uploaded": false,
+          "size_bytes": 265900,
+          "modified_at": "2026-03-30T21:18:06.226044+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 132928,
+          "duration_sec": 8.308
+        },
+        {
+          "path": "data/sample/vosk_test.wav",
+          "name": "vosk_test.wav",
+          "uploaded": false,
+          "size_bytes": 265914,
+          "modified_at": "2026-03-16T11:45:05.426927+00:00",
+          "channels": 1,
+          "sample_rate_hz": 16000,
+          "sample_width_bytes": 2,
+          "frame_count": 132928,
+          "duration_sec": 8.308
+        },
+        {
+          "path": "data/sample/uploads/U-WON-T.wav",
+          "name": "U-WON-T.wav",
+          "uploaded": true,
+          "size_bytes": 21491790,
+          "modified_at": "2026-03-24T15:21:01.088791+00:00",
+          "channels": 2,
+          "sample_rate_hz": 44100,
+          "sample_width_bytes": 2,
+          "frame_count": 5372928,
+          "duration_sec": 121.835
+        },
+        {
+          "path": "data/sample/uploads/U-WON-T_1.wav",
+          "name": "U-WON-T_1.wav",
+          "uploaded": true,
+          "size_bytes": 21491790,
+          "modified_at": "2026-03-24T15:22:43.101759+00:00",
+          "channels": 2,
+          "sample_rate_hz": 44100,
+          "sample_width_bytes": 2,
+          "frame_count": 5372928,
+          "duration_sec": 121.835
+        },
+        {
+          "path": "data/sample/uploads/U-WON-T_2.wav",
+          "name": "U-WON-T_2.wav",
+          "uploaded": true,
+          "size_bytes": 21491790,
+          "modified_at": "2026-03-24T15:37:07.986940+00:00",
+          "channels": 2,
+          "sample_rate_hz": 44100,
+          "sample_width_bytes": 2,
+          "frame_count": 5372928,
+          "duration_sec": 121.835
+        },
+        {
+          "path": "data/sample/uploads/U-WON-T_3.wav",
+          "name": "U-WON-T_3.wav",
+          "uploaded": true,
+          "size_bytes": 21491790,
+          "modified_at": "2026-03-30T16:34:37.305019+00:00",
+          "channels": 2,
+          "sample_rate_hz": 44100,
+          "sample_width_bytes": 2,
+          "frame_count": 5372928,
+          "duration_sec": 121.835
+        }
+      ],
+      "skipped": [
+        {
+          "path": "data/sample/audio_tester.wav",
+          "reason": "not a valid WAV file: file does not start with RIFF id"
+        }
+      ],
+      "upload_enabled": true
+    },
+    "metrics": {
+      "variant_count": 2,
+      "total_generation_ms": 603.8325400149915
+    }
+  },
+  "recognize_once": {
+    "message": "ok",
+    "request_id": "req_7c59ae969a67489e81706f4326a3ec29",
+    "session_id": "thesis_20260330_self_audit_final_recognize_once",
+    "text": "1-0-0-0-1 9-0-2-1-0 0-1-8-0-3",
+    "provider_id": "whisper",
+    "confidence": 0.8086438179016113,
+    "confidence_available": true,
+    "success": true,
+    "error_code": "",
+    "error_message": "",
+    "language": "en-US",
+    "audio_duration_sec": 8.307999610900879,
+    "preprocess_ms": 848.5901489257812,
+    "inference_ms": 916.3390502929688,
+    "postprocess_ms": 0.08179398626089096,
+    "latency_ms": 1765.010986328125,
+    "degraded": false,
+    "raw_metadata_ref": "artifacts/runtime_sessions/thesis_20260330_self_audit_final_recognize_once/metrics/trace_8569f6b8f47b42e9abd9bdffacc0f7e9.json",
+    "resolved_profile": "providers/whisper_local",
+    "service_wait_ms": 0.029195,
+    "service_call_ms": 1913.796022,
+    "service_latency_ms": 1913.796022,
+    "gateway_request_ms": 1914.165304
+  },
+  "runtime_session": {
+    "start": {
+      "message": "Runtime session started",
+      "session_id": "thesis_20260330_self_audit_final_runtime_session",
+      "resolved": "configs/resolved/runtime__default_runtime.json",
+      "service_wait_ms": 0.03235,
+      "service_call_ms": 43.327195,
+      "service_latency_ms": 43.327195,
+      "gateway_request_ms": 43.774484
+    },
+    "final_result": {
+      "time": "2026-03-30T21:18:11.730362+00:00",
+      "type": "final",
+      "request_id": "req_3face4e2e2ad4086947ce61ae1af1083",
+      "session_id": "thesis_20260330_self_audit_final_runtime_session",
+      "provider_id": "whisper",
+      "text": "100001",
+      "language": "en-US",
+      "confidence": 0.6931672692298889,
+      "confidence_available": true,
+      "success": true,
+      "error_code": "",
+      "error_message": "",
+      "audio_duration_sec": 2.5,
+      "preprocess_ms": 555.0354614257812,
+      "inference_ms": 417.42724609375,
+      "postprocess_ms": 5.92703104019165,
+      "latency_ms": 978.3897705078125,
+      "degraded": false,
+      "raw_metadata_ref": ""
+    },
+    "live_snapshot": {
+      "status": {
+        "backend": "whisper",
+        "model": "light",
+        "region": "",
+        "capabilities": [
+          "streaming=False",
+          "streaming_mode=none",
+          "batch=True",
+          "word_timestamps=True",
+          "confidence=True"
+        ],
+        "streaming_supported": false,
+        "streaming_mode": "none",
+        "cloud_credentials_available": true,
+        "status_message": "ready",
+        "session_id": "thesis_20260330_self_audit_final_runtime_session",
+        "session_state": "ready",
+        "processing_mode": "segmented",
+        "audio_source": "file",
+        "runtime_profile": "default_runtime",
+        "service_wait_ms": 0.044383,
+        "service_call_ms": 2.005913,
+        "service_latency_ms": 2.005913,
+        "gateway_request_ms": 7.844218,
+        "available": true,
+        "state": "ready",
+        "message": "ok",
+        "observer_error": ""
+      },
+      "recent_events": [
+        {
+          "event": "runtime_start",
+          "message": "Runtime session started",
+          "time": "2026-03-30T21:18:08.717508+00:00",
+          "payload": {
+            "runtime_profile": "default_runtime",
+            "provider_profile": "providers/whisper_local",
+            "processing_mode": "segmented",
+            "provider_preset": "light",
+            "provider_settings": {},
+            "session_id": "thesis_20260330_self_audit_final_runtime_session",
+            "audio_source": "file",
+            "audio_file_path": "data/sample/vosk_test.wav",
+            "language": "en-US",
+            "success": true,
+            "resolved_config_ref": "/home/fenix/Desktop/ros2ws/configs/resolved/runtime__default_runtime.json"
+          }
+        },
+        {
+          "event": "recognize_once",
+          "message": "ok",
+          "time": "2026-03-30T21:18:08.615647+00:00",
+          "payload": {
+            "wav_path": "data/sample/vosk_test.wav",
+            "language": "en-US",
+            "session_id": "thesis_20260330_self_audit_final_recognize_once",
+            "provider_profile": "providers/whisper_local",
+            "provider_preset": "balanced",
+            "confidence": 0.8086438179016113,
+            "audio_duration_sec": 8.307999610900879,
+            "preprocess_ms": 848.5901489257812,
+            "inference_ms": 916.3390502929688,
+            "postprocess_ms": 0.08179398626089096,
+            "latency_ms": 1765.010986328125,
+            "service_latency_ms": 1913.796022,
+            "gateway_request_ms": 1914.165304,
+            "success": true
+          }
+        },
+        {
+          "event": "runtime_generate_noise",
+          "message": "Generated 2 noise variants",
+          "time": "2026-03-30T21:18:06.656974+00:00",
+          "payload": {
+            "source_wav": "data/sample/vosk_test.wav",
+            "snr_levels": [
+              30.0,
+              10.0
+            ],
+            "total_generation_ms": 603.8325400149915
+          }
+        }
+      ],
+      "recent_results": [
+        {
+          "time": "2026-03-30T21:18:11.730362+00:00",
+          "type": "final",
+          "request_id": "req_3face4e2e2ad4086947ce61ae1af1083",
+          "session_id": "thesis_20260330_self_audit_final_runtime_session",
+          "provider_id": "whisper",
+          "text": "100001",
+          "language": "en-US",
+          "confidence": 0.6931672692298889,
+          "confidence_available": true,
+          "success": true,
+          "error_code": "",
+          "error_message": "",
+          "audio_duration_sec": 2.5,
+          "preprocess_ms": 555.0354614257812,
+          "inference_ms": 417.42724609375,
+          "postprocess_ms": 5.92703104019165,
+          "latency_ms": 978.3897705078125,
+          "degraded": false,
+          "raw_metadata_ref": ""
+        },
+        {
+          "time": "2026-03-30T21:18:08.614961+00:00",
+          "type": "final",
+          "request_id": "req_7c59ae969a67489e81706f4326a3ec29",
+          "session_id": "thesis_20260330_self_audit_final_recognize_once",
+          "provider_id": "whisper",
+          "text": "1-0-0-0-1 9-0-2-1-0 0-1-8-0-3",
+          "language": "en-US",
+          "confidence": 0.8086438179016113,
+          "confidence_available": true,
+          "success": true,
+          "error_code": "",
+          "error_message": "",
+          "audio_duration_sec": 8.307999610900879,
+          "preprocess_ms": 848.5901489257812,
+          "inference_ms": 916.3390502929688,
+          "postprocess_ms": 0.08179398626089096,
+          "latency_ms": 1765.010986328125,
+          "degraded": false,
+          "raw_metadata_ref": "artifacts/runtime_sessions/thesis_20260330_self_audit_final_recognize_once/metrics/trace_8569f6b8f47b42e9abd9bdffacc0f7e9.json"
+        }
+      ],
+      "recent_partials": [],
+      "node_statuses": [
+        {
+          "time": "2026-03-30T21:18:12.101723+00:00",
+          "node_name": "asr_orchestrator_node",
+          "lifecycle_state": "active",
+          "health": "ok",
+          "status_message": "ready provider=whisper preset=light mode=segmented source=file",
+          "ready": true,
+          "last_error_code": "",
+          "last_error_message": "",
+          "last_update": "2026-03-30T21:18:12.101723+00:00"
+        },
+        {
+          "time": "2026-03-30T21:18:12.101916+00:00",
+          "node_name": "audio_input_node",
+          "lifecycle_state": "active",
+          "health": "ok",
+          "status_message": "running source=file session=thesis_20260330_self_audit_final_runtime_session",
+          "ready": true,
+          "last_error_code": "",
+          "last_error_message": "",
+          "last_update": "2026-03-30T21:18:11.837327+00:00"
+        },
+        {
+          "time": "2026-03-30T21:18:12.102390+00:00",
+          "node_name": "audio_preprocess_node",
+          "lifecycle_state": "active",
+          "health": "ok",
+          "status_message": "running sample_rate=16000 normalize=True mono=True",
+          "ready": true,
+          "last_error_code": "",
+          "last_error_message": "",
+          "last_update": "2026-03-30T21:18:11.295980+00:00"
+        },
+        {
+          "time": "2026-03-30T21:18:12.102307+00:00",
+          "node_name": "vad_segmenter_node",
+          "lifecycle_state": "active",
+          "health": "ok",
+          "status_message": "running threshold=100 silence_ms=700 max_segment_ms=2500",
+          "ready": true,
+          "last_error_code": "",
+          "last_error_message": "",
+          "last_update": "2026-03-30T21:18:11.300881+00:00"
+        }
+      ],
+      "session_statuses": [
+        {
+          "time": "2026-03-30T21:18:12.101723+00:00",
+          "session_id": "thesis_20260330_self_audit_final_runtime_session",
+          "state": "ready",
+          "provider_id": "whisper",
+          "profile_id": "default_runtime",
+          "processing_mode": "segmented",
+          "started_at": "2026-03-30T21:18:08.708454+00:00",
+          "updated_at": "2026-03-30T21:18:11.751177+00:00",
+          "ended_at": "",
+          "status_message": "ready source=file mode=segmented preset=light",
+          "error_code": "",
+          "error_message": ""
+        },
+        {
+          "time": "2026-03-30T21:18:08.615192+00:00",
+          "session_id": "session_20260330T211804Z_997f61c0",
+          "state": "ready",
+          "provider_id": "whisper",
+          "profile_id": "default_runtime",
+          "processing_mode": "segmented",
+          "started_at": "2026-03-30T21:18:04.994317+00:00",
+          "updated_at": "2026-03-30T21:18:08.551590+00:00",
+          "ended_at": "",
+          "status_message": "ready source=file mode=segmented preset=default",
+          "error_code": "",
+          "error_message": ""
+        }
+      ],
+      "active_session": {
+        "time": "2026-03-30T21:18:12.101723+00:00",
+        "session_id": "thesis_20260330_self_audit_final_runtime_session",
+        "state": "ready",
+        "provider_id": "whisper",
+        "profile_id": "default_runtime",
+        "processing_mode": "segmented",
+        "started_at": "2026-03-30T21:18:08.708454+00:00",
+        "updated_at": "2026-03-30T21:18:11.751177+00:00",
+        "ended_at": "",
+        "status_message": "ready source=file mode=segmented preset=light",
+        "error_code": "",
+        "error_message": ""
+      },
+      "time": "2026-03-30T21:18:12.749747+00:00"
+    },
+    "wall_time_to_result_ms": 4032.6462499797344,
+    "stop": {
+      "status_code": 200,
+      "payload": {
+        "message": "Runtime session stopped"
+      }
+    }
+  },
+  "trace_refs": {
+    "recognize_once": "artifacts/runtime_sessions/thesis_20260330_self_audit_final_recognize_once/metrics/trace_8569f6b8f47b42e9abd9bdffacc0f7e9.json",
+    "runtime_session": ""
+  },
+  "recognize_once_trace": {
+    "trace_id": "trace_8569f6b8f47b42e9abd9bdffacc0f7e9",
+    "trace_type": "runtime_recognize_once",
+    "created_at": "2026-03-30T21:18:06.674511+00:00",
+    "request_id": "req_7c59ae969a67489e81706f4326a3ec29",
+    "session_id": "thesis_20260330_self_audit_final_recognize_once",
+    "run_id": "",
+    "provider_id": "whisper",
+    "started_ns": 212574830284798,
+    "finished_ns": 212576599198136,
+    "total_duration_ms": 1768.913338,
+    "metadata": {
+      "runtime_profile": "default_runtime",
+      "provider_profile": "providers/whisper_local",
+      "api": "/asr/runtime/recognize_once",
+      "resolved_profile": "providers/whisper_local",
+      "requested_language": "en-US",
+      "wav_path": "data/sample/vosk_test.wav",
+      "provider_id": "whisper",
+      "text": "1-0-0-0-1 9-0-2-1-0 0-1-8-0-3",
+      "language": "en-US",
+      "success": true,
+      "degraded": false,
+      "error_code": ""
+    },
+    "stages": [
+      {
+        "stage": "audio_load",
+        "component": "asr_orchestrator_node",
+        "code_path": "asr_runtime_nodes.asr_orchestrator_node._on_recognize_once",
+        "started_ns": 212574830347956,
+        "ended_ns": 212574831036208,
+        "duration_ms": 0.688252,
+        "wall_started_at": "2026-03-30T21:18:06.674551+00:00",
+        "wall_finished_at": "2026-03-30T21:18:06.675240+00:00",
+        "input_summary": {
+          "wav_path": "data/sample/vosk_test.wav"
+        },
+        "output_summary": {
+          "bytes_read": 265914,
+          "audio_duration_sec": 8.308
+        },
+        "notes": ""
+      },
+      {
+        "stage": "provider_recognize",
+        "component": "whisper",
+        "code_path": "asr_provider_whisper.whisper_provider.WhisperProvider.recognize_once",
+        "started_ns": 212574834082333,
+        "ended_ns": 212576599165485,
+        "duration_ms": 1765.083152,
+        "wall_started_at": "2026-03-30T21:18:06.678286+00:00",
+        "wall_finished_at": "2026-03-30T21:18:08.443372+00:00",
+        "input_summary": {
+          "audio_duration_sec": 8.308,
+          "enable_word_timestamps": true
+        },
+        "output_summary": {
+          "provider_id": "whisper",
+          "success": true,
+          "text_length": 29,
+          "latency_ms": 1765.0109569949564
+        },
+        "notes": ""
+      }
+    ],
+    "metrics": {
+      "confidence": 0.8086438129491665,
+      "success": true,
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "audio_load_ms": 0.688252,
+      "preprocess_ms": 848.5901379899587,
+      "inference_ms": 916.3390250178054,
+      "postprocess_ms": 0.08179398719221354,
+      "total_latency_ms": 1765.0109569949564,
+      "ros_service_latency_ms": 0.0,
+      "time_to_result_ms": 1768.913338,
+      "audio_duration_sec": 8.308,
+      "real_time_factor": 0.21244715418812668,
+      "cpu_percent": 7.5,
+      "memory_mb": 563.6796875,
+      "gpu_util_percent": 2.0,
+      "gpu_memory_mb": 962.0
+    },
+    "validation": {
+      "valid": true,
+      "corrupted": false,
+      "errors": [],
+      "warnings": []
+    },
+    "artifact_path": "artifacts/runtime_sessions/thesis_20260330_self_audit_final_recognize_once/metrics/trace_8569f6b8f47b42e9abd9bdffacc0f7e9.json"
+  }
+}
