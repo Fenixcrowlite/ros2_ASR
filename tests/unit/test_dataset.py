@@ -7,6 +7,9 @@ import pytest
 from asr_benchmark.dataset import load_manifest_csv
 
 
+pytestmark = pytest.mark.legacy
+
+
 def _write_test_wav(path: Path) -> None:
     with wave.open(str(path), "wb") as wf:
         wf.setnchannels(1)
@@ -64,3 +67,26 @@ def test_manifest_resolution_prefers_manifest_directory_over_cwd(
 
     assert len(items) == 1
     assert Path(items[0].resolved_wav_path).resolve() == manifest_wav.resolve()
+
+
+def test_manifest_rejects_cwd_only_relative_audio(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest_dir = tmp_path / "manifest_dir"
+    manifest_dir.mkdir()
+
+    cwd_dir = tmp_path / "cwd_dir"
+    cwd_dir.mkdir()
+    cwd_wav = cwd_dir / "sample.wav"
+    _write_test_wav(cwd_wav)
+    monkeypatch.chdir(cwd_dir)
+
+    manifest = manifest_dir / "manifest.csv"
+    manifest.write_text(
+        "wav_path,transcript,language\nsample.wav,hello world,en-US\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(ValueError, match="relative to manifest directory"):
+        load_manifest_csv(str(manifest))

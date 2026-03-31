@@ -95,7 +95,15 @@ class _FakeOrchestrator:
         assert session_id == "s1"
         self.stop_calls += 1
 
-    def _publish_runtime_error_result(self, *, request_id: str, error_code: str, error_message: str) -> None:
+    def _publish_runtime_error_result(
+        self,
+        *,
+        request_id: str,
+        error_code: str,
+        error_message: str,
+        raw_metadata_ref: str = "",
+    ) -> None:
+        del raw_metadata_ref
         return AsrOrchestratorNode._publish_runtime_error_result(
             self,
             request_id=request_id,

@@ -717,6 +717,28 @@ def test_provider_test_returns_bad_request_for_missing_wav(
     assert "WAV file not found" in response.json()["detail"]
 
 
+def test_provider_catalog_distinguishes_ready_and_degraded_profiles(
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    gateway_api, _fake_ros, client, project_root = _make_client(repo_root, tmp_path, monkeypatch)
+    _write_provider_profile(project_root / "configs", "azure_invalid", "azure")
+    monkeypatch.setattr(gateway_api, "list_providers", lambda: ["whisper", "azure", "nemo"])
+
+    response = client.get("/api/providers/catalog")
+
+    assert response.status_code == 200
+    providers = {item["provider_id"]: item for item in response.json()["providers"]}
+    assert providers["whisper"]["status"] == "ready"
+    assert providers["whisper"]["runtime_ready"] is True
+    assert providers["azure"]["status"] == "degraded"
+    assert providers["azure"]["runtime_ready"] is True
+    assert providers["azure"]["invalid_profiles"] >= 1
+    assert providers["nemo"]["status"] == "not_configured"
+    assert providers["nemo"]["runtime_ready"] is False
+
+
 def test_runtime_start_rejects_invalid_provider_preflight(
     repo_root: Path, tmp_path: Path, monkeypatch
 ) -> None:

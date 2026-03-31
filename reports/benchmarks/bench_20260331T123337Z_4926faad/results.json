@@ -1,0 +1,3891 @@
+[
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/aws_cloud",
+    "provider_id": "aws",
+    "sample_id": "fleurs_en_us_12741024238657315067",
+    "success": true,
+    "text": "Unfortunately, stunning traffic flow is difficult because driver behavior cannot be predicted with 100% certainty.",
+    "reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with one-hundred percent certainty",
+    "normalized_reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+    "normalized_hypothesis_text": "unfortunately stunning traffic flow is difficult because driver behavior cannot be predicted with 100 certainty",
+    "quality_support": {
+      "normalized_reference": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+      "normalized_hypothesis": "unfortunately stunning traffic flow is difficult because driver behavior cannot be predicted with 100 certainty",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 111,
+      "word_edits": 3,
+      "char_edits": 19,
+      "exact_match": false,
+      "wer": 0.1875,
+      "cer": 0.17117117117117117
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.17117117117117117,
+      "estimated_cost_usd": 0.005056,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 185.723,
+      "first_partial_latency_ms": 1305.115,
+      "partial_count": 17.0,
+      "per_utterance_latency_ms": 11883.192379027605,
+      "real_time_factor": 0.9401259793534498,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 11883.192379027605,
+      "wer": 0.1875,
+      "confidence": 0.9888399999999999,
+      "preprocess_ms": 0.0,
+      "inference_ms": 11697.469384991564,
+      "postprocess_ms": 185.7229940360412,
+      "model_load_ms": 80.202915,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": true,
+      "provider_call_warm_start": false,
+      "provider_invocation_index": 1,
+      "cpu_percent": 17.9,
+      "memory_mb": 111.484375,
+      "gpu_util_percent": 34.0,
+      "gpu_memory_mb": 775.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "standard",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
+    "audio_duration_sec": 12.64,
+    "partial_count": 17,
+    "first_partial_latency_ms": 1305.115,
+    "finalization_latency_ms": 185.723,
+    "confidence": 0.9888399999999999,
+    "preprocess_ms": 0.0,
+    "inference_ms": 11697.469384991564,
+    "postprocess_ms": 185.7229940360412,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_519c8e3c7591496caf124e9d464c1313.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_d13c6795c2434ef0b0894def6163e626",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "aws",
+      "text": "Unfortunately, stunning traffic flow is difficult because driver behavior cannot be predicted with 100% certainty.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.986,
+      "utterance_end_sec": 10.536,
+      "audio_duration_sec": 12.64,
+      "words": [
+        {
+          "word": "Unfortunately",
+          "start_sec": 0.986,
+          "end_sec": 2.106,
+          "confidence": 0.9996,
+          "confidence_available": true
+        },
+        {
+          "word": "stunning",
+          "start_sec": 2.216,
+          "end_sec": 2.736,
+          "confidence": 0.8408,
+          "confidence_available": true
+        },
+        {
+          "word": "traffic",
+          "start_sec": 2.736,
+          "end_sec": 3.186,
+          "confidence": 0.9995,
+          "confidence_available": true
+        },
+        {
+          "word": "flow",
+          "start_sec": 3.186,
+          "end_sec": 3.546,
+          "confidence": 0.9998,
+          "confidence_available": true
+        },
+        {
+          "word": "is",
+          "start_sec": 3.546,
+          "end_sec": 3.746,
+          "confidence": 0.9999,
+          "confidence_available": true
+        },
+        {
+          "word": "difficult",
+          "start_sec": 3.746,
+          "end_sec": 4.536,
+          "confidence": 0.9999,
+          "confidence_available": true
+        },
+        {
+          "word": "because",
+          "start_sec": 4.536,
+          "end_sec": 4.946,
+          "confidence": 0.9998,
+          "confidence_available": true
+        },
+        {
+          "word": "driver",
+          "start_sec": 4.946,
+          "end_sec": 5.346,
+          "confidence": 0.9967,
+          "confidence_available": true
+        },
+        {
+          "word": "behavior",
+          "start_sec": 5.346,
+          "end_sec": 5.986,
+          "confidence": 0.9998,
+          "confidence_available": true
+        },
+        {
+          "word": "cannot",
+          "start_sec": 5.986,
+          "end_sec": 6.306,
+          "confidence": 0.999,
+          "confidence_available": true
+        },
+        {
+          "word": "be",
+          "start_sec": 6.306,
+          "end_sec": 6.496,
+          "confidence": 1.0,
+          "confidence_available": true
+        },
+        {
+          "word": "predicted",
+          "start_sec": 6.496,
+          "end_sec": 7.536,
+          "confidence": 1.0,
+          "confidence_available": true
+        },
+        {
+          "word": "with",
+          "start_sec": 7.536,
+          "end_sec": 7.726,
+          "confidence": 0.999,
+          "confidence_available": true
+        },
+        {
+          "word": "100%",
+          "start_sec": 7.726,
+          "end_sec": 9.296,
+          "confidence": 0.9989,
+          "confidence_available": true
+        },
+        {
+          "word": "certainty",
+          "start_sec": 9.546,
+          "end_sec": 10.536,
+          "confidence": 0.9999,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.9888399999999999,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 11883.192379027605,
+        "preprocess_ms": 0.0,
+        "inference_ms": 11697.469384991564,
+        "postprocess_ms": 185.7229940360412,
+        "first_partial_ms": 1305.115,
+        "finalization_ms": 185.723
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/aws_cloud",
+    "provider_id": "aws",
+    "sample_id": "fleurs_en_us_12741024238657315067",
+    "success": true,
+    "text": "Unfortunately, stunning traffic flow is difficult because driver behavior cannot be predicted with 100% certainty.",
+    "reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with one-hundred percent certainty",
+    "normalized_reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+    "normalized_hypothesis_text": "unfortunately stunning traffic flow is difficult because driver behavior cannot be predicted with 100 certainty",
+    "quality_support": {
+      "normalized_reference": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+      "normalized_hypothesis": "unfortunately stunning traffic flow is difficult because driver behavior cannot be predicted with 100 certainty",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 111,
+      "word_edits": 3,
+      "char_edits": 19,
+      "exact_match": false,
+      "wer": 0.1875,
+      "cer": 0.17117117117117117
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.17117117117117117,
+      "estimated_cost_usd": 0.005056,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 188.386,
+      "first_partial_latency_ms": 1612.893,
+      "partial_count": 18.0,
+      "per_utterance_latency_ms": 12194.350168982055,
+      "real_time_factor": 0.9647428931156689,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 12194.350168982055,
+      "wer": 0.1875,
+      "confidence": 0.9540000000000001,
+      "preprocess_ms": 0.0,
+      "inference_ms": 12005.964084004518,
+      "postprocess_ms": 188.3860849775374,
+      "model_load_ms": 80.202915,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 2,
+      "cpu_percent": 61.7,
+      "memory_mb": 121.15625,
+      "gpu_util_percent": 0.0,
+      "gpu_memory_mb": 758.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "medium",
+    "noise_mode": "white",
+    "noise_snr_db": 20.0,
+    "provider_preset": "standard",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/derived_audio/fleurs_en_us_12741024238657315067__medium.wav",
+    "audio_duration_sec": 12.64,
+    "partial_count": 18,
+    "first_partial_latency_ms": 1612.893,
+    "finalization_latency_ms": 188.386,
+    "confidence": 0.9540000000000001,
+    "preprocess_ms": 0.0,
+    "inference_ms": 12005.964084004518,
+    "postprocess_ms": 188.3860849775374,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_429f0f3798f540b2917a869c006d674c.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_a7a4bac876f541479b73c0d327730998",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "aws",
+      "text": "Unfortunately, stunning traffic flow is difficult because driver behavior cannot be predicted with 100% certainty.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 1.006,
+      "utterance_end_sec": 10.666,
+      "audio_duration_sec": 12.64,
+      "words": [
+        {
+          "word": "Unfortunately",
+          "start_sec": 1.006,
+          "end_sec": 2.096,
+          "confidence": 0.9996,
+          "confidence_available": true
+        },
+        {
+          "word": "stunning",
+          "start_sec": 2.196,
+          "end_sec": 2.726,
+          "confidence": 0.3213,
+          "confidence_available": true
+        },
+        {
+          "word": "traffic",
+          "start_sec": 2.726,
+          "end_sec": 3.196,
+          "confidence": 0.9994,
+          "confidence_available": true
+        },
+        {
+          "word": "flow",
+          "start_sec": 3.196,
+          "end_sec": 3.566,
+          "confidence": 0.9998,
+          "confidence_available": true
+        },
+        {
+          "word": "is",
+          "start_sec": 3.566,
+          "end_sec": 3.746,
+          "confidence": 0.9999,
+          "confidence_available": true
+        },
+        {
+          "word": "difficult",
+          "start_sec": 3.746,
+          "end_sec": 4.516,
+          "confidence": 0.9999,
+          "confidence_available": true
+        },
+        {
+          "word": "because",
+          "start_sec": 4.516,
+          "end_sec": 4.926,
+          "confidence": 0.9995,
+          "confidence_available": true
+        },
+        {
+          "word": "driver",
+          "start_sec": 4.926,
+          "end_sec": 5.396,
+          "confidence": 0.9965,
+          "confidence_available": true
+        },
+        {
+          "word": "behavior",
+          "start_sec": 5.396,
+          "end_sec": 6.006,
+          "confidence": 0.9998,
+          "confidence_available": true
+        },
+        {
+          "word": "cannot",
+          "start_sec": 6.006,
+          "end_sec": 6.326,
+          "confidence": 0.9992,
+          "confidence_available": true
+        },
+        {
+          "word": "be",
+          "start_sec": 6.326,
+          "end_sec": 6.526,
+          "confidence": 1.0,
+          "confidence_available": true
+        },
+        {
+          "word": "predicted",
+          "start_sec": 6.526,
+          "end_sec": 7.476,
+          "confidence": 1.0,
+          "confidence_available": true
+        },
+        {
+          "word": "with",
+          "start_sec": 7.476,
+          "end_sec": 7.726,
+          "confidence": 0.9977,
+          "confidence_available": true
+        },
+        {
+          "word": "100%",
+          "start_sec": 7.726,
+          "end_sec": 9.316,
+          "confidence": 0.9976,
+          "confidence_available": true
+        },
+        {
+          "word": "certainty",
+          "start_sec": 9.516,
+          "end_sec": 10.666,
+          "confidence": 0.9998,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.9540000000000001,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 12194.350168982055,
+        "preprocess_ms": 0.0,
+        "inference_ms": 12005.964084004518,
+        "postprocess_ms": 188.3860849775374,
+        "first_partial_ms": 1612.893,
+        "finalization_ms": 188.386
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/aws_cloud",
+    "provider_id": "aws",
+    "sample_id": "fleurs_en_us_12741024238657315067",
+    "success": true,
+    "text": "Unfortunately, Sten traffic flow is difficult because tri behavior cannot be predicted if 1 10% circumstance.",
+    "reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with one-hundred percent certainty",
+    "normalized_reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+    "normalized_hypothesis_text": "unfortunately sten traffic flow is difficult because tri behavior cannot be predicted if 1 10 circumstance",
+    "quality_support": {
+      "normalized_reference": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+      "normalized_hypothesis": "unfortunately sten traffic flow is difficult because tri behavior cannot be predicted if 1 10 circumstance",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 111,
+      "word_edits": 6,
+      "char_edits": 33,
+      "exact_match": false,
+      "wer": 0.375,
+      "cer": 0.2972972972972973
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.2972972972972973,
+      "estimated_cost_usd": 0.005056,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 701.375,
+      "first_partial_latency_ms": 1627.38,
+      "partial_count": 19.0,
+      "per_utterance_latency_ms": 12668.667785997968,
+      "real_time_factor": 1.002268021044143,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 12668.667785997968,
+      "wer": 0.375,
+      "confidence": 0.81810625,
+      "preprocess_ms": 0.0,
+      "inference_ms": 11967.292796995025,
+      "postprocess_ms": 701.374989002943,
+      "model_load_ms": 80.202915,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 3,
+      "cpu_percent": 7.5,
+      "memory_mb": 123.22265625,
+      "gpu_util_percent": 0.0,
+      "gpu_memory_mb": 792.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "extreme",
+    "noise_mode": "white",
+    "noise_snr_db": 0.0,
+    "provider_preset": "standard",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/derived_audio/fleurs_en_us_12741024238657315067__extreme.wav",
+    "audio_duration_sec": 12.64,
+    "partial_count": 19,
+    "first_partial_latency_ms": 1627.38,
+    "finalization_latency_ms": 701.375,
+    "confidence": 0.81810625,
+    "preprocess_ms": 0.0,
+    "inference_ms": 11967.292796995025,
+    "postprocess_ms": 701.374989002943,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_b19079f18b19461cba2b279a14e0b2f4.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_b3831d3980bd4fb2b60a41e667ae6e94",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "aws",
+      "text": "Unfortunately, Sten traffic flow is difficult because tri behavior cannot be predicted if 1 10% circumstance.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.966,
+      "utterance_end_sec": 10.206,
+      "audio_duration_sec": 12.64,
+      "words": [
+        {
+          "word": "Unfortunately",
+          "start_sec": 0.966,
+          "end_sec": 2.106,
+          "confidence": 0.9991,
+          "confidence_available": true
+        },
+        {
+          "word": "Sten",
+          "start_sec": 2.286,
+          "end_sec": 2.516,
+          "confidence": 0.8872,
+          "confidence_available": true
+        },
+        {
+          "word": "traffic",
+          "start_sec": 2.516,
+          "end_sec": 3.206,
+          "confidence": 0.9934,
+          "confidence_available": true
+        },
+        {
+          "word": "flow",
+          "start_sec": 3.206,
+          "end_sec": 3.486,
+          "confidence": 0.9982,
+          "confidence_available": true
+        },
+        {
+          "word": "is",
+          "start_sec": 3.486,
+          "end_sec": 3.726,
+          "confidence": 0.9999,
+          "confidence_available": true
+        },
+        {
+          "word": "difficult",
+          "start_sec": 3.726,
+          "end_sec": 4.516,
+          "confidence": 0.9997,
+          "confidence_available": true
+        },
+        {
+          "word": "because",
+          "start_sec": 4.516,
+          "end_sec": 4.846,
+          "confidence": 0.9969,
+          "confidence_available": true
+        },
+        {
+          "word": "tri",
+          "start_sec": 4.846,
+          "end_sec": 5.956,
+          "confidence": 0.2957,
+          "confidence_available": true
+        },
+        {
+          "word": "behavior",
+          "start_sec": 5.956,
+          "end_sec": 5.966,
+          "confidence": 0.8078,
+          "confidence_available": true
+        },
+        {
+          "word": "cannot",
+          "start_sec": 5.966,
+          "end_sec": 6.326,
+          "confidence": 0.9963,
+          "confidence_available": true
+        },
+        {
+          "word": "be",
+          "start_sec": 6.326,
+          "end_sec": 6.486,
+          "confidence": 0.9999,
+          "confidence_available": true
+        },
+        {
+          "word": "predicted",
+          "start_sec": 6.486,
+          "end_sec": 7.196,
+          "confidence": 0.9928,
+          "confidence_available": true
+        },
+        {
+          "word": "if",
+          "start_sec": 7.556,
+          "end_sec": 7.796,
+          "confidence": 0.8502,
+          "confidence_available": true
+        },
+        {
+          "word": "1",
+          "start_sec": 7.796,
+          "end_sec": 8.006,
+          "confidence": 0.9521,
+          "confidence_available": true
+        },
+        {
+          "word": "10%",
+          "start_sec": 8.006,
+          "end_sec": 9.246,
+          "confidence": 0.1104,
+          "confidence_available": true
+        },
+        {
+          "word": "circumstance",
+          "start_sec": 9.546,
+          "end_sec": 10.206,
+          "confidence": 0.2101,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.81810625,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 12668.667785997968,
+        "preprocess_ms": 0.0,
+        "inference_ms": 11967.292796995025,
+        "postprocess_ms": 701.374989002943,
+        "first_partial_ms": 1627.38,
+        "finalization_ms": 701.375
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/aws_cloud",
+    "provider_id": "aws",
+    "sample_id": "fleurs_en_us_621925716775998155",
+    "success": true,
+    "text": "20th century research has shown that there are 2 pools of genetic variation, hidden and expressed.",
+    "reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_hypothesis_text": "20th century research has shown that there are 2 pools of genetic variation hidden and expressed",
+    "quality_support": {
+      "normalized_reference": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+      "normalized_hypothesis": "20th century research has shown that there are 2 pools of genetic variation hidden and expressed",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 88,
+      "word_edits": 2,
+      "char_edits": 10,
+      "exact_match": false,
+      "wer": 0.125,
+      "cer": 0.11363636363636363
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.11363636363636363,
+      "estimated_cost_usd": 0.002352,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 427.874,
+      "first_partial_latency_ms": 598.124,
+      "partial_count": 9.0,
+      "per_utterance_latency_ms": 5656.624147959519,
+      "real_time_factor": 0.962010909516925,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 5656.624147959519,
+      "wer": 0.125,
+      "confidence": 0.9824437500000001,
+      "preprocess_ms": 0.0,
+      "inference_ms": 5228.749806934502,
+      "postprocess_ms": 427.8743410250172,
+      "model_load_ms": 80.202915,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 4,
+      "cpu_percent": 7.5,
+      "memory_mb": 129.234375,
+      "gpu_util_percent": 0.0,
+      "gpu_memory_mb": 793.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "standard",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
+    "audio_duration_sec": 5.88,
+    "partial_count": 9,
+    "first_partial_latency_ms": 598.124,
+    "finalization_latency_ms": 427.874,
+    "confidence": 0.9824437500000001,
+    "preprocess_ms": 0.0,
+    "inference_ms": 5228.749806934502,
+    "postprocess_ms": 427.8743410250172,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_e53b8d386d9948589cb5f44cc9b66be1.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_060ffd9bca0a4f0a8596a67ec75d23b0",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "aws",
+      "text": "20th century research has shown that there are 2 pools of genetic variation, hidden and expressed.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.346,
+      "utterance_end_sec": 5.716,
+      "audio_duration_sec": 5.88,
+      "words": [
+        {
+          "word": "20th",
+          "start_sec": 0.346,
+          "end_sec": 0.666,
+          "confidence": 0.9051,
+          "confidence_available": true
+        },
+        {
+          "word": "century",
+          "start_sec": 0.666,
+          "end_sec": 1.236,
+          "confidence": 0.988,
+          "confidence_available": true
+        },
+        {
+          "word": "research",
+          "start_sec": 1.236,
+          "end_sec": 1.526,
+          "confidence": 0.9997,
+          "confidence_available": true
+        },
+        {
+          "word": "has",
+          "start_sec": 1.526,
+          "end_sec": 1.726,
+          "confidence": 0.9984,
+          "confidence_available": true
+        },
+        {
+          "word": "shown",
+          "start_sec": 1.726,
+          "end_sec": 1.886,
+          "confidence": 0.9997,
+          "confidence_available": true
+        },
+        {
+          "word": "that",
+          "start_sec": 1.886,
+          "end_sec": 2.086,
+          "confidence": 0.9995,
+          "confidence_available": true
+        },
+        {
+          "word": "there",
+          "start_sec": 2.086,
+          "end_sec": 2.166,
+          "confidence": 0.9996,
+          "confidence_available": true
+        },
+        {
+          "word": "are",
+          "start_sec": 2.166,
+          "end_sec": 2.286,
+          "confidence": 0.9993,
+          "confidence_available": true
+        },
+        {
+          "word": "2",
+          "start_sec": 2.286,
+          "end_sec": 2.486,
+          "confidence": 0.8456,
+          "confidence_available": true
+        },
+        {
+          "word": "pools",
+          "start_sec": 2.486,
+          "end_sec": 2.806,
+          "confidence": 0.9906,
+          "confidence_available": true
+        },
+        {
+          "word": "of",
+          "start_sec": 2.806,
+          "end_sec": 2.966,
+          "confidence": 0.9996,
+          "confidence_available": true
+        },
+        {
+          "word": "genetic",
+          "start_sec": 2.966,
+          "end_sec": 3.336,
+          "confidence": 0.9998,
+          "confidence_available": true
+        },
+        {
+          "word": "variation",
+          "start_sec": 3.336,
+          "end_sec": 4.126,
+          "confidence": 0.9989,
+          "confidence_available": true
+        },
+        {
+          "word": "hidden",
+          "start_sec": 4.406,
+          "end_sec": 4.746,
+          "confidence": 0.9978,
+          "confidence_available": true
+        },
+        {
+          "word": "and",
+          "start_sec": 4.746,
+          "end_sec": 4.886,
+          "confidence": 0.9999,
+          "confidence_available": true
+        },
+        {
+          "word": "expressed",
+          "start_sec": 4.886,
+          "end_sec": 5.716,
+          "confidence": 0.9976,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.9824437500000001,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 5656.624147959519,
+        "preprocess_ms": 0.0,
+        "inference_ms": 5228.749806934502,
+        "postprocess_ms": 427.8743410250172,
+        "first_partial_ms": 598.124,
+        "finalization_ms": 427.874
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/aws_cloud",
+    "provider_id": "aws",
+    "sample_id": "fleurs_en_us_621925716775998155",
+    "success": true,
+    "text": "20th century research has shown that there are 2 pools of genetic variation, hidden and expressed.",
+    "reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_hypothesis_text": "20th century research has shown that there are 2 pools of genetic variation hidden and expressed",
+    "quality_support": {
+      "normalized_reference": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+      "normalized_hypothesis": "20th century research has shown that there are 2 pools of genetic variation hidden and expressed",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 88,
+      "word_edits": 2,
+      "char_edits": 10,
+      "exact_match": false,
+      "wer": 0.125,
+      "cer": 0.11363636363636363
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.11363636363636363,
+      "estimated_cost_usd": 0.002352,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 507.579,
+      "first_partial_latency_ms": 683.649,
+      "partial_count": 9.0,
+      "per_utterance_latency_ms": 5765.361508005299,
+      "real_time_factor": 0.9805036578240304,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 5765.361508005299,
+      "wer": 0.125,
+      "confidence": 0.973975,
+      "preprocess_ms": 0.0,
+      "inference_ms": 5257.782454020344,
+      "postprocess_ms": 507.57905398495495,
+      "model_load_ms": 80.202915,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 5,
+      "cpu_percent": 10.0,
+      "memory_mb": 135.16015625,
+      "gpu_util_percent": 0.0,
+      "gpu_memory_mb": 789.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "medium",
+    "noise_mode": "white",
+    "noise_snr_db": 20.0,
+    "provider_preset": "standard",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/derived_audio/fleurs_en_us_621925716775998155__medium.wav",
+    "audio_duration_sec": 5.88,
+    "partial_count": 9,
+    "first_partial_latency_ms": 683.649,
+    "finalization_latency_ms": 507.579,
+    "confidence": 0.973975,
+    "preprocess_ms": 0.0,
+    "inference_ms": 5257.782454020344,
+    "postprocess_ms": 507.57905398495495,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_244c79933b4d426d835e7bc92b608137.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_a0a66253a79c4f12bf6ba112d212b31d",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "aws",
+      "text": "20th century research has shown that there are 2 pools of genetic variation, hidden and expressed.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.356,
+      "utterance_end_sec": 5.726,
+      "audio_duration_sec": 5.88,
+      "words": [
+        {
+          "word": "20th",
+          "start_sec": 0.356,
+          "end_sec": 0.676,
+          "confidence": 0.9012,
+          "confidence_available": true
+        },
+        {
+          "word": "century",
+          "start_sec": 0.676,
+          "end_sec": 1.246,
+          "confidence": 0.9933,
+          "confidence_available": true
+        },
+        {
+          "word": "research",
+          "start_sec": 1.246,
+          "end_sec": 1.536,
+          "confidence": 0.9996,
+          "confidence_available": true
+        },
+        {
+          "word": "has",
+          "start_sec": 1.536,
+          "end_sec": 1.726,
+          "confidence": 0.9984,
+          "confidence_available": true
+        },
+        {
+          "word": "shown",
+          "start_sec": 1.726,
+          "end_sec": 1.896,
+          "confidence": 0.9997,
+          "confidence_available": true
+        },
+        {
+          "word": "that",
+          "start_sec": 1.896,
+          "end_sec": 2.096,
+          "confidence": 0.9996,
+          "confidence_available": true
+        },
+        {
+          "word": "there",
+          "start_sec": 2.096,
+          "end_sec": 2.176,
+          "confidence": 0.9996,
+          "confidence_available": true
+        },
+        {
+          "word": "are",
+          "start_sec": 2.176,
+          "end_sec": 2.286,
+          "confidence": 0.9992,
+          "confidence_available": true
+        },
+        {
+          "word": "2",
+          "start_sec": 2.286,
+          "end_sec": 2.446,
+          "confidence": 0.7127,
+          "confidence_available": true
+        },
+        {
+          "word": "pools",
+          "start_sec": 2.446,
+          "end_sec": 2.816,
+          "confidence": 0.9882,
+          "confidence_available": true
+        },
+        {
+          "word": "of",
+          "start_sec": 2.816,
+          "end_sec": 2.976,
+          "confidence": 0.9992,
+          "confidence_available": true
+        },
+        {
+          "word": "genetic",
+          "start_sec": 2.976,
+          "end_sec": 3.336,
+          "confidence": 0.9995,
+          "confidence_available": true
+        },
+        {
+          "word": "variation",
+          "start_sec": 3.336,
+          "end_sec": 4.136,
+          "confidence": 0.9988,
+          "confidence_available": true
+        },
+        {
+          "word": "hidden",
+          "start_sec": 4.416,
+          "end_sec": 4.756,
+          "confidence": 0.9976,
+          "confidence_available": true
+        },
+        {
+          "word": "and",
+          "start_sec": 4.756,
+          "end_sec": 4.896,
+          "confidence": 0.9999,
+          "confidence_available": true
+        },
+        {
+          "word": "expressed",
+          "start_sec": 4.896,
+          "end_sec": 5.726,
+          "confidence": 0.9971,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.973975,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 5765.361508005299,
+        "preprocess_ms": 0.0,
+        "inference_ms": 5257.782454020344,
+        "postprocess_ms": 507.57905398495495,
+        "first_partial_ms": 683.649,
+        "finalization_ms": 507.579
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/aws_cloud",
+    "provider_id": "aws",
+    "sample_id": "fleurs_en_us_621925716775998155",
+    "success": true,
+    "text": "When century research has shown that there are 24s of genetic variation. hidden and express",
+    "reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_hypothesis_text": "when century research has shown that there are 24s of genetic variation hidden and express",
+    "quality_support": {
+      "normalized_reference": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+      "normalized_hypothesis": "when century research has shown that there are 24s of genetic variation hidden and express",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 88,
+      "word_edits": 4,
+      "char_edits": 16,
+      "exact_match": false,
+      "wer": 0.25,
+      "cer": 0.18181818181818182
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.18181818181818182,
+      "estimated_cost_usd": 0.002352,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 69.688,
+      "first_partial_latency_ms": 619.961,
+      "partial_count": 8.0,
+      "per_utterance_latency_ms": 5277.851981983986,
+      "real_time_factor": 0.8975938744870724,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 5277.851981983986,
+      "wer": 0.25,
+      "confidence": 0.93035,
+      "preprocess_ms": 0.0,
+      "inference_ms": 5208.164371026214,
+      "postprocess_ms": 69.68761095777154,
+      "model_load_ms": 80.202915,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 6,
+      "cpu_percent": 15.0,
+      "memory_mb": 137.7109375,
+      "gpu_util_percent": 31.0,
+      "gpu_memory_mb": 868.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "extreme",
+    "noise_mode": "white",
+    "noise_snr_db": 0.0,
+    "provider_preset": "standard",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/derived_audio/fleurs_en_us_621925716775998155__extreme.wav",
+    "audio_duration_sec": 5.88,
+    "partial_count": 8,
+    "first_partial_latency_ms": 619.961,
+    "finalization_latency_ms": 69.688,
+    "confidence": 0.93035,
+    "preprocess_ms": 0.0,
+    "inference_ms": 5208.164371026214,
+    "postprocess_ms": 69.68761095777154,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_c836c03e88eb4a65986e3362fb69a0aa.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_33f47eaff8024e669e7c0f2cc7fbcf60",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "aws",
+      "text": "When century research has shown that there are 24s of genetic variation. hidden and express",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.346,
+      "utterance_end_sec": 5.636,
+      "audio_duration_sec": 5.88,
+      "words": [
+        {
+          "word": "When",
+          "start_sec": 0.346,
+          "end_sec": 0.396,
+          "confidence": 0.133,
+          "confidence_available": true
+        },
+        {
+          "word": "century",
+          "start_sec": 0.396,
+          "end_sec": 1.166,
+          "confidence": 0.9497,
+          "confidence_available": true
+        },
+        {
+          "word": "research",
+          "start_sec": 1.166,
+          "end_sec": 1.546,
+          "confidence": 0.998,
+          "confidence_available": true
+        },
+        {
+          "word": "has",
+          "start_sec": 1.546,
+          "end_sec": 1.726,
+          "confidence": 0.9976,
+          "confidence_available": true
+        },
+        {
+          "word": "shown",
+          "start_sec": 1.726,
+          "end_sec": 1.906,
+          "confidence": 0.9994,
+          "confidence_available": true
+        },
+        {
+          "word": "that",
+          "start_sec": 1.906,
+          "end_sec": 2.066,
+          "confidence": 0.999,
+          "confidence_available": true
+        },
+        {
+          "word": "there",
+          "start_sec": 2.066,
+          "end_sec": 2.186,
+          "confidence": 0.9988,
+          "confidence_available": true
+        },
+        {
+          "word": "are",
+          "start_sec": 2.186,
+          "end_sec": 2.306,
+          "confidence": 0.998,
+          "confidence_available": true
+        },
+        {
+          "word": "24s",
+          "start_sec": 2.306,
+          "end_sec": 2.746,
+          "confidence": 0.3252,
+          "confidence_available": true
+        },
+        {
+          "word": "of",
+          "start_sec": 2.746,
+          "end_sec": 2.986,
+          "confidence": 0.9961,
+          "confidence_available": true
+        },
+        {
+          "word": "genetic",
+          "start_sec": 2.986,
+          "end_sec": 3.356,
+          "confidence": 0.9996,
+          "confidence_available": true
+        },
+        {
+          "word": "variation",
+          "start_sec": 3.356,
+          "end_sec": 4.256,
+          "confidence": 0.9976,
+          "confidence_available": true
+        },
+        {
+          "word": "hidden",
+          "start_sec": 4.466,
+          "end_sec": 4.766,
+          "confidence": 0.9903,
+          "confidence_available": true
+        },
+        {
+          "word": "and",
+          "start_sec": 4.766,
+          "end_sec": 4.886,
+          "confidence": 0.9962,
+          "confidence_available": true
+        },
+        {
+          "word": "express",
+          "start_sec": 4.886,
+          "end_sec": 5.636,
+          "confidence": 0.9976,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.93035,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 5277.851981983986,
+        "preprocess_ms": 0.0,
+        "inference_ms": 5208.164371026214,
+        "postprocess_ms": 69.68761095777154,
+        "first_partial_ms": 619.961,
+        "finalization_ms": 69.688
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/azure_cloud",
+    "provider_id": "azure",
+    "sample_id": "fleurs_en_us_12741024238657315067",
+    "success": true,
+    "text": "Unfortunately, stunning traffic flow is difficult because driver behavior cannot be predicted with 100% certainty.",
+    "reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with one-hundred percent certainty",
+    "normalized_reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+    "normalized_hypothesis_text": "unfortunately stunning traffic flow is difficult because driver behavior cannot be predicted with 100 certainty",
+    "quality_support": {
+      "normalized_reference": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+      "normalized_hypothesis": "unfortunately stunning traffic flow is difficult because driver behavior cannot be predicted with 100 certainty",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 111,
+      "word_edits": 3,
+      "char_edits": 19,
+      "exact_match": false,
+      "wer": 0.1875,
+      "cer": 0.17117117117117117
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.17117117117117117,
+      "estimated_cost_usd": 0.003792,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 76.213,
+      "first_partial_latency_ms": 3566.964,
+      "partial_count": 10.0,
+      "per_utterance_latency_ms": 12605.869762948714,
+      "real_time_factor": 0.9972998230180944,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 12605.869762948714,
+      "wer": 0.1875,
+      "confidence": 0.7220396,
+      "preprocess_ms": 0.0,
+      "inference_ms": 12529.656355967745,
+      "postprocess_ms": 76.21340698096901,
+      "model_load_ms": 1.734382,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": true,
+      "provider_call_warm_start": false,
+      "provider_invocation_index": 1,
+      "cpu_percent": 21.8,
+      "memory_mb": 148.84765625,
+      "gpu_util_percent": 21.0,
+      "gpu_memory_mb": 951.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "standard",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
+    "audio_duration_sec": 12.64,
+    "partial_count": 10,
+    "first_partial_latency_ms": 3566.964,
+    "finalization_latency_ms": 76.213,
+    "confidence": 0.7220396,
+    "preprocess_ms": 0.0,
+    "inference_ms": 12529.656355967745,
+    "postprocess_ms": 76.21340698096901,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_8a43ae2f97f9425cb972a8d548418d05.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_9fd7a03d4428463fa390d789ec60b0ac",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "azure",
+      "text": "Unfortunately, stunning traffic flow is difficult because driver behavior cannot be predicted with 100% certainty.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 1.11,
+      "utterance_end_sec": 10.55,
+      "audio_duration_sec": 12.64,
+      "words": [
+        {
+          "word": "unfortunately",
+          "start_sec": 1.11,
+          "end_sec": 2.2300000000000004,
+          "confidence": 0.72428894,
+          "confidence_available": true
+        },
+        {
+          "word": "stunning",
+          "start_sec": 2.23,
+          "end_sec": 2.79,
+          "confidence": 0.09306841,
+          "confidence_available": true
+        },
+        {
+          "word": "traffic",
+          "start_sec": 2.79,
+          "end_sec": 3.27,
+          "confidence": 0.93068725,
+          "confidence_available": true
+        },
+        {
+          "word": "flow",
+          "start_sec": 3.27,
+          "end_sec": 3.55,
+          "confidence": 0.71687996,
+          "confidence_available": true
+        },
+        {
+          "word": "is",
+          "start_sec": 3.55,
+          "end_sec": 3.79,
+          "confidence": 0.9274548,
+          "confidence_available": true
+        },
+        {
+          "word": "difficult",
+          "start_sec": 3.79,
+          "end_sec": 4.43,
+          "confidence": 0.7901855,
+          "confidence_available": true
+        },
+        {
+          "word": "because",
+          "start_sec": 4.47,
+          "end_sec": 4.99,
+          "confidence": 0.81102717,
+          "confidence_available": true
+        },
+        {
+          "word": "driver",
+          "start_sec": 4.99,
+          "end_sec": 5.3500000000000005,
+          "confidence": 0.599603,
+          "confidence_available": true
+        },
+        {
+          "word": "behavior",
+          "start_sec": 5.35,
+          "end_sec": 5.989999999999999,
+          "confidence": 0.20274405,
+          "confidence_available": true
+        },
+        {
+          "word": "cannot",
+          "start_sec": 5.99,
+          "end_sec": 6.390000000000001,
+          "confidence": 0.55065656,
+          "confidence_available": true
+        },
+        {
+          "word": "be",
+          "start_sec": 6.39,
+          "end_sec": 6.55,
+          "confidence": 0.9305327,
+          "confidence_available": true
+        },
+        {
+          "word": "predicted",
+          "start_sec": 6.55,
+          "end_sec": 7.47,
+          "confidence": 0.78991187,
+          "confidence_available": true
+        },
+        {
+          "word": "with",
+          "start_sec": 7.55,
+          "end_sec": 7.79,
+          "confidence": 0.8791421,
+          "confidence_available": true
+        },
+        {
+          "word": "one",
+          "start_sec": 7.79,
+          "end_sec": 8.11,
+          "confidence": 0.90549177,
+          "confidence_available": true
+        },
+        {
+          "word": "hundred",
+          "start_sec": 8.11,
+          "end_sec": 8.629999999999999,
+          "confidence": 0.8728862,
+          "confidence_available": true
+        },
+        {
+          "word": "percent",
+          "start_sec": 8.63,
+          "end_sec": 9.430000000000001,
+          "confidence": 0.7877728,
+          "confidence_available": true
+        },
+        {
+          "word": "certainty",
+          "start_sec": 9.47,
+          "end_sec": 10.55,
+          "confidence": 0.76234156,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.7220396,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 12605.869762948714,
+        "preprocess_ms": 0.0,
+        "inference_ms": 12529.656355967745,
+        "postprocess_ms": 76.21340698096901,
+        "first_partial_ms": 3566.964,
+        "finalization_ms": 76.213
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/azure_cloud",
+    "provider_id": "azure",
+    "sample_id": "fleurs_en_us_12741024238657315067",
+    "success": true,
+    "text": "Unfortunately, stunning traffic flow is difficult because driver behavior cannot be predicted with 100% certainty.",
+    "reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with one-hundred percent certainty",
+    "normalized_reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+    "normalized_hypothesis_text": "unfortunately stunning traffic flow is difficult because driver behavior cannot be predicted with 100 certainty",
+    "quality_support": {
+      "normalized_reference": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+      "normalized_hypothesis": "unfortunately stunning traffic flow is difficult because driver behavior cannot be predicted with 100 certainty",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 111,
+      "word_edits": 3,
+      "char_edits": 19,
+      "exact_match": false,
+      "wer": 0.1875,
+      "cer": 0.17117117117117117
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.17117117117117117,
+      "estimated_cost_usd": 0.003792,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 935.291,
+      "first_partial_latency_ms": 3676.24,
+      "partial_count": 12.0,
+      "per_utterance_latency_ms": 13575.386642012745,
+      "real_time_factor": 1.0740021077541728,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 13575.386642012745,
+      "wer": 0.1875,
+      "confidence": 0.74296165,
+      "preprocess_ms": 0.0,
+      "inference_ms": 12640.095145034138,
+      "postprocess_ms": 935.291496978607,
+      "model_load_ms": 1.734382,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 2,
+      "cpu_percent": 20.3,
+      "memory_mb": 150.453125,
+      "gpu_util_percent": 31.0,
+      "gpu_memory_mb": 944.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "medium",
+    "noise_mode": "white",
+    "noise_snr_db": 20.0,
+    "provider_preset": "standard",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/derived_audio/fleurs_en_us_12741024238657315067__medium.wav",
+    "audio_duration_sec": 12.64,
+    "partial_count": 12,
+    "first_partial_latency_ms": 3676.24,
+    "finalization_latency_ms": 935.291,
+    "confidence": 0.74296165,
+    "preprocess_ms": 0.0,
+    "inference_ms": 12640.095145034138,
+    "postprocess_ms": 935.291496978607,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_f30fc2fb8e1b4dce8d906da76c6557de.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_998c0cd523254f3385f6cd9107653f06",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "azure",
+      "text": "Unfortunately, stunning traffic flow is difficult because driver behavior cannot be predicted with 100% certainty.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 1.13,
+      "utterance_end_sec": 10.49,
+      "audio_duration_sec": 12.64,
+      "words": [
+        {
+          "word": "unfortunately",
+          "start_sec": 1.13,
+          "end_sec": 2.25,
+          "confidence": 0.8323441,
+          "confidence_available": true
+        },
+        {
+          "word": "stunning",
+          "start_sec": 2.25,
+          "end_sec": 2.77,
+          "confidence": 0.048967272,
+          "confidence_available": true
+        },
+        {
+          "word": "traffic",
+          "start_sec": 2.77,
+          "end_sec": 3.29,
+          "confidence": 0.88672507,
+          "confidence_available": true
+        },
+        {
+          "word": "flow",
+          "start_sec": 3.29,
+          "end_sec": 3.5300000000000002,
+          "confidence": 0.716796,
+          "confidence_available": true
+        },
+        {
+          "word": "is",
+          "start_sec": 3.53,
+          "end_sec": 3.7699999999999996,
+          "confidence": 0.8842855,
+          "confidence_available": true
+        },
+        {
+          "word": "difficult",
+          "start_sec": 3.77,
+          "end_sec": 4.41,
+          "confidence": 0.7347496,
+          "confidence_available": true
+        },
+        {
+          "word": "because",
+          "start_sec": 4.45,
+          "end_sec": 5.01,
+          "confidence": 0.7936996,
+          "confidence_available": true
+        },
+        {
+          "word": "driver",
+          "start_sec": 5.01,
+          "end_sec": 5.33,
+          "confidence": 0.76824087,
+          "confidence_available": true
+        },
+        {
+          "word": "behavior",
+          "start_sec": 5.33,
+          "end_sec": 5.97,
+          "confidence": 0.27339137,
+          "confidence_available": true
+        },
+        {
+          "word": "cannot",
+          "start_sec": 5.97,
+          "end_sec": 6.37,
+          "confidence": 0.7799883,
+          "confidence_available": true
+        },
+        {
+          "word": "be",
+          "start_sec": 6.37,
+          "end_sec": 6.53,
+          "confidence": 0.93667674,
+          "confidence_available": true
+        },
+        {
+          "word": "predicted",
+          "start_sec": 6.53,
+          "end_sec": 7.37,
+          "confidence": 0.8258126,
+          "confidence_available": true
+        },
+        {
+          "word": "with",
+          "start_sec": 7.61,
+          "end_sec": 7.7700000000000005,
+          "confidence": 0.8345509,
+          "confidence_available": true
+        },
+        {
+          "word": "one",
+          "start_sec": 7.77,
+          "end_sec": 8.09,
+          "confidence": 0.89865255,
+          "confidence_available": true
+        },
+        {
+          "word": "hundred",
+          "start_sec": 8.09,
+          "end_sec": 8.65,
+          "confidence": 0.8909658,
+          "confidence_available": true
+        },
+        {
+          "word": "percent",
+          "start_sec": 8.65,
+          "end_sec": 9.41,
+          "confidence": 0.73241395,
+          "confidence_available": true
+        },
+        {
+          "word": "certainty",
+          "start_sec": 9.49,
+          "end_sec": 10.49,
+          "confidence": 0.79208773,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.74296165,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 13575.386642012745,
+        "preprocess_ms": 0.0,
+        "inference_ms": 12640.095145034138,
+        "postprocess_ms": 935.291496978607,
+        "first_partial_ms": 3676.24,
+        "finalization_ms": 935.291
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/azure_cloud",
+    "provider_id": "azure",
+    "sample_id": "fleurs_en_us_12741024238657315067",
+    "success": true,
+    "text": "Unfortunately, steam traffic flow is difficult because driving behavior cannot be provigiled with 100% circumstance.",
+    "reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with one-hundred percent certainty",
+    "normalized_reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+    "normalized_hypothesis_text": "unfortunately steam traffic flow is difficult because driving behavior cannot be provigiled with 100 circumstance",
+    "quality_support": {
+      "normalized_reference": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+      "normalized_hypothesis": "unfortunately steam traffic flow is difficult because driving behavior cannot be provigiled with 100 circumstance",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 111,
+      "word_edits": 6,
+      "char_edits": 35,
+      "exact_match": false,
+      "wer": 0.375,
+      "cer": 0.3153153153153153
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.3153153153153153,
+      "estimated_cost_usd": 0.003792,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 75.262,
+      "first_partial_latency_ms": 3673.253,
+      "partial_count": 10.0,
+      "per_utterance_latency_ms": 12715.313237975352,
+      "real_time_factor": 1.005958325789189,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 12715.313237975352,
+      "wer": 0.375,
+      "confidence": 0.42680022,
+      "preprocess_ms": 0.0,
+      "inference_ms": 12640.051707974635,
+      "postprocess_ms": 75.26153000071645,
+      "model_load_ms": 1.734382,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 3,
+      "cpu_percent": 16.5,
+      "memory_mb": 151.15234375,
+      "gpu_util_percent": 35.0,
+      "gpu_memory_mb": 917.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "extreme",
+    "noise_mode": "white",
+    "noise_snr_db": 0.0,
+    "provider_preset": "standard",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/derived_audio/fleurs_en_us_12741024238657315067__extreme.wav",
+    "audio_duration_sec": 12.64,
+    "partial_count": 10,
+    "first_partial_latency_ms": 3673.253,
+    "finalization_latency_ms": 75.262,
+    "confidence": 0.42680022,
+    "preprocess_ms": 0.0,
+    "inference_ms": 12640.051707974635,
+    "postprocess_ms": 75.26153000071645,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_50b1369dd5e647a38ad6f0c8553dcda0.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_2eeed9cab2b147018a142217a322fd3b",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "azure",
+      "text": "Unfortunately, steam traffic flow is difficult because driving behavior cannot be provigiled with 100% circumstance.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 1.27,
+      "utterance_end_sec": 10.07,
+      "audio_duration_sec": 12.64,
+      "words": [
+        {
+          "word": "unfortunately",
+          "start_sec": 1.27,
+          "end_sec": 1.9100000000000001,
+          "confidence": 0.7995169,
+          "confidence_available": true
+        },
+        {
+          "word": "steam",
+          "start_sec": 2.19,
+          "end_sec": 2.67,
+          "confidence": 0.043267045,
+          "confidence_available": true
+        },
+        {
+          "word": "traffic",
+          "start_sec": 2.71,
+          "end_sec": 3.23,
+          "confidence": 0.608914,
+          "confidence_available": true
+        },
+        {
+          "word": "flow",
+          "start_sec": 3.27,
+          "end_sec": 3.51,
+          "confidence": 0.055230178,
+          "confidence_available": true
+        },
+        {
+          "word": "is",
+          "start_sec": 3.51,
+          "end_sec": 3.59,
+          "confidence": 0.7232826,
+          "confidence_available": true
+        },
+        {
+          "word": "difficult",
+          "start_sec": 3.79,
+          "end_sec": 4.35,
+          "confidence": 0.6518438,
+          "confidence_available": true
+        },
+        {
+          "word": "because",
+          "start_sec": 4.51,
+          "end_sec": 4.95,
+          "confidence": 0.8868583,
+          "confidence_available": true
+        },
+        {
+          "word": "driving",
+          "start_sec": 4.95,
+          "end_sec": 5.390000000000001,
+          "confidence": 0.06203211,
+          "confidence_available": true
+        },
+        {
+          "word": "behavior",
+          "start_sec": 5.55,
+          "end_sec": 5.95,
+          "confidence": 0.065807484,
+          "confidence_available": true
+        },
+        {
+          "word": "cannot",
+          "start_sec": 6.03,
+          "end_sec": 6.390000000000001,
+          "confidence": 0.162792,
+          "confidence_available": true
+        },
+        {
+          "word": "be",
+          "start_sec": 6.39,
+          "end_sec": 6.47,
+          "confidence": 0.76964587,
+          "confidence_available": true
+        },
+        {
+          "word": "provigiled",
+          "start_sec": 6.47,
+          "end_sec": 7.1499999999999995,
+          "confidence": 0.04761309,
+          "confidence_available": true
+        },
+        {
+          "word": "with",
+          "start_sec": 7.75,
+          "end_sec": 8.19,
+          "confidence": 0.11381501,
+          "confidence_available": true
+        },
+        {
+          "word": "one",
+          "start_sec": 8.19,
+          "end_sec": 8.35,
+          "confidence": 0.72384965,
+          "confidence_available": true
+        },
+        {
+          "word": "hundred",
+          "start_sec": 8.35,
+          "end_sec": 8.629999999999999,
+          "confidence": 0.65271825,
+          "confidence_available": true
+        },
+        {
+          "word": "percent",
+          "start_sec": 8.83,
+          "end_sec": 9.15,
+          "confidence": 0.6159744,
+          "confidence_available": true
+        },
+        {
+          "word": "circumstance",
+          "start_sec": 9.55,
+          "end_sec": 10.07,
+          "confidence": 0.27244326,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.42680022,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 12715.313237975352,
+        "preprocess_ms": 0.0,
+        "inference_ms": 12640.051707974635,
+        "postprocess_ms": 75.26153000071645,
+        "first_partial_ms": 3673.253,
+        "finalization_ms": 75.262
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/azure_cloud",
+    "provider_id": "azure",
+    "sample_id": "fleurs_en_us_621925716775998155",
+    "success": true,
+    "text": "20th century research has shown that there are two pools of genetic variation, hidden and expressed.",
+    "reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_hypothesis_text": "20th century research has shown that there are two pools of genetic variation hidden and expressed",
+    "quality_support": {
+      "normalized_reference": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+      "normalized_hypothesis": "20th century research has shown that there are two pools of genetic variation hidden and expressed",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 88,
+      "word_edits": 1,
+      "char_edits": 7,
+      "exact_match": false,
+      "wer": 0.0625,
+      "cer": 0.07954545454545454
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.07954545454545454,
+      "estimated_cost_usd": 0.001764,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 261.831,
+      "first_partial_latency_ms": 1729.784,
+      "partial_count": 7.0,
+      "per_utterance_latency_ms": 6141.864828998223,
+      "real_time_factor": 1.0445348348636434,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 6141.864828998223,
+      "wer": 0.0625,
+      "confidence": 0.8248074,
+      "preprocess_ms": 0.0,
+      "inference_ms": 5880.034097004682,
+      "postprocess_ms": 261.8307319935411,
+      "model_load_ms": 1.734382,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 4,
+      "cpu_percent": 16.2,
+      "memory_mb": 152.7109375,
+      "gpu_util_percent": 35.0,
+      "gpu_memory_mb": 885.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "standard",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
+    "audio_duration_sec": 5.88,
+    "partial_count": 7,
+    "first_partial_latency_ms": 1729.784,
+    "finalization_latency_ms": 261.831,
+    "confidence": 0.8248074,
+    "preprocess_ms": 0.0,
+    "inference_ms": 5880.034097004682,
+    "postprocess_ms": 261.8307319935411,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_7dac04be870d41ee8d95670d9f3e706f.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_013d6694931645e9bec4d83370866a91",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "azure",
+      "text": "20th century research has shown that there are two pools of genetic variation, hidden and expressed.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.31,
+      "utterance_end_sec": 5.63,
+      "audio_duration_sec": 5.88,
+      "words": [
+        {
+          "word": "twentieth",
+          "start_sec": 0.31,
+          "end_sec": 0.75,
+          "confidence": 0.8983879,
+          "confidence_available": true
+        },
+        {
+          "word": "century",
+          "start_sec": 0.75,
+          "end_sec": 1.15,
+          "confidence": 0.947934,
+          "confidence_available": true
+        },
+        {
+          "word": "research",
+          "start_sec": 1.15,
+          "end_sec": 1.5899999999999999,
+          "confidence": 0.8598888,
+          "confidence_available": true
+        },
+        {
+          "word": "has",
+          "start_sec": 1.59,
+          "end_sec": 1.71,
+          "confidence": 0.80432034,
+          "confidence_available": true
+        },
+        {
+          "word": "shown",
+          "start_sec": 1.71,
+          "end_sec": 1.95,
+          "confidence": 0.9388665,
+          "confidence_available": true
+        },
+        {
+          "word": "that",
+          "start_sec": 1.95,
+          "end_sec": 2.11,
+          "confidence": 0.74355525,
+          "confidence_available": true
+        },
+        {
+          "word": "there",
+          "start_sec": 2.11,
+          "end_sec": 2.31,
+          "confidence": 0.9067822,
+          "confidence_available": true
+        },
+        {
+          "word": "are",
+          "start_sec": 2.31,
+          "end_sec": 2.43,
+          "confidence": 0.8861487,
+          "confidence_available": true
+        },
+        {
+          "word": "two",
+          "start_sec": 2.43,
+          "end_sec": 2.5900000000000003,
+          "confidence": 0.83458006,
+          "confidence_available": true
+        },
+        {
+          "word": "pools",
+          "start_sec": 2.59,
+          "end_sec": 2.9099999999999997,
+          "confidence": 0.7258322,
+          "confidence_available": true
+        },
+        {
+          "word": "of",
+          "start_sec": 2.91,
+          "end_sec": 2.99,
+          "confidence": 0.8828847,
+          "confidence_available": true
+        },
+        {
+          "word": "genetic",
+          "start_sec": 2.99,
+          "end_sec": 3.43,
+          "confidence": 0.74328166,
+          "confidence_available": true
+        },
+        {
+          "word": "variation",
+          "start_sec": 3.43,
+          "end_sec": 4.3500000000000005,
+          "confidence": 0.797891,
+          "confidence_available": true
+        },
+        {
+          "word": "hidden",
+          "start_sec": 4.43,
+          "end_sec": 4.79,
+          "confidence": 0.7626474,
+          "confidence_available": true
+        },
+        {
+          "word": "and",
+          "start_sec": 4.79,
+          "end_sec": 4.95,
+          "confidence": 0.6993486,
+          "confidence_available": true
+        },
+        {
+          "word": "expressed",
+          "start_sec": 4.95,
+          "end_sec": 5.63,
+          "confidence": 0.7645696,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.8248074,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 6141.864828998223,
+        "preprocess_ms": 0.0,
+        "inference_ms": 5880.034097004682,
+        "postprocess_ms": 261.8307319935411,
+        "first_partial_ms": 1729.784,
+        "finalization_ms": 261.831
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/azure_cloud",
+    "provider_id": "azure",
+    "sample_id": "fleurs_en_us_621925716775998155",
+    "success": true,
+    "text": "20th century research has shown that there are two pools of genetic variation, hidden and expressed.",
+    "reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_hypothesis_text": "20th century research has shown that there are two pools of genetic variation hidden and expressed",
+    "quality_support": {
+      "normalized_reference": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+      "normalized_hypothesis": "20th century research has shown that there are two pools of genetic variation hidden and expressed",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 88,
+      "word_edits": 1,
+      "char_edits": 7,
+      "exact_match": false,
+      "wer": 0.0625,
+      "cer": 0.07954545454545454
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.07954545454545454,
+      "estimated_cost_usd": 0.001764,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 245.0,
+      "first_partial_latency_ms": 1715.565,
+      "partial_count": 7.0,
+      "per_utterance_latency_ms": 6125.02634600969,
+      "real_time_factor": 1.0416711472805595,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 6125.02634600969,
+      "wer": 0.0625,
+      "confidence": 0.88316256,
+      "preprocess_ms": 0.0,
+      "inference_ms": 5880.0258850096725,
+      "postprocess_ms": 245.00046100001782,
+      "model_load_ms": 1.734382,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 5,
+      "cpu_percent": 38.5,
+      "memory_mb": 154.46484375,
+      "gpu_util_percent": 45.0,
+      "gpu_memory_mb": 897.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "medium",
+    "noise_mode": "white",
+    "noise_snr_db": 20.0,
+    "provider_preset": "standard",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/derived_audio/fleurs_en_us_621925716775998155__medium.wav",
+    "audio_duration_sec": 5.88,
+    "partial_count": 7,
+    "first_partial_latency_ms": 1715.565,
+    "finalization_latency_ms": 245.0,
+    "confidence": 0.88316256,
+    "preprocess_ms": 0.0,
+    "inference_ms": 5880.0258850096725,
+    "postprocess_ms": 245.00046100001782,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_f40a81fbe0b549ebbc68d28ed61d3378.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_5b01a4c1d0d94177aecb59297f1021ab",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "azure",
+      "text": "20th century research has shown that there are two pools of genetic variation, hidden and expressed.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.31,
+      "utterance_end_sec": 5.63,
+      "audio_duration_sec": 5.88,
+      "words": [
+        {
+          "word": "twentieth",
+          "start_sec": 0.31,
+          "end_sec": 0.75,
+          "confidence": 0.86971897,
+          "confidence_available": true
+        },
+        {
+          "word": "century",
+          "start_sec": 0.75,
+          "end_sec": 1.15,
+          "confidence": 0.94270545,
+          "confidence_available": true
+        },
+        {
+          "word": "research",
+          "start_sec": 1.15,
+          "end_sec": 1.5899999999999999,
+          "confidence": 0.95084184,
+          "confidence_available": true
+        },
+        {
+          "word": "has",
+          "start_sec": 1.59,
+          "end_sec": 1.71,
+          "confidence": 0.8536508,
+          "confidence_available": true
+        },
+        {
+          "word": "shown",
+          "start_sec": 1.71,
+          "end_sec": 1.95,
+          "confidence": 0.9323027,
+          "confidence_available": true
+        },
+        {
+          "word": "that",
+          "start_sec": 1.95,
+          "end_sec": 2.11,
+          "confidence": 0.8690892,
+          "confidence_available": true
+        },
+        {
+          "word": "there",
+          "start_sec": 2.11,
+          "end_sec": 2.31,
+          "confidence": 0.9444138,
+          "confidence_available": true
+        },
+        {
+          "word": "are",
+          "start_sec": 2.31,
+          "end_sec": 2.43,
+          "confidence": 0.9274255,
+          "confidence_available": true
+        },
+        {
+          "word": "two",
+          "start_sec": 2.43,
+          "end_sec": 2.5900000000000003,
+          "confidence": 0.8723166,
+          "confidence_available": true
+        },
+        {
+          "word": "pools",
+          "start_sec": 2.59,
+          "end_sec": 2.9099999999999997,
+          "confidence": 0.7679727,
+          "confidence_available": true
+        },
+        {
+          "word": "of",
+          "start_sec": 2.91,
+          "end_sec": 3.0300000000000002,
+          "confidence": 0.9269353,
+          "confidence_available": true
+        },
+        {
+          "word": "genetic",
+          "start_sec": 3.03,
+          "end_sec": 3.4299999999999997,
+          "confidence": 0.9180602,
+          "confidence_available": true
+        },
+        {
+          "word": "variation",
+          "start_sec": 3.43,
+          "end_sec": 4.3500000000000005,
+          "confidence": 0.8775117,
+          "confidence_available": true
+        },
+        {
+          "word": "hidden",
+          "start_sec": 4.47,
+          "end_sec": 4.79,
+          "confidence": 0.9031245,
+          "confidence_available": true
+        },
+        {
+          "word": "and",
+          "start_sec": 4.79,
+          "end_sec": 4.95,
+          "confidence": 0.777061,
+          "confidence_available": true
+        },
+        {
+          "word": "expressed",
+          "start_sec": 4.95,
+          "end_sec": 5.63,
+          "confidence": 0.79746884,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.88316256,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 6125.02634600969,
+        "preprocess_ms": 0.0,
+        "inference_ms": 5880.0258850096725,
+        "postprocess_ms": 245.00046100001782,
+        "first_partial_ms": 1715.565,
+        "finalization_ms": 245.0
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/azure_cloud",
+    "provider_id": "azure",
+    "sample_id": "fleurs_en_us_621925716775998155",
+    "success": true,
+    "text": "Since century, research has shown that there are two four systematic variations hidden and expressed.",
+    "reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_hypothesis_text": "since century research has shown that there are two four systematic variations hidden and expressed",
+    "quality_support": {
+      "normalized_reference": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+      "normalized_hypothesis": "since century research has shown that there are two four systematic variations hidden and expressed",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 88,
+      "word_edits": 5,
+      "char_edits": 16,
+      "exact_match": false,
+      "wer": 0.3125,
+      "cer": 0.18181818181818182
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.18181818181818182,
+      "estimated_cost_usd": 0.001764,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 234.603,
+      "first_partial_latency_ms": 2202.844,
+      "partial_count": 7.0,
+      "per_utterance_latency_ms": 6114.6660600206815,
+      "real_time_factor": 1.0399091938810683,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 6114.6660600206815,
+      "wer": 0.3125,
+      "confidence": 0.4842607,
+      "preprocess_ms": 0.0,
+      "inference_ms": 5880.062848038506,
+      "postprocess_ms": 234.6032119821757,
+      "model_load_ms": 1.734382,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 6,
+      "cpu_percent": 18.7,
+      "memory_mb": 158.39453125,
+      "gpu_util_percent": 21.0,
+      "gpu_memory_mb": 949.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "extreme",
+    "noise_mode": "white",
+    "noise_snr_db": 0.0,
+    "provider_preset": "standard",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/derived_audio/fleurs_en_us_621925716775998155__extreme.wav",
+    "audio_duration_sec": 5.88,
+    "partial_count": 7,
+    "first_partial_latency_ms": 2202.844,
+    "finalization_latency_ms": 234.603,
+    "confidence": 0.4842607,
+    "preprocess_ms": 0.0,
+    "inference_ms": 5880.062848038506,
+    "postprocess_ms": 234.6032119821757,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_9b860893b26b42a08d800514ec7296c7.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_d87db24d2d964a30a4bdae634e828859",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "azure",
+      "text": "Since century, research has shown that there are two four systematic variations hidden and expressed.",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.7,
+      "utterance_end_sec": 5.300000000000001,
+      "audio_duration_sec": 5.88,
+      "words": [
+        {
+          "word": "since",
+          "start_sec": 0.7,
+          "end_sec": 0.94,
+          "confidence": 0.06330721,
+          "confidence_available": true
+        },
+        {
+          "word": "century",
+          "start_sec": 0.94,
+          "end_sec": 1.26,
+          "confidence": 0.12910365,
+          "confidence_available": true
+        },
+        {
+          "word": "research",
+          "start_sec": 1.26,
+          "end_sec": 1.58,
+          "confidence": 0.76422673,
+          "confidence_available": true
+        },
+        {
+          "word": "has",
+          "start_sec": 1.58,
+          "end_sec": 1.74,
+          "confidence": 0.76981974,
+          "confidence_available": true
+        },
+        {
+          "word": "shown",
+          "start_sec": 1.74,
+          "end_sec": 1.94,
+          "confidence": 0.79790056,
+          "confidence_available": true
+        },
+        {
+          "word": "that",
+          "start_sec": 1.94,
+          "end_sec": 2.1,
+          "confidence": 0.82263625,
+          "confidence_available": true
+        },
+        {
+          "word": "there",
+          "start_sec": 2.1,
+          "end_sec": 2.3000000000000003,
+          "confidence": 0.8663737,
+          "confidence_available": true
+        },
+        {
+          "word": "are",
+          "start_sec": 2.3,
+          "end_sec": 2.42,
+          "confidence": 0.7810321,
+          "confidence_available": true
+        },
+        {
+          "word": "two",
+          "start_sec": 2.42,
+          "end_sec": 2.54,
+          "confidence": 0.80790144,
+          "confidence_available": true
+        },
+        {
+          "word": "four",
+          "start_sec": 2.62,
+          "end_sec": 2.8600000000000003,
+          "confidence": 0.05215274,
+          "confidence_available": true
+        },
+        {
+          "word": "systematic",
+          "start_sec": 2.86,
+          "end_sec": 3.38,
+          "confidence": 0.06717718,
+          "confidence_available": true
+        },
+        {
+          "word": "variations",
+          "start_sec": 3.42,
+          "end_sec": 3.94,
+          "confidence": 0.12992813,
+          "confidence_available": true
+        },
+        {
+          "word": "hidden",
+          "start_sec": 4.5,
+          "end_sec": 4.74,
+          "confidence": 0.12430668,
+          "confidence_available": true
+        },
+        {
+          "word": "and",
+          "start_sec": 4.82,
+          "end_sec": 4.94,
+          "confidence": 0.67956054,
+          "confidence_available": true
+        },
+        {
+          "word": "expressed",
+          "start_sec": 4.94,
+          "end_sec": 5.300000000000001,
+          "confidence": 0.40848428,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.4842607,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 6114.6660600206815,
+        "preprocess_ms": 0.0,
+        "inference_ms": 5880.062848038506,
+        "postprocess_ms": 234.6032119821757,
+        "first_partial_ms": 2202.844,
+        "finalization_ms": 234.603
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/google_cloud",
+    "provider_id": "google",
+    "sample_id": "fleurs_en_us_12741024238657315067",
+    "success": true,
+    "text": "unfortunately stunning traffic flow is difficult because driver Behavior cannot be predicted with 100% certainty",
+    "reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with one-hundred percent certainty",
+    "normalized_reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+    "normalized_hypothesis_text": "unfortunately stunning traffic flow is difficult because driver behavior cannot be predicted with 100 certainty",
+    "quality_support": {
+      "normalized_reference": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+      "normalized_hypothesis": "unfortunately stunning traffic flow is difficult because driver behavior cannot be predicted with 100 certainty",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 111,
+      "word_edits": 3,
+      "char_edits": 19,
+      "exact_match": false,
+      "wer": 0.1875,
+      "cer": 0.17117117117117117
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.17117117117117117,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 148.304,
+      "first_partial_latency_ms": 370.74,
+      "partial_count": 63.0,
+      "per_utterance_latency_ms": 10573.024383978918,
+      "real_time_factor": 0.8364734480995979,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 10573.024383978918,
+      "wer": 0.1875,
+      "confidence": 0.9294058680534363,
+      "preprocess_ms": 0.0,
+      "inference_ms": 10424.720618932042,
+      "postprocess_ms": 148.30376504687592,
+      "model_load_ms": 1.326187,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": true,
+      "provider_call_warm_start": false,
+      "provider_invocation_index": 1,
+      "cpu_percent": 16.7,
+      "memory_mb": 185.5390625,
+      "gpu_util_percent": 10.0,
+      "gpu_memory_mb": 942.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "accurate",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
+    "audio_duration_sec": 12.64,
+    "partial_count": 63,
+    "first_partial_latency_ms": 370.74,
+    "finalization_latency_ms": 148.304,
+    "confidence": 0.9294058680534363,
+    "preprocess_ms": 0.0,
+    "inference_ms": 10424.720618932042,
+    "postprocess_ms": 148.30376504687592,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_bd45639117454842b51bd90bc617670c.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_4eb2ef06c19744a09838c67d723569f3",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "google",
+      "text": "unfortunately stunning traffic flow is difficult because driver Behavior cannot be predicted with 100% certainty",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.5,
+      "utterance_end_sec": 10.1,
+      "audio_duration_sec": 12.64,
+      "words": [
+        {
+          "word": "unfortunately",
+          "start_sec": 0.5,
+          "end_sec": 1.7,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "stunning",
+          "start_sec": 1.7,
+          "end_sec": 2.9,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "traffic",
+          "start_sec": 2.9,
+          "end_sec": 3.1,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "flow",
+          "start_sec": 3.1,
+          "end_sec": 3.5,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "is",
+          "start_sec": 3.5,
+          "end_sec": 3.8,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "difficult",
+          "start_sec": 3.8,
+          "end_sec": 4.1,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "because",
+          "start_sec": 4.1,
+          "end_sec": 4.7,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "driver",
+          "start_sec": 4.7,
+          "end_sec": 5.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "Behavior",
+          "start_sec": 5.4,
+          "end_sec": 5.9,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "cannot",
+          "start_sec": 5.9,
+          "end_sec": 6.3,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "be",
+          "start_sec": 6.3,
+          "end_sec": 6.3,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "predicted",
+          "start_sec": 6.3,
+          "end_sec": 6.8,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "with",
+          "start_sec": 6.8,
+          "end_sec": 7.7,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "100%",
+          "start_sec": 7.7,
+          "end_sec": 8.9,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "certainty",
+          "start_sec": 8.9,
+          "end_sec": 10.1,
+          "confidence": 0.0,
+          "confidence_available": false
+        }
+      ],
+      "confidence": 0.9294058680534363,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 10573.024383978918,
+        "preprocess_ms": 0.0,
+        "inference_ms": 10424.720618932042,
+        "postprocess_ms": 148.30376504687592,
+        "first_partial_ms": 370.74,
+        "finalization_ms": 148.304
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/google_cloud",
+    "provider_id": "google",
+    "sample_id": "fleurs_en_us_12741024238657315067",
+    "success": true,
+    "text": "unfortunately stunning traffic flow is difficult because driver Behavior cannot be predicted with 100% certainty",
+    "reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with one-hundred percent certainty",
+    "normalized_reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+    "normalized_hypothesis_text": "unfortunately stunning traffic flow is difficult because driver behavior cannot be predicted with 100 certainty",
+    "quality_support": {
+      "normalized_reference": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+      "normalized_hypothesis": "unfortunately stunning traffic flow is difficult because driver behavior cannot be predicted with 100 certainty",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 111,
+      "word_edits": 3,
+      "char_edits": 19,
+      "exact_match": false,
+      "wer": 0.1875,
+      "cer": 0.17117117117117117
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.17117117117117117,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 66.773,
+      "first_partial_latency_ms": 1567.758,
+      "partial_count": 62.0,
+      "per_utterance_latency_ms": 12706.744784954935,
+      "real_time_factor": 1.0052804418477006,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 12706.744784954935,
+      "wer": 0.1875,
+      "confidence": 0.9144931435585022,
+      "preprocess_ms": 0.0,
+      "inference_ms": 12639.972004981246,
+      "postprocess_ms": 66.77277997368947,
+      "model_load_ms": 1.326187,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 2,
+      "cpu_percent": 45.6,
+      "memory_mb": 186.29296875,
+      "gpu_util_percent": 38.0,
+      "gpu_memory_mb": 1027.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "medium",
+    "noise_mode": "white",
+    "noise_snr_db": 20.0,
+    "provider_preset": "accurate",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/derived_audio/fleurs_en_us_12741024238657315067__medium.wav",
+    "audio_duration_sec": 12.64,
+    "partial_count": 62,
+    "first_partial_latency_ms": 1567.758,
+    "finalization_latency_ms": 66.773,
+    "confidence": 0.9144931435585022,
+    "preprocess_ms": 0.0,
+    "inference_ms": 12639.972004981246,
+    "postprocess_ms": 66.77277997368947,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_10f8ebe0609d46c7af8add972375109d.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_cb1a62b50d074f52a4af766c0f37e9bb",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "google",
+      "text": "unfortunately stunning traffic flow is difficult because driver Behavior cannot be predicted with 100% certainty",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.9,
+      "utterance_end_sec": 10.1,
+      "audio_duration_sec": 12.64,
+      "words": [
+        {
+          "word": "unfortunately",
+          "start_sec": 0.9,
+          "end_sec": 1.7,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "stunning",
+          "start_sec": 1.7,
+          "end_sec": 2.9,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "traffic",
+          "start_sec": 2.9,
+          "end_sec": 3.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "flow",
+          "start_sec": 3.0,
+          "end_sec": 3.5,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "is",
+          "start_sec": 3.5,
+          "end_sec": 3.8,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "difficult",
+          "start_sec": 3.8,
+          "end_sec": 4.1,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "because",
+          "start_sec": 4.1,
+          "end_sec": 4.7,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "driver",
+          "start_sec": 4.7,
+          "end_sec": 5.3,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "Behavior",
+          "start_sec": 5.3,
+          "end_sec": 5.9,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "cannot",
+          "start_sec": 5.9,
+          "end_sec": 6.3,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "be",
+          "start_sec": 6.3,
+          "end_sec": 6.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "predicted",
+          "start_sec": 6.4,
+          "end_sec": 6.9,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "with",
+          "start_sec": 6.9,
+          "end_sec": 7.8,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "100%",
+          "start_sec": 7.8,
+          "end_sec": 9.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "certainty",
+          "start_sec": 9.0,
+          "end_sec": 10.1,
+          "confidence": 0.0,
+          "confidence_available": false
+        }
+      ],
+      "confidence": 0.9144931435585022,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 12706.744784954935,
+        "preprocess_ms": 0.0,
+        "inference_ms": 12639.972004981246,
+        "postprocess_ms": 66.77277997368947,
+        "first_partial_ms": 1567.758,
+        "finalization_ms": 66.773
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/google_cloud",
+    "provider_id": "google",
+    "sample_id": "fleurs_en_us_12741024238657315067",
+    "success": true,
+    "text": "unfortunately a stunning traffic flow is difficult because drivers is not be particular of 100%",
+    "reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with one-hundred percent certainty",
+    "normalized_reference_text": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+    "normalized_hypothesis_text": "unfortunately a stunning traffic flow is difficult because drivers is not be particular of 100",
+    "quality_support": {
+      "normalized_reference": "unfortunately studying traffic flow is difficult because driver behavior cannot be predicted with onehundred percent certainty",
+      "normalized_hypothesis": "unfortunately a stunning traffic flow is difficult because drivers is not be particular of 100",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 111,
+      "word_edits": 10,
+      "char_edits": 47,
+      "exact_match": false,
+      "wer": 0.625,
+      "cer": 0.42342342342342343
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.42342342342342343,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 79.371,
+      "first_partial_latency_ms": 1594.55,
+      "partial_count": 74.0,
+      "per_utterance_latency_ms": 12719.229928974528,
+      "real_time_factor": 1.0062681905834279,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 12719.229928974528,
+      "wer": 0.625,
+      "confidence": 0.723587155342102,
+      "preprocess_ms": 0.0,
+      "inference_ms": 12639.859006972983,
+      "postprocess_ms": 79.37092200154439,
+      "model_load_ms": 1.326187,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 3,
+      "cpu_percent": 26.2,
+      "memory_mb": 186.640625,
+      "gpu_util_percent": 19.0,
+      "gpu_memory_mb": 1004.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "extreme",
+    "noise_mode": "white",
+    "noise_snr_db": 0.0,
+    "provider_preset": "accurate",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/derived_audio/fleurs_en_us_12741024238657315067__extreme.wav",
+    "audio_duration_sec": 12.64,
+    "partial_count": 74,
+    "first_partial_latency_ms": 1594.55,
+    "finalization_latency_ms": 79.371,
+    "confidence": 0.723587155342102,
+    "preprocess_ms": 0.0,
+    "inference_ms": 12639.859006972983,
+    "postprocess_ms": 79.37092200154439,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_7588f2e11e594a8b9b3075cd3c258691.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_605d0b82ce1342e9bfe1d53960828761",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "google",
+      "text": "unfortunately a stunning traffic flow is difficult because drivers is not be particular of 100%",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.9,
+      "utterance_end_sec": 9.0,
+      "audio_duration_sec": 12.64,
+      "words": [
+        {
+          "word": "unfortunately",
+          "start_sec": 0.9,
+          "end_sec": 1.6,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "a",
+          "start_sec": 1.6,
+          "end_sec": 2.5,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "stunning",
+          "start_sec": 2.5,
+          "end_sec": 2.9,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "traffic",
+          "start_sec": 2.9,
+          "end_sec": 3.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "flow",
+          "start_sec": 3.0,
+          "end_sec": 3.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "is",
+          "start_sec": 3.4,
+          "end_sec": 3.6,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "difficult",
+          "start_sec": 3.6,
+          "end_sec": 4.2,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "because",
+          "start_sec": 4.2,
+          "end_sec": 4.7,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "drivers",
+          "start_sec": 4.7,
+          "end_sec": 5.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "is",
+          "start_sec": 5.4,
+          "end_sec": 5.8,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "not",
+          "start_sec": 5.8,
+          "end_sec": 6.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "be",
+          "start_sec": 6.4,
+          "end_sec": 6.7,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "particular",
+          "start_sec": 6.7,
+          "end_sec": 7.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "of",
+          "start_sec": 7.0,
+          "end_sec": 7.8,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "100%",
+          "start_sec": 7.8,
+          "end_sec": 9.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        }
+      ],
+      "confidence": 0.723587155342102,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 12719.229928974528,
+        "preprocess_ms": 0.0,
+        "inference_ms": 12639.859006972983,
+        "postprocess_ms": 79.37092200154439,
+        "first_partial_ms": 1594.55,
+        "finalization_ms": 79.371
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/google_cloud",
+    "provider_id": "google",
+    "sample_id": "fleurs_en_us_621925716775998155",
+    "success": true,
+    "text": "20th century research has shown that there are two poles of genetic variation hidden and expressed",
+    "reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_hypothesis_text": "20th century research has shown that there are two poles of genetic variation hidden and expressed",
+    "quality_support": {
+      "normalized_reference": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+      "normalized_hypothesis": "20th century research has shown that there are two poles of genetic variation hidden and expressed",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 88,
+      "word_edits": 2,
+      "char_edits": 9,
+      "exact_match": false,
+      "wer": 0.125,
+      "cer": 0.10227272727272728
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.10227272727272728,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 97.191,
+      "first_partial_latency_ms": 582.547,
+      "partial_count": 59.0,
+      "per_utterance_latency_ms": 5977.290165028535,
+      "real_time_factor": 1.0165459464334243,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 5977.290165028535,
+      "wer": 0.125,
+      "confidence": 0.8988373279571533,
+      "preprocess_ms": 0.0,
+      "inference_ms": 5880.098938010633,
+      "postprocess_ms": 97.19122701790184,
+      "model_load_ms": 1.326187,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 4,
+      "cpu_percent": 24.1,
+      "memory_mb": 186.6484375,
+      "gpu_util_percent": 32.0,
+      "gpu_memory_mb": 1041.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "accurate",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
+    "audio_duration_sec": 5.88,
+    "partial_count": 59,
+    "first_partial_latency_ms": 582.547,
+    "finalization_latency_ms": 97.191,
+    "confidence": 0.8988373279571533,
+    "preprocess_ms": 0.0,
+    "inference_ms": 5880.098938010633,
+    "postprocess_ms": 97.19122701790184,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_e27d205f338d47bb9aa3ba38cde65d26.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_614cccef975e4b78a4f7b57080e5cbdd",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "google",
+      "text": "20th century research has shown that there are two poles of genetic variation hidden and expressed",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.1,
+      "utterance_end_sec": 5.5,
+      "audio_duration_sec": 5.88,
+      "words": [
+        {
+          "word": "20th",
+          "start_sec": 0.1,
+          "end_sec": 1.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "century",
+          "start_sec": 1.0,
+          "end_sec": 1.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "research",
+          "start_sec": 1.0,
+          "end_sec": 1.5,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "has",
+          "start_sec": 1.5,
+          "end_sec": 1.8,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "shown",
+          "start_sec": 1.8,
+          "end_sec": 1.9,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "that",
+          "start_sec": 1.9,
+          "end_sec": 2.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "there",
+          "start_sec": 2.0,
+          "end_sec": 2.1,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "are",
+          "start_sec": 2.1,
+          "end_sec": 2.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "two",
+          "start_sec": 2.4,
+          "end_sec": 2.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "poles",
+          "start_sec": 2.4,
+          "end_sec": 2.7,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "of",
+          "start_sec": 2.7,
+          "end_sec": 3.1,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "genetic",
+          "start_sec": 3.1,
+          "end_sec": 3.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "variation",
+          "start_sec": 3.4,
+          "end_sec": 3.9,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "hidden",
+          "start_sec": 3.9,
+          "end_sec": 4.6,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "and",
+          "start_sec": 4.6,
+          "end_sec": 5.1,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "expressed",
+          "start_sec": 5.1,
+          "end_sec": 5.5,
+          "confidence": 0.0,
+          "confidence_available": false
+        }
+      ],
+      "confidence": 0.8988373279571533,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 5977.290165028535,
+        "preprocess_ms": 0.0,
+        "inference_ms": 5880.098938010633,
+        "postprocess_ms": 97.19122701790184,
+        "first_partial_ms": 582.547,
+        "finalization_ms": 97.191
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/google_cloud",
+    "provider_id": "google",
+    "sample_id": "fleurs_en_us_621925716775998155",
+    "success": true,
+    "text": "20th century research has shown that there are two poles of genetic variation hidden and expressed",
+    "reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_hypothesis_text": "20th century research has shown that there are two poles of genetic variation hidden and expressed",
+    "quality_support": {
+      "normalized_reference": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+      "normalized_hypothesis": "20th century research has shown that there are two poles of genetic variation hidden and expressed",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 88,
+      "word_edits": 2,
+      "char_edits": 9,
+      "exact_match": false,
+      "wer": 0.125,
+      "cer": 0.10227272727272728
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.10227272727272728,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 71.104,
+      "first_partial_latency_ms": 572.573,
+      "partial_count": 53.0,
+      "per_utterance_latency_ms": 5951.218264002819,
+      "real_time_factor": 1.0121119496603432,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 5951.218264002819,
+      "wer": 0.125,
+      "confidence": 0.887434720993042,
+      "preprocess_ms": 0.0,
+      "inference_ms": 5880.113903956953,
+      "postprocess_ms": 71.10436004586518,
+      "model_load_ms": 1.326187,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 5,
+      "cpu_percent": 18.8,
+      "memory_mb": 188.98828125,
+      "gpu_util_percent": 28.0,
+      "gpu_memory_mb": 1015.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "medium",
+    "noise_mode": "white",
+    "noise_snr_db": 20.0,
+    "provider_preset": "accurate",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/derived_audio/fleurs_en_us_621925716775998155__medium.wav",
+    "audio_duration_sec": 5.88,
+    "partial_count": 53,
+    "first_partial_latency_ms": 572.573,
+    "finalization_latency_ms": 71.104,
+    "confidence": 0.887434720993042,
+    "preprocess_ms": 0.0,
+    "inference_ms": 5880.113903956953,
+    "postprocess_ms": 71.10436004586518,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_cc608b902c774d7cb12f301a39993728.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_2a1c1f8ed7fd433d914e485f845d3594",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "google",
+      "text": "20th century research has shown that there are two poles of genetic variation hidden and expressed",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.1,
+      "utterance_end_sec": 5.5,
+      "audio_duration_sec": 5.88,
+      "words": [
+        {
+          "word": "20th",
+          "start_sec": 0.1,
+          "end_sec": 1.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "century",
+          "start_sec": 1.0,
+          "end_sec": 1.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "research",
+          "start_sec": 1.0,
+          "end_sec": 1.5,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "has",
+          "start_sec": 1.5,
+          "end_sec": 1.8,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "shown",
+          "start_sec": 1.8,
+          "end_sec": 1.8,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "that",
+          "start_sec": 1.8,
+          "end_sec": 2.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "there",
+          "start_sec": 2.0,
+          "end_sec": 2.2,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "are",
+          "start_sec": 2.2,
+          "end_sec": 2.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "two",
+          "start_sec": 2.4,
+          "end_sec": 2.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "poles",
+          "start_sec": 2.4,
+          "end_sec": 3.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "of",
+          "start_sec": 3.0,
+          "end_sec": 3.2,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "genetic",
+          "start_sec": 3.2,
+          "end_sec": 3.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "variation",
+          "start_sec": 3.4,
+          "end_sec": 3.9,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "hidden",
+          "start_sec": 3.9,
+          "end_sec": 4.7,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "and",
+          "start_sec": 4.7,
+          "end_sec": 5.1,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "expressed",
+          "start_sec": 5.1,
+          "end_sec": 5.5,
+          "confidence": 0.0,
+          "confidence_available": false
+        }
+      ],
+      "confidence": 0.887434720993042,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 5951.218264002819,
+        "preprocess_ms": 0.0,
+        "inference_ms": 5880.113903956953,
+        "postprocess_ms": 71.10436004586518,
+        "first_partial_ms": 572.573,
+        "finalization_ms": 71.104
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  },
+  {
+    "run_id": "bench_20260331T123337Z_4926faad",
+    "provider_profile": "providers/google_cloud",
+    "provider_id": "google",
+    "sample_id": "fleurs_en_us_621925716775998155",
+    "success": true,
+    "text": "10th Century research has shown that there are two four systematic variation hidden and express",
+    "reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_reference_text": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+    "normalized_hypothesis_text": "10th century research has shown that there are two four systematic variation hidden and express",
+    "quality_support": {
+      "normalized_reference": "twentieth century research has shown that there are two pools of genetic variation hidden and expressed",
+      "normalized_hypothesis": "10th century research has shown that there are two four systematic variation hidden and express",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 16,
+      "reference_char_count": 88,
+      "word_edits": 5,
+      "char_edits": 17,
+      "exact_match": false,
+      "wer": 0.3125,
+      "cer": 0.19318181818181818
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.19318181818181818,
+      "estimated_cost_usd": 0.0,
+      "failure_rate": 0.0,
+      "finalization_latency_ms": 93.659,
+      "first_partial_latency_ms": 1075.358,
+      "partial_count": 54.0,
+      "per_utterance_latency_ms": 5973.641218966804,
+      "real_time_factor": 1.015925377375307,
+      "sample_accuracy": 0.0,
+      "success_rate": 1.0,
+      "total_latency_ms": 5973.641218966804,
+      "wer": 0.3125,
+      "confidence": 0.7142870426177979,
+      "preprocess_ms": 0.0,
+      "inference_ms": 5879.981945967302,
+      "postprocess_ms": 93.65927299950272,
+      "model_load_ms": 1.326187,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": false,
+      "provider_call_warm_start": true,
+      "provider_invocation_index": 6,
+      "cpu_percent": 20.5,
+      "memory_mb": 188.98828125,
+      "gpu_util_percent": 43.0,
+      "gpu_memory_mb": 975.0
+    },
+    "execution_mode": "streaming",
+    "streaming_mode": "native",
+    "scenario": "noise_robustness",
+    "noise_level": "extreme",
+    "noise_mode": "white",
+    "noise_snr_db": 0.0,
+    "provider_preset": "accurate",
+    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/derived_audio/fleurs_en_us_621925716775998155__extreme.wav",
+    "audio_duration_sec": 5.88,
+    "partial_count": 54,
+    "first_partial_latency_ms": 1075.358,
+    "finalization_latency_ms": 93.659,
+    "confidence": 0.7142870426177979,
+    "preprocess_ms": 0.0,
+    "inference_ms": 5879.981945967302,
+    "postprocess_ms": 93.65927299950272,
+    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260331T123337Z_4926faad/metrics/traces/trace_d48316b4584041309198aa002b649351.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_e5c189a2b20f4b11b36bd9f7bf4b5f66",
+      "session_id": "benchmark_bench_20260331T123337Z_4926faad",
+      "provider_id": "google",
+      "text": "10th Century research has shown that there are two four systematic variation hidden and express",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.2,
+      "utterance_end_sec": 5.4,
+      "audio_duration_sec": 5.88,
+      "words": [
+        {
+          "word": "10th",
+          "start_sec": 0.2,
+          "end_sec": 1.2,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "Century",
+          "start_sec": 1.2,
+          "end_sec": 1.3,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "research",
+          "start_sec": 1.3,
+          "end_sec": 1.7,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "has",
+          "start_sec": 1.7,
+          "end_sec": 1.9,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "shown",
+          "start_sec": 1.9,
+          "end_sec": 2.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "that",
+          "start_sec": 2.0,
+          "end_sec": 2.1,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "there",
+          "start_sec": 2.1,
+          "end_sec": 2.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "are",
+          "start_sec": 2.4,
+          "end_sec": 2.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "two",
+          "start_sec": 2.4,
+          "end_sec": 2.7,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "four",
+          "start_sec": 2.7,
+          "end_sec": 3.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "systematic",
+          "start_sec": 3.0,
+          "end_sec": 3.6,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "variation",
+          "start_sec": 3.6,
+          "end_sec": 4.0,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "hidden",
+          "start_sec": 4.0,
+          "end_sec": 5.1,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "and",
+          "start_sec": 5.1,
+          "end_sec": 5.2,
+          "confidence": 0.0,
+          "confidence_available": false
+        },
+        {
+          "word": "express",
+          "start_sec": 5.2,
+          "end_sec": 5.4,
+          "confidence": 0.0,
+          "confidence_available": false
+        }
+      ],
+      "confidence": 0.7142870426177979,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 5973.641218966804,
+        "preprocess_ms": 0.0,
+        "inference_ms": 5879.981945967302,
+        "postprocess_ms": 93.65927299950272,
+        "first_partial_ms": 1075.358,
+        "finalization_ms": 93.659
+      },
+      "raw_metadata_ref": "",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "cloud",
+        "native_stream"
+      ]
+    }
+  }
+]

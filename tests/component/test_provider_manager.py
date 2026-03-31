@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 import yaml  # type: ignore[import-untyped]
-from asr_provider_base import ProviderManager, register_provider
+from asr_provider_base import ProviderManager, provider_runtime_metadata, register_provider
 
 from tests.utils.fakes import FakeProviderAdapter
 
@@ -134,3 +134,35 @@ def test_provider_manager_uses_explicit_adapter_path_without_registry_registrati
 
     assert provider.provider_id == "fake_adapter_path"
     assert provider.get_status().state == "initialized"
+
+
+def test_provider_runtime_metadata_reports_model_load_and_cold_warm_transitions(
+    tmp_path: Path,
+) -> None:
+    class FakeMetricsProvider(FakeProviderAdapter):
+        provider_id = "fake_metrics_provider"
+
+    register_provider("fake_metrics_provider", FakeMetricsProvider)
+    configs = tmp_path / "configs"
+
+    _write_yaml(
+        configs / "providers" / "metrics_provider.yaml",
+        {
+            "provider_id": "fake_metrics_provider",
+            "settings": {"temperature": 0.0},
+        },
+    )
+
+    manager = ProviderManager(configs_root=str(configs))
+    provider = manager.create_from_profile("providers/metrics_provider")
+
+    cold = provider_runtime_metadata(provider, record_invocation=True)
+    warm = provider_runtime_metadata(provider, record_invocation=True)
+
+    assert cold["model_load_ms"] >= 0.0
+    assert cold["provider_init_cold_start"] is True
+    assert cold["provider_call_cold_start"] is True
+    assert cold["provider_invocation_index"] == 1
+    assert warm["provider_call_cold_start"] is False
+    assert warm["provider_call_warm_start"] is True
+    assert warm["provider_invocation_index"] == 2

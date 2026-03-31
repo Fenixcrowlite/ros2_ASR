@@ -264,6 +264,31 @@ def test_run_detail_resolves_dataset_manifest_from_dataset_profile(tmp_path: Pat
     assert row["quality_support"]["wer"] == 0.0
 
 
+def test_list_benchmark_history_preserves_sample_accuracy_independent_of_wer_cer(
+    tmp_path: Path,
+) -> None:
+    artifacts_root = tmp_path / "artifacts"
+    seed_benchmark_run(
+        tmp_path,
+        "bench_exact_match_rate",
+        wer=0.0,
+        cer=0.0,
+        sample_accuracy=0.0,
+    )
+
+    rows = list_benchmark_history(
+        artifacts_root=artifacts_root,
+        read_json=_read_json,
+        benchmark_jobs={},
+        limit=10,
+    )
+
+    row = next(item for item in rows if item["run_id"] == "bench_exact_match_rate")
+    assert row["quality_metrics"]["wer"] == 0.0
+    assert row["quality_metrics"]["cer"] == 0.0
+    assert row["quality_metrics"]["sample_accuracy"] == 0.0
+
+
 def test_compare_runs_rejects_empty_run_ids() -> None:
     with pytest.raises(HTTPException) as exc:
         compare_runs([], [], detail_loader=lambda _run_id: {})

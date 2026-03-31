@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Iterable
+from collections.abc import Iterable
 
 from asr_core.normalized import NormalizedAsrResult
 from asr_interfaces.msg import AsrResult, AsrResultPartial, WordTimestamp

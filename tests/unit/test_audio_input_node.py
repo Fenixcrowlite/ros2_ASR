@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import wave
+from array import array
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -95,7 +96,9 @@ class _FakeStartNode:
     def _is_running(self) -> bool:
         return False
 
-    def _load_runtime_configuration(self, runtime_profile: str, overrides: dict[str, object]) -> str:
+    def _load_runtime_configuration(
+        self, runtime_profile: str, overrides: dict[str, object]
+    ) -> str:
         self.loaded.append((runtime_profile, overrides))
         self._resolved_config_ref = "configs/resolved/runtime_reloaded.json"
         return self._resolved_config_ref
@@ -335,3 +338,64 @@ def test_start_session_rejects_conflicting_active_request() -> None:
     assert response.accepted is False
     assert "already has an active session" in response.message
     assert node.errors == [("audio_start_failed", "Audio input already has an active session")]
+
+
+class _ValidatedAudioChunk:
+    def __init__(self) -> None:
+        self.header = SimpleNamespace(stamp=None)
+        self.session_id = ""
+        self.source_id = ""
+        self.sample_rate = 0
+        self.channels = 0
+        self.encoding = ""
+        self.is_last_chunk = False
+        self.metadata_ref = ""
+        self._data: bytes | array[int] = b""
+
+    @property
+    def data(self) -> bytes | array[int]:
+        return self._data
+
+    @data.setter
+    def data(self, value: object) -> None:
+        if isinstance(value, bytes):
+            self._data = value
+            return
+        if isinstance(value, array) and value.typecode == "B":
+            self._data = value
+            return
+        raise TypeError("AudioChunk.data must be bytes or array('B')")
+
+
+def test_publish_chunk_assigns_binary_payload_without_list_conversion(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    published: list[_ValidatedAudioChunk] = []
+    clock_msg = object()
+    node = SimpleNamespace(
+        session_id="session-audio",
+        publisher=SimpleNamespace(publish=published.append),
+        get_clock=lambda: SimpleNamespace(
+            now=lambda: SimpleNamespace(to_msg=lambda: clock_msg),
+        ),
+        _capture_started_ns=0,
+        _published_chunk_count=0,
+        _last_update=None,
+    )
+    monkeypatch.setattr(audio_input_node_module, "AudioChunk", _ValidatedAudioChunk)
+
+    AudioInputNode._publish_chunk(
+        node,
+        b"\x00\x01\x02",
+        is_last=False,
+        source_id="file",
+        chunk_index=7,
+        sample_rate_hz=16000,
+        channels=1,
+    )
+
+    assert len(published) == 1
+    payload = published[0].data
+    assert payload == array("B", b"\x00\x01\x02") or payload == b"\x00\x01\x02"
+    assert not isinstance(payload, list)
+    assert published[0].header.stamp is clock_msg

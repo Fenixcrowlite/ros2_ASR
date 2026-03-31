@@ -7,6 +7,7 @@ import queue
 import threading
 import time
 import wave
+from array import array
 from pathlib import Path
 from typing import Any
 
@@ -18,6 +19,8 @@ from asr_core.shutdown import safe_shutdown_node, spin_node_until_shutdown
 from asr_interfaces.msg import AudioChunk, NodeStatus
 from asr_interfaces.srv import ReconfigureRuntime, StartRuntimeSession, StopRuntimeSession
 from rclpy.node import Node
+
+from asr_runtime_nodes.transport import encode_transport_metadata, stamp_to_ns
 
 
 class AudioInputNode(Node):
@@ -105,6 +108,8 @@ class AudioInputNode(Node):
         self._worker: threading.Thread | None = None
         self._active = False
         self._shutdown = False
+        self._capture_started_ns = 0
+        self._published_chunk_count = 0
 
         self._load_runtime_configuration(self.runtime_profile, overrides={})
         self.status_timer = self.create_timer(1.0, self._publish_status)
@@ -323,6 +328,8 @@ class AudioInputNode(Node):
                 raise RuntimeError("Audio session is already running")
             self._active = True
             self._status = "starting"
+            self._capture_started_ns = time.time_ns()
+            self._published_chunk_count = 0
             self._worker = threading.Thread(target=self._capture_worker, daemon=True)
             self._worker.start()
         self._last_update = self.get_clock().now()
@@ -484,6 +491,7 @@ class AudioInputNode(Node):
         sample_rate_hz: int,
         channels: int,
     ) -> None:
+        now = self.get_clock().now()
         msg = AudioChunk()
         msg.session_id = self.session_id
         msg.source_id = source_id
@@ -491,10 +499,22 @@ class AudioInputNode(Node):
         msg.channels = int(channels)
         msg.encoding = "pcm_s16le"
         msg.is_last_chunk = bool(is_last)
-        msg.data = list(data)
+        msg.data = array("B", data)
         msg.metadata_ref = f"chunk:{chunk_index}"
-        msg.header.stamp = self.get_clock().now().to_msg()
+        msg.header.stamp = now.to_msg()
+        msg.header.frame_id = encode_transport_metadata(
+            {
+                "stage": "raw_audio",
+                "session_id": self.session_id,
+                "source_id": source_id,
+                "raw_sequence": int(chunk_index),
+                "published_ns": stamp_to_ns(msg.header.stamp),
+                "capture_started_ns": int(getattr(self, "_capture_started_ns", 0) or 0),
+                "is_last_chunk": bool(is_last),
+            }
+        )
         self.publisher.publish(msg)
+        self._published_chunk_count = int(getattr(self, "_published_chunk_count", 0) or 0) + 1
         self._last_update = self.get_clock().now()
 
     def _on_start_session(
@@ -595,7 +615,10 @@ class AudioInputNode(Node):
         msg.node_name = self.get_name()
         msg.lifecycle_state = "active"
         msg.health = "ok" if not self._last_error_code else "degraded"
-        msg.status_message = f"{self._status} source={self.input_mode} session={self.session_id}"
+        msg.status_message = (
+            f"{self._status} source={self.input_mode} session={self.session_id} "
+            f"published_chunks={self._published_chunk_count}"
+        )
         msg.ready = self._status in {"ready", "running", "completed", "stopped"}
         msg.last_error_code = self._last_error_code
         msg.last_error_message = self._last_error_message

@@ -4,6 +4,8 @@ import sys
 import types
 from types import SimpleNamespace
 
+import pytest
+
 if "rcl_interfaces.msg" not in sys.modules:
     rcl_interfaces_mod = types.ModuleType("rcl_interfaces")
     rcl_interfaces_msg_mod = types.ModuleType("rcl_interfaces.msg")
@@ -37,6 +39,9 @@ if "rclpy.executors" in sys.modules and not hasattr(sys.modules["rclpy.executors
     sys.modules["rclpy.executors"].ExternalShutdownException = _ExternalShutdownException
 
 from asr_ros.audio_capture_node import AudioCaptureNode
+
+
+pytestmark = pytest.mark.legacy
 
 
 class _FakeLogger:

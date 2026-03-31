@@ -5,6 +5,9 @@ from asr_core import shutdown as shutdown_module
 from asr_ros.shutdown import safe_shutdown_node
 
 
+pytestmark = pytest.mark.legacy
+
+
 class _FakeContext:
     def __init__(self, *, ok_value: bool = True, ok_error: RuntimeError | None = None) -> None:
         self._ok_value = ok_value

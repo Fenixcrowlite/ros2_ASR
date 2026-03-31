@@ -32,14 +32,25 @@ from asr_interfaces.srv import (
     StopRuntimeSession,
     ValidateConfig,
 )
-from asr_provider_base import ProviderAudio, ProviderManager, list_providers
+from asr_observability import (
+    FileTraceExporter,
+    ObservabilityConfig,
+    PipelineTraceCollector,
+    build_runtime_trace,
+    load_observability_config,
+)
+from asr_provider_base import (
+    ProviderAudio,
+    ProviderManager,
+    list_providers,
+    provider_runtime_metadata,
+)
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
 
-from metrics import FileTraceExporter, PipelineTraceCollector, build_runtime_trace, load_observability_config
-
 from asr_runtime_nodes.converters import to_asr_result_msg, to_partial_msg
+from asr_runtime_nodes.transport import decode_transport_metadata, delivery_latency_ms
 
 
 @dataclass(slots=True)
@@ -83,6 +94,18 @@ class ResolvedRuntimeConfiguration:
     provider: Any
 
 
+@dataclass(slots=True)
+class ProviderStreamTraceState:
+    provider_metrics: dict[str, Any]
+    collector: PipelineTraceCollector | None = None
+    predicted_artifact_path: str = ""
+    chunk_count: int = 0
+    sequence_gap_count: int = 0
+    last_topic_delivery_ms: float = 0.0
+    max_topic_delivery_ms: float = 0.0
+    time_to_first_result_ms: float = 0.0
+
+
 class AsrOrchestratorNode(Node):
     def __init__(self) -> None:
         super().__init__("asr_orchestrator_node")
@@ -116,14 +139,15 @@ class AsrOrchestratorNode(Node):
         self.enable_partials = True
         self.audio_source = "file"
         self.max_concurrent_sessions = 1
+        self._observability_config: ObservabilityConfig | None = None
+        self._trace_exporter: FileTraceExporter | None = None
         self._stream_active = False
         self._stream_request_id = ""
+        self._stream_trace_state: ProviderStreamTraceState | None = None
         try:
             self._observability_config = load_observability_config(configs_root=self.configs_root)
             self._trace_exporter = FileTraceExporter(self._observability_config)
         except Exception as exc:
-            self._observability_config = None
-            self._trace_exporter = None
             self.get_logger().warning(f"Observability config unavailable: {exc}")
         self._load_runtime_configuration(overrides={})
 
@@ -424,7 +448,7 @@ class AsrOrchestratorNode(Node):
             enable_partials=bool(orchestrator_cfg.get("enable_partials", True)),
             audio_source=str(overrides.get("audio_source", "") or "").strip()
             or str(audio_cfg.get("source", "file")),
-            max_concurrent_sessions=self._coerce_int(
+            max_concurrent_sessions=AsrOrchestratorNode._coerce_int(
                 session_cfg.get("max_concurrent_sessions", 1),
                 1,
             ),
@@ -616,6 +640,7 @@ class AsrOrchestratorNode(Node):
         self.audio_session_active = False
         self._stream_active = False
         self._stream_request_id = ""
+        self._stream_trace_state = None
         self._stop_requested_at = None
         self.session_started_at = now
         self.session_updated_at = now
@@ -639,6 +664,59 @@ class AsrOrchestratorNode(Node):
         except Exception as exc:
             self.get_logger().warning(f"Runtime trace export failed: {exc}")
             return ""
+
+    def _predict_runtime_trace_path(self, collector: PipelineTraceCollector | None) -> str:
+        trace_exporter = getattr(self, "_trace_exporter", None)
+        if trace_exporter is None or collector is None:
+            return ""
+        try:
+            return str(trace_exporter.runtime_trace_path(collector.trace))
+        except Exception:
+            return ""
+
+    @staticmethod
+    def _trace_component_name(node: Any) -> str:
+        getter = getattr(node, "get_name", None)
+        if callable(getter):
+            return str(getter())
+        return "asr_orchestrator_node"
+
+    @staticmethod
+    def _time_ns(value: Any) -> int:
+        return int(getattr(value, "nanoseconds", 0) or 0)
+
+    @staticmethod
+    def _topic_observability(now: Any, msg: Any) -> tuple[dict[str, Any], float]:
+        metadata = decode_transport_metadata(getattr(getattr(msg, "header", None), "frame_id", ""))
+        delivery_ms = delivery_latency_ms(
+            now_ns=AsrOrchestratorNode._time_ns(now),
+            stamp=getattr(getattr(msg, "header", None), "stamp", None),
+        )
+        return metadata, delivery_ms
+
+    @staticmethod
+    def _runtime_trace_metrics(
+        *,
+        provider_metrics: dict[str, Any] | None,
+        topic_delivery_ms: float,
+        max_topic_delivery_ms: float,
+        sequence_gap_count: int,
+        chunk_count: int,
+        time_to_first_result_ms: float,
+        time_to_final_result_ms: float,
+    ) -> dict[str, Any]:
+        metrics = dict(provider_metrics or {})
+        metrics.update(
+            {
+                "topic_delivery_ms": max(float(topic_delivery_ms), 0.0),
+                "max_topic_delivery_ms": max(float(max_topic_delivery_ms), 0.0),
+                "sequence_gap_count": max(int(sequence_gap_count), 0),
+                "chunk_count": max(int(chunk_count), 0),
+                "time_to_first_result_ms": max(float(time_to_first_result_ms), 0.0),
+                "time_to_final_result_ms": max(float(time_to_final_result_ms), 0.0),
+            }
+        )
+        return metrics
 
     def _resolve_recognize_provider(
         self,
@@ -681,9 +759,11 @@ class AsrOrchestratorNode(Node):
             return
 
         was_stopping = self.session_state == "stopping"
+        now = self.get_clock().now()
         self.session_state = "running"
-        self.session_updated_at = self.get_clock().now()
+        self.session_updated_at = now
         request_id = make_request_id()
+        transport_meta, topic_delivery_ms = AsrOrchestratorNode._topic_observability(now, msg)
         audio = ProviderAudio(
             session_id=msg.session_id or self.session_id,
             request_id=request_id,
@@ -700,9 +780,104 @@ class AsrOrchestratorNode(Node):
                 "sample_width_bytes": sample_width_from_encoding(msg.encoding, default=2),
             },
         )
+        provider_metrics = provider_runtime_metadata(self.provider, record_invocation=True)
+        collector: PipelineTraceCollector | None = None
+        predicted_trace_path = ""
+        if getattr(self, "_observability_config", None) is not None:
+            collector = PipelineTraceCollector(
+                trace_type="runtime_segment",
+                request_id=request_id,
+                session_id=msg.session_id or self.session_id,
+                provider_id=str(getattr(self, "provider_id", "") or ""),
+                metadata={
+                    "runtime_profile": str(getattr(self, "runtime_profile", "") or ""),
+                    "provider_profile": str(getattr(self, "provider_profile", "") or ""),
+                    "processing_mode": "segmented",
+                    "segment_id": str(getattr(msg, "segment_id", "") or ""),
+                    "source_id": str(getattr(msg, "source_id", "") or ""),
+                    "metadata_ref": str(getattr(msg, "metadata_ref", "") or ""),
+                },
+            )
+            predicted_trace_path = AsrOrchestratorNode._predict_runtime_trace_path(self, collector)
+            with collector.stage(
+                "segment_transport",
+                component=AsrOrchestratorNode._trace_component_name(self),
+                code_path="asr_runtime_nodes.asr_orchestrator_node._on_segment",
+                input_summary={
+                    "segment_id": str(getattr(msg, "segment_id", "") or ""),
+                    "audio_bytes": len(bytes(msg.data)),
+                },
+            ) as stage_output:
+                stage_output["topic_delivery_ms"] = topic_delivery_ms
+                stage_output["sequence_gap_count"] = int(
+                    transport_meta.get("sequence_gap_count", 0) or 0
+                )
+                stage_output["chunk_count"] = int(transport_meta.get("segment_chunk_count", 0) or 0)
         try:
-            result = self.provider.recognize_once(audio)
-            self._publish_result(result)
+            if collector is not None:
+                with collector.stage(
+                    "provider_recognize",
+                    component=getattr(self.provider, "provider_id", "") or "provider",
+                    code_path=(
+                        f"{type(self.provider).__module__}.{type(self.provider).__name__}.recognize_once"
+                    ),
+                    input_summary={
+                        "segment_id": str(getattr(msg, "segment_id", "") or ""),
+                        "topic_delivery_ms": topic_delivery_ms,
+                    },
+                ) as stage_output:
+                    result = self.provider.recognize_once(audio)
+                    stage_output["provider_id"] = result.provider_id
+                    stage_output["success"] = not bool(result.error_code)
+                    stage_output["latency_ms"] = float(result.latency.total_ms)
+                    stage_output["text_length"] = len(str(result.text or ""))
+            else:
+                result = self.provider.recognize_once(audio)
+            if predicted_trace_path:
+                result.raw_metadata_ref = predicted_trace_path
+            if collector is not None and getattr(self, "_observability_config", None) is not None:
+                with collector.stage(
+                    "result_publish",
+                    component=AsrOrchestratorNode._trace_component_name(self),
+                    code_path="asr_runtime_nodes.asr_orchestrator_node._publish_result",
+                    input_summary={"request_id": request_id},
+                ) as stage_output:
+                    self._publish_result(result)
+                    stage_output["raw_metadata_ref"] = result.raw_metadata_ref
+                trace = build_runtime_trace(
+                    collector=collector,
+                    config=self._observability_config,
+                    provider_id=result.provider_id or getattr(self.provider, "provider_id", ""),
+                    text=result.text,
+                    confidence=result.confidence,
+                    success=not result.degraded and not result.error_code,
+                    degraded=result.degraded,
+                    error_code=result.error_code,
+                    error_message=result.error_message,
+                    language=result.language or self.language,
+                    audio_duration_sec=float(result.audio_duration_sec),
+                    preprocess_ms=float(result.latency.preprocess_ms),
+                    inference_ms=float(result.latency.inference_ms),
+                    postprocess_ms=float(result.latency.postprocess_ms),
+                    total_latency_ms=float(result.latency.total_ms),
+                    extra_metrics=AsrOrchestratorNode._runtime_trace_metrics(
+                        provider_metrics=provider_metrics,
+                        topic_delivery_ms=topic_delivery_ms,
+                        max_topic_delivery_ms=topic_delivery_ms,
+                        sequence_gap_count=int(transport_meta.get("sequence_gap_count", 0) or 0),
+                        chunk_count=int(transport_meta.get("segment_chunk_count", 0) or 0),
+                        time_to_first_result_ms=float(result.latency.first_partial_ms or 0.0),
+                        time_to_final_result_ms=float(result.latency.total_ms),
+                    ),
+                )
+                if trace.validation.corrupted:
+                    self.get_logger().warning(
+                        "Runtime trace validation failed for request "
+                        f"{request_id}: {'; '.join(trace.validation.errors)}"
+                    )
+                self._export_runtime_trace(trace)
+            else:
+                self._publish_result(result)
             if was_stopping:
                 self.session_state = "stopped"
                 self.session_ended_at = self.get_clock().now()
@@ -766,13 +941,27 @@ class AsrOrchestratorNode(Node):
         if result is None:
             return
         if result.is_partial:
+            trace_state = getattr(self, "_stream_trace_state", None)
+            if (
+                trace_state is not None
+                and result.text
+                and trace_state.time_to_first_result_ms <= 0.0
+            ):
+                trace_state.time_to_first_result_ms = float(
+                    result.latency.first_partial_ms or result.latency.total_ms or 0.0
+                )
             if self.enable_partials and result.text:
                 self._publish_partial_result(result)
             return
         self._publish_result(result)
 
     def _publish_runtime_error_result(
-        self, *, request_id: str, error_code: str, error_message: str
+        self,
+        *,
+        request_id: str,
+        error_code: str,
+        error_message: str,
+        raw_metadata_ref: str = "",
     ) -> None:
         self._publish_result(
             NormalizedAsrResult(
@@ -787,8 +976,52 @@ class AsrOrchestratorNode(Node):
                 degraded=True,
                 error_code=error_code,
                 error_message=error_message,
+                raw_metadata_ref=raw_metadata_ref,
             )
         )
+
+    def _export_stream_failure_trace(self, *, error_code: str, error_message: str) -> None:
+        trace_state = getattr(self, "_stream_trace_state", None)
+        if (
+            trace_state is None
+            or trace_state.collector is None
+            or getattr(self, "_observability_config", None) is None
+        ):
+            return
+        observability_config = cast(ObservabilityConfig, self._observability_config)
+        total_latency_ms = trace_state.collector.finalize().total_duration_ms
+        trace = build_runtime_trace(
+            collector=trace_state.collector,
+            config=observability_config,
+            provider_id=str(getattr(self, "provider_id", "") or ""),
+            text="",
+            confidence=0.0,
+            success=False,
+            degraded=True,
+            error_code=error_code,
+            error_message=error_message,
+            language=str(getattr(self, "language", "") or ""),
+            audio_duration_sec=0.0,
+            preprocess_ms=0.0,
+            inference_ms=0.0,
+            postprocess_ms=0.0,
+            total_latency_ms=total_latency_ms,
+            extra_metrics=AsrOrchestratorNode._runtime_trace_metrics(
+                provider_metrics=trace_state.provider_metrics,
+                topic_delivery_ms=trace_state.last_topic_delivery_ms,
+                max_topic_delivery_ms=trace_state.max_topic_delivery_ms,
+                sequence_gap_count=trace_state.sequence_gap_count,
+                chunk_count=trace_state.chunk_count,
+                time_to_first_result_ms=trace_state.time_to_first_result_ms,
+                time_to_final_result_ms=total_latency_ms,
+            ),
+        )
+        if trace.validation.corrupted:
+            self.get_logger().warning(
+                "Runtime trace validation failed for stream request "
+                f"{trace.request_id}: {'; '.join(trace.validation.errors)}"
+            )
+        self._export_runtime_trace(trace)
 
     def _handle_provider_runtime_failure(
         self, *, error_code: str, error_message: str, request_id: str = ""
@@ -801,6 +1034,7 @@ class AsrOrchestratorNode(Node):
         self.session_ended_at = now
         self.session_updated_at = now
         self._stream_active = False
+        active_trace_state = getattr(self, "_stream_trace_state", None)
         self._stream_request_id = ""
         self._stop_requested_at = None
 
@@ -809,6 +1043,9 @@ class AsrOrchestratorNode(Node):
                 request_id=request_id or self._stream_request_id or make_request_id(),
                 error_code=error_code,
                 error_message=error_message,
+                raw_metadata_ref=(
+                    active_trace_state.predicted_artifact_path if active_trace_state else ""
+                ),
             )
         except Exception as exc:
             self.last_error_message = (
@@ -825,6 +1062,12 @@ class AsrOrchestratorNode(Node):
             self._stop_audio_session(self.session_id)
         except Exception as exc:
             self.last_error_message = f"{self.last_error_message}; audio_stop_failed: {exc}"
+        AsrOrchestratorNode._export_stream_failure_trace(
+            self,
+            error_code=error_code,
+            error_message=error_message,
+        )
+        self._stream_trace_state = None
 
     def _should_accept_stream_chunk(self, msg: AudioChunk) -> bool:
         if self.processing_mode != "provider_stream":
@@ -855,9 +1098,30 @@ class AsrOrchestratorNode(Node):
         if self._stream_active:
             return
         self._stream_request_id = make_request_id()
-        AsrOrchestratorNode._active_provider(self).start_stream(
-            self._stream_start_options(msg)
+        provider = AsrOrchestratorNode._active_provider(self)
+        provider_metrics = provider_runtime_metadata(provider, record_invocation=True)
+        collector: PipelineTraceCollector | None = None
+        if getattr(self, "_observability_config", None) is not None:
+            collector = PipelineTraceCollector(
+                trace_type="runtime_provider_stream",
+                request_id=self._stream_request_id,
+                session_id=self.session_id,
+                provider_id=str(getattr(self, "provider_id", "") or ""),
+                metadata={
+                    "runtime_profile": str(getattr(self, "runtime_profile", "") or ""),
+                    "provider_profile": str(getattr(self, "provider_profile", "") or ""),
+                    "processing_mode": "provider_stream",
+                    "audio_source": str(getattr(self, "audio_source", "") or ""),
+                },
+            )
+        self._stream_trace_state = ProviderStreamTraceState(
+            provider_metrics=provider_metrics,
+            collector=collector,
+            predicted_artifact_path=AsrOrchestratorNode._predict_runtime_trace_path(
+                self, collector
+            ),
         )
+        provider.start_stream(self._stream_start_options(msg))
         self._stream_active = True
 
     def _forward_stream_audio(self, msg: AudioChunk) -> None:
@@ -871,16 +1135,85 @@ class AsrOrchestratorNode(Node):
 
     def _finish_provider_stream(self) -> None:
         provider = AsrOrchestratorNode._active_provider(self)
-        result = provider.stop_stream()
+        trace_state = getattr(self, "_stream_trace_state", None)
+        collector = trace_state.collector if trace_state is not None else None
+        if collector is not None:
+            with collector.stage(
+                "provider_stream_finalize",
+                component=getattr(provider, "provider_id", "") or "provider",
+                code_path=f"{type(provider).__module__}.{type(provider).__name__}.stop_stream",
+                input_summary={
+                    "chunk_count": trace_state.chunk_count if trace_state is not None else 0,
+                },
+            ) as stage_output:
+                result = provider.stop_stream()
+                stage_output["latency_ms"] = float(result.latency.total_ms)
+                stage_output["provider_id"] = result.provider_id
+        else:
+            result = provider.stop_stream()
         for pending in provider.drain_stream_results():
             self._handle_stream_update(pending)
         self._stream_active = False
-        self._publish_result(result)
+        if trace_state is not None and trace_state.predicted_artifact_path:
+            result.raw_metadata_ref = trace_state.predicted_artifact_path
+        if collector is not None and getattr(self, "_observability_config", None) is not None:
+            observability_config = cast(ObservabilityConfig, self._observability_config)
+            with collector.stage(
+                "result_publish",
+                component=AsrOrchestratorNode._trace_component_name(self),
+                code_path="asr_runtime_nodes.asr_orchestrator_node._publish_result",
+                input_summary={"request_id": result.request_id},
+            ) as stage_output:
+                self._publish_result(result)
+                stage_output["raw_metadata_ref"] = result.raw_metadata_ref
+            trace = build_runtime_trace(
+                collector=collector,
+                config=observability_config,
+                provider_id=result.provider_id or getattr(provider, "provider_id", ""),
+                text=result.text,
+                confidence=result.confidence,
+                success=not result.degraded and not result.error_code,
+                degraded=result.degraded,
+                error_code=result.error_code,
+                error_message=result.error_message,
+                language=result.language or self.language,
+                audio_duration_sec=float(result.audio_duration_sec),
+                preprocess_ms=float(result.latency.preprocess_ms),
+                inference_ms=float(result.latency.inference_ms),
+                postprocess_ms=float(result.latency.postprocess_ms),
+                total_latency_ms=float(result.latency.total_ms),
+                extra_metrics=AsrOrchestratorNode._runtime_trace_metrics(
+                    provider_metrics=trace_state.provider_metrics if trace_state else {},
+                    topic_delivery_ms=(
+                        trace_state.last_topic_delivery_ms if trace_state is not None else 0.0
+                    ),
+                    max_topic_delivery_ms=(
+                        trace_state.max_topic_delivery_ms if trace_state is not None else 0.0
+                    ),
+                    sequence_gap_count=(
+                        trace_state.sequence_gap_count if trace_state is not None else 0
+                    ),
+                    chunk_count=trace_state.chunk_count if trace_state is not None else 0,
+                    time_to_first_result_ms=(
+                        trace_state.time_to_first_result_ms if trace_state is not None else 0.0
+                    ),
+                    time_to_final_result_ms=float(result.latency.total_ms),
+                ),
+            )
+            if trace.validation.corrupted:
+                self.get_logger().warning(
+                    "Runtime trace validation failed for request "
+                    f"{result.request_id}: {'; '.join(trace.validation.errors)}"
+                )
+            self._export_runtime_trace(trace)
+        else:
+            self._publish_result(result)
         self.audio_session_active = False
         self.session_state = "stopped"
         self.session_ended_at = self.get_clock().now()
         self.session_updated_at = self.session_ended_at
         self._stop_requested_at = None
+        self._stream_trace_state = None
 
     def _on_preprocessed_chunk(self, msg: AudioChunk) -> None:
         # Provider-stream mode forwards chunks directly to a streaming-capable
@@ -891,8 +1224,38 @@ class AsrOrchestratorNode(Node):
             self._ensure_provider_stream_started(msg)
             was_stopping = self.session_state == "stopping"
             self.session_state = "running"
-            self.session_updated_at = self.get_clock().now()
-            self._forward_stream_audio(msg)
+            now = self.get_clock().now()
+            self.session_updated_at = now
+            transport_meta, topic_delivery_ms = AsrOrchestratorNode._topic_observability(now, msg)
+            trace_state = getattr(self, "_stream_trace_state", None)
+            if trace_state is not None:
+                if msg.data:
+                    trace_state.chunk_count += 1
+                trace_state.sequence_gap_count += int(
+                    transport_meta.get("sequence_gap_count", 0) or 0
+                )
+                trace_state.last_topic_delivery_ms = topic_delivery_ms
+                trace_state.max_topic_delivery_ms = max(
+                    trace_state.max_topic_delivery_ms,
+                    topic_delivery_ms,
+                )
+            if trace_state is not None and trace_state.collector is not None and msg.data:
+                with trace_state.collector.stage(
+                    "provider_stream_chunk",
+                    component=getattr(self.provider, "provider_id", "") or "provider",
+                    code_path="asr_runtime_nodes.asr_orchestrator_node._forward_stream_audio",
+                    input_summary={
+                        "chunk_bytes": len(bytes(msg.data)),
+                        "topic_delivery_ms": topic_delivery_ms,
+                    },
+                ) as stage_output:
+                    self._forward_stream_audio(msg)
+                    stage_output["sequence_gap_count"] = int(
+                        transport_meta.get("sequence_gap_count", 0) or 0
+                    )
+                    stage_output["chunk_count"] = trace_state.chunk_count
+            else:
+                self._forward_stream_audio(msg)
             if msg.is_last_chunk or was_stopping:
                 self._finish_provider_stream()
         except Exception as exc:
@@ -1197,6 +1560,8 @@ class AsrOrchestratorNode(Node):
             requested_language=clean_language,
             wav_path=wav_path,
         )
+        provider_metrics = provider_runtime_metadata(active_provider, record_invocation=True)
+        predicted_trace_path = AsrOrchestratorNode._predict_runtime_trace_path(self, collector)
         try:
             try:
                 with collector.stage(
@@ -1229,7 +1594,17 @@ class AsrOrchestratorNode(Node):
                 response.resolved_profile = resolved_profile
                 return response
 
+            if predicted_trace_path:
+                result.raw_metadata_ref = predicted_trace_path
             if getattr(self, "_observability_config", None) is not None:
+                with collector.stage(
+                    "result_publish",
+                    component=AsrOrchestratorNode._trace_component_name(self),
+                    code_path="asr_runtime_nodes.asr_orchestrator_node._publish_result",
+                    input_summary={"request_id": req.request_id},
+                ) as stage_output:
+                    self._publish_result(result)
+                    stage_output["raw_metadata_ref"] = result.raw_metadata_ref
                 trace = build_runtime_trace(
                     collector=collector,
                     config=self._observability_config,
@@ -1246,6 +1621,15 @@ class AsrOrchestratorNode(Node):
                     inference_ms=float(result.latency.inference_ms),
                     postprocess_ms=float(result.latency.postprocess_ms),
                     total_latency_ms=float(result.latency.total_ms),
+                    extra_metrics=AsrOrchestratorNode._runtime_trace_metrics(
+                        provider_metrics=provider_metrics,
+                        topic_delivery_ms=0.0,
+                        max_topic_delivery_ms=0.0,
+                        sequence_gap_count=0,
+                        chunk_count=1,
+                        time_to_first_result_ms=float(result.latency.first_partial_ms or 0.0),
+                        time_to_final_result_ms=float(result.latency.total_ms),
+                    ),
                 )
                 if trace.validation.corrupted:
                     result.tags.append("metrics_corrupted")
@@ -1259,7 +1643,8 @@ class AsrOrchestratorNode(Node):
 
             self._copy_result_message(to_asr_result_msg(result), response.result)
             response.resolved_profile = resolved_profile
-            self._publish_result(result)
+            if getattr(self, "_observability_config", None) is None:
+                self._publish_result(result)
         finally:
             if should_teardown_provider and active_provider is not None:
                 active_provider.teardown()

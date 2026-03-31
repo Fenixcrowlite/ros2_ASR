@@ -6,7 +6,6 @@ import json
 import logging
 import threading
 import time
-import uuid
 from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass
@@ -314,35 +313,92 @@ class GatewayRosClient:
         self.timeout_sec = timeout_sec
         if not rclpy.ok():
             rclpy.init(args=None)
+        self._bridge_lock = threading.Lock()
+        self._client_node: Node | None = None
+        self._executor: SingleThreadedExecutor | None = None
+        self._executor_thread: threading.Thread | None = None
+        self._service_clients: dict[str, Any] = {}
+        self._action_clients: dict[str, Any] = {}
+        self._start_bridge()
         self._observer = RuntimeObserver()
         self._observer.start()
 
     def close(self) -> None:
         self._observer.stop()
+        self._shutdown_bridge()
+
+    def _start_bridge(self) -> None:
+        self._client_node = Node("asr_gateway_client_bridge", use_global_arguments=False)
+        self._executor = SingleThreadedExecutor()
+        self._executor.add_node(self._client_node)
+        self._executor_thread = threading.Thread(
+            target=self._spin_bridge,
+            name="asr-gateway-client-bridge",
+            daemon=True,
+        )
+        self._executor_thread.start()
+
+    def _spin_bridge(self) -> None:
+        if self._executor is None:
+            return
+        try:
+            self._executor.spin()
+        except Exception as exc:
+            LOG.warning("gateway ROS bridge executor stopped unexpectedly: %s", exc)
+
+    def _shutdown_bridge(self) -> None:
+        thread = self._executor_thread
+        try:
+            if self._executor is not None:
+                self._executor.shutdown(timeout_sec=0.5)
+        except Exception as exc:
+            LOG.debug("gateway bridge executor shutdown failed: %s", exc)
+        try:
+            if self._client_node is not None:
+                self._client_node.destroy_node()
+        except Exception as exc:
+            LOG.debug("gateway bridge node destroy failed: %s", exc)
+        if thread is not None:
+            try:
+                thread.join(timeout=0.5)
+            except Exception as exc:
+                LOG.debug("gateway bridge thread join failed: %s", exc)
+        self._executor = None
+        self._client_node = None
+        self._executor_thread = None
+        self._service_clients.clear()
+        self._action_clients.clear()
 
     def _node(self) -> Node:
-        # Use short-lived client nodes so independent HTTP requests do not have
-        # to share one mutable ROS client instance.
-        return Node(f"asr_gateway_client_{uuid.uuid4().hex[:8]}", use_global_arguments=False)
+        if self._client_node is None:
+            raise RuntimeError("Gateway ROS bridge is not initialized")
+        return self._client_node
+
+    def _service_client(self, service_type: Any, service_name: str) -> Any:
+        with self._bridge_lock:
+            client = self._service_clients.get(service_name)
+            if client is None:
+                client = self._node().create_client(service_type, service_name)
+                self._service_clients[service_name] = client
+            return client
+
+    def _action_client(self, action_type: Any, action_name: str) -> Any:
+        with self._bridge_lock:
+            client = self._action_clients.get(action_name)
+            if client is None:
+                client = ActionClient(self._node(), action_type, action_name)
+                self._action_clients[action_name] = client
+            return client
 
     def _await_future(self, node: Node, future: Any, *, timeout_sec: float) -> bool:
-        # Spin a private executor until the async ROS future finishes. This
-        # keeps gateway code simple while still using ROS async clients safely.
-        executor = SingleThreadedExecutor()
-        executor.add_node(node)
-        try:
-            deadline = datetime.now(UTC).timestamp() + timeout_sec
-            while not future.done():
-                remaining = deadline - datetime.now(UTC).timestamp()
-                if remaining <= 0:
-                    return False
-                executor.spin_once(timeout_sec=min(0.2, remaining))
-            return True
-        finally:
-            try:
-                executor.shutdown(timeout_sec=0.1)
-            except RuntimeError as exc:
-                LOG.debug("executor shutdown during gateway client cleanup failed: %s", exc)
+        del node
+        deadline = time.monotonic() + timeout_sec
+        while not future.done():
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return False
+            time.sleep(min(0.01, remaining))
+        return True
 
     def runtime_snapshot(self) -> dict[str, Any]:
         return self._observer.snapshot()
@@ -361,36 +417,32 @@ class GatewayRosClient:
         no_response_message: str,
         timeout_sec: float | None = None,
     ) -> GatewayResponse:
-        node = self._node()
         gateway_started_ns = time.perf_counter_ns()
-        try:
-            client = node.create_client(service_type, service_name)
-            effective_timeout = self.timeout_sec if timeout_sec is None else timeout_sec
-            wait_started_ns = time.perf_counter_ns()
-            if not client.wait_for_service(timeout_sec=effective_timeout):
-                return GatewayResponse(False, unavailable_message, {})
-            wait_ms = max((time.perf_counter_ns() - wait_started_ns) / 1_000_000.0, 0.0)
-            request = service_type.Request()
-            request_builder(request)
-            call_started_ns = time.perf_counter_ns()
-            future = client.call_async(request)
-            if not self._await_future(node, future, timeout_sec=effective_timeout):
-                return GatewayResponse(False, no_response_message, {})
-            call_ms = max((time.perf_counter_ns() - call_started_ns) / 1_000_000.0, 0.0)
-            response = future.result()
-            if response is None:
-                return GatewayResponse(False, no_response_message, {})
-            gateway_response = response_builder(response)
-            gateway_response.payload.setdefault("service_wait_ms", wait_ms)
-            gateway_response.payload.setdefault("service_call_ms", call_ms)
-            gateway_response.payload.setdefault("service_latency_ms", call_ms)
-            gateway_response.payload.setdefault(
-                "gateway_request_ms",
-                max((time.perf_counter_ns() - gateway_started_ns) / 1_000_000.0, 0.0),
-            )
-            return gateway_response
-        finally:
-            node.destroy_node()
+        client = self._service_client(service_type, service_name)
+        effective_timeout = self.timeout_sec if timeout_sec is None else timeout_sec
+        wait_started_ns = time.perf_counter_ns()
+        if not client.wait_for_service(timeout_sec=effective_timeout):
+            return GatewayResponse(False, unavailable_message, {})
+        wait_ms = max((time.perf_counter_ns() - wait_started_ns) / 1_000_000.0, 0.0)
+        request = service_type.Request()
+        request_builder(request)
+        call_started_ns = time.perf_counter_ns()
+        future = client.call_async(request)
+        if not self._await_future(self._node(), future, timeout_sec=effective_timeout):
+            return GatewayResponse(False, no_response_message, {})
+        call_ms = max((time.perf_counter_ns() - call_started_ns) / 1_000_000.0, 0.0)
+        response = future.result()
+        if response is None:
+            return GatewayResponse(False, no_response_message, {})
+        gateway_response = response_builder(response)
+        gateway_response.payload.setdefault("service_wait_ms", wait_ms)
+        gateway_response.payload.setdefault("service_call_ms", call_ms)
+        gateway_response.payload.setdefault("service_latency_ms", call_ms)
+        gateway_response.payload.setdefault(
+            "gateway_request_ms",
+            max((time.perf_counter_ns() - gateway_started_ns) / 1_000_000.0, 0.0),
+        )
+        return gateway_response
 
     def _call_action(
         self,
@@ -407,33 +459,42 @@ class GatewayRosClient:
         goal_timeout_sec: float | None = None,
         result_timeout_sec: float = 180.0,
     ) -> GatewayResponse:
-        node = self._node()
-        try:
-            action = ActionClient(node, action_type, action_name)
-            effective_goal_timeout = (
-                self.timeout_sec if goal_timeout_sec is None else goal_timeout_sec
-            )
-            if not action.wait_for_server(timeout_sec=effective_goal_timeout):
-                return GatewayResponse(False, unavailable_message, {})
+        gateway_started_ns = time.perf_counter_ns()
+        action = self._action_client(action_type, action_name)
+        effective_goal_timeout = self.timeout_sec if goal_timeout_sec is None else goal_timeout_sec
+        if not action.wait_for_server(timeout_sec=effective_goal_timeout):
+            return GatewayResponse(False, unavailable_message, {})
 
-            goal = action_type.Goal()
-            goal_builder(goal)
-            send_future = action.send_goal_async(goal)
-            if not self._await_future(node, send_future, timeout_sec=effective_goal_timeout):
-                return GatewayResponse(False, goal_timeout_message, {})
-            goal_handle = send_future.result()
-            if goal_handle is None or not goal_handle.accepted:
-                return GatewayResponse(False, goal_rejected_message, {})
+        goal = action_type.Goal()
+        goal_builder(goal)
+        action_started_ns = time.perf_counter_ns()
+        send_future = action.send_goal_async(goal)
+        if not self._await_future(self._node(), send_future, timeout_sec=effective_goal_timeout):
+            return GatewayResponse(False, goal_timeout_message, {})
+        goal_wait_ms = max((time.perf_counter_ns() - action_started_ns) / 1_000_000.0, 0.0)
+        goal_handle = send_future.result()
+        if goal_handle is None or not goal_handle.accepted:
+            return GatewayResponse(False, goal_rejected_message, {})
 
-            result_future = goal_handle.get_result_async()
-            if not self._await_future(node, result_future, timeout_sec=result_timeout_sec):
-                return GatewayResponse(False, result_timeout_message, {})
-            result = result_future.result()
-            if result is None:
-                return GatewayResponse(False, no_result_message, {})
-            return result_builder(result)
-        finally:
-            node.destroy_node()
+        result_started_ns = time.perf_counter_ns()
+        result_future = goal_handle.get_result_async()
+        if not self._await_future(self._node(), result_future, timeout_sec=result_timeout_sec):
+            return GatewayResponse(False, result_timeout_message, {})
+        result_wait_ms = max((time.perf_counter_ns() - result_started_ns) / 1_000_000.0, 0.0)
+        result = result_future.result()
+        if result is None:
+            return GatewayResponse(False, no_result_message, {})
+        gateway_response = result_builder(result)
+        action_latency_ms = max((time.perf_counter_ns() - action_started_ns) / 1_000_000.0, 0.0)
+        gateway_response.payload.setdefault("action_goal_wait_ms", goal_wait_ms)
+        gateway_response.payload.setdefault("action_result_wait_ms", result_wait_ms)
+        gateway_response.payload.setdefault("action_latency_ms", action_latency_ms)
+        gateway_response.payload.setdefault("ros_action_latency_ms", action_latency_ms)
+        gateway_response.payload.setdefault(
+            "gateway_request_ms",
+            max((time.perf_counter_ns() - gateway_started_ns) / 1_000_000.0, 0.0),
+        )
+        return gateway_response
 
     def _populate_runtime_request(
         self,

@@ -122,7 +122,7 @@ def _write_outputs(payload: dict[str, Any], suite_id: str) -> None:
         "",
         (
             "| Benchmark | Dataset | Acoustic Profile | Lang | Samples | Success | "
-            "WER | CER | Accuracy | Latency ms | RTF |"
+            "WER | CER | Exact Match Rate | Latency ms | RTF |"
         ),
         "|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|",
     ]
@@ -153,7 +153,7 @@ def _write_outputs(payload: dict[str, Any], suite_id: str) -> None:
         lines.append(
             f"- `{acoustic_profile}`: WER `{_mean_metric(items, 'wer'):.4f}`, "
             f"CER `{_mean_metric(items, 'cer'):.4f}`, "
-            f"accuracy `{_mean_metric(items, 'sample_accuracy'):.4f}`, "
+            f"exact_match_rate `{_mean_metric(items, 'sample_accuracy'):.4f}`, "
             f"latency `{_mean_metric(items, 'total_latency_ms'):.2f}` ms, "
             f"RTF `{_mean_metric(items, 'real_time_factor'):.4f}`"
         )

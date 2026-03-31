@@ -61,7 +61,14 @@ def seed_logs(project_root: Path) -> None:
     )
 
 
-def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: float) -> Path:
+def seed_benchmark_run(
+    project_root: Path,
+    run_id: str,
+    *,
+    wer: float,
+    cer: float,
+    sample_accuracy: float | None = None,
+) -> Path:
     run_dir = project_root / "artifacts" / "benchmark_runs" / run_id
     for rel in (
         "manifest",
@@ -83,10 +90,15 @@ def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: floa
         "sample_count": 1,
         "created_at": "2026-03-12T00:00:00+00:00",
     }
+    resolved_sample_accuracy = (
+        float(sample_accuracy)
+        if sample_accuracy is not None
+        else (1.0 if wer == 0.0 and cer == 0.0 else 0.0)
+    )
     mean_metrics = {
         "wer": wer,
         "cer": cer,
-        "sample_accuracy": 1.0 if wer == 0.0 and cer == 0.0 else 0.0,
+        "sample_accuracy": resolved_sample_accuracy,
         "total_latency_ms": 15.0,
         "per_utterance_latency_ms": 15.0,
         "real_time_factor": 0.25,
@@ -120,7 +132,7 @@ def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: floa
             "quality_metrics": {
                 "wer": wer,
                 "cer": cer,
-                "sample_accuracy": 1.0 if wer == 0.0 and cer == 0.0 else 0.0,
+                "sample_accuracy": resolved_sample_accuracy,
             },
             "latency_metrics": {
                 "total_latency_ms": 15.0,
@@ -170,9 +182,9 @@ def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: floa
             "sample_accuracy": {
                 "aggregator": "rate",
                 "count": 1,
-                "numerator": 1 if wer == 0.0 and cer == 0.0 else 0,
+                "numerator": 1 if resolved_sample_accuracy >= 1.0 else 0,
                 "denominator": 1,
-                "value": 1.0 if wer == 0.0 and cer == 0.0 else 0.0,
+                "value": resolved_sample_accuracy,
             },
             "total_latency_ms": {
                 "aggregator": "mean",
@@ -232,7 +244,7 @@ def seed_benchmark_run(project_root: Path, run_id: str, *, wer: float, cer: floa
         "quality_metrics": {
             "wer": wer,
             "cer": cer,
-            "sample_accuracy": 1.0 if wer == 0.0 and cer == 0.0 else 0.0,
+            "sample_accuracy": resolved_sample_accuracy,
         },
         "latency_metrics": {
             "total_latency_ms": 15.0,

@@ -125,7 +125,7 @@ export function initBenchmarkPage(ctx) {
         { key: 'failed', label: 'Failed', value: (row) => fmtMetric(row.failed_samples) },
         { key: 'wer', label: 'WER', value: (row) => fmtMetric(row.quality_metrics?.wer) },
         { key: 'cer', label: 'CER', value: (row) => fmtMetric(row.quality_metrics?.cer) },
-        { key: 'acc', label: 'Exact Match', value: (row) => fmtMetric(row.quality_metrics?.sample_accuracy) },
+        { key: 'acc', label: 'Exact Match Rate', value: (row) => fmtMetric(row.quality_metrics?.sample_accuracy) },
         { key: 'lat', label: 'Latency ms', value: (row) => fmtMetric(row.latency_metrics?.total_latency_ms) },
         { key: 'rtf', label: 'RTF', value: (row) => fmtMetric(row.latency_metrics?.real_time_factor) },
         { key: 'succ_rate', label: 'Success Rate', value: (row) => fmtMetric(row.reliability_metrics?.success_rate) },

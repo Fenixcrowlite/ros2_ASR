@@ -10,7 +10,11 @@ from pathlib import Path
 
 def _pythonpath(repo_root: Path) -> str:
     src_root = repo_root / "ros2_ws" / "src"
-    parts = [str(repo_root)] + [str(path) for path in src_root.iterdir() if path.is_dir()]
+    parts = [str(repo_root)] + [
+        str(path)
+        for path in src_root.iterdir()
+        if path.is_dir() and path.name not in {"asr_ros", "asr_benchmark"}
+    ]
     return os.pathsep.join(parts)
 
 
@@ -308,6 +312,7 @@ def test_generate_report_cli_uses_corpus_wer_and_input_plot_directory(
     report_text = output_md.read_text(encoding="utf-8")
     assert "| whisper | 0.250 | 0.250 | 20.0 | 1.000 | 0.000 | 0.3000 |" in report_text
     assert str(plots_dir / "wer_cer_by_backend.png") in report_text
+    assert "Exact Match Rate" not in report_text
 
 
 def test_generate_report_cli_rejects_missing_input(repo_root: Path, tmp_path: Path) -> None:
@@ -414,6 +419,7 @@ def test_generate_report_cli_accepts_canonical_summary_json(
     assert result.returncode == 0
     report_text = output_md.read_text(encoding="utf-8")
     assert "Run ID: bench_cli_summary" in report_text
+    assert "Exact Match Rate" in report_text
     assert (
         "| providers/fake_cli | 0.000 | 0.000 | 1.000 | 12.0 | 0.200 | 1.000 | 0.0000 |"
         in report_text

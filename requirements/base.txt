@@ -1,0 +1,9 @@
+numpy>=1.26.0
+matplotlib>=3.8.0
+psutil>=5.9.8
+pyyaml>=6.0.1
+catkin_pkg>=1.0.0
+lark>=1.1.9
+requests>=2.31.0
+pyarrow>=23.0.0
+defusedxml>=0.7.1

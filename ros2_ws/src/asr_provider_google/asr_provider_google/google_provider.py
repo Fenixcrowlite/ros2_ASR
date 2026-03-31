@@ -21,7 +21,9 @@ def _metadata_float(response: AsrResponse, key: str) -> float:
         return 0.0
 
 
-def _normalize(provider_id: str, audio: ProviderAudio, response: AsrResponse, *, is_partial: bool = False) -> NormalizedAsrResult:
+def _normalize(
+    provider_id: str, audio: ProviderAudio, response: AsrResponse, *, is_partial: bool = False
+) -> NormalizedAsrResult:
     words = [
         NormalizedWord(
             word=item.word,
@@ -58,10 +60,10 @@ def _normalize(provider_id: str, audio: ProviderAudio, response: AsrResponse, *,
         timestamps_available=bool(words),
         language=response.language or audio.language,
         latency=LatencyMetadata(
-            total_ms=float(response.timings.total_ms),
-            preprocess_ms=float(response.timings.preprocess_ms),
-            inference_ms=float(response.timings.inference_ms),
-            postprocess_ms=float(response.timings.postprocess_ms),
+            total_ms=float(getattr(response.timings, "total_ms", 0.0) or 0.0),
+            preprocess_ms=float(getattr(response.timings, "preprocess_ms", 0.0) or 0.0),
+            inference_ms=float(getattr(response.timings, "inference_ms", 0.0) or 0.0),
+            postprocess_ms=float(getattr(response.timings, "postprocess_ms", 0.0) or 0.0),
             first_partial_ms=float(_metadata_float(response, "first_partial_ms")),
             finalization_ms=float(_metadata_float(response, "finalization_ms")),
         ),
@@ -69,7 +71,9 @@ def _normalize(provider_id: str, audio: ProviderAudio, response: AsrResponse, *,
         degraded=degraded,
         error_code=error_code,
         error_message=error_message,
-        tags=["cloud", "native_stream"] if is_partial or backend_info.get("streaming_mode") == "native" else ["cloud"],
+        tags=["cloud", "native_stream"]
+        if is_partial or backend_info.get("streaming_mode") == "native"
+        else ["cloud"],
     )
 
 

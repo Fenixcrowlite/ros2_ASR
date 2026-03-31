@@ -48,17 +48,13 @@ def load_manifest_csv(path: str) -> list[DatasetItem]:
                 resolved_wav = wav_candidate.resolve()
             else:
                 from_manifest = (manifest_path.parent / wav_candidate).resolve()
-                from_cwd = (Path.cwd() / wav_candidate).resolve()
-                # Prefer paths relative to manifest location for reproducible runs.
                 if from_manifest.exists():
                     resolved_wav = from_manifest
-                elif from_cwd.exists():
-                    resolved_wav = from_cwd
                 else:
                     raise ValueError(
                         "Dataset row "
-                        f"{row_index}: wav_path does not exist from current directory "
-                        f"or manifest directory: {raw_wav_path}"
+                        f"{row_index}: wav_path does not exist relative to manifest "
+                        f"directory: {raw_wav_path}"
                     )
 
             if not resolved_wav.exists():

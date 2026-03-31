@@ -109,3 +109,88 @@ def test_summarize_result_rows_uses_rate_statistics_for_reliability_metrics() ->
         "denominator": 3,
         "value": 1 / 3,
     }
+
+
+def test_summarize_result_rows_excludes_corrupted_rows_from_aggregates() -> None:
+    rows = [
+        {
+            "success": True,
+            "trace_corrupted": False,
+            "metrics": {"wer": 0.0, "total_latency_ms": 10.0},
+            "reference_text": "hello world",
+            "text": "hello world",
+            "quality_support": {
+                "normalized_reference": "hello world",
+                "normalized_hypothesis": "hello world",
+                "reference_word_count": 2,
+                "reference_char_count": 10,
+                "word_edits": 0,
+                "char_edits": 0,
+                "exact_match": True,
+                "wer": 0.0,
+                "cer": 0.0,
+            },
+        },
+        {
+            "success": True,
+            "trace_corrupted": True,
+            "metrics": {"wer": 1.0, "total_latency_ms": 999.0},
+            "reference_text": "hello world",
+            "text": "noise",
+            "quality_support": {
+                "normalized_reference": "hello world",
+                "normalized_hypothesis": "noise",
+                "reference_word_count": 2,
+                "reference_char_count": 10,
+                "word_edits": 2,
+                "char_edits": 5,
+                "exact_match": False,
+                "wer": 1.0,
+                "cer": 0.5,
+            },
+        },
+    ]
+
+    summary = summarize_result_rows(rows, exclude_corrupted=True)
+
+    assert summary["total_samples"] == 2
+    assert summary["successful_samples"] == 2
+    assert summary["aggregate_samples"] == 1
+    assert summary["corrupted_samples"] == 1
+    assert summary["aggregate_excludes_corrupted"] is True
+    assert summary["mean_metrics"]["wer"] == 0.0
+    assert summary["mean_metrics"]["total_latency_ms"] == 10.0
+
+
+def test_summarize_result_rows_keeps_exact_match_rate_independent_from_zero_cer() -> None:
+    rows = [
+        {
+            "success": True,
+            "metrics": {"wer": 1.0, "cer": 0.0, "sample_accuracy": 0.0},
+            "reference_text": "10001 90210 01803",
+            "text": "100019021001803.",
+            "quality_support": {
+                "normalized_reference": "10001 90210 01803",
+                "normalized_hypothesis": "100019021001803",
+                "reference_word_count": 3,
+                "reference_char_count": 15,
+                "word_edits": 3,
+                "char_edits": 0,
+                "exact_match": False,
+                "wer": 1.0,
+                "cer": 0.0,
+            },
+        }
+    ]
+
+    summary = summarize_result_rows(rows)
+
+    assert summary["mean_metrics"]["cer"] == 0.0
+    assert summary["mean_metrics"]["sample_accuracy"] == 0.0
+    assert summary["metric_statistics"]["sample_accuracy"] == {
+        "count": 1,
+        "aggregator": "rate",
+        "numerator": 0,
+        "denominator": 1,
+        "value": 0.0,
+    }

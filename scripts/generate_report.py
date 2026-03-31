@@ -132,7 +132,7 @@ def _build_canonical_summary_report(summary_payload: dict[str, object]) -> list[
     lines.append("## Provider Metrics")
     lines.append("")
     lines.append(
-        "| Provider | WER | CER | Accuracy | Mean Latency (ms) | "
+        "| Provider | WER | CER | Exact Match Rate | Mean Latency (ms) | "
         "Mean RTF | Success Rate | Estimated Total Cost (USD) |"
     )
     lines.append("|---|---:|---:|---:|---:|---:|---:|---:|")

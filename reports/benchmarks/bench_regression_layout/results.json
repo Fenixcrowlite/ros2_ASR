@@ -1,0 +1,109 @@
+[
+  {
+    "run_id": "bench_regression_layout",
+    "provider_profile": "providers/fake_regression",
+    "provider_id": "fake_regression_provider",
+    "sample_id": "sample_0001",
+    "success": true,
+    "text": "hello world",
+    "reference_text": "hello world",
+    "normalized_reference_text": "hello world",
+    "normalized_hypothesis_text": "hello world",
+    "quality_support": {
+      "normalized_reference": "hello world",
+      "normalized_hypothesis": "hello world",
+      "reference_has_content": true,
+      "hypothesis_has_content": true,
+      "reference_word_count": 2,
+      "reference_char_count": 10,
+      "word_edits": 0,
+      "char_edits": 0,
+      "exact_match": true,
+      "wer": 0.0,
+      "cer": 0.0
+    },
+    "error_code": "",
+    "error_message": "",
+    "metrics": {
+      "cer": 0.0,
+      "sample_accuracy": 1.0,
+      "wer": 0.0,
+      "confidence": 0.92,
+      "preprocess_ms": 0.0,
+      "inference_ms": 0.0,
+      "postprocess_ms": 0.0,
+      "model_load_ms": 0.013826,
+      "provider_init_cold_start": true,
+      "provider_init_warm_start": false,
+      "provider_call_cold_start": true,
+      "provider_call_warm_start": false,
+      "provider_invocation_index": 1,
+      "cpu_percent": 11.4,
+      "memory_mb": 175.7421875,
+      "gpu_util_percent": 17.0,
+      "gpu_memory_mb": 791.0
+    },
+    "execution_mode": "batch",
+    "streaming_mode": "none",
+    "scenario": "clean_baseline",
+    "noise_level": "clean",
+    "noise_mode": "none",
+    "noise_snr_db": null,
+    "provider_preset": "",
+    "input_audio_path": "/tmp/pytest-of-fenix/pytest-74/test_benchmark_artifact_layout0/datasets/imported/sample.wav",
+    "audio_duration_sec": 8.308,
+    "confidence": 0.92,
+    "preprocess_ms": 0.0,
+    "inference_ms": 0.0,
+    "postprocess_ms": 0.0,
+    "trace_artifact_ref": "/tmp/pytest-of-fenix/pytest-74/test_benchmark_artifact_layout0/artifacts/benchmark_runs/bench_regression_layout/metrics/traces/trace_8383aebb71fe492494487321430bf579.json",
+    "trace_corrupted": false,
+    "normalized_result": {
+      "request_id": "req_c7e13018bfa541568bbe633b891361f3",
+      "session_id": "benchmark_bench_regression_layout",
+      "provider_id": "fake_regression_provider",
+      "text": "hello world",
+      "is_final": true,
+      "is_partial": false,
+      "utterance_start_sec": 0.0,
+      "utterance_end_sec": 0.8,
+      "audio_duration_sec": 0.0,
+      "words": [
+        {
+          "word": "hello",
+          "start_sec": 0.0,
+          "end_sec": 0.4,
+          "confidence": 0.91,
+          "confidence_available": true
+        },
+        {
+          "word": "world",
+          "start_sec": 0.41,
+          "end_sec": 0.8,
+          "confidence": 0.93,
+          "confidence_available": true
+        }
+      ],
+      "confidence": 0.92,
+      "confidence_available": true,
+      "timestamps_available": true,
+      "language": "en-US",
+      "language_detected": false,
+      "latency": {
+        "total_ms": 15.0,
+        "preprocess_ms": 0.0,
+        "inference_ms": 0.0,
+        "postprocess_ms": 0.0,
+        "first_partial_ms": 0.0,
+        "finalization_ms": 3.0
+      },
+      "raw_metadata_ref": "artifact://fake/raw",
+      "degraded": false,
+      "error_code": "",
+      "error_message": "",
+      "tags": [
+        "fake"
+      ]
+    }
+  }
+]

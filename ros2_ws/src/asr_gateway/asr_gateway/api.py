@@ -1023,16 +1023,29 @@ def _provider_profiles_summary() -> list[dict[str, Any]]:
         valid = True
         message = "valid"
         status = "unknown"
+        health = "unknown"
+        error_code = ""
+        error_message = ""
+        runtime_ready = False
         try:
             adapter = manager.create_from_profile(f"providers/{pid}")
             adapter_status = adapter.get_status()
             status = adapter_status.state
+            message = adapter_status.message or message
+            health = adapter_status.health or "ok"
+            error_code = adapter_status.error_code
+            error_message = adapter_status.error_message
+            runtime_ready = bool(
+                health != "error" and status not in {"invalid", "error", "stopped"}
+            )
             capabilities = _capabilities_to_dict(adapter.discover_capabilities())
             adapter.teardown()
         except Exception as exc:
             valid = False
             message = str(exc)
             status = "invalid"
+            health = "error"
+            error_message = str(exc)
 
         result.append(
             {
@@ -1040,8 +1053,12 @@ def _provider_profiles_summary() -> list[dict[str, Any]]:
                 "provider_id": provider_id,
                 "credentials_ref": credentials_ref,
                 "valid": valid,
+                "runtime_ready": runtime_ready,
                 "message": message,
                 "status": status,
+                "health": health,
+                "error_code": error_code,
+                "error_message": error_message,
                 "last_modified": _profile_mtime(path),
                 "capabilities": capabilities,
                 "settings": payload.get("settings", {}),
@@ -1060,16 +1077,40 @@ def _provider_catalog() -> list[dict[str, Any]]:
     if dynamic.success:
         declared.update(dynamic.payload.get("provider_ids", []))
 
-    by_profile: dict[str, int] = {}
-    for row in _provider_profiles_summary():
+    profile_rows = _provider_profiles_summary()
+    by_profile: dict[str, list[dict[str, Any]]] = {}
+    for row in profile_rows:
         provider_id = str(row.get("provider_id", "")).strip()
         if provider_id:
-            by_profile[provider_id] = by_profile.get(provider_id, 0) + 1
+            by_profile.setdefault(provider_id, []).append(row)
 
     catalog: list[dict[str, Any]] = []
     for provider_id in sorted(declared):
         caps = _provider_capabilities(provider_id)
         is_cloud = bool(caps.get("requires_network"))
+        rows = by_profile.get(provider_id, [])
+        profiles_count = len(rows)
+        valid_profiles = len([row for row in rows if row.get("valid")])
+        runtime_ready_profiles = len([row for row in rows if row.get("runtime_ready")])
+        invalid_profiles = profiles_count - valid_profiles
+        if profiles_count <= 0:
+            status = "not_configured"
+        elif runtime_ready_profiles == profiles_count and invalid_profiles == 0:
+            status = "ready"
+        elif runtime_ready_profiles > 0:
+            status = "degraded"
+        else:
+            status = "invalid"
+
+        issues = [
+            {
+                "provider_profile": row.get("provider_profile", ""),
+                "message": row.get("message", ""),
+                "status": row.get("status", ""),
+            }
+            for row in rows
+            if not row.get("runtime_ready")
+        ]
         catalog.append(
             {
                 "provider_id": provider_id,
@@ -1077,8 +1118,12 @@ def _provider_catalog() -> list[dict[str, Any]]:
                 "kind": "cloud" if is_cloud else "local",
                 "requires_credentials": bool(caps.get("requires_network")),
                 "capabilities": caps,
-                "profiles_count": by_profile.get(provider_id, 0),
-                "status": "configured" if by_profile.get(provider_id, 0) > 0 else "not_configured",
+                "profiles_count": profiles_count,
+                "valid_profiles": valid_profiles,
+                "invalid_profiles": invalid_profiles,
+                "runtime_ready": runtime_ready_profiles > 0,
+                "status": status,
+                "issues": issues,
             }
         )
     return catalog

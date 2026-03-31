@@ -4,7 +4,13 @@ import json
 from pathlib import Path
 
 import pytest
-from asr_datasets.manifest import DatasetSample, load_manifest, save_manifest, validate_sample
+from asr_datasets.manifest import (
+    DatasetSample,
+    _resolve_audio_path,
+    load_manifest,
+    save_manifest,
+    validate_sample,
+)
 
 
 def test_validate_sample_requires_core_fields() -> None:
@@ -23,6 +29,18 @@ def test_load_manifest_reads_valid_fixture(repo_root: Path) -> None:
     assert len(samples) == 2
     assert samples[0].sample_id == "sample_001"
     assert samples[1].language == "en-US"
+
+
+def test_repo_sample_dataset_manifest_resolves_to_real_audio(repo_root: Path) -> None:
+    manifest_path = repo_root / "datasets" / "manifests" / "sample_dataset.jsonl"
+
+    samples = load_manifest(str(manifest_path))
+
+    assert len(samples) == 1
+    assert Path(samples[0].audio_path).exists()
+    assert Path(samples[0].audio_path).resolve() == (
+        repo_root / "data" / "sample" / "vosk_test.wav"
+    ).resolve()
 
 
 def test_load_manifest_resolves_relative_audio_paths_from_manifest_directory(
@@ -50,6 +68,28 @@ def test_load_manifest_resolves_relative_audio_paths_from_manifest_directory(
 
     assert len(samples) == 1
     assert Path(samples[0].audio_path).resolve() == wav_path.resolve()
+
+
+def test_resolve_audio_path_is_deterministic_regardless_of_cwd(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    manifest_dir = tmp_path / "dataset"
+    manifest_dir.mkdir()
+    manifest_path = manifest_dir / "manifest.jsonl"
+    cwd_dir = tmp_path / "elsewhere"
+    cwd_audio = cwd_dir / "audio"
+    cwd_audio.mkdir(parents=True)
+    (cwd_audio / "sample.wav").write_bytes(b"RIFF0000WAVE")
+    expected = str((manifest_dir / "audio" / "sample.wav").resolve())
+
+    monkeypatch.chdir(cwd_dir)
+    resolved_from_elsewhere = _resolve_audio_path(manifest_path, "audio/sample.wav")
+    monkeypatch.chdir(tmp_path)
+    resolved_from_tmp_root = _resolve_audio_path(manifest_path, "audio/sample.wav")
+
+    assert resolved_from_elsewhere == expected
+    assert resolved_from_tmp_root == expected
 
 
 def test_load_manifest_rejects_duplicate_sample_ids(repo_root: Path) -> None:

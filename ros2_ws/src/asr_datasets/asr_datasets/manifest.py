@@ -30,13 +30,6 @@ def _resolve_audio_path(manifest_path: Path, raw_audio_path: str) -> str:
         return str(candidate.resolve())
 
     from_manifest = (manifest_path.parent / candidate).resolve()
-    if from_manifest.exists():
-        return str(from_manifest)
-
-    from_cwd = (Path.cwd() / candidate).resolve()
-    if from_cwd.exists():
-        return str(from_cwd)
-
     # Preserve a deterministic manifest-relative resolution even when the file
     # is not present yet so later error messages point to a stable location.
     return str(from_manifest)

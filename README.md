@@ -12,6 +12,11 @@ The repository now includes a modular ROS2-first baseline with explicit runtime/
 - Launch package: `asr_launch`.
 - Extended interface contract: `asr_interfaces`.
 
+Default developer flows are now canonical-only:
+- `make build`, `make test-unit`, `make test-ros`, and `make test-colcon` exclude legacy packages/tests.
+- `scripts/run_demo.sh` and `scripts/run_benchmarks.sh` build the canonical package set only.
+- Legacy compatibility remains available through explicit opt-in commands such as `make build-legacy` or manual `colcon --packages-select asr_ros asr_benchmark ...`.
+
 Primary architecture docs:
 - `docs/architecture/system_overview.md`
 - `docs/architecture/runtime_architecture.md`
@@ -74,6 +79,10 @@ bash scripts/release_check.sh
 
 `make report` renders `results/report.md` from `results/latest_benchmark_summary.json`.
 
+`make setup` still installs the umbrella [requirements.txt](/home/fenix/Desktop/ros2ws/requirements.txt), but the dependency set is now split under [requirements/](/home/fenix/Desktop/ros2ws/requirements) into `base`, `runtime`, `providers-local`, `providers-cloud`, `web`, and `dev` groups so targeted environments are reproducible without the old monolith.
+
+`source scripts/source_runtime_env.sh --without-ros` now prepends only canonical Python packages by default. Set `ASR_INCLUDE_LEGACY_PYTHONPATH=1` only when you intentionally need `asr_ros` or the legacy benchmark compatibility package.
+
 For the newer gateway/core benchmark path, the canonical per-run artifacts live under
 `artifacts/benchmark_runs/<run_id>/...`. Those summaries expose grouped metric sections
 (`provider_summaries`, `quality_metrics`, `latency_metrics`, `reliability_metrics`,
@@ -103,6 +112,10 @@ also rejected if filenames collide after basename normalization or if the manife
 references audio files that were not uploaded with the bundle.
 
 Managed `asr_launch` stacks are single-instance per workspace by design. If another runtime/gateway/benchmark stack from this repository is still alive, a new launch fails fast with the conflicting PIDs instead of mixing ROS topics, services, and logs.
+
+Legacy runtime and benchmark packages are still present for compatibility review, but they are no longer part of the default build/test surface:
+- legacy runtime: `asr_ros`
+- legacy benchmark: `asr_benchmark`
 
 In the browser UI:
 
@@ -179,7 +192,7 @@ Included in release package:
 - `scripts/`
 - `data/sample/` and `data/transcripts/`
 - `results/` (benchmark CSV/JSON/plots)
-- root files: `README.md`, `Makefile`, `pyproject.toml`, `requirements.txt`
+- root files: `README.md`, `Makefile`, `pyproject.toml`, `requirements.txt`, `requirements/`
 
 Excluded from release package:
 

@@ -35,10 +35,11 @@ def test_runtime_scripts_target_current_launch_stack() -> None:
     open_live = Path("scripts/open_live_test_terminals.sh").read_text(encoding="utf-8")
 
     assert "ros2 launch asr_launch runtime_minimal.launch.py" in run_demo
+    assert "--packages-skip asr_ros asr_benchmark" in run_demo
     assert "ros2 launch asr_launch runtime_streaming.launch.py" in open_live
     assert "/asr/runtime/start_session" in open_live
     assert "/asr/runtime/results/final" in open_live
-    assert "asr_ros" not in run_demo
+    assert "ros2 launch asr_ros" not in run_demo
     assert "asr_ros" not in open_live
     assert "mic, file, auto" not in open_live
     assert "INPUT_MODE must be one of: mic, file" in open_live

@@ -17,10 +17,10 @@ from asr_metrics.definitions import validate_metric_names
 from asr_metrics.engine import MetricEngine
 from asr_metrics.quality import has_quality_reference
 from asr_metrics.summary import summarize_result_rows
+from asr_observability import FileTraceExporter, ObservabilityConfig, load_observability_config
 from asr_provider_base import ProviderManager
 from asr_provider_base.catalog import resolve_provider_execution
 from asr_storage import ArtifactStore
-from metrics import FileTraceExporter, load_observability_config
 
 from asr_benchmark_core.executor import BatchExecutor
 from asr_benchmark_core.models import BenchmarkRunRequest, BenchmarkRunSummary
@@ -113,10 +113,14 @@ class BenchmarkOrchestrator:
         self.artifact_store = ArtifactStore(root=artifact_root)
         self.provider_manager = ProviderManager(configs_root=configs_root)
         self.dataset_registry = DatasetRegistry(registry_path=registry_path)
+        self.observability_config: ObservabilityConfig | None = None
+        self.trace_exporter: FileTraceExporter | None = None
+        self.observability_init_error = ""
         try:
             self.observability_config = load_observability_config(configs_root=configs_root)
             self.trace_exporter = FileTraceExporter(self.observability_config)
-        except Exception:
+        except Exception as exc:
+            self.observability_init_error = str(exc)
             self.observability_config = None
             self.trace_exporter = None
 
@@ -692,7 +696,7 @@ class BenchmarkOrchestrator:
             noise_key = str(item.get("noise_level", "clean"))
             by_noise.setdefault(noise_key, []).append(item)
 
-        aggregate = summarize_result_rows(results)
+        aggregate = summarize_result_rows(results, exclude_corrupted=True)
         provider_summaries: list[dict[str, Any]] = []
         for provider_key, provider_rows in sorted(by_provider.items()):
             first_row = provider_rows[0] if provider_rows else {}
@@ -703,7 +707,7 @@ class BenchmarkOrchestrator:
                     "provider_id": str(first_row.get("provider_id", "") or ""),
                     "provider_preset": str(first_row.get("provider_preset", "") or ""),
                     "provider_label": str(first_row.get("provider_label", "") or ""),
-                    **summarize_result_rows(provider_rows),
+                    **summarize_result_rows(provider_rows, exclude_corrupted=True),
                 }
             )
         if len(provider_summaries) > 1:
@@ -712,10 +716,13 @@ class BenchmarkOrchestrator:
                 "total_samples": aggregate["total_samples"],
                 "successful_samples": aggregate["successful_samples"],
                 "failed_samples": aggregate["failed_samples"],
+                "aggregate_samples": aggregate["aggregate_samples"],
                 "mean_metrics": {},
                 "metric_counts": {},
                 "metric_statistics": {},
                 "metric_metadata": {},
+                "aggregate_excludes_corrupted": aggregate["aggregate_excludes_corrupted"],
+                "corrupted_samples": aggregate["corrupted_samples"],
                 "quality_metrics": {},
                 "latency_metrics": {},
                 "reliability_metrics": {},
@@ -739,7 +746,8 @@ class BenchmarkOrchestrator:
             "provider_summaries": provider_summaries,
             "providers_summary": {entry["provider_key"]: entry for entry in provider_summaries},
             "noise_summary": {
-                key: summarize_result_rows(value) for key, value in sorted(by_noise.items())
+                key: summarize_result_rows(value, exclude_corrupted=True)
+                for key, value in sorted(by_noise.items())
             },
         }
         return summary
@@ -758,6 +766,8 @@ class BenchmarkOrchestrator:
             f"- total_samples: `{summary['total_samples']}`",
             f"- successful_samples: `{summary['successful_samples']}`",
             f"- failed_samples: `{summary['failed_samples']}`",
+            f"- aggregate_samples: `{summary.get('aggregate_samples', summary['total_samples'])}`",
+            f"- corrupted_samples: `{summary.get('corrupted_samples', 0)}`",
             "",
             "## Per-Provider Summary",
         ]

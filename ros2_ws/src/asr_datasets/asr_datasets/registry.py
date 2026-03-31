@@ -31,7 +31,10 @@ class DatasetRegistry:
         return payload
 
     def _save(self, payload: dict[str, Any]) -> None:
-        self.registry_path.write_text(json.dumps(payload, ensure_ascii=True, indent=2), encoding="utf-8")
+        self.registry_path.write_text(
+            json.dumps(payload, ensure_ascii=True, indent=2),
+            encoding="utf-8",
+        )
 
     def list(self) -> list[DatasetEntry]:
         payload = self._load()
@@ -49,7 +52,11 @@ class DatasetRegistry:
 
     def register(self, entry: DatasetEntry) -> None:
         payload = self._load()
-        datasets = [item for item in payload.get("datasets", []) if item.get("dataset_id") != entry.dataset_id]
+        datasets = [
+            item
+            for item in payload.get("datasets", [])
+            if item.get("dataset_id") != entry.dataset_id
+        ]
         datasets.append(asdict(entry))
         payload["datasets"] = datasets
         self._save(payload)

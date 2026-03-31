@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from array import array
 from collections import defaultdict, deque
 from dataclasses import dataclass
 
@@ -52,6 +53,12 @@ class _FakePreprocessNode:
         self.publisher = _Collector()
         self._session_output_rate = defaultdict(lambda: self.target_sample_rate_hz)
         self._session_output_channels = defaultdict(lambda: 1)
+        self._last_raw_sequence = defaultdict(lambda: -1)
+        self._raw_chunks_in = 0
+        self._raw_chunks_out = 0
+        self._raw_sequence_gaps = 0
+        self._last_raw_delivery_ms = 0.0
+        self._max_raw_delivery_ms = 0.0
         self._status = "idle"
         self._last_update = _FakeTime(0)
         self._clock = _FakeClock([0, 100])
@@ -81,6 +88,14 @@ class _FakeVadNode:
         self._segment_metadata_ref = {}
         self._pre_roll_chunks = defaultdict(deque)
         self._pre_roll_total_ms = defaultdict(int)
+        self._segment_chunk_count = defaultdict(int)
+        self._segment_gap_count = defaultdict(int)
+        self._last_preprocessed_sequence = defaultdict(lambda: -1)
+        self._preprocessed_chunks_in = 0
+        self._segments_out = 0
+        self._preprocessed_sequence_gaps = 0
+        self._last_preprocessed_delivery_ms = 0.0
+        self._max_preprocessed_delivery_ms = 0.0
         self._status = "idle"
         self._last_update = _FakeTime(0)
         self._clock = _FakeClock([0, 500, 1000, 1001])
@@ -150,6 +165,8 @@ def test_preprocess_terminal_chunk_preserves_output_format() -> None:
 
     assert len(node.publisher.items) == 2
     first, last = node.publisher.items
+    assert isinstance(first.data, array)
+    assert isinstance(last.data, array)
     assert int(first.sample_rate) == 16000
     assert int(last.sample_rate) == 16000
     assert int(last.channels) == 1
@@ -189,6 +206,7 @@ def test_vad_flush_uses_segment_stream_metadata_not_terminal_marker() -> None:
 
     assert len(node.segment_pub.items) == 1
     segment = node.segment_pub.items[0]
+    assert isinstance(segment.data, array)
     assert int(segment.sample_rate) == 16000
     assert int(segment.channels) == 1
     assert bytes(segment.data) == bytes(speech_a.data) + bytes(speech_b.data)

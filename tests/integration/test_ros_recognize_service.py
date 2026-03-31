@@ -81,6 +81,9 @@ def test_ros_recognize_once_service(isolated_ros_domain: str) -> None:
         spin_thread.join(timeout=2.0)
 
 
+test_ros_recognize_once_service = pytest.mark.legacy(test_ros_recognize_once_service)
+
+
 def test_runtime_recognize_once_service_honors_provider_override(
     monkeypatch,
     isolated_ros_domain: str,

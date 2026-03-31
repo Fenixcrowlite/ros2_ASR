@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import pytest
+from asr_metrics.definitions import metric_definition
 from asr_metrics.engine import MetricEngine
 from asr_metrics.plugins import MetricContext
 from asr_metrics.quality import cer, normalize_text, text_quality_support, wer
@@ -79,3 +80,11 @@ def test_sample_accuracy_requires_exact_normalized_match_not_space_free_cer() ->
     )
 
     assert result["sample_accuracy"] == 0.0
+
+
+def test_sample_accuracy_metric_uses_exact_match_rate_display_name() -> None:
+    definition = metric_definition("sample_accuracy")
+
+    assert definition is not None
+    assert definition.display_name == "Exact Match Rate"
+    assert definition.summary_aggregator == "rate"

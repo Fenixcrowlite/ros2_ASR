@@ -7,6 +7,7 @@ import unittest
 class SmokeTest(unittest.TestCase):
     def test_import_package(self) -> None:
         importlib.import_module("asr_metrics")
+        importlib.import_module("asr_observability")
 
 
 if __name__ == "__main__":

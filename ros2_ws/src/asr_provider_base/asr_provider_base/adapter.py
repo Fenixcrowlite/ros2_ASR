@@ -6,6 +6,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from asr_core.normalized import NormalizedAsrResult
+
 from asr_provider_base.capabilities import ProviderCapabilities
 from asr_provider_base.models import ProviderAudio, ProviderStatus
 

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from array import array
 from collections import defaultdict, deque
 from typing import Any
 
@@ -13,6 +14,14 @@ from asr_core.shutdown import safe_shutdown_node, spin_node_until_shutdown
 from asr_interfaces.msg import AudioChunk, AudioSegment, NodeStatus, SpeechActivity
 from asr_interfaces.srv import ReconfigureRuntime
 from rclpy.node import Node
+
+from asr_runtime_nodes.transport import (
+    decode_transport_metadata,
+    delivery_latency_ms,
+    encode_transport_metadata,
+    sequence_gap,
+    stamp_to_ns,
+)
 
 
 class VadSegmenterNode(Node):
@@ -63,6 +72,14 @@ class VadSegmenterNode(Node):
         self._segment_metadata_ref: dict[str, str] = {}
         self._pre_roll_chunks: dict[str, deque[tuple[bytes, int]]] = defaultdict(deque)
         self._pre_roll_total_ms: dict[str, int] = defaultdict(int)
+        self._segment_chunk_count: dict[str, int] = defaultdict(int)
+        self._segment_gap_count: dict[str, int] = defaultdict(int)
+        self._last_preprocessed_sequence: dict[str, int] = defaultdict(lambda: -1)
+        self._preprocessed_chunks_in = 0
+        self._segments_out = 0
+        self._preprocessed_sequence_gaps = 0
+        self._last_preprocessed_delivery_ms = 0.0
+        self._max_preprocessed_delivery_ms = 0.0
         self._last_error_code = ""
         self._last_error_message = ""
         self._status = "idle"
@@ -92,6 +109,8 @@ class VadSegmenterNode(Node):
         node._segment_encoding.pop(session_id, None)
         node._segment_source_id.pop(session_id, None)
         node._segment_metadata_ref.pop(session_id, None)
+        node._segment_chunk_count.pop(session_id, None)
+        node._segment_gap_count.pop(session_id, None)
         VadSegmenterNode._clear_pre_roll(node, session_id)
 
     def _load_runtime_configuration(self, runtime_profile: str) -> str:
@@ -177,6 +196,21 @@ class VadSegmenterNode(Node):
         # This node intentionally uses a transparent energy-based VAD. It is not
         # the smartest detector, but it is easy to understand and debug.
         now = self.get_clock().now()
+        now_ns = int(getattr(now, "nanoseconds", 0) or 0)
+        transport_meta = decode_transport_metadata(getattr(msg.header, "frame_id", ""))
+        preprocessed_sequence = int(transport_meta.get("preprocessed_sequence", -1) or -1)
+        previous_preprocessed_sequence = self._last_preprocessed_sequence.get(msg.session_id, -1)
+        current_gap = sequence_gap(previous_preprocessed_sequence, preprocessed_sequence)
+        self._preprocessed_sequence_gaps += current_gap
+        if preprocessed_sequence >= 0:
+            self._last_preprocessed_sequence[msg.session_id] = preprocessed_sequence
+        preprocessed_delivery_ms = delivery_latency_ms(now_ns=now_ns, stamp=msg.header.stamp)
+        self._preprocessed_chunks_in += 1
+        self._last_preprocessed_delivery_ms = preprocessed_delivery_ms
+        self._max_preprocessed_delivery_ms = max(
+            self._max_preprocessed_delivery_ms,
+            preprocessed_delivery_ms,
+        )
         data = bytes(msg.data)
         chunk_duration_ms = self._pcm_duration_ms(msg, data)
         sample_width = VadSegmenterNode._sample_width_bytes(msg.encoding)
@@ -233,6 +267,9 @@ class VadSegmenterNode(Node):
             )
             self._buffers[msg.session_id].extend(data)
             self._segment_elapsed_ms[msg.session_id] += chunk_duration_ms
+            if data:
+                self._segment_chunk_count[msg.session_id] += 1
+                self._segment_gap_count[msg.session_id] += current_gap
             self._trailing_silence_ms[msg.session_id] = 0
         else:
             if not self._buffers[msg.session_id]:
@@ -279,6 +316,7 @@ class VadSegmenterNode(Node):
         )
         source_id = str(self._segment_source_id.get(msg.session_id, msg.source_id) or "")
         metadata_ref = str(self._segment_metadata_ref.get(msg.session_id, msg.metadata_ref) or "")
+        transport_meta = decode_transport_metadata(getattr(msg.header, "frame_id", ""))
 
         duration_ms = VadSegmenterNode._segment_duration_ms(
             payload=payload,
@@ -294,6 +332,17 @@ class VadSegmenterNode(Node):
 
         segment = AudioSegment()
         segment.header.stamp = end_time.to_msg()
+        segment.header.frame_id = encode_transport_metadata(
+            {
+                **transport_meta,
+                "stage": "speech_segments",
+                "segment_sequence": self._segment_index[msg.session_id],
+                "published_ns": stamp_to_ns(segment.header.stamp),
+                "sequence_gap_count": self._segment_gap_count.get(msg.session_id, 0),
+                "segment_chunk_count": self._segment_chunk_count.get(msg.session_id, 0),
+                "topic_delivery_ms": self._last_preprocessed_delivery_ms,
+            }
+        )
         segment.session_id = msg.session_id
         segment.segment_id = f"{msg.session_id}_seg_{self._segment_index[msg.session_id]}"
         segment.source_id = source_id
@@ -302,9 +351,10 @@ class VadSegmenterNode(Node):
         segment.sample_rate = sample_rate
         segment.channels = channels
         segment.encoding = encoding
-        segment.data = list(payload)
+        segment.data = array("B", payload)
         segment.metadata_ref = metadata_ref
         self.segment_pub.publish(segment)
+        self._segments_out += 1
         logger = getattr(self, "get_logger", None)
         if callable(logger):
             logger().info(
@@ -344,7 +394,11 @@ class VadSegmenterNode(Node):
         msg.health = "ok" if not self._last_error_code else "degraded"
         msg.status_message = (
             f"{self._status} threshold={self.energy_threshold} "
-            f"silence_ms={self.max_silence_ms} max_segment_ms={self.max_segment_ms}"
+            f"silence_ms={self.max_silence_ms} max_segment_ms={self.max_segment_ms} "
+            f"pre_in={self._preprocessed_chunks_in} segments_out={self._segments_out} "
+            f"pre_gap={self._preprocessed_sequence_gaps} "
+            f"pre_delivery_ms={self._last_preprocessed_delivery_ms:.3f}/"
+            f"{self._max_preprocessed_delivery_ms:.3f}"
         )
         msg.ready = self._status in {"ready", "running"}
         msg.last_error_code = self._last_error_code

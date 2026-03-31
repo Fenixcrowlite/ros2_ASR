@@ -14,6 +14,9 @@ from asr_core.models import AsrResponse, AsrTimings
 from asr_metrics.collector import MetricsCollector
 
 
+pytestmark = pytest.mark.legacy
+
+
 def _write_test_wav(path: Path, *, sample_rate: int, frames: int) -> None:
     with wave.open(str(path), "wb") as wf:
         wf.setnchannels(1)

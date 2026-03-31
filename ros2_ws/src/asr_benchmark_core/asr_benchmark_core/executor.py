@@ -11,8 +11,13 @@ from asr_datasets import DatasetSample
 from asr_metrics.engine import MetricEngine
 from asr_metrics.plugins import MetricContext
 from asr_metrics.quality import require_quality_reference, text_quality_support
-from asr_provider_base import ProviderAudio
-from metrics import FileTraceExporter, ObservabilityConfig, PipelineTraceCollector, build_benchmark_trace
+from asr_observability import (
+    FileTraceExporter,
+    ObservabilityConfig,
+    PipelineTraceCollector,
+    build_benchmark_trace,
+)
+from asr_provider_base import ProviderAudio, provider_runtime_metadata
 
 
 class BatchExecutor:
@@ -91,6 +96,7 @@ class BatchExecutor:
                 "input_audio_path": active_audio_path,
             },
         )
+        provider_meta = provider_runtime_metadata(provider, record_invocation=True)
         with trace_collector.stage(
             "provider_recognize",
             component=getattr(provider, "provider_id", "provider"),
@@ -125,9 +131,14 @@ class BatchExecutor:
         metrics["preprocess_ms"] = float(result.latency.preprocess_ms)
         metrics["inference_ms"] = float(result.latency.inference_ms)
         metrics["postprocess_ms"] = float(result.latency.postprocess_ms)
+        metrics.update(provider_meta)
         trace_artifact_ref = ""
         trace_corrupted = False
-        if self.observability_config is not None and self.trace_exporter is not None and self.run_dir:
+        if (
+            self.observability_config is not None
+            and self.trace_exporter is not None
+            and self.run_dir
+        ):
             trace = build_benchmark_trace(
                 collector=trace_collector,
                 config=self.observability_config,
@@ -228,6 +239,7 @@ class BatchExecutor:
                 "streaming_mode": execution_meta.get("streaming_mode", "none"),
             },
         )
+        provider_meta = provider_runtime_metadata(provider, record_invocation=True)
 
         partial_count = 0
         first_partial_latency_ms = 0.0
@@ -321,9 +333,14 @@ class BatchExecutor:
         metrics["preprocess_ms"] = float(result.latency.preprocess_ms)
         metrics["inference_ms"] = float(result.latency.inference_ms)
         metrics["postprocess_ms"] = float(result.latency.postprocess_ms)
+        metrics.update(provider_meta)
         trace_artifact_ref = ""
         trace_corrupted = False
-        if self.observability_config is not None and self.trace_exporter is not None and self.run_dir:
+        if (
+            self.observability_config is not None
+            and self.trace_exporter is not None
+            and self.run_dir
+        ):
             trace_collector.set_metric("first_partial_latency_ms", first_partial_latency_ms)
             trace_collector.set_metric("finalization_latency_ms", finalization_latency_ms)
             trace_collector.set_metric("partial_count", partial_count)

@@ -9,6 +9,8 @@
 - total_samples: `1`
 - successful_samples: `1`
 - failed_samples: `0`
+- aggregate_samples: `1`
+- corrupted_samples: `0`
 
 ## Per-Provider Summary
 
@@ -20,4 +22,4 @@
 - latency_metrics: `{"inference_ms": 0.0, "postprocess_ms": 0.0, "preprocess_ms": 0.0}`
 
 ## Noise Summary
-- clean: `{"confidence": 0.92, "cpu_percent": 3.8, "gpu_memory_mb": 778.0, "gpu_util_percent": 33.0, "inference_ms": 0.0, "memory_mb": 65.92578125, "postprocess_ms": 0.0, "preprocess_ms": 0.0, "wer": 0.0}`
+- clean: `{"confidence": 0.92, "cpu_percent": 6.3, "gpu_memory_mb": 784.0, "gpu_util_percent": 2.0, "inference_ms": 0.0, "memory_mb": 175.671875, "model_load_ms": 0.011171, "postprocess_ms": 0.0, "preprocess_ms": 0.0, "provider_call_cold_start": 1.0, "provider_call_warm_start": 0.0, "provider_init_cold_start": 1.0, "provider_init_warm_start": 0.0, "provider_invocation_index": 1.0, "wer": 0.0}`

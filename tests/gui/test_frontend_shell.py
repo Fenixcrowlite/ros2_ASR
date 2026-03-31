@@ -38,6 +38,8 @@ def test_frontend_shell_and_assets_are_served(repo_root: Path, tmp_path: Path, m
     styles = client.get("/ui/styles.css")
     script = client.get("/ui/js/app.js")
     action_runner = client.get("/ui/js/action-runner.js")
+    results_page_script = client.get("/ui/js/pages/results.js")
+    benchmark_page_script = client.get("/ui/js/pages/benchmark.js")
 
     assert index.status_code == 200
     assert "ROS2 ASR Platform" in index.text
@@ -81,3 +83,10 @@ def test_frontend_shell_and_assets_are_served(repo_root: Path, tmp_path: Path, m
     assert script.headers["cache-control"].startswith("no-store")
     assert action_runner.status_code == 200
     assert action_runner.headers["cache-control"].startswith("no-store")
+    assert results_page_script.status_code == 200
+    assert "Exact Match Rate" in results_page_script.text
+    assert "referenceHasContent && normalizedReference === normalizedHypothesis" in results_page_script.text
+    assert "referenceWords.length || hypothesisWords.length" not in results_page_script.text
+    assert "referenceChars.length || hypothesisChars.length" not in results_page_script.text
+    assert benchmark_page_script.status_code == 200
+    assert "Exact Match Rate" in benchmark_page_script.text

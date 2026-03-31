@@ -88,7 +88,7 @@ def apply_noise_to_wav(
     signal_rms = max(pcm_rms(raw_frames, sample_width=params.sampwidth, signed=signed), 1.0)
     target_noise_rms = max(int(signal_rms / (10 ** (float(snr_db) / 20.0))), 1)
 
-    rng = random.Random(seed)
+    rng = random.Random(seed)  # nosec B311
     clip = (1 << ((params.sampwidth * 8) - 1)) - 1 if signed else 127
     noise_samples: list[int] = []
     for _ in range(len(samples)):

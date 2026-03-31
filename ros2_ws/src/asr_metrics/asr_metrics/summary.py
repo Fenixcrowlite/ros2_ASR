@@ -127,17 +127,31 @@ def _metric_groups(
     return grouped
 
 
-def summarize_result_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
-    """Build logically-clean aggregates from benchmark result rows."""
+def summarize_result_rows(
+    rows: list[dict[str, Any]], *, exclude_corrupted: bool = False
+) -> dict[str, Any]:
+    """Build logically-clean aggregates from benchmark result rows.
+
+    When ``exclude_corrupted`` is enabled, aggregate metrics are computed from
+    rows whose trace validation did not mark them as corrupted while total run
+    counts still reflect every processed row.
+    """
     total_samples = len(rows)
     successful_samples = sum(1 for row in rows if bool(row.get("success")))
     failed_samples = total_samples - successful_samples
+    aggregate_rows = (
+        [row for row in rows if not bool(row.get("trace_corrupted"))]
+        if exclude_corrupted
+        else list(rows)
+    )
+    aggregate_samples = len(aggregate_rows)
+    corrupted_samples = total_samples - aggregate_samples
 
     enabled_metric_names: set[str] = set()
     metric_values: dict[str, list[float]] = defaultdict(list)
     quality_supports: list[dict[str, Any]] = []
 
-    for row in rows:
+    for row in aggregate_rows:
         row_metrics = row.get("metrics", {})
         if isinstance(row_metrics, dict):
             for name, value in row_metrics.items():
@@ -239,9 +253,12 @@ def summarize_result_rows(rows: list[dict[str, Any]]) -> dict[str, Any]:
         "total_samples": total_samples,
         "successful_samples": successful_samples,
         "failed_samples": failed_samples,
+        "aggregate_samples": aggregate_samples,
         "mean_metrics": mean_metrics,
         "metric_counts": metric_counts,
         "metric_statistics": metric_statistics,
         "metric_metadata": metric_metadata(sorted(enabled_metric_names)),
+        "aggregate_excludes_corrupted": exclude_corrupted,
+        "corrupted_samples": corrupted_samples,
         **_metric_groups(mean_metrics, metric_statistics),
     }

@@ -1,26 +1,7 @@
-numpy>=1.26.0
-matplotlib>=3.8.0
-psutil>=5.9.8
-pyyaml>=6.0.1
-catkin_pkg>=1.0.0
-lark>=1.1.9
-soundfile>=0.12.1
-sounddevice>=0.4.7
-requests>=2.31.0
-huggingface_hub>=1.5.0
-pyarrow>=23.0.0
-pytest>=8.0.0
-pytest-mock>=3.12.0
-ruff>=0.6.0
-mypy>=1.8.0
-bandit>=1.9.0
-defusedxml>=0.7.1
-boto3>=1.34.0
-amazon-transcribe>=0.6.4
-google-cloud-speech>=2.26.0
-azure-cognitiveservices-speech>=1.38.0
-vosk>=0.3.45
-faster-whisper>=1.0.0
-fastapi>=0.115.0
-uvicorn>=0.30.0
-python-multipart>=0.0.9
+# Compatibility umbrella install. Prefer targeted groups in requirements/.
+-r requirements/base.txt
+-r requirements/runtime.txt
+-r requirements/providers-local.txt
+-r requirements/providers-cloud.txt
+-r requirements/web.txt
+-r requirements/dev.txt

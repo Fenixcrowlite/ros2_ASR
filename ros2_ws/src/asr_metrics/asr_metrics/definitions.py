@@ -41,7 +41,7 @@ METRIC_DEFINITIONS: dict[str, MetricDefinition] = {
     ),
     "sample_accuracy": MetricDefinition(
         name="sample_accuracy",
-        display_name="Sample Accuracy",
+        display_name="Exact Match Rate",
         unit="ratio",
         category="quality",
         preferred_direction="higher",

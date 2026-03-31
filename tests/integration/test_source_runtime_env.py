@@ -38,6 +38,71 @@ def test_source_runtime_env_exports_project_runtime_log_dir(repo_root: Path, tmp
     assert (repo_root / "logs" / "runtime").is_dir()
 
 
+def test_source_runtime_env_without_ros_excludes_legacy_python_packages_by_default(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    env = os.environ.copy()
+    env["HOME"] = str(tmp_path / "home")
+    env.pop("PYTHONPATH", None)
+    (tmp_path / "home").mkdir(parents=True, exist_ok=True)
+
+    result = subprocess.run(
+        [
+            "bash",
+            "-lc",
+            (
+                f'cd "{repo_root}" && '
+                'source scripts/source_runtime_env.sh --without-ros && '
+                'printf "%s\\n" "${PYTHONPATH:-}"'
+            ),
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    pythonpath = result.stdout.strip().splitlines()[-1] if result.stdout.strip() else ""
+    entries = set(filter(None, pythonpath.split(os.pathsep)))
+    assert str(repo_root / "ros2_ws" / "src" / "asr_ros") not in entries
+    assert str(repo_root / "ros2_ws" / "src" / "asr_benchmark") not in entries
+
+
+def test_source_runtime_env_without_ros_can_opt_in_legacy_python_packages(
+    repo_root: Path,
+    tmp_path: Path,
+) -> None:
+    env = os.environ.copy()
+    env["HOME"] = str(tmp_path / "home")
+    env["ASR_INCLUDE_LEGACY_PYTHONPATH"] = "1"
+    env.pop("PYTHONPATH", None)
+    (tmp_path / "home").mkdir(parents=True, exist_ok=True)
+
+    result = subprocess.run(
+        [
+            "bash",
+            "-lc",
+            (
+                f'cd "{repo_root}" && '
+                'source scripts/source_runtime_env.sh --without-ros && '
+                'printf "%s\\n" "${PYTHONPATH:-}"'
+            ),
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    pythonpath = result.stdout.strip().splitlines()[-1] if result.stdout.strip() else ""
+    entries = set(filter(None, pythonpath.split(os.pathsep)))
+    assert str(repo_root / "ros2_ws" / "src" / "asr_ros") in entries
+    assert str(repo_root / "ros2_ws" / "src" / "asr_benchmark") in entries
+
+
 def test_run_rqt_check_env_reports_workspace_interfaces(repo_root: Path, tmp_path: Path) -> None:
     if not Path("/opt/ros/jazzy/setup.bash").exists():
         pytest.skip("ROS2 Jazzy is not installed")

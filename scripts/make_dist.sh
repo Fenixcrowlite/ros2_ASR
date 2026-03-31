@@ -45,6 +45,7 @@ tar -czf "$ARCHIVE" \
   Makefile \
   pyproject.toml \
   requirements.txt \
+  requirements \
   docs \
   ros2_ws/src \
   scripts \

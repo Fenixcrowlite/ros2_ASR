@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import threading
 from types import SimpleNamespace
 
 import asr_gateway.ros_client as ros_client_module
@@ -37,9 +38,11 @@ class _FakeNode:
         self.service_client = service_client
         self.destroyed = False
         self.last_service = ("", "")
+        self.create_client_calls = 0
 
     def create_client(self, service_type, service_name):
         self.last_service = (service_type, service_name)
+        self.create_client_calls += 1
         return self.service_client
 
     def destroy_node(self) -> None:
@@ -99,6 +102,12 @@ class _FakeThread:
 def _make_client_with_node(node: _FakeNode) -> GatewayRosClient:
     client = object.__new__(GatewayRosClient)
     client.timeout_sec = 5.0
+    client._bridge_lock = threading.Lock()
+    client._service_clients = {}
+    client._action_clients = {}
+    client._client_node = node
+    client._executor = None
+    client._executor_thread = None
     client._observer = SimpleNamespace(
         snapshot=lambda: {},
         record_result=lambda payload: payload,
@@ -143,7 +152,6 @@ def test_start_runtime_populates_request_and_maps_response() -> None:
     assert request.auto_start_audio is True
     assert response.success is True
     assert response.payload["session_id"] == "session_demo"
-    assert node.destroyed is True
 
 
 def test_list_backends_returns_service_unavailable_without_calling_async() -> None:
@@ -156,7 +164,7 @@ def test_list_backends_returns_service_unavailable_without_calling_async() -> No
     assert response.success is False
     assert response.message == "list backends service unavailable"
     assert service_client.requests == []
-    assert node.destroyed is True
+    assert node.create_client_calls == 1
 
 
 def test_run_benchmark_uses_action_helper_and_maps_summary(monkeypatch) -> None:
@@ -205,7 +213,10 @@ def test_run_benchmark_uses_action_helper_and_maps_summary(monkeypatch) -> None:
     assert fake_action.goal.benchmark_settings_json == '{"execution_mode": "streaming"}'
     assert response.success is True
     assert response.payload["summary"]["total_samples"] == 10
-    assert node.destroyed is True
+    assert response.payload["action_latency_ms"] >= 0.0
+    assert response.payload["ros_action_latency_ms"] >= 0.0
+    assert response.payload["action_goal_wait_ms"] >= 0.0
+    assert response.payload["action_result_wait_ms"] >= 0.0
 
 
 def test_run_benchmark_uses_extended_goal_and_result_timeouts() -> None:
@@ -230,6 +241,47 @@ def test_run_benchmark_uses_extended_goal_and_result_timeouts() -> None:
     assert response.success is True
     assert captured["goal_timeout_sec"] == 30.0
     assert captured["result_timeout_sec"] == 3600.0
+
+
+def test_service_clients_are_reused_across_calls() -> None:
+    service_client = _FakeServiceClient(
+        result=SimpleNamespace(provider_ids=["whisper", "azure"]),
+    )
+    node = _FakeNode(service_client)
+    client = _make_client_with_node(node)
+
+    first = client.list_backends()
+    second = client.list_backends()
+
+    assert first.success is True
+    assert second.success is True
+    assert node.create_client_calls == 1
+
+
+def test_close_shuts_down_persistent_bridge() -> None:
+    stop_calls: list[str] = []
+    executor = SimpleNamespace(shutdown=lambda timeout_sec=None: stop_calls.append(f"executor:{timeout_sec}"))
+    node = _FakeNode(_FakeServiceClient(result=None))
+    thread = _FakeThread(alive=False)
+    client = object.__new__(GatewayRosClient)
+    client._observer = SimpleNamespace(stop=lambda: stop_calls.append("observer"))
+    client._executor = executor
+    client._client_node = node
+    client._executor_thread = thread
+    client._service_clients = {"svc": object()}
+    client._action_clients = {"act": object()}
+
+    GatewayRosClient.close(client)
+
+    assert stop_calls[0] == "observer"
+    assert stop_calls[1] == "executor:0.5"
+    assert node.destroyed is True
+    assert thread.join_calls == [0.5]
+    assert client._executor is None
+    assert client._client_node is None
+    assert client._executor_thread is None
+    assert client._service_clients == {}
+    assert client._action_clients == {}
 
 
 def test_runtime_observer_stop_records_cleanup_failures() -> None:

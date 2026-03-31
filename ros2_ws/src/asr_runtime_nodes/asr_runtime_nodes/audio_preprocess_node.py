@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from array import array
 from collections import defaultdict
 
 import rclpy
@@ -20,6 +21,14 @@ from asr_core.shutdown import safe_shutdown_node, spin_node_until_shutdown
 from asr_interfaces.msg import AudioChunk, NodeStatus
 from asr_interfaces.srv import ReconfigureRuntime
 from rclpy.node import Node
+
+from asr_runtime_nodes.transport import (
+    decode_transport_metadata,
+    delivery_latency_ms,
+    encode_transport_metadata,
+    sequence_gap,
+    stamp_to_ns,
+)
 
 
 class AudioPreprocessNode(Node):
@@ -57,6 +66,12 @@ class AudioPreprocessNode(Node):
         self._last_update = self.get_clock().now()
         self._session_output_rate: dict[str, int] = defaultdict(lambda: self.target_sample_rate_hz)
         self._session_output_channels: dict[str, int] = defaultdict(lambda: 1)
+        self._last_raw_sequence: dict[str, int] = defaultdict(lambda: -1)
+        self._raw_chunks_in = 0
+        self._raw_chunks_out = 0
+        self._raw_sequence_gaps = 0
+        self._last_raw_delivery_ms = 0.0
+        self._max_raw_delivery_ms = 0.0
         self._load_runtime_configuration(self.runtime_profile)
         self.status_timer = self.create_timer(1.0, self._publish_status)
 
@@ -95,6 +110,18 @@ class AudioPreprocessNode(Node):
         return resolved.snapshot_path
 
     def _on_chunk(self, msg: AudioChunk) -> None:
+        now = self.get_clock().now()
+        now_ns = int(getattr(now, "nanoseconds", 0) or 0)
+        transport_meta = decode_transport_metadata(getattr(msg.header, "frame_id", ""))
+        raw_sequence = int(transport_meta.get("raw_sequence", -1) or -1)
+        previous_raw_sequence = self._last_raw_sequence.get(msg.session_id, -1)
+        self._raw_sequence_gaps += sequence_gap(previous_raw_sequence, raw_sequence)
+        if raw_sequence >= 0:
+            self._last_raw_sequence[msg.session_id] = raw_sequence
+        raw_delivery_ms = delivery_latency_ms(now_ns=now_ns, stamp=msg.header.stamp)
+        self._raw_chunks_in += 1
+        self._last_raw_delivery_ms = raw_delivery_ms
+        self._max_raw_delivery_ms = max(self._max_raw_delivery_ms, raw_delivery_ms)
         data = bytes(msg.data)
         out_channels = int(msg.channels) or 1
         out_sample_rate = int(msg.sample_rate) or self.target_sample_rate_hz
@@ -146,20 +173,33 @@ class AudioPreprocessNode(Node):
 
         out = AudioChunk()
         out.header = msg.header
+        out.header.stamp = now.to_msg()
+        out.header.frame_id = encode_transport_metadata(
+            {
+                **transport_meta,
+                "stage": "preprocessed_audio",
+                "preprocessed_sequence": self._raw_chunks_out,
+                "published_ns": stamp_to_ns(out.header.stamp),
+                "topic_delivery_ms": raw_delivery_ms,
+                "sequence_gap_count": self._raw_sequence_gaps,
+            }
+        )
         out.session_id = msg.session_id
         out.source_id = msg.source_id
         out.sample_rate = out_sample_rate
         out.channels = out_channels
         out.encoding = msg.encoding
         out.is_last_chunk = msg.is_last_chunk
-        out.data = list(data)
+        out.data = array("B", data)
         out.metadata_ref = msg.metadata_ref
         self.publisher.publish(out)
+        self._raw_chunks_out += 1
         self._session_output_rate[msg.session_id] = out_sample_rate
         self._session_output_channels[msg.session_id] = out_channels
         if msg.is_last_chunk:
             self._session_output_rate.pop(msg.session_id, None)
             self._session_output_channels.pop(msg.session_id, None)
+            self._last_raw_sequence.pop(msg.session_id, None)
         self._status = "ready" if msg.is_last_chunk else "running"
         self._last_update = self.get_clock().now()
 
@@ -191,7 +231,10 @@ class AudioPreprocessNode(Node):
         msg.health = "ok" if not self._last_error_code else "degraded"
         msg.status_message = (
             f"{self._status} sample_rate={self.target_sample_rate_hz} "
-            f"normalize={self.normalize} mono={self.force_mono}"
+            f"normalize={self.normalize} mono={self.force_mono} "
+            f"raw_in={self._raw_chunks_in} raw_out={self._raw_chunks_out} "
+            f"raw_gap={self._raw_sequence_gaps} "
+            f"raw_delivery_ms={self._last_raw_delivery_ms:.3f}/{self._max_raw_delivery_ms:.3f}"
         )
         msg.ready = self._status in {"ready", "running"}
         msg.last_error_code = self._last_error_code

@@ -78,19 +78,23 @@ export function initResultsPage(ctx) {
     const hypothesisWords = normalizedHypothesis ? normalizedHypothesis.split(' ') : [];
     const referenceChars = Array.from(normalizedReference.replaceAll(' ', ''));
     const hypothesisChars = Array.from(normalizedHypothesis.replaceAll(' ', ''));
-    const referenceWordCount = referenceWords.length || hypothesisWords.length;
-    const referenceCharCount = referenceChars.length || hypothesisChars.length;
+    const referenceHasContent = normalizedReference.length > 0;
+    const hypothesisHasContent = normalizedHypothesis.length > 0;
+    const referenceWordCount = referenceWords.length;
+    const referenceCharCount = referenceChars.length;
     const wordEdits = levenshtein(referenceWords, hypothesisWords);
     const charEdits = levenshtein(referenceChars, hypothesisChars);
 
     return {
       normalized_reference: normalizedReference,
       normalized_hypothesis: normalizedHypothesis,
+      reference_has_content: referenceHasContent,
+      hypothesis_has_content: hypothesisHasContent,
       reference_word_count: referenceWordCount,
       reference_char_count: referenceCharCount,
       word_edits: wordEdits,
       char_edits: charEdits,
-      exact_match: normalizedReference === normalizedHypothesis,
+      exact_match: referenceHasContent && normalizedReference === normalizedHypothesis,
       wer: referenceWordCount > 0 ? wordEdits / referenceWordCount : 0,
       cer: referenceCharCount > 0 ? charEdits / referenceCharCount : 0,
     };
@@ -109,19 +113,30 @@ export function initResultsPage(ctx) {
       const hypothesisWords = normalizedHypothesis ? normalizedHypothesis.split(' ') : [];
       const referenceChars = Array.from(normalizedReference.replaceAll(' ', ''));
       const hypothesisChars = Array.from(normalizedHypothesis.replaceAll(' ', ''));
-      const referenceWordCount = Number(stored.reference_word_count ?? (referenceWords.length || hypothesisWords.length));
-      const referenceCharCount = Number(stored.reference_char_count ?? (referenceChars.length || hypothesisChars.length));
+      const referenceHasContent = Boolean(
+        stored.reference_has_content ?? (normalizedReference.length > 0)
+      );
+      const hypothesisHasContent = Boolean(
+        stored.hypothesis_has_content ?? (normalizedHypothesis.length > 0)
+      );
+      const referenceWordCount = Number(stored.reference_word_count ?? referenceWords.length);
+      const referenceCharCount = Number(stored.reference_char_count ?? referenceChars.length);
       const wordEdits = Number(stored.word_edits ?? levenshtein(referenceWords, hypothesisWords));
       const charEdits = Number(stored.char_edits ?? levenshtein(referenceChars, hypothesisChars));
+      const hasStoredExactMatch = Object.prototype.hasOwnProperty.call(stored, 'exact_match');
 
       return {
         normalized_reference: normalizedReference,
         normalized_hypothesis: normalizedHypothesis,
+        reference_has_content: referenceHasContent,
+        hypothesis_has_content: hypothesisHasContent,
         reference_word_count: referenceWordCount,
         reference_char_count: referenceCharCount,
         word_edits: wordEdits,
         char_edits: charEdits,
-        exact_match: Boolean(stored.exact_match ?? (normalizedReference === normalizedHypothesis)),
+        exact_match: hasStoredExactMatch
+          ? Boolean(stored.exact_match)
+          : referenceHasContent && normalizedReference === normalizedHypothesis,
         wer: referenceWordCount > 0 ? wordEdits / referenceWordCount : 0,
         cer: referenceCharCount > 0 ? charEdits / referenceCharCount : 0,
       };
@@ -388,7 +403,7 @@ export function initResultsPage(ctx) {
         { key: 'failed', label: 'Failed', value: (row) => fmtMetric(row.failed_samples) },
         { key: 'wer', label: 'WER', value: (row) => fmtMetric(row.quality_metrics?.wer) },
         { key: 'cer', label: 'CER', value: (row) => fmtMetric(row.quality_metrics?.cer) },
-        { key: 'acc', label: 'Exact Match', value: (row) => fmtMetric(row.quality_metrics?.sample_accuracy) },
+        { key: 'acc', label: 'Exact Match Rate', value: (row) => fmtMetric(row.quality_metrics?.sample_accuracy) },
         { key: 'lat', label: 'Latency ms', value: (row) => fmtMetric(row.latency_metrics?.total_latency_ms) },
         { key: 'rtf', label: 'RTF', value: (row) => fmtMetric(row.latency_metrics?.real_time_factor) },
         { key: 'succ_rate', label: 'Success Rate', value: (row) => fmtMetric(row.reliability_metrics?.success_rate) },
