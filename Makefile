@@ -1,7 +1,19 @@
 SHELL := /bin/bash
+.DEFAULT_GOAL := help
 VENV := .venv
 PY := $(VENV)/bin/python
 ROS_SETUP := /opt/ros/jazzy/setup.bash
+RUNTIME_PROFILE ?= default_runtime
+PROVIDER_PROFILE ?= providers/whisper_local
+BENCHMARK_PROFILE ?= default_benchmark
+GATEWAY_MODE ?= local
+GATEWAY_STACK ?= full
+GATEWAY_PORT ?= 8088
+LIVE_SAMPLE_ARGS ?=
+RQT_ARGS ?=
+HF_LOCAL_RUNTIME_PROFILE ?= huggingface_local_runtime
+HF_API_RUNTIME_PROFILE ?= huggingface_api_runtime
+HF_SMOKE_ARGS ?=
 CANONICAL_SRC_PY_PATH := $(shell find $(CURDIR)/ros2_ws/src -mindepth 1 -maxdepth 1 -type d ! -name asr_ros ! -name asr_benchmark | tr '\n' ':')
 LEGACY_SRC_PY_PATH := $(shell find $(CURDIR)/ros2_ws/src -mindepth 1 -maxdepth 1 -type d \( -name asr_ros -o -name asr_benchmark \) | tr '\n' ':')
 SRC_PY_PATH := $(CANONICAL_SRC_PY_PATH)
@@ -27,7 +39,27 @@ LINT_RUFF_PATHS := \
 	ros2_ws/src/asr_provider_base
 LINT_MYPY_PATHS := $(LINT_RUFF_PATHS)
 
-.PHONY: setup setup-vosk build build-legacy test test-unit test-unit-legacy test-ros test-colcon run live-sample bench report web-gui web-gui-lan web-gui-stop arch-static arch-runtime arch arch-diff lint lint-ruff lint-mypy security-scan format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
+.PHONY: help setup setup-vosk build build-legacy test test-unit test-unit-legacy test-ros test-colcon run live-sample bench report web-gui web-gui-lan web-gui-stop up up-runtime up-lan down hf-smoke-local hf-smoke-api bench-hf rqt arch-static arch-runtime arch arch-diff lint lint-ruff lint-mypy security-scan format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
+
+help:
+	@printf '%s\n' \
+		'Main entrypoints:' \
+		'  make up                Build and start the full web UI stack on localhost:8088' \
+		'  make up-lan            Build and start the full web UI stack on 0.0.0.0:8088' \
+		'  make up-runtime        Build and start the minimal ROS2 runtime stack' \
+		'  make down              Stop the managed web UI stack on $$GATEWAY_PORT (default 8088)' \
+		'  make hf-smoke-local    Run direct Hugging Face local provider smoke test' \
+		'  make hf-smoke-api      Run direct Hugging Face API provider smoke test' \
+		'  make bench-hf          Run the Hugging Face provider benchmark matrix' \
+		'  make rqt               Launch rqt with this workspace environment' \
+		'' \
+		'Common variables:' \
+		'  GATEWAY_MODE=local|lan GATEWAY_STACK=full|runtime GATEWAY_PORT=8088' \
+		'  RUNTIME_PROFILE=default_runtime PROVIDER_PROFILE=providers/whisper_local' \
+		'  HF_LOCAL_RUNTIME_PROFILE=huggingface_local_runtime HF_API_RUNTIME_PROFILE=huggingface_api_runtime' \
+		'  HF_SMOKE_ARGS="--reference-text \"hello world\""' \
+		'' \
+		'Legacy targets still available: build, run, web-gui, bench, live-sample, test, lint'
 
 setup:
 	bash scripts/setup_env.sh
@@ -63,6 +95,30 @@ live-sample:
 
 bench:
 	bash scripts/run_benchmarks.sh
+
+up: build
+	bash scripts/run_web_ui.sh --mode $(GATEWAY_MODE) --stack $(GATEWAY_STACK) --port $(GATEWAY_PORT)
+
+up-runtime: build
+	ASR_RUNTIME_PROFILE=$(RUNTIME_PROFILE) ASR_PROVIDER_PROFILE=$(PROVIDER_PROFILE) bash scripts/run_demo.sh
+
+up-lan: build
+	$(MAKE) up GATEWAY_MODE=lan
+
+down:
+	bash scripts/run_web_ui.sh --stop --port $(GATEWAY_PORT)
+
+hf-smoke-local:
+	bash -lc 'source $(VENV)/bin/activate && python3 scripts/run_huggingface_smoke.py --runtime-profile $(HF_LOCAL_RUNTIME_PROFILE) $(HF_SMOKE_ARGS)'
+
+hf-smoke-api:
+	bash -lc 'source $(VENV)/bin/activate && python3 scripts/run_huggingface_smoke.py --runtime-profile $(HF_API_RUNTIME_PROFILE) $(HF_SMOKE_ARGS)'
+
+bench-hf:
+	bash -lc 'source $(VENV)/bin/activate && python3 scripts/run_benchmark_core.py --benchmark-profile huggingface_provider_matrix --configs-root "$(CURDIR)/configs" --artifact-root "$(CURDIR)/artifacts" --registry-path "$(CURDIR)/datasets/registry/datasets.json" --results-dir "$(CURDIR)/results"'
+
+rqt:
+	bash scripts/run_rqt.sh $(RQT_ARGS)
 
 report:
 	bash -lc 'source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(PY_PATH) $(PY) scripts/generate_report.py --input results/latest_benchmark_summary.json --output results/report.md'

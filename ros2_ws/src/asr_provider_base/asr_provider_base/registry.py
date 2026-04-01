@@ -6,6 +6,7 @@ from importlib import import_module
 from typing import Any
 
 from asr_provider_base.adapter import AsrProviderAdapter
+from asr_provider_base.providers import discover_provider_plugins
 
 _REGISTRY: dict[str, type[AsrProviderAdapter]] = {}
 _DEFAULT_IMPORTS: dict[str, tuple[str, str]] = {
@@ -14,6 +15,14 @@ _DEFAULT_IMPORTS: dict[str, tuple[str, str]] = {
     "azure": ("asr_provider_azure.azure_provider", "AzureProvider"),
     "google": ("asr_provider_google.google_provider", "GoogleProvider"),
     "aws": ("asr_provider_aws.aws_provider", "AwsProvider"),
+    "huggingface_local": (
+        "asr_provider_huggingface.local_provider",
+        "HuggingFaceLocalProvider",
+    ),
+    "huggingface_api": (
+        "asr_provider_huggingface.api_provider",
+        "HuggingFaceAPIProvider",
+    ),
 }
 
 
@@ -21,8 +30,9 @@ def register_provider(provider_id: str, cls: type[AsrProviderAdapter]) -> None:
     _REGISTRY[provider_id] = cls
 
 
-def list_providers() -> list[str]:
-    return sorted(set(_REGISTRY.keys()) | set(_DEFAULT_IMPORTS.keys()))
+def list_providers(*, configs_root: str = "configs") -> list[str]:
+    discovered = discover_provider_plugins(configs_root=configs_root)
+    return sorted(set(_REGISTRY.keys()) | set(_DEFAULT_IMPORTS.keys()) | set(discovered.keys()))
 
 
 def _ensure_provider(provider_id: str) -> None:
@@ -54,10 +64,16 @@ def create_provider(
     provider_id: str,
     *,
     adapter_path: str = "",
+    configs_root: str = "configs",
     **kwargs: Any,
 ) -> AsrProviderAdapter:
     if str(adapter_path or "").strip():
         cls = _provider_class_from_adapter_path(adapter_path)
+        return cls(**kwargs)
+    discovered = discover_provider_plugins(configs_root=configs_root)
+    plugin = discovered.get(provider_id)
+    if plugin is not None and str(plugin.adapter_path or "").strip():
+        cls = _provider_class_from_adapter_path(plugin.adapter_path)
         return cls(**kwargs)
     _ensure_provider(provider_id)
     return _REGISTRY[provider_id](**kwargs)

@@ -1,0 +1,57 @@
+profile_id: providers/huggingface_local
+inherits: []
+provider_id: huggingface_local
+adapter: asr_provider_huggingface.local_provider.HuggingFaceLocalProvider
+settings:
+  model_id: openai/whisper-small
+  device: auto
+  torch_dtype: auto
+  return_timestamps: word
+  chunk_length_s: 20.0
+  batch_size: 1
+  trust_remote_code: false
+  task: transcribe
+  generate_kwargs: {}
+ui:
+  default_model_preset: balanced
+  model_presets:
+    light:
+      label: Light
+      description: Smaller Whisper checkpoint for fast local CPU or GPU smoke tests.
+      quality_tier: medium
+      resource_tier: low
+      estimated_cost_tier: local
+      settings:
+        model_id: openai/whisper-tiny
+        device: auto
+        torch_dtype: auto
+    balanced:
+      label: Balanced
+      description: Default local Hugging Face runtime for interactive transcription.
+      quality_tier: high
+      resource_tier: medium
+      estimated_cost_tier: local
+      settings:
+        model_id: openai/whisper-small
+        device: auto
+        torch_dtype: auto
+    accurate:
+      label: Accurate
+      description: Better quality at higher memory and compute cost.
+      quality_tier: very_high
+      resource_tier: high
+      estimated_cost_tier: local
+      settings:
+        model_id: openai/whisper-medium
+        device: auto
+        torch_dtype: auto
+  advanced_fields:
+    - model_id
+    - device
+    - torch_dtype
+    - return_timestamps
+    - chunk_length_s
+    - batch_size
+    - task
+    - generate_kwargs
+credentials_ref: secrets/refs/huggingface_local_token.yaml

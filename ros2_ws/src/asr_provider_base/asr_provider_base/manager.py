@@ -139,6 +139,7 @@ class ProviderManager:
         provider = create_provider(
             provider_id,
             adapter_path=adapter_path,
+            configs_root=self.configs_root,
         )
         provider.initialize(config=settings, credentials_ref=credentials)
         errors = provider.validate_config()

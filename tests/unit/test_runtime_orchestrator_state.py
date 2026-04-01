@@ -134,9 +134,16 @@ class _NonStreamingProvider:
 class _ConfigProviderManager:
     def __init__(self, provider: _NonStreamingProvider) -> None:
         self.provider = provider
+        self.calls = []
 
     def create_from_profile(self, provider_profile: str, *, preset_id: str = "", settings_overrides=None):
-        del provider_profile, preset_id, settings_overrides
+        self.calls.append(
+            {
+                "provider_profile": provider_profile,
+                "preset_id": preset_id,
+                "settings_overrides": dict(settings_overrides or {}),
+            }
+        )
         return self.provider
 
 
@@ -293,6 +300,60 @@ def test_load_runtime_configuration_rejects_provider_stream_without_streaming_su
 
     assert provider.teardown_calls == 1
     assert node.provider is None
+
+
+def test_resolve_runtime_configuration_target_supports_providers_active_selection(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    provider = _NonStreamingProvider()
+    node = _ConfigNode(provider)
+    monkeypatch.setattr(
+        "asr_runtime_nodes.asr_orchestrator_node.resolve_profile",
+        lambda **kwargs: SimpleNamespace(
+            data={
+                "orchestrator": {
+                    "language": "en-US",
+                    "processing_mode": "segmented",
+                    "enable_partials": True,
+                },
+                "audio": {"source": "file"},
+                "session": {"max_concurrent_sessions": 1},
+                "providers": {
+                    "active": "providers/huggingface_local",
+                    "preset": "balanced",
+                    "settings": {"device": "auto"},
+                },
+            },
+            snapshot_path="configs/resolved/runtime_hf.json",
+        ),
+    )
+    monkeypatch.setattr(
+        "asr_runtime_nodes.asr_orchestrator_node.validate_runtime_payload",
+        lambda payload: [],
+    )
+
+    config = AsrOrchestratorNode._resolve_runtime_configuration_target(
+        node,
+        {"provider_settings": {"torch_dtype": "float16"}},
+        runtime_profile="runtime/huggingface_local_runtime",
+    )
+
+    assert config.provider_profile == "providers/huggingface_local"
+    assert config.provider_preset == "balanced"
+    assert config.provider_settings_overrides == {
+        "device": "auto",
+        "torch_dtype": "float16",
+    }
+    assert node.provider_manager.calls == [
+        {
+            "provider_profile": "providers/huggingface_local",
+            "preset_id": "balanced",
+            "settings_overrides": {
+                "device": "auto",
+                "torch_dtype": "float16",
+            },
+        }
+    ]
 
 
 def test_get_status_marks_cloud_credentials_unavailable_when_validation_fails() -> None:

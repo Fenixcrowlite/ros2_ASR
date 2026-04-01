@@ -77,16 +77,34 @@ def validate_runtime_payload(payload: dict[str, Any]) -> list[str]:
         errors.append("vad must be an object")
 
     orchestrator = payload.get("orchestrator", {})
+    providers = payload.get("providers", {})
     if isinstance(orchestrator, dict):
         processing_mode = str(
             orchestrator.get("processing_mode", "segmented") or "segmented"
         ).strip()
         if processing_mode not in {"segmented", "provider_stream"}:
             errors.append("orchestrator.processing_mode must be one of: segmented, provider_stream")
-        if not str(orchestrator.get("provider_profile", "") or "").strip():
-            errors.append("orchestrator.provider_profile must be set")
     else:
         errors.append("orchestrator must be an object")
+        orchestrator = {}
+
+    if providers and not isinstance(providers, dict):
+        errors.append("providers must be an object")
+        providers = {}
+
+    selected_provider = str(
+        (providers.get("active", "") if isinstance(providers, dict) else "")
+        or orchestrator.get("provider_profile", "")
+        or ""
+    ).strip()
+    if not selected_provider:
+        errors.append(
+            "runtime provider must be set via orchestrator.provider_profile or providers.active"
+        )
+    if isinstance(providers, dict):
+        provider_settings = providers.get("settings", {})
+        if provider_settings and not isinstance(provider_settings, dict):
+            errors.append("providers.settings must be an object")
 
     session = payload.get("session", {})
     if isinstance(session, dict):

@@ -44,11 +44,23 @@ def live_gateway(repo_root: Path, tmp_path: Path, monkeypatch):
     monkeypatch.setattr(
         gateway_api,
         "create_provider",
-        lambda provider_id: build_stub_provider_manager(str(project_root / "configs"))().create_from_profile(
-            f"providers/{'azure_cloud' if provider_id == 'azure' else 'whisper_local'}"
+        lambda provider_id, configs_root=None: build_stub_provider_manager(
+            str(project_root / "configs")
+        )().create_from_profile(
+            {
+                "azure": "providers/azure_cloud",
+                "aws": "providers/aws_cloud",
+                "google": "providers/google_cloud",
+                "huggingface_local": "providers/huggingface_local",
+                "huggingface_api": "providers/huggingface_api",
+            }.get(provider_id, "providers/whisper_local")
         ),
     )
-    monkeypatch.setattr(gateway_api, "list_providers", lambda: ["whisper", "azure", "aws"])
+    monkeypatch.setattr(
+        gateway_api,
+        "list_providers",
+        lambda *args, **kwargs: ["whisper", "azure", "aws"],
+    )
 
     port = _find_free_tcp_port()
     config = uvicorn.Config(gateway_api.app, host="127.0.0.1", port=port, log_level="warning")

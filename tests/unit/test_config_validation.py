@@ -42,9 +42,44 @@ def test_validate_runtime_payload_rejects_invalid_runtime_shapes() -> None:
     assert "preprocess.target_sample_rate_hz must be > 0" in errors
     assert "vad.energy_threshold must be >= 0" in errors
     assert "vad.min_segment_ms must be <= vad.max_segment_ms" in errors
-    assert "orchestrator.provider_profile must be set" in errors
+    assert "runtime provider must be set via orchestrator.provider_profile or providers.active" in errors
     assert "orchestrator.processing_mode must be one of: segmented, provider_stream" in errors
     assert "session.max_concurrent_sessions must be > 0" in errors
+
+
+def test_validate_runtime_payload_accepts_provider_selection_via_providers_active() -> None:
+    errors = validate_runtime_payload(
+        {
+            "audio": {
+                "source": "file",
+                "sample_rate_hz": 16000,
+                "chunk_ms": 500,
+                "file_replay_rate": 1.0,
+                "mic_capture_sec": 0.0,
+                "file_path": "data/sample/vosk_test.wav",
+            },
+            "preprocess": {"target_sample_rate_hz": 16000},
+            "vad": {
+                "energy_threshold": 100,
+                "pre_roll_ms": 250,
+                "max_silence_ms": 700,
+                "min_segment_ms": 400,
+                "max_segment_ms": 2500,
+            },
+            "orchestrator": {
+                "provider_profile": "",
+                "processing_mode": "segmented",
+            },
+            "providers": {
+                "active": "providers/huggingface_local",
+                "preset": "balanced",
+                "settings": {"device": "auto"},
+            },
+            "session": {"max_concurrent_sessions": 1},
+        }
+    )
+
+    assert errors == []
 
 
 def test_validate_benchmark_payload_rejects_invalid_runtime_controls() -> None:

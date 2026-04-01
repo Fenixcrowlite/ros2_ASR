@@ -108,6 +108,8 @@ HUMAN_PROVIDER_NAMES = {
     "azure": "Azure Speech",
     "google": "Google STT",
     "aws": "AWS Transcribe",
+    "huggingface_local": "Hugging Face Local",
+    "huggingface_api": "Hugging Face API",
 }
 
 SAFE_NAME_RE = re.compile(r"^[a-zA-Z0-9_./-]+$")
@@ -893,10 +895,10 @@ def _capabilities_to_dict(caps: Any) -> dict[str, Any]:
 
 def _provider_capabilities(provider_id: str) -> dict[str, Any]:
     try:
-        adapter = create_provider(provider_id)
+        adapter = create_provider(provider_id, configs_root=str(CONFIGS_ROOT))
         return _capabilities_to_dict(adapter.discover_capabilities())
     except Exception:
-        requires_network = provider_id in {"azure", "google", "aws"}
+        requires_network = provider_id in {"azure", "google", "aws", "huggingface_api"}
         return {
             "supports_streaming": False,
             "streaming_mode": "none",
@@ -1072,7 +1074,7 @@ def _provider_profiles_summary() -> list[dict[str, Any]]:
 
 
 def _provider_catalog() -> list[dict[str, Any]]:
-    declared = set(list_providers())
+    declared = set(list_providers(configs_root=str(CONFIGS_ROOT)))
     dynamic = ros.list_backends()
     if dynamic.success:
         declared.update(dynamic.payload.get("provider_ids", []))

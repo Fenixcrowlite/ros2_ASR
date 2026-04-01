@@ -25,6 +25,10 @@ orchestrator:
   processing_mode: segmented
   enable_partials: true
   publish_debug_events: true
+providers:
+  active: providers/whisper_local
+  preset: balanced
+  settings: {}
 session:
   auto_start: false
   max_concurrent_sessions: 1

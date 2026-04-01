@@ -1,0 +1,13 @@
+profile_id: benchmark/huggingface_provider_matrix
+inherits:
+  - default_benchmark
+dataset_profile: datasets/sample_dataset
+providers:
+  - providers/huggingface_local
+  - providers/huggingface_api
+metric_profiles:
+  - metrics/default_quality
+  - metrics/default_timing
+execution_mode: batch
+batch:
+  max_samples: 1

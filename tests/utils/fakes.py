@@ -233,12 +233,13 @@ def build_stub_provider_manager(configs_root: str):
                 settings.update(settings_overrides)
             credentials_ref = str(payload.get("credentials_ref", "")).strip()
             supports_streaming = provider_id in {"vosk", "google", "azure", "aws"}
+            requires_network = provider_id in {"azure", "google", "aws", "huggingface_api"}
             provider = FakeProviderAdapter(
                 provider_id=provider_id,
                 supports_streaming=supports_streaming,
                 streaming_mode="native" if supports_streaming else "none",
                 supports_partials=supports_streaming,
-                requires_network=provider_id in {"azure", "google", "aws"},
+                requires_network=requires_network,
             )
             credentials = {"ref": credentials_ref} if credentials_ref else {}
             provider.initialize(settings, credentials)

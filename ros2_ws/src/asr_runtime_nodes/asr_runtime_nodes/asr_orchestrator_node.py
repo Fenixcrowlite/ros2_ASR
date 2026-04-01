@@ -45,6 +45,7 @@ from asr_provider_base import (
     list_providers,
     provider_runtime_metadata,
 )
+from asr_provider_base.config import resolve_provider_selection_from_runtime_payload
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
@@ -360,7 +361,14 @@ class AsrOrchestratorNode(Node):
     def _resolve_runtime_profile_sections(
         self,
         runtime_profile: str | None,
-    ) -> tuple[str, str, dict[str, object], dict[str, object], dict[str, object]]:
+    ) -> tuple[
+        str,
+        str,
+        dict[str, object],
+        dict[str, object],
+        dict[str, object],
+        dict[str, object],
+    ]:
         runtime_profile_id = self._resolve_runtime_profile_id(runtime_profile)
         runtime_cfg = resolve_profile(
             profile_type="runtime",
@@ -379,12 +387,18 @@ class AsrOrchestratorNode(Node):
         session_cfg = self._require_object_mapping(
             runtime_cfg.data.get("session", {}), "runtime.session"
         )
+        provider_selection = resolve_provider_selection_from_runtime_payload(runtime_cfg.data)
         return (
             runtime_profile_id,
             runtime_cfg.snapshot_path,
             orchestrator_cfg,
             audio_cfg,
             session_cfg,
+            {
+                "profile": provider_selection.profile,
+                "preset": provider_selection.preset,
+                "settings": dict(provider_selection.settings),
+            },
         )
 
     def _resolve_runtime_configuration_target(
@@ -400,14 +414,18 @@ class AsrOrchestratorNode(Node):
             orchestrator_cfg,
             audio_cfg,
             session_cfg,
+            provider_cfg,
         ) = self._resolve_runtime_profile_sections(runtime_profile)
 
         target_provider_profile = str(
             provider_profile or self.provider_profile or ""
-        ).strip() or str(orchestrator_cfg.get("provider_profile", "providers/whisper_local"))
-        requested_provider_preset = str(overrides.get("provider_preset", "") or "").strip()
-        requested_provider_settings = self._normalize_provider_settings(
-            overrides.get("provider_settings", {})
+        ).strip() or str(provider_cfg.get("profile", "providers/whisper_local") or "")
+        requested_provider_preset = str(
+            overrides.get("provider_preset", "") or provider_cfg.get("preset", "") or ""
+        ).strip()
+        requested_provider_settings = dict(provider_cfg.get("settings", {}) or {})
+        requested_provider_settings.update(
+            self._normalize_provider_settings(overrides.get("provider_settings", {}))
         )
         target_language = str(overrides.get("language", "") or "").strip() or str(
             orchestrator_cfg.get("language", "en-US")
@@ -1658,7 +1676,7 @@ class AsrOrchestratorNode(Node):
 
     def _on_list_backends(self, request: ListBackends.Request, response: ListBackends.Response):
         del request
-        response.provider_ids = list_providers()
+        response.provider_ids = list_providers(configs_root=self.configs_root)
         return response
 
     def _on_validate(self, request: ValidateConfig.Request, response: ValidateConfig.Response):

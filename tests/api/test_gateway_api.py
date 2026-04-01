@@ -42,17 +42,29 @@ def _make_client(repo_root: Path, tmp_path: Path, monkeypatch):
     monkeypatch.setattr(
         gateway_api,
         "create_provider",
-        lambda provider_id: build_stub_provider_manager(
+        lambda provider_id, configs_root=None: build_stub_provider_manager(
             str(project_root / "configs")
         )().create_from_profile(
-            f"providers/{'azure_cloud' if provider_id == 'azure' else 'whisper_local'}"
+            {
+                "azure": "providers/azure_cloud",
+                "aws": "providers/aws_cloud",
+                "google": "providers/google_cloud",
+                "huggingface_local": "providers/huggingface_local",
+                "huggingface_api": "providers/huggingface_api",
+            }.get(provider_id, "providers/whisper_local")
         ),
     )
-    monkeypatch.setattr(gateway_api, "list_providers", lambda: ["whisper", "azure", "aws"])
+    monkeypatch.setattr(
+        gateway_api,
+        "list_providers",
+        lambda *args, **kwargs: ["whisper", "azure", "aws"],
+    )
     gateway_api._RUNTIME_EVENTS.clear()
     gateway_api._RUNTIME_RESULTS.clear()
     gateway_api._BENCHMARK_JOBS.clear()
-    return gateway_api, fake_ros, TestClient(gateway_api.app), project_root
+    client = TestClient(gateway_api.app)
+    client.__enter__()
+    return gateway_api, fake_ros, client, project_root
 
 
 def test_runtime_api_round_trip(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
@@ -724,7 +736,11 @@ def test_provider_catalog_distinguishes_ready_and_degraded_profiles(
 ) -> None:
     gateway_api, _fake_ros, client, project_root = _make_client(repo_root, tmp_path, monkeypatch)
     _write_provider_profile(project_root / "configs", "azure_invalid", "azure")
-    monkeypatch.setattr(gateway_api, "list_providers", lambda: ["whisper", "azure", "nemo"])
+    monkeypatch.setattr(
+        gateway_api,
+        "list_providers",
+        lambda *args, **kwargs: ["whisper", "azure", "nemo"],
+    )
 
     response = client.get("/api/providers/catalog")
 
@@ -737,6 +753,31 @@ def test_provider_catalog_distinguishes_ready_and_degraded_profiles(
     assert providers["azure"]["invalid_profiles"] >= 1
     assert providers["nemo"]["status"] == "not_configured"
     assert providers["nemo"]["runtime_ready"] is False
+
+
+def test_provider_catalog_lists_huggingface_local_and_api_profiles(
+    repo_root: Path,
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+    monkeypatch.setattr(
+        gateway_api,
+        "list_providers",
+        lambda *args, **kwargs: ["huggingface_local", "huggingface_api"],
+    )
+
+    response = client.get("/api/providers/catalog")
+
+    assert response.status_code == 200
+    providers = {item["provider_id"]: item for item in response.json()["providers"]}
+    assert providers["huggingface_local"]["kind"] == "local"
+    assert providers["huggingface_local"]["runtime_ready"] is True
+    assert providers["huggingface_local"]["status"] == "ready"
+    assert providers["huggingface_api"]["kind"] == "cloud"
+    assert providers["huggingface_api"]["capabilities"]["requires_network"] is True
+    assert providers["huggingface_api"]["runtime_ready"] is True
+    assert providers["huggingface_api"]["status"] == "ready"
 
 
 def test_runtime_start_rejects_invalid_provider_preflight(
