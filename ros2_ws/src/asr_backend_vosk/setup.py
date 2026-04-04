@@ -13,7 +13,7 @@ setup(
     install_requires=["setuptools"],
     zip_safe=True,
     maintainer="ASR Team",
-    maintainer_email="maintainer@example.com",
+    maintainer_email="asr-team@ros2-asr.localdomain",
     description="Vosk backend",
     license="MIT",
 )

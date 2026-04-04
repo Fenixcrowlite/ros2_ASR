@@ -9,16 +9,38 @@ from typing import Any
 import rclpy
 from asr_benchmark_core import BenchmarkOrchestrator, BenchmarkRunRequest
 from asr_core import make_run_id
+from asr_core.ros_parameters import parameter_string
 from asr_core.shutdown import safe_shutdown_node, spin_node_until_shutdown
 from asr_datasets import DatasetEntry, DatasetRegistry, import_from_folder, load_manifest
 from asr_interfaces.action import ImportDataset, RunBenchmarkExperiment
 from asr_interfaces.msg import BenchmarkJobStatus, DatasetStatus, ExperimentSummary
 from asr_interfaces.srv import GetBenchmarkStatus, ListDatasets, RegisterDataset
-from rclpy.action import ActionServer
+from rclpy.action import ActionServer, CancelResponse
 from rclpy.node import Node
 
 
 class BenchmarkManagerNode(Node):
+    """Expose benchmark and dataset management through ROS actions/services.
+
+    Published topics:
+    - none
+
+    Subscribed topics:
+    - none
+
+    Services/actions:
+    - `/benchmark/run_experiment`
+    - `/datasets/import`
+    - `/benchmark/get_status`
+    - `/datasets/register`
+    - `/datasets/list`
+
+    Parameters:
+    - `configs_root`: configuration root directory
+    - `artifacts_root`: benchmark artifact root
+    - `registry_path`: dataset registry JSON path
+    """
+
     def __init__(self) -> None:
         super().__init__("benchmark_manager_node")
         self.declare_parameter("configs_root", "configs")
@@ -26,9 +48,9 @@ class BenchmarkManagerNode(Node):
         self.declare_parameter("registry_path", "datasets/registry/datasets.json")
 
         cwd = Path.cwd()
-        raw_configs_root = str(self.get_parameter("configs_root").value)
-        raw_artifacts_root = str(self.get_parameter("artifacts_root").value)
-        raw_registry_path = str(self.get_parameter("registry_path").value)
+        raw_configs_root = parameter_string(self, "configs_root")
+        raw_artifacts_root = parameter_string(self, "artifacts_root")
+        raw_registry_path = parameter_string(self, "registry_path")
 
         self.configs_root = str((cwd / raw_configs_root).resolve()) if not Path(raw_configs_root).is_absolute() else raw_configs_root
         self.artifacts_root = (
@@ -51,12 +73,14 @@ class BenchmarkManagerNode(Node):
             RunBenchmarkExperiment,
             "/benchmark/run_experiment",
             execute_callback=self._execute_benchmark,
+            cancel_callback=self._reject_cancel,
         )
         self.import_action = ActionServer(
             self,
             ImportDataset,
             "/datasets/import",
             execute_callback=self._execute_import,
+            cancel_callback=self._reject_cancel,
         )
 
         self.get_status_srv = self.create_service(
@@ -82,6 +106,12 @@ class BenchmarkManagerNode(Node):
             registry_path=self.registry_path,
         )
 
+    def _reject_cancel(self, goal_handle) -> CancelResponse:
+        self.get_logger().warning(
+            f"Rejecting cancel request for action goal {getattr(goal_handle, 'goal_id', '<unknown>')}"
+        )
+        return CancelResponse.REJECT
+
     def _execute_benchmark(self, goal_handle):
         # A benchmark run is a long-lived action because it may process many
         # samples/providers and should report progress back to the caller.
@@ -98,6 +128,13 @@ class BenchmarkManagerNode(Node):
         goal_handle.publish_feedback(RunBenchmarkExperiment.Feedback(status=status_msg))
 
         try:
+            if goal_handle.is_cancel_requested:
+                goal_handle.canceled()
+                action_result = RunBenchmarkExperiment.Result()
+                action_result.success = False
+                action_result.run_id = run_id
+                action_result.message = "Benchmark canceled before execution"
+                return action_result
             result = self._build_orchestrator().run(
                 BenchmarkRunRequest(
                     benchmark_profile=request.benchmark_profile,
@@ -162,6 +199,13 @@ class BenchmarkManagerNode(Node):
         goal_handle.publish_feedback(ImportDataset.Feedback(status=status))
 
         try:
+            if goal_handle.is_cancel_requested:
+                goal_handle.canceled()
+                result = ImportDataset.Result()
+                result.success = False
+                result.dataset_id = request.dataset_id
+                result.message = "Dataset import canceled before execution"
+                return result
             if request.source_path.endswith(".jsonl"):
                 samples = load_manifest(request.source_path)
                 manifest_ref = request.source_path

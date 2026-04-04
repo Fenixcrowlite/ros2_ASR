@@ -17,6 +17,16 @@ class DatasetItem:
     resolved_wav_path: str = ""
 
 
+def _find_project_root(start: Path) -> Path | None:
+    current = start.resolve()
+    for candidate in (current, *current.parents):
+        if (candidate / ".git").exists():
+            return candidate
+        if (candidate / "configs").is_dir() and (candidate / "data").is_dir():
+            return candidate
+    return None
+
+
 def load_manifest_csv(path: str) -> list[DatasetItem]:
     """Load dataset manifest with columns: `wav_path, transcript, language`."""
     manifest_path = Path(path)
@@ -51,11 +61,20 @@ def load_manifest_csv(path: str) -> list[DatasetItem]:
                 if from_manifest.exists():
                     resolved_wav = from_manifest
                 else:
-                    raise ValueError(
-                        "Dataset row "
-                        f"{row_index}: wav_path does not exist relative to manifest "
-                        f"directory: {raw_wav_path}"
+                    project_root = _find_project_root(manifest_path.parent)
+                    from_project_root = (
+                        (project_root / wav_candidate).resolve()
+                        if project_root is not None
+                        else None
                     )
+                    if from_project_root is not None and from_project_root.exists():
+                        resolved_wav = from_project_root
+                    else:
+                        raise ValueError(
+                            "Dataset row "
+                            f"{row_index}: wav_path does not exist relative to manifest "
+                            f"directory or project root: {raw_wav_path}"
+                        )
 
             if not resolved_wav.exists():
                 raise ValueError(

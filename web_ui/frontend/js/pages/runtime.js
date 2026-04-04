@@ -1,4 +1,5 @@
 import { createActionRunner } from '../action-runner.js';
+import { renderProviderGuideHtml } from '../provider-guides.js';
 
 export function initRuntimePage(ctx) {
   const { api, ui, state } = ctx;
@@ -192,6 +193,7 @@ export function initRuntimePage(ctx) {
         ${!Boolean(caps.supports_streaming) ? '<p class="muted">Provider stream is unavailable for this provider. Use segmented via VAD or whole-file transcription.</p>' : ''}
         <p class="muted">advanced fields: ${ui.escapeHtml((advancedFields || []).join(', ') || 'none')}</p>
       </div>
+      ${renderProviderGuideHtml(ui, row)}
     `;
   }
 

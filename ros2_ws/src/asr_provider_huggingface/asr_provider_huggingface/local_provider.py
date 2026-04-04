@@ -123,7 +123,7 @@ class HuggingFaceLocalProvider(BaseHuggingFaceProvider):
         else:
             kwargs["device"] = self._resolved_device
         if self._resolved_dtype is not None:
-            kwargs["dtype"] = self._resolved_dtype
+            kwargs["torch_dtype"] = self._resolved_dtype
         self._pipeline = pipeline(**kwargs)
         self._set_metadata(device=self._resolved_device)
         self._status = self.get_status().__class__(
@@ -240,4 +240,13 @@ class HuggingFaceLocalProvider(BaseHuggingFaceProvider):
 
     def teardown(self) -> None:
         self._pipeline = None
+        try:
+            import torch  # type: ignore[import-not-found]
+
+            if bool(getattr(torch.cuda, "is_available", lambda: False)()):
+                empty_cache = getattr(torch.cuda, "empty_cache", None)
+                if callable(empty_cache):
+                    empty_cache()
+        except Exception:
+            pass
         super().teardown()

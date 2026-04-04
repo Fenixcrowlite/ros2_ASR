@@ -35,6 +35,9 @@ class HuggingFaceInferenceHttpClient:
         self._session = session or requests.Session()
         self.base_url = str(base_url or "").strip() or "https://api-inference.huggingface.co/models/{model}"
 
+    def close(self) -> None:
+        self._session.close()
+
     def _resolve_url(self, *, model_id: str, endpoint_url: str = "") -> str:
         explicit = str(endpoint_url or "").strip()
         if explicit:

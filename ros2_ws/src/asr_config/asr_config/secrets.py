@@ -3,12 +3,15 @@
 from __future__ import annotations
 
 import os
+import re
 from pathlib import Path
 from typing import Any, Iterable
 
 import yaml  # type: ignore[import-untyped]
 
 from asr_config.models import SecretRef
+
+ENV_KEY_RE = re.compile(r"^[A-Z_][A-Z0-9_]*$")
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
@@ -103,7 +106,13 @@ def write_local_env_values(
         normalized_key = str(key).strip()
         if not normalized_key:
             continue
+        if not ENV_KEY_RE.match(normalized_key):
+            raise ValueError(f"Invalid env key: {normalized_key}")
         normalized_value = str(value)
+        if any(char in normalized_value for char in ("\r", "\n", "\0")):
+            raise ValueError(
+                f"Invalid env value for {normalized_key}: control characters are not allowed"
+            )
         if normalized_value:
             current[normalized_key] = normalized_value
         else:

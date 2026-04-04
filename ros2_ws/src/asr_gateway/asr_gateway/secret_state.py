@@ -88,6 +88,48 @@ def azure_secret_status(
     }
 
 
+def huggingface_secret_status(
+    ref_source_path: str,
+    *,
+    provider: str,
+    token_required: bool,
+    resolve_env_value: Callable[[str, str], tuple[str, str]],
+    local_env_file_path: Callable[[str], Path],
+) -> dict[str, Any]:
+    token_value, token_source = resolve_env_value("HF_TOKEN", ref_source_path)
+    local_env_path = local_env_file_path(ref_source_path)
+    provider_id = str(provider or "").strip() or "huggingface_api"
+    mode = "api" if provider_id == "huggingface_api" else "local"
+    token_present = bool(token_value)
+    runtime_ready = token_present or not token_required
+    if token_present:
+        status = "ready"
+    elif token_required:
+        status = "missing_credentials"
+    else:
+        status = "optional_missing"
+    return {
+        "runtime_ready": runtime_ready,
+        "status": status,
+        "provider_mode": mode,
+        "token_present": token_present,
+        "token_required": bool(token_required),
+        "token_source": token_source or "missing",
+        "token_masked": "***" if token_present else "",
+        "local_env_file": str(local_env_path),
+        "local_env_file_exists": local_env_path.exists(),
+        "message": (
+            "Hugging Face token is ready for hosted inference and gated model access."
+            if token_present
+            else (
+                "Hugging Face API mode requires HF_TOKEN."
+                if token_required
+                else "HF_TOKEN is optional for local mode and only needed for gated/private models."
+            )
+        ),
+    }
+
+
 def mask_email(value: str) -> str:
     text = str(value or "").strip()
     if not text or "@" not in text:
@@ -168,6 +210,7 @@ def validate_secret_file(
     aws_backend_factory: Callable[[], Any],
     azure_status_factory: Callable[[str], dict[str, Any]],
     google_status_factory: Callable[[str, str, str], dict[str, Any]],
+    huggingface_status_factory: Callable[[str, str, bool], dict[str, Any]],
 ) -> dict[str, Any]:
     issues: list[str] = []
     detail: dict[str, Any] = {"valid": True, "issues": issues, "env": {}}
@@ -269,6 +312,12 @@ def validate_secret_file(
             ref.source_path,
             str(detail.get("resolved_file_path", "") or ""),
             str(detail.get("resolved_file_path_source", "") or ""),
+        )
+    if ref.provider in {"huggingface_local", "huggingface_api"} and ref.kind == "env":
+        detail["auth"] = huggingface_status_factory(
+            ref.source_path,
+            ref.provider,
+            "HF_TOKEN" in set(ref.required),
         )
 
     detail["valid"] = not issues

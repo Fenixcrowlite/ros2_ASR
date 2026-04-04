@@ -189,6 +189,13 @@ def test_load_runtime_configuration_rejects_invalid_audio_source(
         )
 
 
+def test_mic_block_frames_rounds_up_to_power_of_two() -> None:
+    block_frames = AudioInputNode._mic_block_frames(16000, 500)
+
+    assert block_frames == 8192
+    assert block_frames & (block_frames - 1) == 0
+
+
 def test_publish_mic_stream_raises_when_device_open_fails(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

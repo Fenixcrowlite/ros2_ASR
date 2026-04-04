@@ -3,11 +3,12 @@
   <name>asr_backend_vosk</name>
   <version>0.1.0</version>
   <description>Vosk local ASR backend</description>
-  <maintainer email="maintainer@example.com">ASR Team</maintainer>
+  <maintainer email="asr-team@ros2-asr.localdomain">ASR Team</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>ament_python</buildtool_depend>
   <exec_depend>asr_core</exec_depend>
+  <exec_depend>python3-vosk</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>

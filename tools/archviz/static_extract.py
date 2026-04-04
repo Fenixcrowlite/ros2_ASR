@@ -12,7 +12,10 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from defusedxml import ElementTree
+try:
+    from defusedxml import ElementTree
+except ImportError:  # pragma: no cover - exercised only in minimal environments
+    from xml.etree import ElementTree
 
 from tools.archviz.graph import GraphBuilder, dedupe_sorted, new_graph, normalize_node_name
 

@@ -15,6 +15,12 @@ import rclpy
 from asr_config import resolve_profile, validate_runtime_payload
 from asr_core.ids import make_session_id
 from asr_core.namespaces import TOPICS
+from asr_core.ros_parameters import (
+    parameter_bool,
+    parameter_float,
+    parameter_int,
+    parameter_string,
+)
 from asr_core.shutdown import safe_shutdown_node, spin_node_until_shutdown
 from asr_interfaces.msg import AudioChunk, NodeStatus
 from asr_interfaces.srv import ReconfigureRuntime, StartRuntimeSession, StopRuntimeSession
@@ -24,6 +30,39 @@ from asr_runtime_nodes.transport import encode_transport_metadata, stamp_to_ns
 
 
 class AudioInputNode(Node):
+    """Publish canonical raw audio chunks from file or microphone input.
+
+    Published topics:
+    - `/asr/runtime/audio/raw`
+    - `/asr/status/nodes`
+
+    Subscribed topics:
+    - none
+
+    Services:
+    - `/asr/runtime/audio/start_session`
+    - `/asr/runtime/audio/stop_session`
+    - `/asr/runtime/audio/reconfigure`
+
+    Parameters:
+    - `configs_root`, `runtime_profile`
+    - `input_mode`, `file_path`, `mic_device`
+    - `sample_rate_hz`, `chunk_ms`
+    - `loop_file`, `file_replay_rate`
+    - `mic_capture_sec`, `session_id`, `autostart`
+    """
+
+    @staticmethod
+    def _next_power_of_two(value: int) -> int:
+        if value <= 1:
+            return 1
+        return 1 << (int(value) - 1).bit_length()
+
+    @staticmethod
+    def _mic_block_frames(sample_rate_hz: int, chunk_ms: int) -> int:
+        requested_frames = max(1, int(sample_rate_hz * (chunk_ms / 1000.0)))
+        return AudioInputNode._next_power_of_two(requested_frames)
+
     @staticmethod
     def _as_float(value: object, default: float = 0.0) -> float:
         if value is None:
@@ -65,18 +104,18 @@ class AudioInputNode(Node):
         self.declare_parameter("session_id", "")
         self.declare_parameter("autostart", False)
 
-        self.configs_root = str(self.get_parameter("configs_root").value)
-        self.runtime_profile = str(self.get_parameter("runtime_profile").value)
-        self.input_mode = str(self.get_parameter("input_mode").value)
-        self.file_path = str(self.get_parameter("file_path").value)
-        self.sample_rate_hz = int(self.get_parameter("sample_rate_hz").value)
-        self.chunk_ms = int(self.get_parameter("chunk_ms").value)
-        self.loop_file = bool(self.get_parameter("loop_file").value)
-        self.file_replay_rate = float(self.get_parameter("file_replay_rate").value)
-        self.mic_capture_sec = float(self.get_parameter("mic_capture_sec").value)
-        self.mic_device = str(self.get_parameter("mic_device").value)
-        self.session_id = str(self.get_parameter("session_id").value).strip() or make_session_id()
-        self.autostart = bool(self.get_parameter("autostart").value)
+        self.configs_root = parameter_string(self, "configs_root")
+        self.runtime_profile = parameter_string(self, "runtime_profile")
+        self.input_mode = parameter_string(self, "input_mode")
+        self.file_path = parameter_string(self, "file_path")
+        self.sample_rate_hz = parameter_int(self, "sample_rate_hz")
+        self.chunk_ms = parameter_int(self, "chunk_ms")
+        self.loop_file = parameter_bool(self, "loop_file")
+        self.file_replay_rate = parameter_float(self, "file_replay_rate", default=1.0)
+        self.mic_capture_sec = parameter_float(self, "mic_capture_sec", default=4.0)
+        self.mic_device = parameter_string(self, "mic_device")
+        self.session_id = parameter_string(self, "session_id").strip() or make_session_id()
+        self.autostart = parameter_bool(self, "autostart")
 
         self.publisher = self.create_publisher(AudioChunk, TOPICS["raw_audio"], 10)
         self.node_status_pub = self.create_publisher(NodeStatus, TOPICS["node_status"], 10)
@@ -106,6 +145,7 @@ class AudioInputNode(Node):
         self._resolved_config_ref = ""
         self._lock = threading.Lock()
         self._worker: threading.Thread | None = None
+        self._stop_event = threading.Event()
         self._active = False
         self._shutdown = False
         self._capture_started_ns = 0
@@ -327,10 +367,14 @@ class AudioInputNode(Node):
             if self._worker is not None and self._worker.is_alive():
                 raise RuntimeError("Audio session is already running")
             self._active = True
+            self._stop_event.clear()
             self._status = "starting"
             self._capture_started_ns = time.time_ns()
             self._published_chunk_count = 0
-            self._worker = threading.Thread(target=self._capture_worker, daemon=True)
+            self._worker = threading.Thread(
+                target=self._capture_worker,
+                name="audio-input-capture",
+            )
             self._worker.start()
         self._last_update = self.get_clock().now()
 
@@ -338,6 +382,7 @@ class AudioInputNode(Node):
         worker: threading.Thread | None = None
         with self._lock:
             self._active = False
+            self._stop_event.set()
             worker = self._worker
         if worker is not None and worker.is_alive():
             worker.join(timeout=max(self.mic_capture_sec + 2.0, 3.0))
@@ -422,7 +467,12 @@ class AudioInputNode(Node):
                         channels=file_channels,
                     )
                     if self._active and replay_delay_sec > 0.0:
-                        time.sleep(replay_delay_sec)
+                        stop_event = getattr(self, "_stop_event", None)
+                        if stop_event is not None and hasattr(stop_event, "wait"):
+                            if stop_event.wait(replay_delay_sec):
+                                break
+                        else:
+                            time.sleep(replay_delay_sec)
                     index += 1
             if not self.loop_file or not self._active:
                 break
@@ -433,16 +483,24 @@ class AudioInputNode(Node):
         except Exception as exc:
             raise RuntimeError(f"sounddevice import failed: {exc}") from exc
 
-        audio_q: queue.Queue[bytes] = queue.Queue()
+        audio_q: queue.Queue[bytes] = queue.Queue(maxsize=8)
 
         def callback(indata, frames, callback_time, status) -> None:
             del frames, callback_time
             if status:
                 self.get_logger().warning(f"Microphone callback status: {status}")
             if self._active:
-                audio_q.put(bytes(indata))
+                payload = bytes(indata)
+                try:
+                    audio_q.put_nowait(payload)
+                except queue.Full:
+                    try:
+                        audio_q.get_nowait()
+                    except queue.Empty:
+                        pass
+                    audio_q.put_nowait(payload)
 
-        chunk_frames = max(1, int(self.sample_rate_hz * (self.chunk_ms / 1000.0)))
+        chunk_frames = AudioInputNode._mic_block_frames(self.sample_rate_hz, self.chunk_ms)
         try:
             with sd.RawInputStream(
                 samplerate=self.sample_rate_hz,
@@ -454,7 +512,9 @@ class AudioInputNode(Node):
             ):
                 index = 0
                 self.get_logger().info(
-                    f"Microphone capture active on device={self.mic_device or 'default'}"
+                    "Microphone capture active on "
+                    f"device={self.mic_device or 'default'} "
+                    f"blocksize_frames={chunk_frames}"
                 )
                 while self._active:
                     try:

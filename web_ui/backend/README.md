@@ -4,7 +4,7 @@ Backend for the new web UI is provided by ROS2 package `asr_gateway`:
 
 - FastAPI app module: `asr_gateway.api`
 - Entry point: `asr_gateway_server`
-- Default address: `http://0.0.0.0:8088`
+- Default address: `http://127.0.0.1:8088`
 
 The backend is gateway-first and should be the single control path between GUI and ROS2 runtime/benchmark services/actions.
 

@@ -6,6 +6,7 @@ Subscribes to structured ASR results and republishes plain text into a separate 
 from __future__ import annotations
 
 import rclpy
+from asr_core.ros_parameters import parameter_bool, parameter_string
 from asr_interfaces.msg import AsrResult
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
@@ -23,7 +24,20 @@ def _as_bool(value: object) -> bool:
 
 
 class AsrTextOutputNode(Node):
-    """Relay `/asr/text` messages into plain-string topic `/asr/text/plain`."""
+    """Relay structured ASR results into a plain-text topic.
+
+    Published topics:
+    - `output_topic` (`std_msgs/String`, default `/asr/text/plain`)
+
+    Subscribed topics:
+    - `input_topic` (`asr_interfaces/AsrResult`, default `/asr/text`)
+
+    Parameters:
+    - `input_topic`
+    - `output_topic`
+    - `final_only`
+    - `publish_errors_as_text`
+    """
 
     def __init__(self) -> None:
         super().__init__("asr_text_output_node")
@@ -32,10 +46,12 @@ class AsrTextOutputNode(Node):
         self.declare_parameter("final_only", True)
         self.declare_parameter("publish_errors_as_text", True)
 
-        self.input_topic = str(self.get_parameter("input_topic").value)
-        self.output_topic = str(self.get_parameter("output_topic").value)
-        self.final_only = _as_bool(self.get_parameter("final_only").value)
-        self.publish_errors_as_text = _as_bool(self.get_parameter("publish_errors_as_text").value)
+        self.input_topic = parameter_string(self, "input_topic")
+        self.output_topic = parameter_string(self, "output_topic")
+        self.final_only = _as_bool(parameter_bool(self, "final_only", default=True))
+        self.publish_errors_as_text = _as_bool(
+            parameter_bool(self, "publish_errors_as_text", default=True)
+        )
 
         latched_qos = QoSProfile(
             depth=10,

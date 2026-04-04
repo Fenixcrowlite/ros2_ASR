@@ -5,11 +5,26 @@ from __future__ import annotations
 import rclpy
 from rclpy.node import Node
 
+from asr_core.ros_parameters import parameter_string
 from asr_benchmark.runner import run_benchmark
 
 
 class AsrBenchmarkNode(Node):
-    """One-shot compatibility node for the legacy flat benchmark flow."""
+    """Run the legacy benchmark flow once and exit.
+
+    Published topics:
+    - none
+
+    Subscribed topics:
+    - none
+
+    Parameters:
+    - `config`: runtime config YAML path
+    - `dataset`: benchmark manifest path
+    - `output_json`: JSON summary output path
+    - `output_csv`: CSV summary output path
+    - `backends`: comma-separated backend override list
+    """
 
     def __init__(self) -> None:
         super().__init__("asr_benchmark_node")
@@ -26,11 +41,11 @@ class AsrBenchmarkNode(Node):
         """Timer callback executing benchmark exactly once."""
         if self._done:
             return
-        config = str(self.get_parameter("config").value)
-        dataset = str(self.get_parameter("dataset").value)
-        output_json = str(self.get_parameter("output_json").value)
-        output_csv = str(self.get_parameter("output_csv").value)
-        backends_raw = str(self.get_parameter("backends").value)
+        config = parameter_string(self, "config")
+        dataset = parameter_string(self, "dataset")
+        output_json = parameter_string(self, "output_json")
+        output_csv = parameter_string(self, "output_csv")
+        backends_raw = parameter_string(self, "backends")
         backends = (
             [b.strip() for b in backends_raw.split(",") if b.strip()] if backends_raw else None
         )

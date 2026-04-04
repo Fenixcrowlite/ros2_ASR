@@ -16,12 +16,12 @@
   "mean_metrics": {
     "cer": 0.0,
     "confidence": 0.92,
-    "cpu_percent": 11.4,
-    "gpu_memory_mb": 791.0,
-    "gpu_util_percent": 17.0,
+    "cpu_percent": 3.7,
+    "gpu_memory_mb": 0.0,
+    "gpu_util_percent": 0.0,
     "inference_ms": 0.0,
-    "memory_mb": 175.7421875,
-    "model_load_ms": 0.013826,
+    "memory_mb": 167.3984375,
+    "model_load_ms": 0.624188,
     "postprocess_ms": 0.0,
     "preprocess_ms": 0.0,
     "provider_call_cold_start": 1.0,
@@ -72,32 +72,32 @@
     "cpu_percent": {
       "count": 1,
       "aggregator": "mean",
-      "sum": 11.4,
-      "mean": 11.4,
-      "min": 11.4,
-      "max": 11.4,
-      "p50": 11.4,
-      "p95": 11.4
+      "sum": 3.7,
+      "mean": 3.7,
+      "min": 3.7,
+      "max": 3.7,
+      "p50": 3.7,
+      "p95": 3.7
     },
     "gpu_memory_mb": {
       "count": 1,
       "aggregator": "mean",
-      "sum": 791.0,
-      "mean": 791.0,
-      "min": 791.0,
-      "max": 791.0,
-      "p50": 791.0,
-      "p95": 791.0
+      "sum": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
     },
     "gpu_util_percent": {
       "count": 1,
       "aggregator": "mean",
-      "sum": 17.0,
-      "mean": 17.0,
-      "min": 17.0,
-      "max": 17.0,
-      "p50": 17.0,
-      "p95": 17.0
+      "sum": 0.0,
+      "mean": 0.0,
+      "min": 0.0,
+      "max": 0.0,
+      "p50": 0.0,
+      "p95": 0.0
     },
     "inference_ms": {
       "count": 1,
@@ -112,22 +112,22 @@
     "memory_mb": {
       "count": 1,
       "aggregator": "mean",
-      "sum": 175.7421875,
-      "mean": 175.7421875,
-      "min": 175.7421875,
-      "max": 175.7421875,
-      "p50": 175.7421875,
-      "p95": 175.7421875
+      "sum": 167.3984375,
+      "mean": 167.3984375,
+      "min": 167.3984375,
+      "max": 167.3984375,
+      "p50": 167.3984375,
+      "p95": 167.3984375
     },
     "model_load_ms": {
       "count": 1,
       "aggregator": "mean",
-      "sum": 0.013826,
-      "mean": 0.013826,
-      "min": 0.013826,
-      "max": 0.013826,
-      "p50": 0.013826,
-      "p95": 0.013826
+      "sum": 0.624188,
+      "mean": 0.624188,
+      "min": 0.624188,
+      "max": 0.624188,
+      "p50": 0.624188,
+      "p95": 0.624188
     },
     "postprocess_ms": {
       "count": 1,
@@ -377,13 +377,13 @@
   "cost_totals": {},
   "streaming_metrics": {},
   "resource_metrics": {
-    "cpu_percent": 11.4,
-    "gpu_memory_mb": 791.0,
-    "gpu_util_percent": 17.0,
-    "memory_mb": 175.7421875
+    "cpu_percent": 3.7,
+    "gpu_memory_mb": 0.0,
+    "gpu_util_percent": 0.0,
+    "memory_mb": 167.3984375
   },
   "other_metrics": {
-    "model_load_ms": 0.013826,
+    "model_load_ms": 0.624188,
     "provider_call_cold_start": 1.0,
     "provider_call_warm_start": 0.0,
     "provider_init_cold_start": 1.0,
@@ -405,12 +405,12 @@
       "mean_metrics": {
         "cer": 0.0,
         "confidence": 0.92,
-        "cpu_percent": 11.4,
-        "gpu_memory_mb": 791.0,
-        "gpu_util_percent": 17.0,
+        "cpu_percent": 3.7,
+        "gpu_memory_mb": 0.0,
+        "gpu_util_percent": 0.0,
         "inference_ms": 0.0,
-        "memory_mb": 175.7421875,
-        "model_load_ms": 0.013826,
+        "memory_mb": 167.3984375,
+        "model_load_ms": 0.624188,
         "postprocess_ms": 0.0,
         "preprocess_ms": 0.0,
         "provider_call_cold_start": 1.0,
@@ -461,32 +461,32 @@
         "cpu_percent": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 11.4,
-          "mean": 11.4,
-          "min": 11.4,
-          "max": 11.4,
-          "p50": 11.4,
-          "p95": 11.4
+          "sum": 3.7,
+          "mean": 3.7,
+          "min": 3.7,
+          "max": 3.7,
+          "p50": 3.7,
+          "p95": 3.7
         },
         "gpu_memory_mb": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 791.0,
-          "mean": 791.0,
-          "min": 791.0,
-          "max": 791.0,
-          "p50": 791.0,
-          "p95": 791.0
+          "sum": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "p50": 0.0,
+          "p95": 0.0
         },
         "gpu_util_percent": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 17.0,
-          "mean": 17.0,
-          "min": 17.0,
-          "max": 17.0,
-          "p50": 17.0,
-          "p95": 17.0
+          "sum": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "p50": 0.0,
+          "p95": 0.0
         },
         "inference_ms": {
           "count": 1,
@@ -501,22 +501,22 @@
         "memory_mb": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 175.7421875,
-          "mean": 175.7421875,
-          "min": 175.7421875,
-          "max": 175.7421875,
-          "p50": 175.7421875,
-          "p95": 175.7421875
+          "sum": 167.3984375,
+          "mean": 167.3984375,
+          "min": 167.3984375,
+          "max": 167.3984375,
+          "p50": 167.3984375,
+          "p95": 167.3984375
         },
         "model_load_ms": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 0.013826,
-          "mean": 0.013826,
-          "min": 0.013826,
-          "max": 0.013826,
-          "p50": 0.013826,
-          "p95": 0.013826
+          "sum": 0.624188,
+          "mean": 0.624188,
+          "min": 0.624188,
+          "max": 0.624188,
+          "p50": 0.624188,
+          "p95": 0.624188
         },
         "postprocess_ms": {
           "count": 1,
@@ -766,13 +766,13 @@
       "cost_totals": {},
       "streaming_metrics": {},
       "resource_metrics": {
-        "cpu_percent": 11.4,
-        "gpu_memory_mb": 791.0,
-        "gpu_util_percent": 17.0,
-        "memory_mb": 175.7421875
+        "cpu_percent": 3.7,
+        "gpu_memory_mb": 0.0,
+        "gpu_util_percent": 0.0,
+        "memory_mb": 167.3984375
       },
       "other_metrics": {
-        "model_load_ms": 0.013826,
+        "model_load_ms": 0.624188,
         "provider_call_cold_start": 1.0,
         "provider_call_warm_start": 0.0,
         "provider_init_cold_start": 1.0,
@@ -796,12 +796,12 @@
       "mean_metrics": {
         "cer": 0.0,
         "confidence": 0.92,
-        "cpu_percent": 11.4,
-        "gpu_memory_mb": 791.0,
-        "gpu_util_percent": 17.0,
+        "cpu_percent": 3.7,
+        "gpu_memory_mb": 0.0,
+        "gpu_util_percent": 0.0,
         "inference_ms": 0.0,
-        "memory_mb": 175.7421875,
-        "model_load_ms": 0.013826,
+        "memory_mb": 167.3984375,
+        "model_load_ms": 0.624188,
         "postprocess_ms": 0.0,
         "preprocess_ms": 0.0,
         "provider_call_cold_start": 1.0,
@@ -852,32 +852,32 @@
         "cpu_percent": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 11.4,
-          "mean": 11.4,
-          "min": 11.4,
-          "max": 11.4,
-          "p50": 11.4,
-          "p95": 11.4
+          "sum": 3.7,
+          "mean": 3.7,
+          "min": 3.7,
+          "max": 3.7,
+          "p50": 3.7,
+          "p95": 3.7
         },
         "gpu_memory_mb": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 791.0,
-          "mean": 791.0,
-          "min": 791.0,
-          "max": 791.0,
-          "p50": 791.0,
-          "p95": 791.0
+          "sum": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "p50": 0.0,
+          "p95": 0.0
         },
         "gpu_util_percent": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 17.0,
-          "mean": 17.0,
-          "min": 17.0,
-          "max": 17.0,
-          "p50": 17.0,
-          "p95": 17.0
+          "sum": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "p50": 0.0,
+          "p95": 0.0
         },
         "inference_ms": {
           "count": 1,
@@ -892,22 +892,22 @@
         "memory_mb": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 175.7421875,
-          "mean": 175.7421875,
-          "min": 175.7421875,
-          "max": 175.7421875,
-          "p50": 175.7421875,
-          "p95": 175.7421875
+          "sum": 167.3984375,
+          "mean": 167.3984375,
+          "min": 167.3984375,
+          "max": 167.3984375,
+          "p50": 167.3984375,
+          "p95": 167.3984375
         },
         "model_load_ms": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 0.013826,
-          "mean": 0.013826,
-          "min": 0.013826,
-          "max": 0.013826,
-          "p50": 0.013826,
-          "p95": 0.013826
+          "sum": 0.624188,
+          "mean": 0.624188,
+          "min": 0.624188,
+          "max": 0.624188,
+          "p50": 0.624188,
+          "p95": 0.624188
         },
         "postprocess_ms": {
           "count": 1,
@@ -1157,13 +1157,13 @@
       "cost_totals": {},
       "streaming_metrics": {},
       "resource_metrics": {
-        "cpu_percent": 11.4,
-        "gpu_memory_mb": 791.0,
-        "gpu_util_percent": 17.0,
-        "memory_mb": 175.7421875
+        "cpu_percent": 3.7,
+        "gpu_memory_mb": 0.0,
+        "gpu_util_percent": 0.0,
+        "memory_mb": 167.3984375
       },
       "other_metrics": {
-        "model_load_ms": 0.013826,
+        "model_load_ms": 0.624188,
         "provider_call_cold_start": 1.0,
         "provider_call_warm_start": 0.0,
         "provider_init_cold_start": 1.0,
@@ -1182,12 +1182,12 @@
       "mean_metrics": {
         "cer": 0.0,
         "confidence": 0.92,
-        "cpu_percent": 11.4,
-        "gpu_memory_mb": 791.0,
-        "gpu_util_percent": 17.0,
+        "cpu_percent": 3.7,
+        "gpu_memory_mb": 0.0,
+        "gpu_util_percent": 0.0,
         "inference_ms": 0.0,
-        "memory_mb": 175.7421875,
-        "model_load_ms": 0.013826,
+        "memory_mb": 167.3984375,
+        "model_load_ms": 0.624188,
         "postprocess_ms": 0.0,
         "preprocess_ms": 0.0,
         "provider_call_cold_start": 1.0,
@@ -1238,32 +1238,32 @@
         "cpu_percent": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 11.4,
-          "mean": 11.4,
-          "min": 11.4,
-          "max": 11.4,
-          "p50": 11.4,
-          "p95": 11.4
+          "sum": 3.7,
+          "mean": 3.7,
+          "min": 3.7,
+          "max": 3.7,
+          "p50": 3.7,
+          "p95": 3.7
         },
         "gpu_memory_mb": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 791.0,
-          "mean": 791.0,
-          "min": 791.0,
-          "max": 791.0,
-          "p50": 791.0,
-          "p95": 791.0
+          "sum": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "p50": 0.0,
+          "p95": 0.0
         },
         "gpu_util_percent": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 17.0,
-          "mean": 17.0,
-          "min": 17.0,
-          "max": 17.0,
-          "p50": 17.0,
-          "p95": 17.0
+          "sum": 0.0,
+          "mean": 0.0,
+          "min": 0.0,
+          "max": 0.0,
+          "p50": 0.0,
+          "p95": 0.0
         },
         "inference_ms": {
           "count": 1,
@@ -1278,22 +1278,22 @@
         "memory_mb": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 175.7421875,
-          "mean": 175.7421875,
-          "min": 175.7421875,
-          "max": 175.7421875,
-          "p50": 175.7421875,
-          "p95": 175.7421875
+          "sum": 167.3984375,
+          "mean": 167.3984375,
+          "min": 167.3984375,
+          "max": 167.3984375,
+          "p50": 167.3984375,
+          "p95": 167.3984375
         },
         "model_load_ms": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 0.013826,
-          "mean": 0.013826,
-          "min": 0.013826,
-          "max": 0.013826,
-          "p50": 0.013826,
-          "p95": 0.013826
+          "sum": 0.624188,
+          "mean": 0.624188,
+          "min": 0.624188,
+          "max": 0.624188,
+          "p50": 0.624188,
+          "p95": 0.624188
         },
         "postprocess_ms": {
           "count": 1,
@@ -1543,13 +1543,13 @@
       "cost_totals": {},
       "streaming_metrics": {},
       "resource_metrics": {
-        "cpu_percent": 11.4,
-        "gpu_memory_mb": 791.0,
-        "gpu_util_percent": 17.0,
-        "memory_mb": 175.7421875
+        "cpu_percent": 3.7,
+        "gpu_memory_mb": 0.0,
+        "gpu_util_percent": 0.0,
+        "memory_mb": 167.3984375
       },
       "other_metrics": {
-        "model_load_ms": 0.013826,
+        "model_load_ms": 0.624188,
         "provider_call_cold_start": 1.0,
         "provider_call_warm_start": 0.0,
         "provider_init_cold_start": 1.0,

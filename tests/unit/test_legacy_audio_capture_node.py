@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import sys
 import types
-from types import SimpleNamespace
 
 import pytest
+import asr_ros.audio_capture_node as legacy_audio_capture_module
 
 if "rcl_interfaces.msg" not in sys.modules:
     rcl_interfaces_mod = types.ModuleType("rcl_interfaces")
@@ -93,3 +93,7 @@ def test_legacy_audio_capture_rejects_unknown_mode() -> None:
     assert node.file_attempts == 0
     assert node._published_once is True
     assert node.logger.errors == ["Unsupported input_mode: auto"]
+
+
+def test_legacy_audio_capture_uses_power_of_two_mic_block_frames() -> None:
+    assert legacy_audio_capture_module._mic_block_frames(16000, 800) == 16384

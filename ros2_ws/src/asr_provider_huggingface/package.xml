@@ -3,12 +3,16 @@
   <name>asr_provider_huggingface</name>
   <version>0.1.0</version>
   <description>Hugging Face provider adapters for local and hosted ASR</description>
-  <maintainer email="maintainer@example.com">ASR Team</maintainer>
+  <maintainer email="asr-team@ros2-asr.localdomain">ASR Team</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>ament_python</buildtool_depend>
   <exec_depend>asr_provider_base</exec_depend>
   <exec_depend>asr_core</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+  <exec_depend>python3-requests</exec_depend>
+  <exec_depend>python3-torch</exec_depend>
+  <exec_depend>python3-transformers</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>

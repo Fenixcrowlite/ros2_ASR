@@ -8,7 +8,7 @@ from asr_provider_huggingface.http_client import HuggingFaceInferenceError
 
 
 def _install_fake_transformers(monkeypatch, *, fail_first_timestamp_call: bool = False):
-    captured: dict[str, object] = {"pipeline_calls": []}
+    captured: dict[str, object] = {"pipeline_calls": [], "empty_cache_calls": 0}
 
     class FakePipeline:
         def __call__(self, inputs, **kwargs):
@@ -38,6 +38,10 @@ def _install_fake_transformers(monkeypatch, *, fail_first_timestamp_call: bool =
     fake_torch.float16 = "float16"
     fake_torch.float32 = "float32"
     fake_torch.bfloat16 = "bfloat16"
+    fake_torch.cuda.empty_cache = lambda: captured.__setitem__(
+        "empty_cache_calls",
+        int(captured["empty_cache_calls"]) + 1,
+    )
 
     monkeypatch.setitem(sys.modules, "transformers", fake_transformers)
     monkeypatch.setitem(sys.modules, "torch", fake_torch)
@@ -77,6 +81,7 @@ def test_huggingface_local_provider_runs_transformers_pipeline(
     )
 
     assert captured["pipeline_init"]["model"] == "openai/whisper-small"
+    assert captured["pipeline_init"]["torch_dtype"] == "auto"
     assert result.provider_id == "huggingface_local"
     assert result.text == "hello world"
     assert result.timestamps_available is True
@@ -84,6 +89,9 @@ def test_huggingface_local_provider_runs_transformers_pipeline(
     assert "timestamp_fallback" in result.tags
     assert provider.get_metrics().requests_total == 1
     assert provider.get_metadata().implementation == "transformers.pipeline"
+
+    provider.teardown()
+    assert captured["empty_cache_calls"] == 0
 
 
 def test_huggingface_api_provider_normalizes_http_response(sample_wav: str) -> None:
@@ -166,3 +174,20 @@ def test_huggingface_api_provider_surfaces_http_errors(sample_wav: str) -> None:
     assert result.error_code == "hf_auth_error"
     assert result.degraded is True
     assert provider.get_status().state == "error"
+
+
+def test_huggingface_api_provider_teardown_closes_http_client() -> None:
+    from asr_provider_huggingface.api_provider import HuggingFaceAPIProvider
+
+    closed = {"value": False}
+
+    class FakeClient:
+        def close(self) -> None:
+            closed["value"] = True
+
+    provider = HuggingFaceAPIProvider()
+    provider._client = FakeClient()
+
+    provider.teardown()
+
+    assert closed["value"] is True

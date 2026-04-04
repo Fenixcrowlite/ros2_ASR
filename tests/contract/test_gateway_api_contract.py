@@ -3,7 +3,7 @@ from __future__ import annotations
 import importlib
 from pathlib import Path
 
-from fastapi.testclient import TestClient
+from tests.utils.asgi_client import SyncAsgiClient
 from tests.utils.fakes import FakeGatewayRosClient, build_stub_provider_manager
 from tests.utils.project import clone_project_layout, seed_benchmark_run, seed_logs
 
@@ -51,7 +51,7 @@ def _load_gateway(repo_root: Path, tmp_path: Path, monkeypatch):
 
 def test_runtime_live_contract(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
     gateway_api, fake_ros = _load_gateway(repo_root, tmp_path, monkeypatch)
-    with TestClient(gateway_api.app) as client:
+    with SyncAsgiClient(gateway_api.app) as client:
         fake_ros.start_runtime(
             "default_runtime",
             "providers/whisper_local",
@@ -80,7 +80,7 @@ def test_runtime_live_contract(repo_root: Path, tmp_path: Path, monkeypatch) -> 
 
 def test_results_run_detail_contract(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
     gateway_api, _fake_ros = _load_gateway(repo_root, tmp_path, monkeypatch)
-    with TestClient(gateway_api.app) as client:
+    with SyncAsgiClient(gateway_api.app) as client:
         response = client.get("/api/results/runs/bench_contract_a")
         payload = response.json()
 
@@ -91,7 +91,7 @@ def test_results_run_detail_contract(repo_root: Path, tmp_path: Path, monkeypatc
 
 def test_dashboard_contract_contains_operator_and_engineering_views(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
     gateway_api, _fake_ros = _load_gateway(repo_root, tmp_path, monkeypatch)
-    with TestClient(gateway_api.app) as client:
+    with SyncAsgiClient(gateway_api.app) as client:
         response = client.get("/api/dashboard")
         payload = response.json()
 
@@ -104,7 +104,7 @@ def test_logs_contract_exposes_files_and_entry_metadata(
     repo_root: Path, tmp_path: Path, monkeypatch
 ) -> None:
     gateway_api, _fake_ros = _load_gateway(repo_root, tmp_path, monkeypatch)
-    with TestClient(gateway_api.app) as client:
+    with SyncAsgiClient(gateway_api.app) as client:
         response = client.get("/api/logs?component=runtime&severity=all&limit=10")
         payload = response.json()
 

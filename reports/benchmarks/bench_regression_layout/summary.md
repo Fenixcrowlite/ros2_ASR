@@ -22,4 +22,4 @@
 - latency_metrics: `{"inference_ms": 0.0, "postprocess_ms": 0.0, "preprocess_ms": 0.0}`
 
 ## Noise Summary
-- clean: `{"cer": 0.0, "confidence": 0.92, "cpu_percent": 11.4, "gpu_memory_mb": 791.0, "gpu_util_percent": 17.0, "inference_ms": 0.0, "memory_mb": 175.7421875, "model_load_ms": 0.013826, "postprocess_ms": 0.0, "preprocess_ms": 0.0, "provider_call_cold_start": 1.0, "provider_call_warm_start": 0.0, "provider_init_cold_start": 1.0, "provider_init_warm_start": 0.0, "provider_invocation_index": 1.0, "sample_accuracy": 1.0, "wer": 0.0}`
+- clean: `{"cer": 0.0, "confidence": 0.92, "cpu_percent": 3.7, "gpu_memory_mb": 0.0, "gpu_util_percent": 0.0, "inference_ms": 0.0, "memory_mb": 167.3984375, "model_load_ms": 0.624188, "postprocess_ms": 0.0, "preprocess_ms": 0.0, "provider_call_cold_start": 1.0, "provider_call_warm_start": 0.0, "provider_init_cold_start": 1.0, "provider_init_warm_start": 0.0, "provider_invocation_index": 1.0, "sample_accuracy": 1.0, "wer": 0.0}`

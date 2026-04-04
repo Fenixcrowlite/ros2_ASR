@@ -61,6 +61,9 @@ secrets/local/*
 !secrets/local/.gitkeep
 
 # Models and dataset payloads
+*.pt
+*.onnx
+*.bin
 models/whisper/*
 models/vosk/*
 models/cache/*

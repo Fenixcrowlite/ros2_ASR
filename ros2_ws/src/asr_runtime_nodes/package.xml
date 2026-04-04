@@ -3,15 +3,15 @@
   <name>asr_runtime_nodes</name>
   <version>0.1.0</version>
   <description>Runtime pipeline ROS2 nodes (audio input, preprocess, VAD, orchestrator)</description>
-  <maintainer email="maintainer@example.com">ASR Team</maintainer>
+  <maintainer email="asr-team@ros2-asr.localdomain">ASR Team</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>ament_python</buildtool_depend>
   <exec_depend>rclpy</exec_depend>
-  <exec_depend>std_msgs</exec_depend>
   <exec_depend>builtin_interfaces</exec_depend>
   <exec_depend>asr_interfaces</exec_depend>
   <exec_depend>asr_core</exec_depend>
+  <exec_depend>asr_metrics</exec_depend>
   <exec_depend>asr_provider_base</exec_depend>
   <exec_depend>asr_provider_whisper</exec_depend>
   <exec_depend>asr_provider_vosk</exec_depend>
@@ -20,6 +20,7 @@
   <exec_depend>asr_provider_aws</exec_depend>
   <exec_depend>asr_config</exec_depend>
   <exec_depend>asr_storage</exec_depend>
+  <exec_depend>python3-sounddevice</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>

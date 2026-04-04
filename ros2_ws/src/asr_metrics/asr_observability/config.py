@@ -4,11 +4,13 @@ from __future__ import annotations
 
 import os
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
-from asr_config import resolve_profile
+import yaml  # type: ignore[import-untyped]
 
 DEFAULT_OBSERVABILITY_PROFILE = "default_observability"
+DEFAULT_DEPLOYMENT_PROFILE = "dev_local"
 
 
 @dataclass(slots=True)
@@ -53,10 +55,57 @@ def _nested_mapping(value: object) -> dict[str, Any]:
     return dict(value) if isinstance(value, dict) else {}
 
 
+def _deep_merge(base: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
+    merged = dict(base)
+    for key, value in patch.items():
+        if isinstance(value, dict) and isinstance(merged.get(key), dict):
+            merged[key] = _deep_merge(merged[key], value)
+        else:
+            merged[key] = value
+    return merged
+
+
+def _load_yaml(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    if not isinstance(data, dict):
+        raise ValueError(f"YAML root must be an object: {path}")
+    return data
+
+
+def _profile_path(root: Path, profile_id: str) -> Path:
+    filename = profile_id if profile_id.endswith(".yaml") else f"{profile_id}.yaml"
+    return root / "metrics" / filename
+
+
+def _resolve_profile_tree(root: Path, profile_id: str, visited: set[str]) -> dict[str, Any]:
+    marker = str(profile_id).strip()
+    if marker in visited:
+        raise ValueError(f"Circular metrics profile inheritance detected: {marker}")
+    visited.add(marker)
+
+    payload = _load_yaml(_profile_path(root, marker))
+    merged: dict[str, Any] = {}
+    inherits = payload.get("inherits", [])
+    if isinstance(inherits, str):
+        inherits = [inherits]
+    if not isinstance(inherits, list):
+        raise ValueError(f"metrics inherits must be a list or string: {marker}")
+
+    for inherited in inherits:
+        inherited_id = str(inherited or "").strip()
+        if not inherited_id:
+            continue
+        merged = _deep_merge(merged, _resolve_profile_tree(root, inherited_id, visited))
+    return _deep_merge(merged, payload)
+
+
 def load_observability_config(
     *,
     configs_root: str = "configs",
     profile_id: str | None = None,
+    deployment_profile: str = DEFAULT_DEPLOYMENT_PROFILE,
 ) -> ObservabilityConfig:
     requested = str(
         profile_id or os.getenv("ASR_METRICS_PROFILE") or DEFAULT_OBSERVABILITY_PROFILE
@@ -64,13 +113,14 @@ def load_observability_config(
     normalized_profile = (
         requested.split("/", 1)[1] if requested.startswith("metrics/") else requested
     )
-    resolved = resolve_profile(
-        profile_type="metrics",
-        profile_id=normalized_profile,
-        configs_root=configs_root,
-        write_snapshot=False,
+    root = Path(configs_root)
+    payload = _deep_merge(
+        _load_yaml(root / "metrics" / "_base.yaml"),
+        _nested_mapping(
+            _load_yaml(root / "deployment" / f"{deployment_profile}.yaml").get("metric_defaults", {})
+        ),
     )
-    payload = resolved.data
+    payload = _deep_merge(payload, _resolve_profile_tree(root, normalized_profile, set()))
     exporters = _nested_mapping(payload.get("exporters", {}))
     collectors = _nested_mapping(payload.get("collectors", {}))
     validators = _nested_mapping(payload.get("validators", {}))

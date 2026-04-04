@@ -117,8 +117,10 @@ export function initDashboardPage(ctx) {
     // flows. Deeper configuration still lives on dedicated pages.
     actionsRoot.innerHTML = `
       <button class="btn-primary" id="dashboardStartRuntime">Start Runtime</button>
+      <button class="btn-secondary" id="dashboardStartHfLocal">Start HF Local</button>
       <button class="btn-danger" id="dashboardStopRuntime">Stop Runtime</button>
       <button class="btn-secondary" id="dashboardOpenRuntime">Open Runtime</button>
+      <button class="btn-secondary" id="dashboardOpenSecrets">Open Secrets</button>
       <button class="btn-secondary" id="dashboardOpenBenchmark">Open Benchmark</button>
       <button class="btn-secondary" id="dashboardOpenDatasets">Import Dataset</button>
     `;
@@ -164,7 +166,33 @@ export function initDashboardPage(ctx) {
       }
     });
 
+    document.getElementById('dashboardStartHfLocal')?.addEventListener('click', async () => {
+      if (runtimeActionInFlight) {
+        return;
+      }
+      runtimeActionInFlight = true;
+      try {
+        const payload = await api.runtimeStart({
+          runtime_profile: 'huggingface_local_runtime',
+          provider_profile: 'providers/huggingface_local',
+          session_id: '',
+          audio_source: 'file',
+          audio_file_path: 'data/sample/vosk_test.wav',
+          language: 'en-US',
+          mic_capture_sec: 4.0,
+        });
+        ui.toast(`HF local runtime started: ${payload.session_id || 'session active'}`, 'success');
+        await refresh();
+        navigate('runtime');
+      } catch (error) {
+        ui.toast(`HF local runtime start failed: ${error.message}`, 'error', 4500);
+      } finally {
+        runtimeActionInFlight = false;
+      }
+    });
+
     document.getElementById('dashboardOpenRuntime')?.addEventListener('click', () => navigate('runtime'));
+    document.getElementById('dashboardOpenSecrets')?.addEventListener('click', () => navigate('secrets'));
     document.getElementById('dashboardOpenBenchmark')?.addEventListener('click', () => navigate('benchmark'));
     document.getElementById('dashboardOpenDatasets')?.addEventListener('click', () => navigate('datasets'));
   }

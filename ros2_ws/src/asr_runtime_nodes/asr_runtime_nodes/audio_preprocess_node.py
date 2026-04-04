@@ -17,6 +17,7 @@ from asr_core.audio import (
     sample_width_from_encoding,
 )
 from asr_core.namespaces import TOPICS
+from asr_core.ros_parameters import parameter_bool, parameter_int, parameter_string
 from asr_core.shutdown import safe_shutdown_node, spin_node_until_shutdown
 from asr_interfaces.msg import AudioChunk, NodeStatus
 from asr_interfaces.srv import ReconfigureRuntime
@@ -32,6 +33,26 @@ from asr_runtime_nodes.transport import (
 
 
 class AudioPreprocessNode(Node):
+    """Normalize, mix, and resample raw runtime audio chunks.
+
+    Published topics:
+    - `/asr/runtime/audio/preprocessed`
+    - `/asr/status/nodes`
+
+    Subscribed topics:
+    - `/asr/runtime/audio/raw`
+
+    Services:
+    - `/asr/runtime/preprocess/reconfigure`
+
+    Parameters:
+    - `configs_root`
+    - `runtime_profile`
+    - `target_sample_rate_hz`
+    - `normalize`
+    - `mono`
+    """
+
     def __init__(self) -> None:
         super().__init__("audio_preprocess_node")
         self.declare_parameter("configs_root", "configs")
@@ -40,11 +61,11 @@ class AudioPreprocessNode(Node):
         self.declare_parameter("normalize", True)
         self.declare_parameter("mono", True)
 
-        self.configs_root = str(self.get_parameter("configs_root").value)
-        self.runtime_profile = str(self.get_parameter("runtime_profile").value)
-        self.target_sample_rate_hz = int(self.get_parameter("target_sample_rate_hz").value)
-        self.normalize = bool(self.get_parameter("normalize").value)
-        self.force_mono = bool(self.get_parameter("mono").value)
+        self.configs_root = parameter_string(self, "configs_root")
+        self.runtime_profile = parameter_string(self, "runtime_profile")
+        self.target_sample_rate_hz = parameter_int(self, "target_sample_rate_hz", default=16000)
+        self.normalize = parameter_bool(self, "normalize", default=True)
+        self.force_mono = parameter_bool(self, "mono", default=True)
 
         self.publisher = self.create_publisher(AudioChunk, TOPICS["preprocessed_audio"], 10)
         self.node_status_pub = self.create_publisher(NodeStatus, TOPICS["node_status"], 10)

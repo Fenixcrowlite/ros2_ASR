@@ -23,7 +23,7 @@ GUI should use this gateway instead of direct ROS graph/internal code access.
 - `/api/diagnostics/*`, `/api/logs`, `/api/secrets/*`
 
 ## Runtime Environment Variables
-- `ASR_GATEWAY_HOST` (default: `0.0.0.0`)
+- `ASR_GATEWAY_HOST` (default: `127.0.0.1`)
 - `ASR_GATEWAY_PORT` (default: `8088`)
 - `ASR_GATEWAY_RELOAD` (`1/true/on` enables uvicorn reload)
 - `ASR_PROJECT_ROOT` (optional explicit repo root override for config/artifact path resolution)

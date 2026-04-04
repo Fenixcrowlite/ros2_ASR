@@ -3,18 +3,28 @@
   <name>asr_gateway</name>
   <version>0.1.0</version>
   <description>Gateway backend between GUI and ROS2/core layers</description>
-  <maintainer email="maintainer@example.com">ASR Team</maintainer>
+  <maintainer email="asr-team@ros2-asr.localdomain">ASR Team</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>ament_python</buildtool_depend>
   <exec_depend>rclpy</exec_depend>
   <exec_depend>asr_interfaces</exec_depend>
+  <exec_depend>asr_benchmark_core</exec_depend>
+  <exec_depend>asr_backend_aws</exec_depend>
   <exec_depend>asr_config</exec_depend>
   <exec_depend>asr_core</exec_depend>
+  <exec_depend>asr_metrics</exec_depend>
   <exec_depend>asr_provider_base</exec_depend>
   <exec_depend>asr_datasets</exec_depend>
   <exec_depend>asr_reporting</exec_depend>
   <exec_depend>asr_storage</exec_depend>
+  <exec_depend>python3-fastapi</exec_depend>
+  <exec_depend>python3-pydantic</exec_depend>
+  <exec_depend>python3-python-multipart</exec_depend>
+  <exec_depend>python3-sounddevice</exec_depend>
+  <exec_depend>python3-soundfile</exec_depend>
+  <exec_depend>python3-uvicorn</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>

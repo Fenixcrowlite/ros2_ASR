@@ -13,6 +13,7 @@ from asr_config import list_profiles, resolve_profile, validate_runtime_payload
 from asr_core import TOPICS, make_request_id, make_session_id
 from asr_core.audio import sample_width_from_encoding, wav_duration_sec
 from asr_core.normalized import LatencyMetadata, NormalizedAsrResult
+from asr_core.ros_parameters import parameter_string
 from asr_core.shutdown import safe_shutdown_node, spin_node_until_shutdown
 from asr_interfaces.msg import (
     AsrResult,
@@ -108,6 +109,29 @@ class ProviderStreamTraceState:
 
 
 class AsrOrchestratorNode(Node):
+    """Coordinate the canonical runtime pipeline and provider execution.
+
+    Published topics:
+    - `/asr/runtime/results/final`
+    - `/asr/runtime/results/partial`
+    - `/asr/status/nodes`
+    - `/asr/status/sessions`
+
+    Subscribed topics:
+    - `/asr/runtime/audio/segments`
+    - `/asr/runtime/audio/preprocessed`
+
+    Services:
+    - runtime session control, runtime reconfigure, recognize-once
+    - profile/backend listing and config validation
+
+    Parameters:
+    - `configs_root`
+    - `runtime_profile`
+    - `provider_profile`
+    - `session_id`
+    """
+
     def __init__(self) -> None:
         super().__init__("asr_orchestrator_node")
         self.declare_parameter("configs_root", "configs")
@@ -115,10 +139,10 @@ class AsrOrchestratorNode(Node):
         self.declare_parameter("provider_profile", "")
         self.declare_parameter("session_id", "")
 
-        self.configs_root = str(self.get_parameter("configs_root").value)
-        self.runtime_profile = str(self.get_parameter("runtime_profile").value)
-        self.provider_profile = str(self.get_parameter("provider_profile").value)
-        self.session_id = str(self.get_parameter("session_id").value).strip() or make_session_id()
+        self.configs_root = parameter_string(self, "configs_root")
+        self.runtime_profile = parameter_string(self, "runtime_profile")
+        self.provider_profile = parameter_string(self, "provider_profile")
+        self.session_id = parameter_string(self, "session_id").strip() or make_session_id()
         self.session_state = "idle"
         self.audio_session_active = False
         self._stop_requested_at = None

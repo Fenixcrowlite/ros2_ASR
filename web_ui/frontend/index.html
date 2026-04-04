@@ -84,11 +84,11 @@
                 <div id="dashboardRuntimeOutput" class="stack-list"></div>
               </div>
             </div>
-            <div class="panel">
-              <h3>Cloud Credential Readiness</h3>
-              <p class="helper">Shows whether Google, Azure, and AWS are actually ready for runtime and benchmark use right now.</p>
-              <div id="dashboardCloudHealth" class="stack-list"></div>
-            </div>
+              <div class="panel">
+                <h3>Cloud Credential Readiness</h3>
+                <p class="helper">Shows whether Google, Azure, AWS, and hosted Hugging Face inference are actually ready for runtime and benchmark use right now.</p>
+                <div id="dashboardCloudHealth" class="stack-list"></div>
+              </div>
           </section>
 
           <section id="runtime" class="page">
@@ -249,6 +249,51 @@
             <div class="panel">
               <h3>Provider Catalog</h3>
               <div id="providersCatalogTable"></div>
+            </div>
+            <div class="panel">
+              <h3>Import From Hugging Face</h3>
+              <p class="helper">Paste a Hugging Face model URL like <code>https://huggingface.co/openai/whisper-large-v3</code> or a repo id like <code>openai/whisper-large-v3</code>. The GUI will create or update a preset in the selected Hugging Face provider profile, and the imported model will then appear in Runtime and Provider test preset selectors.</p>
+              <div class="form-grid">
+                <label>
+                  Target provider profile
+                  <select id="hfImportProviderProfile">
+                    <option value="providers/huggingface_local">providers/huggingface_local</option>
+                    <option value="providers/huggingface_api">providers/huggingface_api</option>
+                  </select>
+                </label>
+                <label>
+                  Hugging Face model URL or repo id
+                  <input id="hfImportModelRef" placeholder="openai/whisper-large-v3" />
+                </label>
+                <label>
+                  Preset ID (optional)
+                  <input id="hfImportPresetId" placeholder="auto from model id" />
+                </label>
+                <label>
+                  Label (optional)
+                  <input id="hfImportLabel" placeholder="Whisper Large V3" />
+                </label>
+                <label>
+                  Description (optional)
+                  <input id="hfImportDescription" placeholder="Imported from Hugging Face Hub" />
+                </label>
+                <label class="checkbox-line">
+                  <input id="hfImportSetDefault" type="checkbox" checked />
+                  Make imported model the default preset
+                </label>
+                <label class="checkbox-line">
+                  <input id="hfImportUpdateBaseSettings" type="checkbox" checked />
+                  Also update base profile settings.model_id
+                </label>
+              </div>
+              <label>
+                Additional settings JSON
+                <textarea id="hfImportSettings" class="code-area" placeholder='{"device":"cuda:0","torch_dtype":"float16"}'></textarea>
+              </label>
+              <div class="actions-row">
+                <button id="hfImportBtn" class="btn-primary" title="Create or update a Hugging Face preset in the selected provider profile.">Import HF Model</button>
+              </div>
+              <div id="hfImportFeedback" class="feedback"></div>
             </div>
             <div class="two-col">
               <div class="panel">
@@ -738,6 +783,10 @@
                   <strong>Azure</strong>
                   <p>Save key and region into local env injection storage; the key stays masked after save.</p>
                 </div>
+                <div class="guide-item">
+                  <strong>Hugging Face</strong>
+                  <p>One <code>HF_TOKEN</code> can serve both hosted inference and gated local model downloads. API mode requires it; local mode treats it as optional.</p>
+                </div>
               </div>
             </details>
             <div class="panel">
@@ -803,6 +852,56 @@
                   <button id="awsSsoCancelBtn" class="btn-secondary" title="Cancel the currently running AWS login flow.">Cancel Login</button>
                 </div>
                 <div id="awsSsoLoginFeedback" class="feedback"></div>
+              </div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Hugging Face Token Setup</h3>
+                <p class="muted">
+                  Hugging Face uses <code>HF_TOKEN</code>. The same token can satisfy both
+                  <code>providers/huggingface_api</code> and gated/private local model downloads for
+                  <code>providers/huggingface_local</code>.
+                </p>
+                <div class="form-grid">
+                  <label>
+                    Secret ref
+                    <select id="huggingFaceTokenRef">
+                      <option value="huggingface_api_token">huggingface_api_token</option>
+                      <option value="huggingface_local_token">huggingface_local_token</option>
+                    </select>
+                  </label>
+                  <label>
+                    HF token
+                    <input id="huggingFaceToken" type="password" placeholder="hf_..." />
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="huggingFaceSaveBtn" class="btn-primary" title="Save HF_TOKEN into the local runtime env injection file.">Save HF Token</button>
+                  <button id="huggingFaceClearBtn" class="btn-secondary" title="Clear HF_TOKEN from the local runtime env injection file.">Clear HF Token</button>
+                </div>
+                <div id="huggingFaceSetupFeedback" class="feedback"></div>
+              </div>
+              <div class="panel">
+                <h3>Hugging Face Status And Quick Test</h3>
+                <div id="huggingFaceAuthSummary"></div>
+                <div class="form-grid">
+                  <label>
+                    Provider profile
+                    <input id="huggingFaceProviderProfile" value="providers/huggingface_local" list="providerProfileOptions" />
+                  </label>
+                  <label>
+                    WAV path
+                    <input id="huggingFaceTestWav" value="data/sample/vosk_test.wav" list="commonSampleWavOptions" />
+                  </label>
+                  <label>
+                    Language
+                    <input id="huggingFaceTestLanguage" value="en-US" list="commonLanguageOptions" />
+                  </label>
+                </div>
+                <div class="actions-row">
+                  <button id="huggingFaceValidateProviderBtn" class="btn-secondary" title="Validate Hugging Face provider profile and token setup.">Validate HF Provider</button>
+                  <button id="huggingFaceTestProviderBtn" class="btn-primary" title="Run a short Hugging Face provider test with the selected WAV.">Test HF Provider</button>
+                </div>
               </div>
             </div>
             <div class="two-col">
@@ -988,6 +1087,8 @@
     <datalist id="providerProfileOptions">
       <option value="providers/whisper_local"></option>
       <option value="providers/vosk_local"></option>
+      <option value="providers/huggingface_local"></option>
+      <option value="providers/huggingface_api"></option>
       <option value="providers/google_cloud"></option>
       <option value="providers/azure_cloud"></option>
       <option value="providers/aws_cloud"></option>

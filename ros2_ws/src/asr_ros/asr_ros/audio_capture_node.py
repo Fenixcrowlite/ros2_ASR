@@ -13,6 +13,12 @@ from pathlib import Path
 from typing import Any
 
 import rclpy
+from asr_core.ros_parameters import (
+    parameter_bool,
+    parameter_float,
+    parameter_int,
+    parameter_string,
+)
 from rcl_interfaces.msg import ParameterDescriptor
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
@@ -71,8 +77,31 @@ def _coerce_float_param(
     return value
 
 
+def _next_power_of_two(value: int) -> int:
+    if value <= 1:
+        return 1
+    return 1 << (int(value) - 1).bit_length()
+
+
+def _mic_block_frames(sample_rate: int, chunk_ms: int) -> int:
+    requested_frames = max(1, int(sample_rate * chunk_ms / 1000.0))
+    return _next_power_of_two(requested_frames)
+
+
 class AudioCaptureNode(Node):
-    """Capture audio and publish chunked payload for ASR server."""
+    """Publish legacy raw audio chunks from a WAV file or microphone.
+
+    Published topics:
+    - `/asr/audio_chunks` (`std_msgs/UInt8MultiArray`)
+
+    Subscribed topics:
+    - none
+
+    Parameters:
+    - `input_mode`, `wav_path`, `device`
+    - `sample_rate`, `chunk_ms`
+    - `continuous`, `mic_capture_sec`
+    """
 
     def __init__(self) -> None:
         super().__init__("audio_capture_node")
@@ -87,30 +116,26 @@ class AudioCaptureNode(Node):
         self.declare_parameter("mic_capture_sec", 4.0, descriptor=numeric_descriptor)
 
         self.publisher = self.create_publisher(UInt8MultiArray, "/asr/audio_chunks", 10)
-        self.input_mode = str(self.get_parameter("input_mode").value)
-        self.wav_path = str(self.get_parameter("wav_path").value)
+        self.input_mode = parameter_string(self, "input_mode")
+        self.wav_path = parameter_string(self, "wav_path")
         self.sample_rate = _coerce_int_param(
-            self.get_parameter("sample_rate").value,
+            parameter_int(self, "sample_rate"),
             name="sample_rate",
             default=16000,
             min_value=8000,
             logger=self.get_logger(),
         )
         self.chunk_ms = _coerce_int_param(
-            self.get_parameter("chunk_ms").value,
+            parameter_int(self, "chunk_ms"),
             name="chunk_ms",
             default=800,
             min_value=1,
             logger=self.get_logger(),
         )
-        self.device = str(self.get_parameter("device").value)
-        continuous_raw = self.get_parameter("continuous").value
-        if isinstance(continuous_raw, str):
-            self.continuous = continuous_raw.lower() in {"1", "true", "yes", "on"}
-        else:
-            self.continuous = bool(continuous_raw)
+        self.device = parameter_string(self, "device")
+        self.continuous = parameter_bool(self, "continuous", default=True)
         self.mic_capture_sec = _coerce_float_param(
-            self.get_parameter("mic_capture_sec").value,
+            parameter_float(self, "mic_capture_sec"),
             name="mic_capture_sec",
             default=4.0,
             min_value=0.1,
@@ -177,16 +202,24 @@ class AudioCaptureNode(Node):
         except Exception:
             return False
 
-        audio_q: queue.Queue[bytes] = queue.Queue()
+        audio_q: queue.Queue[bytes] = queue.Queue(maxsize=8)
 
         def callback(indata, frames, _time, status) -> None:
             """Sounddevice callback storing chunk bytes into queue."""
             if status:
                 return
-            audio_q.put(bytes(indata))
+            payload = bytes(indata)
+            try:
+                audio_q.put_nowait(payload)
+            except queue.Full:
+                try:
+                    audio_q.get_nowait()
+                except queue.Empty:
+                    pass
+                audio_q.put_nowait(payload)
 
         try:
-            chunk_frames = int(self.sample_rate * self.chunk_ms / 1000.0)
+            chunk_frames = _mic_block_frames(self.sample_rate, self.chunk_ms)
             with sd.RawInputStream(
                 samplerate=self.sample_rate,
                 blocksize=chunk_frames,

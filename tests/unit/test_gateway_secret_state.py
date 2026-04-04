@@ -7,6 +7,7 @@ from types import SimpleNamespace
 from asr_gateway.secret_state import (
     azure_secret_status,
     google_secret_status,
+    huggingface_secret_status,
     normalize_ref_name,
     secret_ref_path,
     validate_secret_file,
@@ -79,6 +80,41 @@ def test_azure_secret_status_reports_runtime_ready(tmp_path: Path) -> None:
     assert status["endpoint_mode"] == "url"
 
 
+def test_huggingface_secret_status_marks_local_token_optional(tmp_path: Path) -> None:
+    env_file = tmp_path / "runtime.env"
+    env_file.write_text("", encoding="utf-8")
+
+    status = huggingface_secret_status(
+        "secrets/refs/huggingface_local_token.yaml",
+        provider="huggingface_local",
+        token_required=False,
+        resolve_env_value=lambda _key, _source: ("", ""),
+        local_env_file_path=lambda _source: env_file,
+    )
+
+    assert status["runtime_ready"] is True
+    assert status["token_present"] is False
+    assert status["status"] == "optional_missing"
+
+
+def test_huggingface_secret_status_requires_token_for_api(tmp_path: Path) -> None:
+    env_file = tmp_path / "runtime.env"
+    env_file.write_text("HF_TOKEN=hf_demo\n", encoding="utf-8")
+
+    status = huggingface_secret_status(
+        "secrets/refs/huggingface_api_token.yaml",
+        provider="huggingface_api",
+        token_required=True,
+        resolve_env_value=lambda _key, _source: ("hf_demo", "local_env_file"),
+        local_env_file_path=lambda _source: env_file,
+    )
+
+    assert status["runtime_ready"] is True
+    assert status["token_present"] is True
+    assert status["token_source"] == "local_env_file"
+    assert status["status"] == "ready"
+
+
 def test_validate_secret_file_builds_google_auth_detail(tmp_path: Path) -> None:
     refs_root = tmp_path / "secrets" / "refs"
     refs_root.mkdir(parents=True)
@@ -122,6 +158,7 @@ def test_validate_secret_file_builds_google_auth_detail(tmp_path: Path) -> None:
             resolved_file_path=file_path,
             resolved_source=resolved_source,
         ),
+        huggingface_status_factory=lambda _source, _provider, _required: {},
     )
 
     assert detail["valid"] is True
@@ -167,9 +204,51 @@ def test_validate_secret_file_includes_aws_auth_issues(tmp_path: Path) -> None:
         aws_backend_factory=_FakeAwsBackend,
         azure_status_factory=lambda _source: {},
         google_status_factory=lambda _source, _file, _resolved_source: {},
+        huggingface_status_factory=lambda _source, _provider, _required: {},
     )
 
     assert detail["valid"] is False
     assert detail["auth"]["login_supported"] is True
     assert detail["auth"]["login_command"] == "aws sso login --profile ros2ws"
     assert "aws cli profile missing cached token" in detail["issues"]
+
+
+def test_validate_secret_file_builds_huggingface_auth_detail(tmp_path: Path) -> None:
+    ref_file = tmp_path / "huggingface_api_token.yaml"
+    ref_file.write_text("placeholder", encoding="utf-8")
+    ref = SimpleNamespace(
+        ref_id="huggingface_api_token",
+        provider="huggingface_api",
+        kind="env",
+        path="",
+        env_fallback="",
+        required=["HF_TOKEN"],
+        optional=[],
+        masked=True,
+        source_path=str(ref_file),
+    )
+
+    detail = validate_secret_file(
+        ref_file,
+        load_secret_ref=lambda _path: ref,
+        resolve_secret_ref=lambda _ref: {},
+        resolve_env_value=lambda key, _source: (
+            ("hf_demo", "local_env_file") if key == "HF_TOKEN" else ("", "")
+        ),
+        aws_backend_factory=lambda: None,
+        azure_status_factory=lambda _source: {},
+        google_status_factory=lambda _source, _file, _resolved_source: {},
+        huggingface_status_factory=lambda source, provider, required: huggingface_secret_status(
+            source,
+            provider=provider,
+            token_required=required,
+            resolve_env_value=lambda key, _source: (
+                ("hf_demo", "local_env_file") if key == "HF_TOKEN" else ("", "")
+            ),
+            local_env_file_path=lambda _source: tmp_path / "runtime.env",
+        ),
+    )
+
+    assert detail["valid"] is True
+    assert detail["auth"]["runtime_ready"] is True
+    assert detail["auth"]["status"] == "ready"

@@ -21,6 +21,12 @@ from asr_core.config import load_runtime_config
 from asr_core.factory import create_backend
 from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse
+from asr_core.ros_parameters import (
+    parameter_bool,
+    parameter_float,
+    parameter_int,
+    parameter_string,
+)
 from asr_interfaces.action import Transcribe
 from asr_interfaces.msg import AsrMetrics, AsrResult
 from asr_interfaces.srv import GetAsrStatus, RecognizeOnce, SetAsrBackend
@@ -28,7 +34,7 @@ from asr_metrics.collector import MetricsCollector
 from asr_metrics.system import collect_cpu_ram, collect_gpu
 from builtin_interfaces.msg import Time as RosTime
 from rcl_interfaces.msg import ParameterDescriptor
-from rclpy.action import ActionServer
+from rclpy.action import ActionServer, CancelResponse
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
@@ -97,7 +103,26 @@ def _preview_text(value: str, limit: int = 160) -> str:
 
 
 class AsrServerNode(Node):
-    """ROS2 server node that wraps provider-agnostic ASR core."""
+    """Serve legacy ASR services/actions and publish recognition results.
+
+    Published topics:
+    - `/asr/text` (`asr_interfaces/AsrResult`)
+    - `/asr/metrics` (`asr_interfaces/AsrMetrics`)
+
+    Subscribed topics:
+    - `/asr/audio_chunks` (`std_msgs/UInt8MultiArray`)
+
+    Services/actions:
+    - `/asr/recognize_once`
+    - `/asr/set_backend`
+    - `/asr/get_status`
+    - `/asr/transcribe`
+
+    Parameters:
+    - `config`, `backend`, `language`, `model`, `region`
+    - `chunk_sec`, `sample_rate`
+    - `live_stream_enabled`, `live_flush_timeout_sec`
+    """
 
     def __init__(self) -> None:
         super().__init__("asr_server_node")
@@ -113,25 +138,25 @@ class AsrServerNode(Node):
         self.declare_parameter("live_stream_enabled", True)
         self.declare_parameter("live_flush_timeout_sec", 1.0, descriptor=numeric_descriptor)
 
-        self.config_path = str(self.get_parameter("config").value)
+        self.config_path = parameter_string(self, "config")
         # Merge default config + optional local commercial overlay.
         self.runtime_cfg = load_runtime_config(self.config_path, "configs/commercial.yaml")
         self.lock = threading.Lock()
 
         self.backend_name = str(
-            self.get_parameter("backend").value
+            parameter_string(self, "backend")
             or self.runtime_cfg.get("asr", {}).get("backend", "mock")
         )
         self.language = str(
-            self.get_parameter("language").value
+            parameter_string(self, "language")
             or self.runtime_cfg.get("asr", {}).get("language", "en-US")
         )
         self.language = normalize_language_code(self.language, fallback="en-US")
         self.model = str(
-            self.get_parameter("model").value or self.runtime_cfg.get("asr", {}).get("model", "")
+            parameter_string(self, "model") or self.runtime_cfg.get("asr", {}).get("model", "")
         )
         self.region = str(
-            self.get_parameter("region").value or self.runtime_cfg.get("asr", {}).get("region", "")
+            parameter_string(self, "region") or self.runtime_cfg.get("asr", {}).get("region", "")
         )
         chunk_cfg_default = _coerce_float_param(
             self.runtime_cfg.get("benchmark", {}).get("chunk_sec", 0.8),
@@ -141,7 +166,7 @@ class AsrServerNode(Node):
             logger=self.get_logger(),
         )
         chunk_param = _coerce_float_param(
-            self.get_parameter("chunk_sec").value,
+            parameter_float(self, "chunk_sec"),
             name="chunk_sec",
             default=0.0,
             min_value=0.0,
@@ -156,20 +181,16 @@ class AsrServerNode(Node):
             logger=self.get_logger(),
         )
         sample_rate_param = _coerce_int_param(
-            self.get_parameter("sample_rate").value,
+            parameter_int(self, "sample_rate"),
             name="sample_rate",
             default=0,
             min_value=0,
             logger=self.get_logger(),
         )
         self.sample_rate = sample_rate_param if sample_rate_param > 0 else sample_rate_cfg_default
-        live_raw = self.get_parameter("live_stream_enabled").value
-        if isinstance(live_raw, str):
-            self.live_stream_enabled = live_raw.lower() in {"1", "true", "yes", "on"}
-        else:
-            self.live_stream_enabled = bool(live_raw)
+        self.live_stream_enabled = parameter_bool(self, "live_stream_enabled", default=True)
         self.live_flush_timeout_sec = _coerce_float_param(
-            self.get_parameter("live_flush_timeout_sec").value,
+            parameter_float(self, "live_flush_timeout_sec"),
             name="live_flush_timeout_sec",
             default=1.0,
             min_value=0.0,
@@ -212,6 +233,7 @@ class AsrServerNode(Node):
             Transcribe,
             "/asr/transcribe",
             execute_callback=self._execute_transcribe,
+            cancel_callback=self._reject_cancel,
         )
         self.audio_subscription = self.create_subscription(
             UInt8MultiArray, "/asr/audio_chunks", self._on_audio_chunk, 10
@@ -506,6 +528,12 @@ class AsrServerNode(Node):
         response.cloud_credentials_available = bool(self.backend.has_credentials())
         response.status_message = "ok"
         return response
+
+    def _reject_cancel(self, goal_handle) -> CancelResponse:
+        self.get_logger().warning(
+            f"Rejecting cancel request for transcribe goal {getattr(goal_handle, 'goal_id', '<unknown>')}"
+        )
+        return CancelResponse.REJECT
 
     async def _execute_transcribe(self, goal_handle):
         """Handle `/asr/transcribe` action.

@@ -23,4 +23,4 @@
 - reliability_metrics: `{"success_rate": 1.0}`
 
 ## Noise Summary
-- clean: `{"cer": 0.0, "confidence": 0.92, "cpu_percent": 10.0, "gpu_memory_mb": 811.0, "gpu_util_percent": 6.0, "inference_ms": 0.0, "memory_mb": 175.671875, "model_load_ms": 0.030607, "postprocess_ms": 0.0, "preprocess_ms": 0.0, "provider_call_cold_start": 1.0, "provider_call_warm_start": 0.0, "provider_init_cold_start": 1.0, "provider_init_warm_start": 0.0, "provider_invocation_index": 1.0, "sample_accuracy": 1.0, "success_rate": 1.0, "total_latency_ms": 15.0, "wer": 0.0}`
+- clean: `{"cer": 0.0, "confidence": 0.92, "cpu_percent": 2.5, "gpu_memory_mb": 0.0, "gpu_util_percent": 0.0, "inference_ms": 0.0, "memory_mb": 167.3984375, "model_load_ms": 0.471222, "postprocess_ms": 0.0, "preprocess_ms": 0.0, "provider_call_cold_start": 1.0, "provider_call_warm_start": 0.0, "provider_init_cold_start": 1.0, "provider_init_warm_start": 0.0, "provider_invocation_index": 1.0, "sample_accuracy": 1.0, "success_rate": 1.0, "total_latency_ms": 15.0, "wer": 0.0}`

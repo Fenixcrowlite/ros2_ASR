@@ -17,6 +17,7 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+from urllib.parse import urlparse
 
 import yaml  # type: ignore[import-untyped]
 from asr_benchmark_core.noise import apply_noise_to_wav, resolve_noise_plan
@@ -62,6 +63,7 @@ from asr_gateway.secret_state import (
     aws_backend_from_current_env as aws_backend_from_current_env_helper,
     azure_secret_status as azure_secret_status_helper,
     google_secret_status as google_secret_status_helper,
+    huggingface_secret_status as huggingface_secret_status_helper,
     normalize_ref_name as normalize_ref_name_helper,
     secret_ref_path as secret_ref_path_helper,
     validate_secret_file as validate_secret_file_helper,
@@ -113,8 +115,12 @@ HUMAN_PROVIDER_NAMES = {
 }
 
 SAFE_NAME_RE = re.compile(r"^[a-zA-Z0-9_./-]+$")
+ENV_NAME_RE = re.compile(r"^[A-Z_][A-Z0-9_]*$")
 AWS_DEVICE_CODE_RE = re.compile(r"\b[A-Z0-9]{4}(?:-[A-Z0-9]{4})+\b")
 AWS_URL_RE = re.compile(r"https?://[^\s<>()]+")
+MAX_SAFE_NAME_LEN = 255
+MAX_SECRET_VALUE_LEN = 4096
+MAX_SECRET_FILE_BYTES = 256 * 1024
 
 
 def _no_cache_headers() -> dict[str, str]:
@@ -337,6 +343,17 @@ class ProviderTestRequest(BaseModel):
     language: str = "en-US"
 
 
+class HuggingFaceModelImportRequest(BaseModel):
+    provider_profile: str = "providers/huggingface_local"
+    model_ref: str
+    preset_id: str = ""
+    label: str = ""
+    description: str = ""
+    set_default: bool = True
+    update_base_settings: bool = True
+    settings: dict[str, Any] = Field(default_factory=dict)
+
+
 class SecretRefUpsertRequest(BaseModel):
     file_name: str
     ref_id: str
@@ -375,6 +392,12 @@ class AzureEnvSaveRequest(BaseModel):
     clear_endpoint: bool = False
 
 
+class HuggingFaceTokenSaveRequest(BaseModel):
+    ref_name: str = "huggingface_api_token"
+    token: str = ""
+    clear_token: bool = False
+
+
 class SecretFileClearRequest(BaseModel):
     ref_name: str
 
@@ -398,12 +421,64 @@ def _clean_name(raw: str, what: str) -> str:
     value = str(raw or "").strip()
     if not value:
         raise HTTPException(status_code=400, detail=f"{what} is required")
+    if len(value) > MAX_SAFE_NAME_LEN:
+        raise HTTPException(status_code=400, detail=f"{what} is too long")
     if not SAFE_NAME_RE.match(value):
         raise HTTPException(status_code=400, detail=f"Invalid {what}: {value}")
     candidate = Path(value)
     if candidate.is_absolute() or ".." in candidate.parts:
         raise HTTPException(status_code=400, detail=f"Unsafe {what}: {value}")
     return value
+
+
+def _clean_optional_name(raw: str, what: str) -> str:
+    value = str(raw or "").strip()
+    if not value:
+        return ""
+    return _clean_name(value, what)
+
+
+def _clean_env_name(raw: str, what: str) -> str:
+    value = str(raw or "").strip()
+    if not value:
+        raise HTTPException(status_code=400, detail=f"{what} is required")
+    if len(value) > 128:
+        raise HTTPException(status_code=400, detail=f"{what} is too long")
+    if not ENV_NAME_RE.match(value):
+        raise HTTPException(status_code=400, detail=f"Invalid {what}: {value}")
+    return value
+
+
+def _clean_env_name_list(values: list[str], what: str) -> list[str]:
+    cleaned: list[str] = []
+    for item in values:
+        name = _clean_env_name(item, what)
+        if name not in cleaned:
+            cleaned.append(name)
+    return cleaned
+
+
+def _clean_secret_value(raw: str, what: str, *, max_length: int = MAX_SECRET_VALUE_LEN) -> str:
+    value = str(raw or "").strip()
+    if not value:
+        return ""
+    if len(value) > max_length:
+        raise HTTPException(status_code=400, detail=f"{what} is too long")
+    if any(char in value for char in ("\r", "\n", "\0")):
+        raise HTTPException(status_code=400, detail=f"{what} contains invalid control characters")
+    return value
+
+
+def _write_local_env_values_or_400(
+    updates: dict[str, str],
+    *,
+    source_path: str,
+    unset: list[str],
+) -> Path:
+    try:
+        return write_local_env_values(updates, source_path=source_path, unset=unset)
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 def _normalize_profile_type(profile_type: str) -> str:
@@ -1172,6 +1247,20 @@ def _google_secret_status(
     )
 
 
+def _huggingface_secret_status(
+    ref_source_path: str,
+    provider: str,
+    token_required: bool,
+) -> dict[str, Any]:
+    return huggingface_secret_status_helper(
+        ref_source_path,
+        provider=provider,
+        token_required=token_required,
+        resolve_env_value=resolve_env_value,
+        local_env_file_path=local_env_file_path,
+    )
+
+
 def _apply_process_env(updates: dict[str, str], unset: list[str] | None = None) -> None:
     for key in unset or []:
         os.environ.pop(key, None)
@@ -1330,6 +1419,7 @@ def _validate_secret_file(path: Path) -> dict[str, Any]:
         aws_backend_factory=_aws_backend_from_current_env,
         azure_status_factory=_azure_secret_status,
         google_status_factory=_google_secret_status,
+        huggingface_status_factory=_huggingface_secret_status,
     )
 
 
@@ -1338,6 +1428,48 @@ def _normalize_provider_profile(profile: str) -> str:
     if not clean:
         raise HTTPException(status_code=400, detail="provider_profile is required")
     return clean if clean.startswith("providers/") else f"providers/{clean}"
+
+
+def _slugify_identifier(value: str) -> str:
+    text = re.sub(r"[^a-zA-Z0-9]+", "_", str(value or "").strip().lower()).strip("_")
+    return text
+
+
+def _normalize_huggingface_model_id(model_ref: str) -> str:
+    text = str(model_ref or "").strip()
+    if not text:
+        raise HTTPException(status_code=400, detail="model_ref is required")
+    if "://" not in text:
+        parts = [part for part in text.split("/") if part]
+        if len(parts) < 2:
+            raise HTTPException(
+                status_code=400,
+                detail="Hugging Face model must be in `namespace/model` format or a full model URL.",
+            )
+        return "/".join(parts[:2])
+
+    parsed = urlparse(text)
+    host = (parsed.netloc or "").lower()
+    if host not in {"huggingface.co", "www.huggingface.co", "hf.co", "www.hf.co"}:
+        raise HTTPException(
+            status_code=400,
+            detail="Only Hugging Face model URLs are supported for model import.",
+        )
+    parts = [part for part in (parsed.path or "").split("/") if part]
+    if parts[:1] == ["models"]:
+        parts = parts[1:]
+    if len(parts) < 2:
+        raise HTTPException(
+            status_code=400,
+            detail="Could not extract `namespace/model` from the Hugging Face URL.",
+        )
+    return "/".join(parts[:2])
+
+
+def _humanize_huggingface_model_label(model_id: str) -> str:
+    repo_name = str(model_id or "").split("/")[-1]
+    tokens = [token for token in re.split(r"[-_]+", repo_name) if token]
+    return " ".join(token.upper() if token.isupper() else token.capitalize() for token in tokens) or model_id
 
 
 def _normalize_runtime_profile(profile: str) -> str:
@@ -1785,7 +1917,7 @@ def _cloud_credential_overview() -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for item in _secret_ref_list():
         provider = str(item.get("validation", {}).get("provider", "")).strip()
-        if provider not in {"google", "azure", "aws"}:
+        if provider not in {"google", "azure", "aws", "huggingface_api"}:
             continue
         validation = item.get("validation", {})
         auth = validation.get("auth", {}) if isinstance(validation.get("auth"), dict) else {}
@@ -2542,6 +2674,101 @@ def providers_test(req: ProviderTestRequest) -> dict[str, Any]:
         raise HTTPException(status_code=400, detail=str(exc))
 
 
+@app.post("/api/providers/huggingface/import_model")
+def providers_huggingface_import_model(req: HuggingFaceModelImportRequest) -> dict[str, Any]:
+    normalized_profile = _normalize_provider_profile(req.provider_profile)
+    path, pid = _profile_path("providers", normalized_profile)
+    if not path.exists():
+        raise HTTPException(status_code=404, detail=f"Provider profile not found: {normalized_profile}")
+
+    payload = _read_yaml(path)
+    provider_id = str(payload.get("provider_id", "") or "").strip()
+    if provider_id not in {"huggingface_local", "huggingface_api"}:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Provider profile `{normalized_profile}` is not a Hugging Face provider profile.",
+        )
+
+    model_id = _normalize_huggingface_model_id(req.model_ref)
+    preset_id = str(req.preset_id or "").strip() or _slugify_identifier(model_id)
+    if not preset_id:
+        raise HTTPException(status_code=400, detail="Could not derive a preset_id from the Hugging Face model.")
+
+    settings = payload.get("settings", {})
+    base_settings = dict(settings) if isinstance(settings, dict) else {}
+    ui_payload = payload.get("ui", {})
+    ui_settings = dict(ui_payload) if isinstance(ui_payload, dict) else {}
+    preset_map = ui_settings.get("model_presets", {})
+    model_presets = dict(preset_map) if isinstance(preset_map, dict) else {}
+
+    preset_settings = dict(base_settings)
+    preset_settings["model_id"] = model_id
+    explicit_settings = dict(req.settings or {})
+    if explicit_settings:
+        preset_settings = _deep_merge(preset_settings, explicit_settings)
+
+    existing_preset = model_presets.get(preset_id, {})
+    existing_meta = dict(existing_preset) if isinstance(existing_preset, dict) else {}
+    existing_settings = (
+        dict(existing_meta.get("settings", {})) if isinstance(existing_meta.get("settings", {}), dict) else {}
+    )
+    if existing_settings:
+        preset_settings = _deep_merge(existing_settings, preset_settings)
+
+    quality_tier = (
+        str(existing_meta.get("quality_tier", "") or "").strip()
+        or ("very_high" if "large" in model_id.lower() else "high")
+    )
+    resource_tier = (
+        str(existing_meta.get("resource_tier", "") or "").strip()
+        or ("medium" if provider_id == "huggingface_api" else "high" if "large" in model_id.lower() else "medium")
+    )
+    estimated_cost_tier = (
+        str(existing_meta.get("estimated_cost_tier", "") or "").strip()
+        or ("medium" if provider_id == "huggingface_api" else "local")
+    )
+    description = str(req.description or "").strip() or str(existing_meta.get("description", "") or "").strip()
+    if not description:
+        description = (
+            f"Imported from Hugging Face Hub as `{model_id}` for hosted inference."
+            if provider_id == "huggingface_api"
+            else f"Imported from Hugging Face Hub as `{model_id}` for local transformers inference."
+        )
+
+    model_presets[preset_id] = {
+        "label": str(req.label or "").strip() or str(existing_meta.get("label", "") or "").strip() or _humanize_huggingface_model_label(model_id),
+        "description": description,
+        "quality_tier": quality_tier,
+        "resource_tier": resource_tier,
+        "estimated_cost_tier": estimated_cost_tier,
+        "settings": preset_settings,
+    }
+    ui_settings["model_presets"] = model_presets
+    if req.set_default:
+        ui_settings["default_model_preset"] = preset_id
+
+    payload["ui"] = ui_settings
+    if req.update_base_settings:
+        payload["settings"] = _deep_merge(base_settings, {"model_id": model_id, **explicit_settings})
+
+    _write_yaml(path, payload)
+    valid, message = _validate_profile("providers", pid)
+    execution = resolve_provider_execution(payload, preset_id=preset_id)
+    return {
+        "saved": True,
+        "provider_profile": normalized_profile,
+        "provider_profile_id": pid,
+        "provider_id": provider_id,
+        "model_id": model_id,
+        "preset_id": preset_id,
+        "default_preset": default_preset_id(payload),
+        "execution_preview": execution,
+        "valid": valid,
+        "validation_message": message,
+        "path": str(path),
+    }
+
+
 # --- Profile CRUD / validation endpoints ---
 @app.get("/api/profiles")
 def profiles_all() -> dict[str, Any]:
@@ -2626,15 +2853,21 @@ def secret_refs_upsert(req: SecretRefUpsertRequest) -> dict[str, Any]:
 
     name = _normalize_ref_name(req.file_name)
     path = _secret_ref_path(name)
+    ref_id = _clean_name(req.ref_id, "ref_id")
+    provider = _clean_name(req.provider, "provider")
+    secret_path = _clean_optional_name(req.path, "path")
+    env_fallback = _clean_env_name(req.env_fallback, "env_fallback") if req.env_fallback else ""
+    required = _clean_env_name_list(req.required, "required env name")
+    optional = _clean_env_name_list(req.optional, "optional env name")
 
     payload = {
-        "ref_id": req.ref_id,
-        "provider": req.provider,
+        "ref_id": ref_id,
+        "provider": provider,
         "kind": req.kind,
-        "path": req.path,
-        "env_fallback": req.env_fallback,
-        "required": req.required,
-        "optional": req.optional,
+        "path": secret_path,
+        "env_fallback": env_fallback,
+        "required": required,
+        "optional": optional,
         "masked": bool(req.masked),
     }
     _write_yaml(path, payload)
@@ -2680,6 +2913,21 @@ def secret_google_service_account() -> dict[str, Any]:
     }
 
 
+@app.get("/api/secrets/huggingface_token")
+def secret_huggingface_token(
+    ref_name: str = Query("huggingface_api_token"),
+) -> dict[str, Any]:
+    normalized_ref = _normalize_ref_name(ref_name)
+    ref_path = _secret_ref_path(normalized_ref)
+    validation = _validate_secret_file(ref_path)
+    auth = validation.get("auth", {}) if isinstance(validation.get("auth"), dict) else {}
+    return {
+        "ref_name": normalized_ref,
+        "validation": validation,
+        "auth": auth,
+    }
+
+
 if MULTIPART_AVAILABLE:
 
     @app.post("/api/secrets/google_service_account/upload")
@@ -2706,6 +2954,13 @@ if MULTIPART_AVAILABLE:
             )
 
         content = await file.read()
+        if not content:
+            raise HTTPException(status_code=400, detail="Uploaded Google credential file is empty.")
+        if len(content) > MAX_SECRET_FILE_BYTES:
+            raise HTTPException(
+                status_code=400,
+                detail="Uploaded Google credential file is too large.",
+            )
         try:
             parsed = json.loads(content.decode("utf-8"))
         except Exception as exc:
@@ -2769,19 +3024,63 @@ def secret_azure_env_save(req: AzureEnvSaveRequest) -> dict[str, Any]:
     if req.clear_speech_key:
         unset.append("AZURE_SPEECH_KEY")
     elif req.speech_key:
-        updates["AZURE_SPEECH_KEY"] = req.speech_key.strip()
+        updates["AZURE_SPEECH_KEY"] = _clean_secret_value(req.speech_key, "speech_key")
 
     if req.clear_region:
         unset.append("AZURE_SPEECH_REGION")
     elif req.region:
-        updates["AZURE_SPEECH_REGION"] = req.region.strip()
+        updates["AZURE_SPEECH_REGION"] = _clean_secret_value(req.region, "region", max_length=128)
 
     if req.clear_endpoint:
         unset.append("ASR_AZURE_ENDPOINT")
     elif req.endpoint:
-        updates["ASR_AZURE_ENDPOINT"] = req.endpoint.strip()
+        updates["ASR_AZURE_ENDPOINT"] = _clean_secret_value(
+            req.endpoint,
+            "endpoint",
+            max_length=2048,
+        )
 
-    env_path = write_local_env_values(updates, source_path=str(ref_path), unset=unset)
+    env_path = _write_local_env_values_or_400(
+        updates,
+        source_path=str(ref_path),
+        unset=unset,
+    )
+    refreshed = _validate_secret_file(ref_path)
+    return {
+        "saved": True,
+        "ref_name": ref_name,
+        "env_file": str(env_path),
+        "validation": refreshed,
+    }
+
+
+@app.post("/api/secrets/huggingface_token")
+def secret_huggingface_token_save(req: HuggingFaceTokenSaveRequest) -> dict[str, Any]:
+    ref_name = _normalize_ref_name(req.ref_name)
+    ref_path = _secret_ref_path(ref_name)
+    if not ref_path.exists():
+        raise HTTPException(status_code=404, detail=f"Secret ref not found: {ref_name}")
+
+    validation = _validate_secret_file(ref_path)
+    provider = str(validation.get("provider", "") or "").strip()
+    if provider not in {"huggingface_local", "huggingface_api"} or validation.get("kind") != "env":
+        raise HTTPException(
+            status_code=400,
+            detail=f"Secret ref `{ref_name}` is not a Hugging Face env-based auth ref.",
+        )
+
+    updates: dict[str, str] = {}
+    unset: list[str] = []
+    if req.clear_token:
+        unset.append("HF_TOKEN")
+    elif req.token:
+        updates["HF_TOKEN"] = _clean_secret_value(req.token, "token")
+
+    env_path = _write_local_env_values_or_400(
+        updates,
+        source_path=str(ref_path),
+        unset=unset,
+    )
     refreshed = _validate_secret_file(ref_path)
     return {
         "saved": True,
@@ -2806,7 +3105,10 @@ def secret_aws_sso_login(req: AwsSsoLoginStartRequest) -> dict[str, Any]:
         )
 
     auth = validation.get("auth", {}) if isinstance(validation.get("auth"), dict) else {}
-    profile = str(req.profile or auth.get("profile") or os.getenv("AWS_PROFILE", "")).strip()
+    profile = _clean_name(
+        str(req.profile or auth.get("profile") or os.getenv("AWS_PROFILE", "")).strip(),
+        "profile",
+    )
     if not profile:
         raise HTTPException(
             status_code=400,

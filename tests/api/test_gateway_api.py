@@ -7,8 +7,7 @@ import wave
 from io import BytesIO
 from pathlib import Path
 
-from fastapi.testclient import TestClient
-
+from tests.utils.asgi_client import SyncAsgiClient
 from tests.utils.fakes import FakeGatewayRosClient, build_stub_provider_manager
 from tests.utils.project import clone_project_layout, seed_benchmark_run, seed_logs
 
@@ -62,8 +61,7 @@ def _make_client(repo_root: Path, tmp_path: Path, monkeypatch):
     gateway_api._RUNTIME_EVENTS.clear()
     gateway_api._RUNTIME_RESULTS.clear()
     gateway_api._BENCHMARK_JOBS.clear()
-    client = TestClient(gateway_api.app)
-    client.__enter__()
+    client = SyncAsgiClient(gateway_api.app)
     return gateway_api, fake_ros, client, project_root
 
 
@@ -562,6 +560,47 @@ def test_google_service_account_upload_and_clear(
     assert cleared.status_code == 200
     assert cleared.json()["validation"]["valid"] is False
     assert stored.exists() is False
+
+
+def test_secret_ref_upsert_rejects_unsafe_path(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    response = client.post(
+        "/api/secrets/refs",
+        json={
+            "file_name": "evil_ref",
+            "ref_id": "secrets/evil",
+            "provider": "google",
+            "kind": "file",
+            "path": "../outside.json",
+            "env_fallback": "GOOGLE_APPLICATION_CREDENTIALS",
+            "required": [],
+            "optional": [],
+            "masked": True,
+        },
+    )
+
+    assert response.status_code == 400
+    assert "Unsafe path" in response.json()["detail"]
+
+
+def test_huggingface_token_save_rejects_multiline_env_injection(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    response = client.post(
+        "/api/secrets/huggingface_token",
+        json={
+            "ref_name": "huggingface_api_token",
+            "token": "hf_demo_token\nINJECTED=1",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "invalid control characters" in response.json()["detail"]
 
 
 def test_secrets_refs_expose_structured_aws_auth_state(

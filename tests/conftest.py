@@ -78,6 +78,9 @@ def _install_rclpy_stub() -> None:
             del args, kwargs
             return None
 
+    class _CancelResponse:
+        REJECT = "reject"
+
     class _SingleThreadedExecutor:
         def add_node(self, node) -> None:
             del node
@@ -116,6 +119,7 @@ def _install_rclpy_stub() -> None:
     node_mod.Node = _Node
     action_mod.ActionClient = _ActionClient
     action_mod.ActionServer = _ActionServer
+    action_mod.CancelResponse = _CancelResponse
     executors_mod.SingleThreadedExecutor = _SingleThreadedExecutor
     executors_mod.MultiThreadedExecutor = _MultiThreadedExecutor
     executors_mod.ExternalShutdownException = _ExternalShutdownException

@@ -90,3 +90,24 @@ def test_manifest_rejects_cwd_only_relative_audio(
 
     with pytest.raises(ValueError, match="relative to manifest directory"):
         load_manifest_csv(str(manifest))
+
+
+def test_manifest_resolves_project_root_relative_audio(tmp_path: Path) -> None:
+    project_root = tmp_path / "project"
+    (project_root / ".git").mkdir(parents=True)
+    (project_root / "data" / "sample").mkdir(parents=True)
+    (project_root / "data" / "transcripts").mkdir(parents=True)
+    (project_root / "configs").mkdir(parents=True)
+
+    wav_path = project_root / "data" / "sample" / "sample.wav"
+    _write_test_wav(wav_path)
+    manifest = project_root / "data" / "transcripts" / "manifest.csv"
+    manifest.write_text(
+        "wav_path,transcript,language\ndata/sample/sample.wav,hello world,en-US\n",
+        encoding="utf-8",
+    )
+
+    items = load_manifest_csv(str(manifest))
+
+    assert len(items) == 1
+    assert Path(items[0].resolved_wav_path).resolve() == wav_path.resolve()

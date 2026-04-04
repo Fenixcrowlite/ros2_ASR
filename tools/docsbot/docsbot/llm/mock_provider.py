@@ -38,7 +38,7 @@ class MockProvider(LLMProvider):
             "```",
             "",
             "## Notes",
-            "- TODO: Extend details when OpenAI provider is enabled.",
+            "- Extend details automatically when the OpenAI provider is enabled.",
         ]
         if existing_content:
             lines.extend(["", "## Previous Snapshot", existing_content[:800]])

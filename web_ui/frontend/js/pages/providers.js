@@ -1,9 +1,19 @@
+import { renderProviderGuideHtml } from '../provider-guides.js';
+
 export function initProvidersPage(ctx) {
   const { api, ui } = ctx;
 
   const catalogRoot = document.getElementById('providersCatalogTable');
   const profilesRoot = document.getElementById('providerProfilesTable');
   const profileSelect = document.getElementById('providerTestProfile');
+  const hfImportProviderProfile = document.getElementById('hfImportProviderProfile');
+  const hfImportModelRef = document.getElementById('hfImportModelRef');
+  const hfImportPresetId = document.getElementById('hfImportPresetId');
+  const hfImportLabel = document.getElementById('hfImportLabel');
+  const hfImportDescription = document.getElementById('hfImportDescription');
+  const hfImportSetDefault = document.getElementById('hfImportSetDefault');
+  const hfImportUpdateBaseSettings = document.getElementById('hfImportUpdateBaseSettings');
+  const hfImportSettings = document.getElementById('hfImportSettings');
 
   let profileRows = [];
 
@@ -28,6 +38,18 @@ export function initProvidersPage(ctx) {
       provider_preset: presetSelect?.value || row?.default_preset || '',
       provider_settings: providerSettings,
     };
+  }
+
+  function parseObjectJson(raw, label) {
+    const text = String(raw || '').trim();
+    if (!text) {
+      return {};
+    }
+    const parsed = JSON.parse(text);
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+      throw new Error(`${label} must be a JSON object`);
+    }
+    return parsed;
   }
 
   function renderCatalog(rows) {
@@ -167,6 +189,7 @@ export function initProvidersPage(ctx) {
         <p>${ui.escapeHtml(current.description || '')}</p>
         <p class="muted">quality=${ui.escapeHtml(current.quality_tier || 'n/a')} resource=${ui.escapeHtml(current.resource_tier || 'n/a')}</p>
       </div>
+      ${renderProviderGuideHtml(ui, row)}
     `;
   }
 
@@ -198,6 +221,51 @@ export function initProvidersPage(ctx) {
     } catch (error) {
       ui.setFeedback('providerTestResult', error.message, 'error');
       ui.toast(`Test failed: ${error.message}`, 'error');
+    }
+  });
+
+  document.getElementById('hfImportBtn')?.addEventListener('click', async () => {
+    try {
+      const payload = await api.providersImportHuggingFaceModel({
+        provider_profile: hfImportProviderProfile?.value || 'providers/huggingface_local',
+        model_ref: hfImportModelRef?.value || '',
+        preset_id: hfImportPresetId?.value || '',
+        label: hfImportLabel?.value || '',
+        description: hfImportDescription?.value || '',
+        set_default: Boolean(hfImportSetDefault?.checked),
+        update_base_settings: Boolean(hfImportUpdateBaseSettings?.checked),
+        settings: parseObjectJson(hfImportSettings?.value || '', 'Additional settings'),
+      });
+      ui.setFeedback('hfImportFeedback', JSON.stringify(payload, null, 2));
+      ui.toast(`Imported Hugging Face model ${payload.model_id}`, payload.valid ? 'success' : 'error');
+      await refresh();
+      const importedProfile =
+        String(payload.provider_profile_id || payload.provider_profile || '').replace(/^providers\//, '');
+      profileSelect.value = importedProfile;
+      renderPresetSelect();
+      const presetSelect = document.getElementById('providerTestPreset');
+      if (presetSelect && payload.preset_id) {
+        presetSelect.value = payload.preset_id;
+        renderPresetSelect();
+      }
+      if (hfImportModelRef) {
+        hfImportModelRef.value = '';
+      }
+      if (hfImportPresetId) {
+        hfImportPresetId.value = '';
+      }
+      if (hfImportLabel) {
+        hfImportLabel.value = '';
+      }
+      if (hfImportDescription) {
+        hfImportDescription.value = '';
+      }
+      if (hfImportSettings) {
+        hfImportSettings.value = '';
+      }
+    } catch (error) {
+      ui.setFeedback('hfImportFeedback', error.message, 'error');
+      ui.toast(`HF import failed: ${error.message}`, 'error');
     }
   });
 

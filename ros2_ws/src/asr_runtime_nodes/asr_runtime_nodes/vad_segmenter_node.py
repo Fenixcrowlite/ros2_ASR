@@ -10,6 +10,7 @@ import rclpy
 from asr_config import resolve_profile, validate_runtime_payload
 from asr_core.audio import pcm_rms, pcm_signed_from_encoding, sample_width_from_encoding
 from asr_core.namespaces import TOPICS
+from asr_core.ros_parameters import parameter_int, parameter_string
 from asr_core.shutdown import safe_shutdown_node, spin_node_until_shutdown
 from asr_interfaces.msg import AudioChunk, AudioSegment, NodeStatus, SpeechActivity
 from asr_interfaces.srv import ReconfigureRuntime
@@ -25,6 +26,25 @@ from asr_runtime_nodes.transport import (
 
 
 class VadSegmenterNode(Node):
+    """Segment preprocessed audio with a simple energy-based VAD.
+
+    Published topics:
+    - `/asr/runtime/vad/activity`
+    - `/asr/runtime/audio/segments`
+    - `/asr/status/nodes`
+
+    Subscribed topics:
+    - `/asr/runtime/audio/preprocessed`
+
+    Services:
+    - `/asr/runtime/vad/reconfigure`
+
+    Parameters:
+    - `configs_root`, `runtime_profile`
+    - `energy_threshold`, `pre_roll_ms`
+    - `max_silence_ms`, `min_segment_ms`, `max_segment_ms`
+    """
+
     def __init__(self) -> None:
         super().__init__("vad_segmenter_node")
         self.declare_parameter("configs_root", "configs")
@@ -35,13 +55,13 @@ class VadSegmenterNode(Node):
         self.declare_parameter("min_segment_ms", 400)
         self.declare_parameter("max_segment_ms", 2500)
 
-        self.configs_root = str(self.get_parameter("configs_root").value)
-        self.runtime_profile = str(self.get_parameter("runtime_profile").value)
-        self.energy_threshold = int(self.get_parameter("energy_threshold").value)
-        self.pre_roll_ms = int(self.get_parameter("pre_roll_ms").value)
-        self.max_silence_ms = int(self.get_parameter("max_silence_ms").value)
-        self.min_segment_ms = int(self.get_parameter("min_segment_ms").value)
-        self.max_segment_ms = int(self.get_parameter("max_segment_ms").value)
+        self.configs_root = parameter_string(self, "configs_root")
+        self.runtime_profile = parameter_string(self, "runtime_profile")
+        self.energy_threshold = parameter_int(self, "energy_threshold", default=100)
+        self.pre_roll_ms = parameter_int(self, "pre_roll_ms", default=250)
+        self.max_silence_ms = parameter_int(self, "max_silence_ms", default=700)
+        self.min_segment_ms = parameter_int(self, "min_segment_ms", default=400)
+        self.max_segment_ms = parameter_int(self, "max_segment_ms", default=2500)
 
         self.activity_pub = self.create_publisher(SpeechActivity, TOPICS["vad_activity"], 10)
         self.segment_pub = self.create_publisher(AudioSegment, TOPICS["speech_segments"], 10)

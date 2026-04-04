@@ -71,6 +71,8 @@ export function createApiClient() {
     providersProfiles: () => request('/api/providers/profiles'),
     providersValidate: (payload) => request('/api/providers/validate', { method: 'POST', body: jsonBody(payload) }),
     providersTest: (payload) => request('/api/providers/test', { method: 'POST', body: jsonBody(payload) }),
+    providersImportHuggingFaceModel: (payload) =>
+      request('/api/providers/huggingface/import_model', { method: 'POST', body: jsonBody(payload) }),
 
     // Generic profile browsing/editing
     profilesAll: () => request('/api/profiles'),
@@ -123,6 +125,10 @@ export function createApiClient() {
     secretsAzureEnv: () => request('/api/secrets/azure_env'),
     secretsAzureEnvSave: (payload) =>
       request('/api/secrets/azure_env', { method: 'POST', body: jsonBody(payload) }),
+    secretsHuggingFaceStatus: (refName = 'huggingface_api_token') =>
+      request(`/api/secrets/huggingface_token?ref_name=${encodeURIComponent(refName)}`),
+    secretsHuggingFaceTokenSave: (payload) =>
+      request('/api/secrets/huggingface_token', { method: 'POST', body: jsonBody(payload) }),
     secretsAwsSsoLoginStart: (payload) =>
       request('/api/secrets/aws_sso_login', { method: 'POST', body: jsonBody(payload) }),
     secretsAwsSsoLoginStatus: (jobId) =>

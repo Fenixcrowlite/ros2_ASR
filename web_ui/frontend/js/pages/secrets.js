@@ -225,6 +225,46 @@ function renderAzureAuthSummary(ui, azureRef) {
   `;
 }
 
+function renderHuggingFaceAuthSummary(ui, localRef, apiRef) {
+  if (!localRef && !apiRef) {
+    return ui.renderEmpty('Hugging Face secret refs not found. Expected `huggingface_local_token` and `huggingface_api_token`.');
+  }
+
+  const renderMode = (label, ref, options = {}) => {
+    const optional = Boolean(options.optional);
+    if (!ref) {
+      return `
+        <div class="stack-item">
+          <strong>${ui.escapeHtml(label)}</strong>
+          <p><span class="${ui.statusBadgeClass('invalid')}">missing ref</span></p>
+        </div>
+      `;
+    }
+    const validation = ref.validation || {};
+    const auth = validation.auth || {};
+    const tone = auth.runtime_ready ? 'valid' : optional && validation.valid ? 'warning' : 'invalid';
+    return `
+      <div class="stack-item">
+        <strong>${ui.escapeHtml(label)}</strong>
+        <p><span class="${ui.statusBadgeClass(tone)}">${ui.escapeHtml(auth.status || (auth.runtime_ready ? 'ready' : 'missing_credentials'))}</span></p>
+        <p>${ui.escapeHtml(auth.message || '')}</p>
+        <p class="muted">token_source=${ui.escapeHtml(auth.token_source || 'missing')} token_required=${ui.escapeHtml(String(Boolean(auth.token_required)))}</p>
+        <p class="muted">env_file=${ui.escapeHtml(auth.local_env_file || 'n/a')} · ${ui.escapeHtml(auth.local_env_file_exists ? 'exists' : 'not created yet')}</p>
+        <p class="muted">linked=${ui.escapeHtml((ref.linked_provider_profiles || []).join(', ') || 'none')}</p>
+      </div>
+    `;
+  };
+
+  return `
+    <div class="stack-item">
+      <strong>Shared Hugging Face token flow</strong>
+      <p>One <code>HF_TOKEN</code> can satisfy hosted inference and gated/private local model downloads because both secret refs resolve the same environment variable.</p>
+    </div>
+    ${renderMode('Hugging Face API', apiRef, { optional: false })}
+    ${renderMode('Hugging Face Local', localRef, { optional: true })}
+  `;
+}
+
 export function initSecretsPage(ctx) {
   const { api, ui } = ctx;
   const runSecretsAction = createActionRunner({ ui });
@@ -234,6 +274,7 @@ export function initSecretsPage(ctx) {
   const awsAuthSummaryRoot = document.getElementById('awsAuthSummary');
   const googleAuthSummaryRoot = document.getElementById('googleAuthSummary');
   const azureAuthSummaryRoot = document.getElementById('azureAuthSummary');
+  const huggingFaceAuthSummaryRoot = document.getElementById('huggingFaceAuthSummary');
   const awsProfileInput = document.getElementById('awsSsoProfile');
   const awsRefInput = document.getElementById('awsSsoRefName');
   const awsLoginUrlInput = document.getElementById('awsSsoLoginUrl');
@@ -245,8 +286,10 @@ export function initSecretsPage(ctx) {
   const awsFeedbackId = 'awsSsoLoginFeedback';
   const googleFeedbackId = 'googleSetupFeedback';
   const azureFeedbackId = 'azureSetupFeedback';
+  const huggingFaceFeedbackId = 'huggingFaceSetupFeedback';
   const azureRegionInput = document.getElementById('azureSpeechRegion');
   const azureEndpointInput = document.getElementById('azureSpeechEndpoint');
+  const huggingFaceTokenRefInput = document.getElementById('huggingFaceTokenRef');
 
   let currentRefs = [];
   let awsLoginJobId = '';
@@ -304,6 +347,7 @@ export function initSecretsPage(ctx) {
       awsAuthSummaryRoot.innerHTML = ui.renderEmpty('AWS auth state will appear here once `aws_profile` exists.');
       googleAuthSummaryRoot.innerHTML = ui.renderEmpty('Google auth state will appear here once `google_service_account` exists.');
       azureAuthSummaryRoot.innerHTML = ui.renderEmpty('Azure auth state will appear here once `azure_speech_key` exists.');
+      huggingFaceAuthSummaryRoot.innerHTML = ui.renderEmpty('Hugging Face token state will appear here once the Hugging Face secret refs are available.');
       syncAwsLoginFields(awsLastLoginJob, null);
       return;
     }
@@ -352,9 +396,12 @@ export function initSecretsPage(ctx) {
     const awsRef = refs.find((row) => row.name === 'aws_profile') || null;
     const googleRef = refs.find((row) => row.name === 'google_service_account') || null;
     const azureRef = refs.find((row) => row.name === 'azure_speech_key') || null;
+    const huggingFaceLocalRef = refs.find((row) => row.name === 'huggingface_local_token') || null;
+    const huggingFaceApiRef = refs.find((row) => row.name === 'huggingface_api_token') || null;
     awsAuthSummaryRoot.innerHTML = renderAwsAuthSummary(ui, awsRef);
     googleAuthSummaryRoot.innerHTML = renderGoogleAuthSummary(ui, googleRef);
     azureAuthSummaryRoot.innerHTML = renderAzureAuthSummary(ui, azureRef);
+    huggingFaceAuthSummaryRoot.innerHTML = renderHuggingFaceAuthSummary(ui, huggingFaceLocalRef, huggingFaceApiRef);
     syncAwsLoginFields(awsLastLoginJob, currentAwsRef(refs, awsRefInput?.value || 'aws_profile'));
     if (awsRef?.validation?.auth?.profile && awsProfileInput && !String(awsProfileInput.value || '').trim()) {
       awsProfileInput.value = awsRef.validation.auth.profile;
@@ -367,6 +414,9 @@ export function initSecretsPage(ctx) {
     }
     if (azureRef?.validation?.auth?.endpoint && azureEndpointInput && !String(azureEndpointInput.value || '').trim()) {
       azureEndpointInput.value = azureRef.validation.auth.endpoint;
+    }
+    if (huggingFaceTokenRefInput && !String(huggingFaceTokenRefInput.value || '').trim()) {
+      huggingFaceTokenRefInput.value = 'huggingface_api_token';
     }
   }
 
@@ -393,6 +443,23 @@ export function initSecretsPage(ctx) {
       validation: payload.validation || {},
     };
     azureAuthSummaryRoot.innerHTML = renderAzureAuthSummary(ui, azureRef);
+    return payload;
+  }
+
+  async function refreshHuggingFaceState() {
+    const selectedRef = String(huggingFaceTokenRefInput?.value || 'huggingface_api_token').trim() || 'huggingface_api_token';
+    const payload = await api.secretsHuggingFaceStatus(selectedRef);
+    const refsByName = new Map(currentRefs.map((row) => [row.name, row]));
+    refsByName.set(payload.ref_name, {
+      name: payload.ref_name,
+      validation: payload.validation || {},
+      linked_provider_profiles: refsByName.get(payload.ref_name)?.linked_provider_profiles || [],
+    });
+    huggingFaceAuthSummaryRoot.innerHTML = renderHuggingFaceAuthSummary(
+      ui,
+      refsByName.get('huggingface_local_token') || null,
+      refsByName.get('huggingface_api_token') || null
+    );
     return payload;
   }
 
@@ -573,7 +640,8 @@ export function initSecretsPage(ctx) {
       }
       ui.setFeedback(googleFeedbackId, JSON.stringify(payload, null, 2));
       ui.toast('Google service-account JSON uploaded', 'success');
-      await Promise.all([refreshRefs(), refreshGoogleState()]);
+      await refreshRefs();
+      await refreshGoogleState();
     }, {
       feedbackId: googleFeedbackId,
       errorPrefix: 'Google upload failed',
@@ -587,7 +655,8 @@ export function initSecretsPage(ctx) {
       });
       ui.setFeedback(googleFeedbackId, JSON.stringify(payload, null, 2));
       ui.toast('Google credential file cleared', 'warning');
-      await Promise.all([refreshRefs(), refreshGoogleState()]);
+      await refreshRefs();
+      await refreshGoogleState();
     }, {
       feedbackId: googleFeedbackId,
       errorPrefix: 'Google clear failed',
@@ -603,7 +672,8 @@ export function initSecretsPage(ctx) {
       });
       ui.setFeedback(googleFeedbackId, JSON.stringify(payload, null, 2));
       ui.toast('Google provider validation completed', payload.valid ? 'success' : 'error');
-      await Promise.all([refreshRefs(), refreshGoogleState()]);
+      await refreshRefs();
+      await refreshGoogleState();
     }, {
       feedbackId: googleFeedbackId,
       errorPrefix: 'Google validation failed',
@@ -621,7 +691,8 @@ export function initSecretsPage(ctx) {
       });
       ui.setFeedback(googleFeedbackId, JSON.stringify(payload, null, 2));
       ui.toast('Google provider test completed', payload.success ? 'success' : 'error');
-      await Promise.all([refreshRefs(), refreshGoogleState()]);
+      await refreshRefs();
+      await refreshGoogleState();
     }, {
       feedbackId: googleFeedbackId,
       errorPrefix: 'Google test failed',
@@ -639,7 +710,8 @@ export function initSecretsPage(ctx) {
       document.getElementById('azureSpeechKey').value = '';
       ui.setFeedback(azureFeedbackId, JSON.stringify(payload, null, 2));
       ui.toast('Azure credentials saved to local env injection file', 'success');
-      await Promise.all([refreshRefs(), refreshAzureState()]);
+      await refreshRefs();
+      await refreshAzureState();
     }, {
       feedbackId: azureFeedbackId,
       errorPrefix: 'Azure save failed',
@@ -659,7 +731,8 @@ export function initSecretsPage(ctx) {
       document.getElementById('azureSpeechEndpoint').value = '';
       ui.setFeedback(azureFeedbackId, JSON.stringify(payload, null, 2));
       ui.toast('Azure local env injection cleared', 'warning');
-      await Promise.all([refreshRefs(), refreshAzureState()]);
+      await refreshRefs();
+      await refreshAzureState();
     }, {
       feedbackId: azureFeedbackId,
       errorPrefix: 'Azure clear failed',
@@ -675,7 +748,8 @@ export function initSecretsPage(ctx) {
       });
       ui.setFeedback(azureFeedbackId, JSON.stringify(payload, null, 2));
       ui.toast('Azure provider validation completed', payload.valid ? 'success' : 'error');
-      await Promise.all([refreshRefs(), refreshAzureState()]);
+      await refreshRefs();
+      await refreshAzureState();
     }, {
       feedbackId: azureFeedbackId,
       errorPrefix: 'Azure validation failed',
@@ -693,16 +767,91 @@ export function initSecretsPage(ctx) {
       });
       ui.setFeedback(azureFeedbackId, JSON.stringify(payload, null, 2));
       ui.toast('Azure provider test completed', payload.success ? 'success' : 'error');
-      await Promise.all([refreshRefs(), refreshAzureState()]);
+      await refreshRefs();
+      await refreshAzureState();
     }, {
       feedbackId: azureFeedbackId,
       errorPrefix: 'Azure test failed',
     })
   );
 
+  document.getElementById('huggingFaceSaveBtn')?.addEventListener('click', () =>
+    runSecretsAction(async () => {
+      const payload = await api.secretsHuggingFaceTokenSave({
+        ref_name: document.getElementById('huggingFaceTokenRef').value || 'huggingface_api_token',
+        token: document.getElementById('huggingFaceToken').value,
+      });
+      document.getElementById('huggingFaceToken').value = '';
+      ui.setFeedback(huggingFaceFeedbackId, JSON.stringify(payload, null, 2));
+      ui.toast('Hugging Face token saved to local env injection file', 'success');
+      await refreshRefs();
+      await refreshHuggingFaceState();
+    }, {
+      feedbackId: huggingFaceFeedbackId,
+      errorPrefix: 'Hugging Face save failed',
+    })
+  );
+
+  document.getElementById('huggingFaceClearBtn')?.addEventListener('click', () =>
+    runSecretsAction(async () => {
+      const payload = await api.secretsHuggingFaceTokenSave({
+        ref_name: document.getElementById('huggingFaceTokenRef').value || 'huggingface_api_token',
+        clear_token: true,
+      });
+      document.getElementById('huggingFaceToken').value = '';
+      ui.setFeedback(huggingFaceFeedbackId, JSON.stringify(payload, null, 2));
+      ui.toast('Hugging Face token cleared from local env injection file', 'warning');
+      await refreshRefs();
+      await refreshHuggingFaceState();
+    }, {
+      feedbackId: huggingFaceFeedbackId,
+      errorPrefix: 'Hugging Face clear failed',
+    })
+  );
+
+  document.getElementById('huggingFaceValidateProviderBtn')?.addEventListener('click', () =>
+    runSecretsAction(async () => {
+      const payload = await api.providersValidate({
+        provider_profile: document.getElementById('huggingFaceProviderProfile').value,
+        provider_preset: '',
+        provider_settings: {},
+      });
+      ui.setFeedback(huggingFaceFeedbackId, JSON.stringify(payload, null, 2));
+      ui.toast('Hugging Face provider validation completed', payload.valid ? 'success' : 'error');
+      await refreshRefs();
+      await refreshHuggingFaceState();
+    }, {
+      feedbackId: huggingFaceFeedbackId,
+      errorPrefix: 'Hugging Face validation failed',
+    })
+  );
+
+  document.getElementById('huggingFaceTestProviderBtn')?.addEventListener('click', () =>
+    runSecretsAction(async () => {
+      const payload = await api.providersTest({
+        provider_profile: document.getElementById('huggingFaceProviderProfile').value,
+        provider_preset: '',
+        provider_settings: {},
+        wav_path: document.getElementById('huggingFaceTestWav').value,
+        language: document.getElementById('huggingFaceTestLanguage').value,
+      });
+      ui.setFeedback(huggingFaceFeedbackId, JSON.stringify(payload, null, 2));
+      ui.toast('Hugging Face provider test completed', payload.success ? 'success' : 'error');
+      await refreshRefs();
+      await refreshHuggingFaceState();
+    }, {
+      feedbackId: huggingFaceFeedbackId,
+      errorPrefix: 'Hugging Face test failed',
+    })
+  );
+
   return {
     refresh: async () => {
-      await Promise.all([refreshProviderProfiles(), refreshRefs(), refreshGoogleState(), refreshAzureState()]);
+      await refreshProviderProfiles();
+      await refreshRefs();
+      await refreshGoogleState();
+      await refreshAzureState();
+      await refreshHuggingFaceState();
       if (awsLoginJobId) {
         await refreshAwsLoginStatus(false);
       }

@@ -183,5 +183,11 @@ class HuggingFaceAPIProvider(BaseHuggingFaceProvider):
             )
 
     def teardown(self) -> None:
+        client = self._client
         self._client = None
+        if client is not None:
+            try:
+                client.close()
+            except Exception:
+                pass
         super().teardown()

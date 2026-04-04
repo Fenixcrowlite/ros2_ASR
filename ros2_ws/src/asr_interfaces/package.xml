@@ -3,7 +3,7 @@
   <name>asr_interfaces</name>
   <version>0.1.0</version>
   <description>ROS2 interfaces for universal ASR system</description>
-  <maintainer email="maintainer@example.com">ASR Team</maintainer>
+  <maintainer email="asr-team@ros2-asr.localdomain">ASR Team</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>

@@ -155,3 +155,16 @@ def test_mask_secret_values_never_returns_full_plaintext() -> None:
     assert masked["LONG"].startswith("su***")
     assert masked["LONG"] != "supersecretvalue"
     assert masked["EMPTY"] == ""
+
+
+def test_write_local_env_values_rejects_invalid_env_key(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="Invalid env key"):
+        write_local_env_values({"BAD-KEY": "value"}, source_path=str(tmp_path / "refs.yaml"))
+
+
+def test_write_local_env_values_rejects_multiline_env_value(tmp_path: Path) -> None:
+    with pytest.raises(ValueError, match="control characters"):
+        write_local_env_values(
+            {"HF_TOKEN": "hf_demo\nINJECTED=1"},
+            source_path=str(tmp_path / "refs.yaml"),
+        )

@@ -3,8 +3,7 @@ from __future__ import annotations
 import importlib
 from pathlib import Path
 
-from fastapi.testclient import TestClient
-
+from tests.utils.asgi_client import SyncAsgiClient
 from tests.utils.fakes import FakeGatewayRosClient, build_stub_provider_manager
 from tests.utils.project import clone_project_layout, seed_benchmark_run, seed_logs
 
@@ -44,7 +43,7 @@ def test_frontend_shell_and_assets_are_served(repo_root: Path, tmp_path: Path, m
         lambda *args, **kwargs: ["whisper", "azure", "aws"],
     )
 
-    with TestClient(gateway_api.app) as client:
+    with SyncAsgiClient(gateway_api.app) as client:
         index = client.get("/")
         styles = client.get("/ui/styles.css")
         script = client.get("/ui/js/app.js")
@@ -85,6 +84,12 @@ def test_frontend_shell_and_assets_are_served(repo_root: Path, tmp_path: Path, m
         assert 'id="azureAuthSummary"' in index.text
         assert 'id="azureSaveBtn"' in index.text
         assert 'id="azureValidateProviderBtn"' in index.text
+        assert 'id="huggingFaceAuthSummary"' in index.text
+        assert 'id="huggingFaceSaveBtn"' in index.text
+        assert 'id="huggingFaceValidateProviderBtn"' in index.text
+        assert 'id="hfImportProviderProfile"' in index.text
+        assert 'id="hfImportModelRef"' in index.text
+        assert 'id="hfImportBtn"' in index.text
         assert "/ui/styles.css" in index.text
         assert "/ui/js/app.js" in index.text
         assert index.headers["cache-control"].startswith("no-store")

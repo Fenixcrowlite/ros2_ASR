@@ -3,11 +3,13 @@
   <name>asr_config</name>
   <version>0.1.0</version>
   <description>Profile-driven configuration resolver and secret reference model</description>
-  <maintainer email="maintainer@example.com">ASR Team</maintainer>
+  <maintainer email="asr-team@ros2-asr.localdomain">ASR Team</maintainer>
   <license>MIT</license>
 
   <buildtool_depend>ament_python</buildtool_depend>
   <exec_depend>asr_core</exec_depend>
+  <exec_depend>asr_metrics</exec_depend>
+  <exec_depend>python3-yaml</exec_depend>
 
   <export>
     <build_type>ament_python</build_type>
