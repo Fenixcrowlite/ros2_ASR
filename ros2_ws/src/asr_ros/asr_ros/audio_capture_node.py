@@ -199,7 +199,10 @@ class AudioCaptureNode(Node):
         """
         try:
             import sounddevice as sd
-        except Exception:
+        except Exception as exc:
+            self.get_logger().warning(
+                f"sounddevice import failed; microphone capture disabled: {exc}"
+            )
             return False
 
         audio_q: queue.Queue[bytes] = queue.Queue(maxsize=8)
@@ -239,7 +242,8 @@ class AudioCaptureNode(Node):
                     self.publisher.publish(msg)
             self.get_logger().info("Published microphone audio chunks")
             return True
-        except Exception:
+        except Exception as exc:
+            self.get_logger().error(f"Microphone capture failed: {exc}")
             return False
 
 

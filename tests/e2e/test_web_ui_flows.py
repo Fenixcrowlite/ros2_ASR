@@ -16,9 +16,12 @@ pytestmark = [pytest.mark.e2e, pytest.mark.gui, pytest.mark.slow]
 
 
 def _find_free_tcp_port() -> int:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
-        sock.bind(("127.0.0.1", 0))
-        return int(sock.getsockname()[1])
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as sock:
+            sock.bind(("127.0.0.1", 0))
+            return int(sock.getsockname()[1])
+    except PermissionError as exc:
+        pytest.skip(f"local TCP bind is not permitted in this environment: {exc}")
 
 
 @pytest.fixture()

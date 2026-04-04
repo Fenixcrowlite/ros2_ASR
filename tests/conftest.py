@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import os
 import sys
+import tempfile
 import types
 from pathlib import Path
 
@@ -9,6 +10,14 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 SRC_ROOT = ROOT / "ros2_ws" / "src"
+_PYTEST_RUNTIME_ROOT = Path(tempfile.gettempdir()) / "asr_pytest_runtime"
+_ROS_LOG_DIR = _PYTEST_RUNTIME_ROOT / "ros_logs"
+_MPL_CONFIG_DIR = _PYTEST_RUNTIME_ROOT / "matplotlib"
+
+_ROS_LOG_DIR.mkdir(parents=True, exist_ok=True)
+_MPL_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
+os.environ.setdefault("ROS_LOG_DIR", str(_ROS_LOG_DIR))
+os.environ.setdefault("MPLCONFIGDIR", str(_MPL_CONFIG_DIR))
 
 sys.path.insert(0, str(ROOT))
 for package_root in SRC_ROOT.iterdir():
@@ -309,6 +318,24 @@ def isolated_ros_domain(monkeypatch: pytest.MonkeyPatch) -> str:
     domain_id = str(200 + (os.getpid() % 20))
     monkeypatch.setenv("ROS_DOMAIN_ID", domain_id)
     return domain_id
+
+
+@pytest.fixture(autouse=True)
+def cleanup_ros_context(request: pytest.FixtureRequest):
+    yield
+    if request.node.get_closest_marker("ros") is None:
+        return
+    try:
+        import rclpy  # type: ignore[import-not-found]
+    except ModuleNotFoundError:
+        return
+    if getattr(rclpy, "__asr_stub__", False):
+        return
+    try:
+        if rclpy.ok():
+            rclpy.shutdown()
+    except Exception:
+        return
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:

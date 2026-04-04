@@ -8,7 +8,7 @@ from io import BytesIO
 from pathlib import Path
 
 from tests.utils.asgi_client import SyncAsgiClient
-from tests.utils.fakes import FakeGatewayRosClient, build_stub_provider_manager
+from tests.utils.fakes import FakeGatewayRosClient, FakeProviderAdapter, build_stub_provider_manager
 from tests.utils.project import clone_project_layout, seed_benchmark_run, seed_logs
 
 
@@ -150,6 +150,28 @@ def test_runtime_samples_catalog_and_upload(repo_root: Path, tmp_path: Path, mon
     )
 
 
+def test_runtime_upload_sample_rejects_oversized_file(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+    monkeypatch.setattr(gateway_api, "MAX_RUNTIME_SAMPLE_BYTES", 32)
+
+    wav_buffer = BytesIO()
+    with wave.open(wav_buffer, "wb") as wav_file:
+        wav_file.setnchannels(1)
+        wav_file.setsampwidth(2)
+        wav_file.setframerate(16000)
+        wav_file.writeframes(b"\x00\x00" * 16)
+
+    response = client.post(
+        "/api/runtime/upload_sample",
+        files={"file": ("too_big.wav", wav_buffer.getvalue(), "audio/wav")},
+    )
+
+    assert response.status_code == 413
+    assert "too large" in response.json()["detail"]
+
+
 def test_runtime_noise_generation_and_preflight(
     repo_root: Path, tmp_path: Path, monkeypatch
 ) -> None:
@@ -266,6 +288,43 @@ def test_runtime_api_marks_completed_file_session_from_audio_status(
     assert payload["status"]["session_state"] == "completed"
     assert payload["active_session"]["state"] == "completed"
     assert payload["session_statuses"][0]["state"] == "completed"
+
+
+def test_runtime_snapshot_shape_is_sanitized_before_gateway_responses(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+    fake_ros.runtime_started = True
+    fake_ros.session_id = "session_demo"
+    fake_ros.audio_source = "file"
+
+    def malformed_snapshot() -> dict[str, object]:
+        return {
+            "observer_error": ["observer", "warning"],
+            "recent_results": ["invalid", {"request_id": "req_keep", "type": "final"}],
+            "recent_partials": None,
+            "node_statuses": [{"node_name": "audio_input_node", "status_message": 123}, "bad"],
+            "session_statuses": ["bad", {"session_id": "session_demo", "state": "active"}],
+            "active_session": "invalid",
+        }
+
+    monkeypatch.setattr(type(fake_ros), "runtime_snapshot", lambda self: malformed_snapshot())
+
+    status = client.get("/api/runtime/status")
+    assert status.status_code == 200
+    assert status.json()["observer_error"] == "['observer', 'warning']"
+    assert status.json()["session_id"] == "session_demo"
+
+    live = client.get("/api/runtime/live")
+    assert live.status_code == 200
+    live_payload = live.json()
+    assert live_payload["active_session"] == {}
+    assert live_payload["recent_results"] == [{"request_id": "req_keep", "type": "final"}]
+    assert live_payload["session_statuses"] == [{"session_id": "session_demo", "state": "active"}]
+
+    dashboard = client.get("/api/dashboard")
+    assert dashboard.status_code == 200
+    assert dashboard.json()["runtime_live"]["active_session"] == {}
 
 
 def test_benchmark_history_status_compare_and_export(
@@ -472,6 +531,36 @@ def test_datasets_secrets_logs_and_results_endpoints(
     diag_payload = diagnostics.json()
     assert "counts" in diag_payload
     assert isinstance(diag_payload["counts"].get("warning", 0), int)
+
+
+def test_datasets_validate_manifest_rejects_path_outside_project(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+    manifest_path = tmp_path / "outside_manifest.jsonl"
+    manifest_path.write_text(
+        json.dumps(
+            {
+                "sample_id": "outside",
+                "audio_path": "sample.wav",
+                "transcript": "hello",
+                "language": "en-US",
+            }
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+    response = client.post(
+        "/api/datasets/validate_manifest",
+        json={
+            "manifest_path": str(manifest_path),
+            "check_audio_files": False,
+        },
+    )
+
+    assert response.status_code == 400
+    assert "Unsafe manifest_path" in response.json()["detail"]
 
 
 def test_azure_env_save_updates_secret_validation_and_local_env(
@@ -766,6 +855,82 @@ def test_provider_test_returns_bad_request_for_missing_wav(
 
     assert response.status_code == 400
     assert "WAV file not found" in response.json()["detail"]
+
+
+def test_provider_test_rejects_wav_outside_project(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    response = client.post(
+        "/api/providers/test",
+        json={
+            "provider_profile": "whisper_local",
+            "wav_path": str(tmp_path / "outside.wav"),
+            "language": "en-US",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "Unsafe wav_path" in response.json()["detail"]
+
+
+def test_provider_test_tears_down_adapter_on_failure(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    class ExplodingAdapter(FakeProviderAdapter):
+        def __init__(self) -> None:
+            super().__init__(provider_id="whisper")
+            self.teardown_called = False
+
+        def recognize_once(self, audio, options=None):  # type: ignore[override]
+            del audio, options
+            raise RuntimeError("recognize exploded")
+
+        def teardown(self) -> None:
+            self.teardown_called = True
+            super().teardown()
+
+    adapter = ExplodingAdapter()
+
+    class CrashManager:
+        def __init__(self, configs_root: str = "") -> None:
+            self.configs_root = configs_root
+
+        def create_from_profile(
+            self,
+            provider_profile: str,
+            *,
+            preset_id: str = "",
+            settings_overrides: dict[str, object] | None = None,
+        ) -> ExplodingAdapter:
+            del provider_profile, preset_id, settings_overrides
+            return adapter
+
+    monkeypatch.setattr(gateway_api, "ProviderManager", CrashManager)
+    monkeypatch.setattr(
+        gateway_api,
+        "_preflight_provider_profile",
+        lambda *args, **kwargs: {
+            "normalized_profile": "providers/whisper_local",
+            "execution": {"selected_preset": ""},
+        },
+    )
+
+    response = client.post(
+        "/api/providers/test",
+        json={
+            "provider_profile": "whisper_local",
+            "wav_path": "data/sample/vosk_test.wav",
+            "language": "en-US",
+        },
+    )
+
+    assert response.status_code == 400
+    assert "recognize exploded" in response.json()["detail"]
+    assert adapter.teardown_called is True
 
 
 def test_provider_catalog_distinguishes_ready_and_degraded_profiles(

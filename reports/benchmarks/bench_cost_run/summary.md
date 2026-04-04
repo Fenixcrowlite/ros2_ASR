@@ -25,4 +25,4 @@
 - estimated_cost_total_usd: `0.25`
 
 ## Noise Summary
-- clean: `{"confidence": 0.92, "cpu_percent": 8.8, "estimated_cost_usd": 0.25, "gpu_memory_mb": 0.0, "gpu_util_percent": 0.0, "inference_ms": 0.0, "memory_mb": 167.3984375, "model_load_ms": 0.719667, "postprocess_ms": 0.0, "preprocess_ms": 0.0, "provider_call_cold_start": 1.0, "provider_call_warm_start": 0.0, "provider_init_cold_start": 1.0, "provider_init_warm_start": 0.0, "provider_invocation_index": 1.0, "total_latency_ms": 15.0, "wer": 0.0}`
+- clean: `{"confidence": 0.92, "cpu_percent": 7.6, "estimated_cost_usd": 0.25, "gpu_memory_mb": 0.0, "gpu_util_percent": 0.0, "inference_ms": 0.0, "memory_mb": 153.6796875, "model_load_ms": 0.765626, "postprocess_ms": 0.0, "preprocess_ms": 0.0, "provider_call_cold_start": 1.0, "provider_call_warm_start": 0.0, "provider_init_cold_start": 1.0, "provider_init_warm_start": 0.0, "provider_invocation_index": 1.0, "total_latency_ms": 15.0, "wer": 0.0}`

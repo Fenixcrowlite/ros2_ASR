@@ -12,6 +12,7 @@ import subprocess
 import threading
 import time
 from collections import deque
+from collections.abc import MutableMapping
 from contextlib import asynccontextmanager
 from copy import deepcopy
 from datetime import datetime, timezone
@@ -121,6 +122,9 @@ AWS_URL_RE = re.compile(r"https?://[^\s<>()]+")
 MAX_SAFE_NAME_LEN = 255
 MAX_SECRET_VALUE_LEN = 4096
 MAX_SECRET_FILE_BYTES = 256 * 1024
+MAX_RUNTIME_SAMPLE_BYTES = 32 * 1024 * 1024
+MAX_DATASET_UPLOAD_FILE_BYTES = 64 * 1024 * 1024
+MAX_DATASET_UPLOAD_TOTAL_BYTES = 256 * 1024 * 1024
 
 
 def _no_cache_headers() -> dict[str, str]:
@@ -132,7 +136,7 @@ def _no_cache_headers() -> dict[str, str]:
 
 
 class NoCacheStaticFiles(StaticFiles):
-    async def get_response(self, path: str, scope: dict[str, Any]) -> Any:
+    async def get_response(self, path: str, scope: MutableMapping[str, Any]) -> Any:
         response = await super().get_response(path, scope)
         for key, value in _no_cache_headers().items():
             response.headers[key] = value
@@ -185,6 +189,34 @@ def _extract_aws_login_job_hints(lines: list[str], *, start_url: str = "") -> di
         "login_page_url": login_page_url,
         "verification_uri": verification_uri,
         "user_code": user_code,
+    }
+
+
+def _dict_or_empty(value: object) -> dict[str, Any]:
+    if not isinstance(value, dict):
+        return {}
+    return dict(value)
+
+
+def _list_of_dicts(value: object) -> list[dict[str, Any]]:
+    if not isinstance(value, (list, tuple)):
+        return []
+    normalized: list[dict[str, Any]] = []
+    for item in value:
+        if isinstance(item, dict):
+            normalized.append(dict(item))
+    return normalized
+
+
+def _runtime_snapshot_view(snapshot: object) -> dict[str, Any]:
+    snapshot_map = _dict_or_empty(snapshot)
+    return {
+        "observer_error": str(snapshot_map.get("observer_error", "") or ""),
+        "recent_results": _list_of_dicts(snapshot_map.get("recent_results", [])),
+        "recent_partials": _list_of_dicts(snapshot_map.get("recent_partials", [])),
+        "node_statuses": _list_of_dicts(snapshot_map.get("node_statuses", [])),
+        "session_statuses": _list_of_dicts(snapshot_map.get("session_statuses", [])),
+        "active_session": _dict_or_empty(snapshot_map.get("active_session", {})),
     }
 
 
@@ -586,6 +618,28 @@ def _project_relative_path(path: Path) -> str:
         return str(path)
 
 
+def _resolve_project_local_path(
+    value: str,
+    *,
+    label: str,
+    allowed_roots: tuple[Path, ...] | None = None,
+) -> Path:
+    raw = str(value or "").strip()
+    if not raw:
+        raise HTTPException(status_code=400, detail=f"{label} is required")
+
+    candidate = Path(raw).expanduser()
+    if candidate.is_absolute():
+        resolved = candidate.resolve()
+    else:
+        resolved = (PROJECT_ROOT / _clean_name(raw, label)).resolve()
+
+    resolved_roots = [root.resolve() for root in (allowed_roots or (PROJECT_ROOT,))]
+    if not any(resolved.is_relative_to(root) for root in resolved_roots):
+        raise HTTPException(status_code=400, detail=f"Unsafe {label}: {value}")
+    return resolved
+
+
 def _wav_metadata_from_bytes(content: bytes) -> dict[str, Any]:
     return wav_metadata_from_bytes_helper(content)
 
@@ -837,9 +891,9 @@ def _run_preflight_checks() -> dict[str, Any]:
 
 def _runtime_status() -> dict[str, Any]:
     result = ros.get_runtime_status()
-    snapshot = ros.runtime_snapshot()
+    snapshot = _runtime_snapshot_view(ros.runtime_snapshot())
     if not result.success:
-        active_session = snapshot.get("active_session", {})
+        active_session = snapshot["active_session"]
         return {
             "available": False,
             "state": "unavailable",
@@ -853,19 +907,19 @@ def _runtime_status() -> dict[str, Any]:
             "processing_mode": active_session.get("processing_mode", "segmented"),
             "audio_source": "",
             "runtime_profile": active_session.get("profile_id", ""),
-            "observer_error": snapshot.get("observer_error", ""),
+            "observer_error": snapshot["observer_error"],
         }
     payload = _normalize_runtime_status_payload(snapshot, result.payload)
     payload["available"] = True
     payload["state"] = str(payload.get("session_state", payload.get("status_message", "unknown")))
     payload["message"] = "ok"
-    payload["observer_error"] = snapshot.get("observer_error", "")
+    payload["observer_error"] = snapshot["observer_error"]
     return payload
 
 
 def _audio_input_completion(snapshot: dict[str, Any], session_id: str) -> tuple[bool, str]:
     clean_session_id = str(session_id or "").strip()
-    for item in list(snapshot.get("node_statuses", [])):
+    for item in snapshot.get("node_statuses", []):
         if str(item.get("node_name", "") or "") != "audio_input_node":
             continue
         status_message = str(item.get("status_message", "") or "")
@@ -879,15 +933,16 @@ def _audio_input_completion(snapshot: dict[str, Any], session_id: str) -> tuple[
 def _normalize_runtime_status_payload(
     snapshot: dict[str, Any], payload: dict[str, Any]
 ) -> dict[str, Any]:
-    normalized = dict(payload)
+    normalized = _dict_or_empty(payload)
+    active_session = snapshot.get("active_session", {})
     session_id = str(
         normalized.get("session_id", "")
-        or snapshot.get("active_session", {}).get("session_id", "")
+        or active_session.get("session_id", "")
         or ""
     )
     audio_source = str(
         normalized.get("audio_source", "")
-        or snapshot.get("active_session", {}).get("audio_source", "")
+        or active_session.get("audio_source", "")
         or ""
     )
     is_completed, completion_message = _audio_input_completion(snapshot, session_id)
@@ -900,29 +955,30 @@ def _normalize_runtime_status_payload(
 def _normalize_runtime_session_snapshot(
     snapshot: dict[str, Any], *, audio_source: str
 ) -> dict[str, Any]:
+    snapshot_view = _runtime_snapshot_view(snapshot)
+    active_session = dict(snapshot_view["active_session"])
+    session_statuses = [dict(item) for item in snapshot_view["session_statuses"]]
     normalized = {
         "recent_results": _merge_runtime_results(
-            snapshot.get("recent_results", []), list(_RUNTIME_RESULTS)
+            snapshot_view["recent_results"], list(_RUNTIME_RESULTS)
         ),
-        "recent_partials": list(snapshot.get("recent_partials", [])),
-        "node_statuses": list(snapshot.get("node_statuses", [])),
-        "session_statuses": [dict(item) for item in list(snapshot.get("session_statuses", []))],
-        "active_session": dict(snapshot.get("active_session", {})),
+        "recent_partials": list(snapshot_view["recent_partials"]),
+        "node_statuses": list(snapshot_view["node_statuses"]),
+        "session_statuses": session_statuses,
+        "active_session": active_session,
     }
     if audio_source != "file":
         return normalized
 
-    active_session_id = str(normalized["active_session"].get("session_id", "") or "")
-    is_completed, completion_message = _audio_input_completion(snapshot, active_session_id)
+    active_session_id = str(active_session.get("session_id", "") or "")
+    is_completed, completion_message = _audio_input_completion(snapshot_view, active_session_id)
     if not is_completed:
         return normalized
 
     if active_session_id:
-        normalized["active_session"]["state"] = "completed"
-        normalized["active_session"]["status_message"] = (
-            completion_message or "completed source=file"
-        )
-        for item in normalized["session_statuses"]:
+        active_session["state"] = "completed"
+        active_session["status_message"] = completion_message or "completed source=file"
+        for item in session_statuses:
             if str(item.get("session_id", "") or "") == active_session_id:
                 item["state"] = "completed"
                 item["status_message"] = completion_message or "completed source=file"
@@ -2170,7 +2226,7 @@ def _diagnostics_issues() -> list[dict[str, Any]]:
 
 def _dashboard_payload() -> dict[str, Any]:
     runtime = _runtime_status()
-    runtime_snapshot = ros.runtime_snapshot()
+    runtime_snapshot = _runtime_snapshot_view(ros.runtime_snapshot())
     history = _list_benchmark_history(limit=5)
     providers = _provider_profiles_summary()
     issues = _diagnostics_issues()
@@ -2192,12 +2248,12 @@ def _dashboard_payload() -> dict[str, Any]:
         "runtime": runtime,
         "runtime_live": {
             "recent_results": _merge_runtime_results(
-                runtime_snapshot.get("recent_results", []),
+                runtime_snapshot["recent_results"],
                 list(_RUNTIME_RESULTS),
             ),
-            "recent_partials": list(runtime_snapshot.get("recent_partials", [])),
-            "active_session": dict(runtime_snapshot.get("active_session", {})),
-            "session_statuses": list(runtime_snapshot.get("session_statuses", [])),
+            "recent_partials": list(runtime_snapshot["recent_partials"]),
+            "active_session": dict(runtime_snapshot["active_session"]),
+            "session_statuses": list(runtime_snapshot["session_statuses"]),
         },
         "benchmark": {
             "active_runs": active,
@@ -2351,14 +2407,15 @@ def runtime_generate_noise(req: NoiseGenerateRequest) -> dict[str, Any]:
             }
         )
 
+    metrics = {
+        "variant_count": len(generated),
+        "total_generation_ms": max((time.perf_counter() - generation_started) * 1000.0, 0.0),
+    }
     payload = {
         "source_wav": _project_relative_path(source),
         "generated": generated,
         "catalog": _list_runtime_samples(),
-        "metrics": {
-            "variant_count": len(generated),
-            "total_generation_ms": max((time.perf_counter() - generation_started) * 1000.0, 0.0),
-        },
+        "metrics": metrics,
     }
     _record_runtime_event(
         "runtime_generate_noise",
@@ -2366,7 +2423,7 @@ def runtime_generate_noise(req: NoiseGenerateRequest) -> dict[str, Any]:
         {
             "source_wav": payload["source_wav"],
             "snr_levels": [float(item["snr_db"]) for item in generated],
-            "total_generation_ms": payload["metrics"]["total_generation_ms"],
+            "total_generation_ms": float(metrics["total_generation_ms"]),
         },
     )
     return payload
@@ -2380,6 +2437,8 @@ if MULTIPART_AVAILABLE:
         content = await file.read()
         if not content:
             raise HTTPException(status_code=400, detail="Uploaded runtime sample is empty.")
+        if len(content) > MAX_RUNTIME_SAMPLE_BYTES:
+            raise HTTPException(status_code=413, detail="Uploaded runtime sample is too large.")
 
         try:
             metadata = _wav_metadata_from_bytes(content)
@@ -2405,7 +2464,7 @@ if MULTIPART_AVAILABLE:
 else:
 
     @app.post("/api/runtime/upload_sample")
-    async def runtime_upload_sample() -> dict[str, Any]:
+    async def runtime_upload_sample_unavailable() -> dict[str, Any]:
         raise HTTPException(
             status_code=503,
             detail='Runtime sample upload requires "python-multipart". Install dependencies from requirements.txt.',
@@ -2594,6 +2653,7 @@ def providers_validate(req: ProviderProfileRequest) -> dict[str, Any]:
     if not profile.startswith("providers/"):
         profile = f"providers/{profile}"
 
+    adapter = None
     try:
         provider_exec = _preflight_provider_profile(
             profile,
@@ -2607,7 +2667,6 @@ def providers_validate(req: ProviderProfileRequest) -> dict[str, Any]:
         )
         caps = _capabilities_to_dict(adapter.discover_capabilities())
         status = adapter.get_status()
-        adapter.teardown()
         return {
             "valid": True,
             "message": "Provider profile is valid",
@@ -2623,6 +2682,9 @@ def providers_validate(req: ProviderProfileRequest) -> dict[str, Any]:
             "message": str(exc),
             "provider_profile": profile,
         }
+    finally:
+        if adapter is not None:
+            adapter.teardown()
 
 
 @app.post("/api/providers/test")
@@ -2631,10 +2693,11 @@ def providers_test(req: ProviderTestRequest) -> dict[str, Any]:
     profile = req.provider_profile
     if not profile.startswith("providers/"):
         profile = f"providers/{profile}"
-    wav = Path(req.wav_path)
+    wav = _resolve_project_local_path(req.wav_path, label="wav_path")
     if not wav.exists():
         raise HTTPException(status_code=400, detail=f"WAV file not found: {wav}")
 
+    adapter = None
     try:
         provider_exec = _preflight_provider_profile(
             profile,
@@ -2656,7 +2719,6 @@ def providers_test(req: ProviderTestRequest) -> dict[str, Any]:
                 enable_word_timestamps=True,
             )
         )
-        adapter.teardown()
         return {
             "success": not result.degraded and not result.error_code,
             "provider_profile": provider_exec["normalized_profile"],
@@ -2672,6 +2734,9 @@ def providers_test(req: ProviderTestRequest) -> dict[str, Any]:
         }
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc))
+    finally:
+        if adapter is not None:
+            adapter.teardown()
 
 
 @app.post("/api/providers/huggingface/import_model")
@@ -3237,11 +3302,23 @@ if MULTIPART_AVAILABLE:
             raise HTTPException(status_code=400, detail="No files uploaded")
 
         uploaded: list[dict[str, Any]] = []
+        total_uploaded_bytes = 0
         for item in files:
             filename = str(item.filename or "").strip()
             if not filename:
                 continue
             content = await item.read()
+            if len(content) > MAX_DATASET_UPLOAD_FILE_BYTES:
+                raise HTTPException(
+                    status_code=413,
+                    detail=f"Uploaded dataset file is too large: {filename}",
+                )
+            total_uploaded_bytes += len(content)
+            if total_uploaded_bytes > MAX_DATASET_UPLOAD_TOTAL_BYTES:
+                raise HTTPException(
+                    status_code=413,
+                    detail="Uploaded dataset bundle is too large.",
+                )
             uploaded.append({"name": filename, "content": content})
         if not uploaded:
             raise HTTPException(status_code=400, detail="Uploaded file set is empty")
@@ -3282,7 +3359,7 @@ if MULTIPART_AVAILABLE:
 else:
 
     @app.post("/api/datasets/import_upload")
-    async def datasets_import_upload() -> dict[str, Any]:
+    async def datasets_import_upload_unavailable() -> dict[str, Any]:
         raise HTTPException(
             status_code=503,
             detail='Dataset upload requires "python-multipart". Install dependencies from requirements.txt.',
@@ -3291,16 +3368,17 @@ else:
 
 @app.post("/api/datasets/validate_manifest")
 def datasets_validate_manifest(req: DatasetValidateManifestRequest) -> dict[str, Any]:
-    path = Path(req.manifest_path)
+    path = _resolve_project_local_path(req.manifest_path, label="manifest_path")
     if not path.exists():
         raise HTTPException(status_code=400, detail=f"Manifest not found: {path}")
 
     samples = load_manifest(str(path))
     missing_audio: list[str] = []
+    project_root = PROJECT_ROOT.resolve()
     if req.check_audio_files:
         for sample in samples:
-            audio = Path(sample.audio_path)
-            if not audio.exists():
+            audio = Path(sample.audio_path).resolve()
+            if not audio.is_relative_to(project_root) or not audio.exists():
                 missing_audio.append(sample.audio_path)
 
     return {

@@ -24,6 +24,8 @@ from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabilities, WordTimestamp
 from asr_core.streaming import StreamAccumulator
 
+STREAMING_AUDIO_QUEUE_MAXSIZE = 8
+
 
 class GoogleStreamingSession:
     """Native Google streaming session backed by SpeechClient.streaming_recognize."""
@@ -50,7 +52,9 @@ class GoogleStreamingSession:
         self._sample_rate = int(sample_rate or 16000)
         self._channels = int(channels or 1)
         self._sample_width_bytes = int(sample_width_bytes or 2)
-        self._audio_queue: queue.Queue[bytes | None] = queue.Queue()
+        self._audio_queue: queue.Queue[bytes | None] = queue.Queue(
+            maxsize=STREAMING_AUDIO_QUEUE_MAXSIZE
+        )
         self._done = threading.Event()
         self._accumulator = StreamAccumulator(
             provider="google",
@@ -141,6 +145,22 @@ class GoogleStreamingSession:
         finally:
             self._done.set()
 
+    def _enqueue_audio_item(self, chunk: bytes | None) -> None:
+        try:
+            self._audio_queue.put_nowait(chunk)
+            return
+        except queue.Full:
+            try:
+                self._audio_queue.get_nowait()
+            except queue.Empty:
+                pass
+        try:
+            self._audio_queue.put_nowait(chunk)
+        except queue.Full as exc:
+            raise RuntimeError(
+                "Google streaming audio queue remained full after dropping the oldest chunk."
+            ) from exc
+
     def push_audio(self, chunk: bytes) -> None:
         self._accumulator.audio_duration_sec += pcm_duration_sec(
             chunk,
@@ -148,14 +168,14 @@ class GoogleStreamingSession:
             channels=self._channels,
             sample_width=self._sample_width_bytes,
         )
-        self._audio_queue.put(bytes(chunk))
+        self._enqueue_audio_item(bytes(chunk))
 
     def drain_partials(self) -> list[AsrResponse]:
         return self._accumulator.drain_partials()
 
     def stop(self) -> AsrResponse:
         self._accumulator.note_stop_requested()
-        self._audio_queue.put(None)
+        self._enqueue_audio_item(None)
         self._done.wait(timeout=20.0)
         self._thread.join(timeout=1.0)
         return self._accumulator.build_final_response()

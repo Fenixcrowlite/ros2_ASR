@@ -123,8 +123,15 @@ def resolve_runtime_sample_path(
     allowed_roots: Iterable[Path],
     label: str = "sample_path",
 ) -> Path:
-    relative = clean_name(value, label)
-    candidate = (project_root / relative).resolve()
+    raw = str(value or "").strip()
+    if not raw:
+        clean_name(raw, label)
+    candidate = Path(raw).expanduser()
+    if candidate.is_absolute():
+        candidate = candidate.resolve()
+    else:
+        relative = clean_name(raw, label)
+        candidate = (project_root / relative).resolve()
     resolved_roots = [root.resolve() for root in allowed_roots]
     if not any(candidate.is_relative_to(root) for root in resolved_roots):
         raise HTTPException(status_code=400, detail=f"Unsafe {label}: {value}")

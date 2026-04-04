@@ -34,6 +34,7 @@ from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabili
 from asr_core.streaming import StreamAccumulator
 
 LOGGER = logging.getLogger(__name__)
+STREAMING_AUDIO_QUEUE_MAXSIZE = 8
 
 
 def _aws_streaming_host(region: str) -> str:
@@ -83,7 +84,9 @@ class AwsStreamingSession:
         self._language_model_name = str(language_model_name or "").strip()
         self._enable_partial_results_stabilization = bool(enable_partial_results_stabilization)
         self._partial_results_stability = str(partial_results_stability or "medium")
-        self._audio_queue: queue.Queue[bytes | None] = queue.Queue()
+        self._audio_queue: queue.Queue[bytes | None] = queue.Queue(
+            maxsize=STREAMING_AUDIO_QUEUE_MAXSIZE
+        )
         self._done = threading.Event()
         self._accumulator = StreamAccumulator(
             provider="aws",
@@ -217,6 +220,22 @@ class AwsStreamingSession:
         finally:
             self._done.set()
 
+    def _enqueue_audio_item(self, chunk: bytes | None) -> None:
+        try:
+            self._audio_queue.put_nowait(chunk)
+            return
+        except queue.Full:
+            try:
+                self._audio_queue.get_nowait()
+            except queue.Empty:
+                pass
+        try:
+            self._audio_queue.put_nowait(chunk)
+        except queue.Full as exc:
+            raise RuntimeError(
+                "AWS streaming audio queue remained full after dropping the oldest chunk."
+            ) from exc
+
     def push_audio(self, chunk: bytes) -> None:
         self._accumulator.audio_duration_sec += pcm_duration_sec(
             chunk,
@@ -224,14 +243,14 @@ class AwsStreamingSession:
             channels=self._channels,
             sample_width=self._sample_width_bytes,
         )
-        self._audio_queue.put(bytes(chunk))
+        self._enqueue_audio_item(bytes(chunk))
 
     def drain_partials(self) -> list[AsrResponse]:
         return self._accumulator.drain_partials()
 
     def stop(self) -> AsrResponse:
         self._accumulator.note_stop_requested()
-        self._audio_queue.put(None)
+        self._enqueue_audio_item(None)
         self._done.wait(timeout=30.0)
         self._thread.join(timeout=1.0)
         return self._accumulator.build_final_response()

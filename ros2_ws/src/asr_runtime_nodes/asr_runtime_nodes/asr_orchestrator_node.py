@@ -447,7 +447,9 @@ class AsrOrchestratorNode(Node):
         requested_provider_preset = str(
             overrides.get("provider_preset", "") or provider_cfg.get("preset", "") or ""
         ).strip()
-        requested_provider_settings = dict(provider_cfg.get("settings", {}) or {})
+        requested_provider_settings = self._normalize_provider_settings(
+            provider_cfg.get("settings", {})
+        )
         requested_provider_settings.update(
             self._normalize_provider_settings(overrides.get("provider_settings", {}))
         )

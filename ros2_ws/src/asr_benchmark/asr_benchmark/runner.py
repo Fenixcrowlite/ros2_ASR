@@ -8,6 +8,7 @@ launch wrappers and flat exports. Canonical benchmarking now lives in
 from __future__ import annotations
 
 import argparse
+import logging
 import tempfile
 import uuid
 from pathlib import Path
@@ -24,6 +25,8 @@ from asr_metrics.plotting import generate_all_plots
 
 from asr_benchmark.dataset import DatasetItem, load_manifest_csv
 from asr_benchmark.noise import add_white_noise_snr
+
+LOG = logging.getLogger(__name__)
 
 
 def _scenario_wav(item: DatasetItem, scenario: str) -> tuple[str, list[str]]:
@@ -186,6 +189,7 @@ def run_benchmark(
 
 def main() -> None:
     """CLI wrapper for benchmark runner module."""
+    logging.basicConfig(level=logging.INFO, format="%(message)s")
     parser = argparse.ArgumentParser(description="Run ASR benchmark scenarios")
     parser.add_argument("--config", required=True)
     parser.add_argument("--dataset", required=True)
@@ -203,7 +207,7 @@ def main() -> None:
         backends=backends,
     )
     success = sum(1 for r in records if r.success)
-    print(f"Benchmark done: {success}/{len(records)} successful")
+    LOG.info("Benchmark done: %s/%s successful", success, len(records))
 
 
 if __name__ == "__main__":
