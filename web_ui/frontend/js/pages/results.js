@@ -142,7 +142,7 @@ export function initResultsPage(ctx) {
       };
     }
 
-    if (!row.reference_text) {
+    if (!row.reference_text || (!row.legacy_metrics && Number(row.metrics_semantics_version || 1) >= 2)) {
       return null;
     }
     return buildQualitySupport(row.reference_text, row.text || '');
@@ -223,12 +223,15 @@ export function initResultsPage(ctx) {
       'wer',
       'cer',
       'sample_accuracy',
-      'total_latency_ms',
-      'real_time_factor',
+      'provider_compute_latency_ms',
+      'end_to_end_latency_ms',
+      'provider_compute_rtf',
+      'end_to_end_rtf',
+      'time_to_first_result_ms',
+      'time_to_final_result_ms',
       'success_rate',
       'failure_rate',
       'estimated_cost_usd',
-      'first_partial_latency_ms',
       'finalization_latency_ms',
       'partial_count',
     ];
@@ -369,7 +372,8 @@ export function initResultsPage(ctx) {
               { label: 'Execution', value: row.execution_mode || 'batch' },
               { label: 'Streaming', value: row.streaming_mode || 'none' },
               { label: 'Audio Sec', value: metricText(row.audio_duration_sec) },
-              { label: 'Latency ms', value: metricText(row.metrics?.total_latency_ms ?? row.normalized_result?.latency?.total_ms) },
+              { label: 'Provider ms', value: metricText(row.metrics?.provider_compute_latency_ms ?? row.metrics?.total_latency_ms ?? row.normalized_result?.latency?.total_ms) },
+              { label: 'End-to-end ms', value: metricText(row.metrics?.end_to_end_latency_ms ?? row.metrics?.time_to_final_result_ms) },
               { label: 'Confidence', value: row.normalized_result?.confidence_available ? metricText(row.normalized_result?.confidence) : 'n/a' },
               { label: 'Language', value: row.normalized_result?.language || 'n/a' },
             ])}
@@ -391,7 +395,7 @@ export function initResultsPage(ctx) {
         {
           key: 'provider',
           label: 'Provider',
-          value: (row) => ui.escapeHtml(row.provider_profile || row.provider_id || row.provider_key || 'unknown'),
+          value: (row) => `${ui.escapeHtml(row.provider_profile || row.provider_id || row.provider_key || 'unknown')}${row.legacy_metrics ? ' <span class="badge badge-warning">Legacy semantics</span>' : ''}`,
         },
         {
           key: 'preset',
@@ -404,8 +408,8 @@ export function initResultsPage(ctx) {
         { key: 'wer', label: 'WER', value: (row) => fmtMetric(row.quality_metrics?.wer) },
         { key: 'cer', label: 'CER', value: (row) => fmtMetric(row.quality_metrics?.cer) },
         { key: 'acc', label: 'Exact Match Rate', value: (row) => fmtMetric(row.quality_metrics?.sample_accuracy) },
-        { key: 'lat', label: 'Latency ms', value: (row) => fmtMetric(row.latency_metrics?.total_latency_ms) },
-        { key: 'rtf', label: 'RTF', value: (row) => fmtMetric(row.latency_metrics?.real_time_factor) },
+        { key: 'lat', label: 'End-to-end ms', value: (row) => fmtMetric(row.latency_metrics?.end_to_end_latency_ms) },
+        { key: 'rtf', label: 'End-to-end RTF', value: (row) => fmtMetric(row.latency_metrics?.end_to_end_rtf) },
         { key: 'succ_rate', label: 'Success Rate', value: (row) => fmtMetric(row.reliability_metrics?.success_rate) },
         { key: 'fail_rate', label: 'Failure Rate', value: (row) => fmtMetric(row.reliability_metrics?.failure_rate) },
         { key: 'cost_mean', label: 'Mean Cost USD', value: (row) => fmtMetric(row.cost_metrics?.estimated_cost_usd) },
@@ -416,8 +420,8 @@ export function initResultsPage(ctx) {
         },
         {
           key: 'first_partial',
-          label: 'First Partial ms',
-          value: (row) => fmtMetric(row.streaming_metrics?.first_partial_latency_ms),
+          label: 'First Result ms',
+          value: (row) => fmtMetric(row.latency_metrics?.time_to_first_result_ms),
         },
         {
           key: 'finalization',
@@ -450,7 +454,7 @@ export function initResultsPage(ctx) {
         {
           key: 'provider',
           label: 'Provider',
-          value: (row) => ui.escapeHtml(row.provider_profile || row.provider_id || row.backend || 'unknown'),
+          value: (row) => `${ui.escapeHtml(row.provider_profile || row.provider_id || row.backend || 'unknown')}${row.legacy_metrics ? ' <span class="badge badge-warning">Legacy semantics</span>' : ''}`,
         },
         {
           key: 'preset',
@@ -475,8 +479,8 @@ export function initResultsPage(ctx) {
         },
         { key: 'wer', label: 'WER', value: (row) => fmtMetric(row.metrics?.wer) },
         { key: 'cer', label: 'CER', value: (row) => fmtMetric(row.metrics?.cer) },
-        { key: 'latency', label: 'Latency ms', value: (row) => fmtMetric(row.metrics?.total_latency_ms) },
-        { key: 'rtf', label: 'RTF', value: (row) => fmtMetric(row.metrics?.real_time_factor) },
+        { key: 'latency', label: 'End-to-end ms', value: (row) => fmtMetric(row.metrics?.end_to_end_latency_ms ?? row.metrics?.time_to_final_result_ms) },
+        { key: 'rtf', label: 'End-to-end RTF', value: (row) => fmtMetric(row.metrics?.end_to_end_rtf) },
         { key: 'cost', label: 'Cost USD', value: (row) => fmtMetric(row.metrics?.estimated_cost_usd) },
         { key: 'error', label: 'Error', value: (row) => ui.escapeHtml(row.error_code || '') },
         {
@@ -549,6 +553,8 @@ export function initResultsPage(ctx) {
           <p>scenario: ${ui.escapeHtml(runManifest.scenario || summary.scenario || '')}</p>
           <p>execution_mode: ${ui.escapeHtml(summary.execution_mode || runManifest.execution_mode || 'batch')}</p>
           <p>providers: ${ui.escapeHtml((runManifest.providers || []).join(', '))}</p>
+          <p>metrics_semantics: ${ui.escapeHtml(String(summary.metrics_semantics_version || 1))}${summary.legacy_metrics ? ' · Legacy semantics' : ''}</p>
+          ${summary.warning_samples ? `<p>warning_samples: ${ui.escapeHtml(String(summary.warning_samples))}</p>` : ''}
         </div>
         <div class="stack-item">
           <strong>Per-provider metrics</strong>
@@ -584,7 +590,11 @@ export function initResultsPage(ctx) {
     }
     const subjectIndex = Object.fromEntries((payload.subjects || []).map((item) => [item.entity_id, item]));
 
-    compareRoot.innerHTML = ui.table(
+    const comparisonWarning = payload.comparison_warning
+      ? `<div class="panel"><p class="helper">${ui.escapeHtml(payload.comparison_warning)}</p></div>`
+      : '';
+
+    compareRoot.innerHTML = comparisonWarning + ui.table(
       [
         { key: 'metric', label: 'Metric', value: (row) => ui.escapeHtml(row.metric) },
         { key: 'pref', label: 'Preference', value: (row) => ui.escapeHtml(row.preference) },
@@ -606,6 +616,9 @@ export function initResultsPage(ctx) {
           key: 'best',
           label: 'Best Provider',
           value: (row) => {
+            if (!row.best_run) {
+              return '<span class="muted">n/a</span>';
+            }
             const subject = subjectIndex[row.best_run] || {};
             const label = subject.provider_profile
               ? `${subject.run_id} :: ${subject.provider_profile}${subject.provider_preset ? ` [${subject.provider_preset}]` : ''}`

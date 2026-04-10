@@ -581,6 +581,7 @@ def test_azure_env_save_updates_secret_validation_and_local_env(
     payload = save.json()
     assert payload["validation"]["valid"] is True
     assert payload["validation"]["auth"]["runtime_ready"] is True
+    assert payload["validation"]["auth"]["status"] == "ready"
     assert payload["validation"]["auth"]["region"] == "eastus"
     assert payload["validation"]["auth"]["speech_key_source"] == "local_env_file"
 
@@ -634,6 +635,7 @@ def test_google_service_account_upload_and_clear(
     payload = upload.json()
     assert payload["validation"]["valid"] is True
     assert payload["validation"]["auth"]["runtime_ready"] is True
+    assert payload["validation"]["auth"]["status"] == "ready"
     assert payload["validation"]["auth"]["project_id"] == "demo-project"
 
     stored = project_root / "secrets" / "google" / "service-account.json"
@@ -649,6 +651,46 @@ def test_google_service_account_upload_and_clear(
     assert cleared.status_code == 200
     assert cleared.json()["validation"]["valid"] is False
     assert stored.exists() is False
+
+
+def test_google_invalid_service_account_file_marks_secret_invalid_and_dashboard_unready(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, _fake_ros, client, project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    credential_path = project_root / "secrets" / "google" / "service-account.json"
+    credential_path.write_text(
+        json.dumps(
+            {
+                "type": "service_account",
+                "project_id": "demo-project",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    status = client.get("/api/secrets/google_service_account")
+    assert status.status_code == 200
+    assert status.json()["validation"]["valid"] is False
+    assert status.json()["auth"]["runtime_ready"] is False
+    assert status.json()["auth"]["status"] == "invalid_service_account_json"
+
+    refs = client.get("/api/secrets/refs")
+    assert refs.status_code == 200
+    google = next(item for item in refs.json()["refs"] if item["name"] == "google_service_account")
+    assert google["validation"]["valid"] is False
+    assert google["validation"]["auth"]["status"] == "invalid_service_account_json"
+    assert any(
+        "complete service-account JSON" in issue for issue in google["validation"]["issues"]
+    )
+
+    dashboard = client.get("/api/dashboard")
+    assert dashboard.status_code == 200
+    google_row = next(
+        item for item in dashboard.json()["cloud_credentials"] if item["provider"] == "google"
+    )
+    assert google_row["runtime_ready"] is False
+    assert google_row["state"] == "invalid_service_account_json"
 
 
 def test_secret_ref_upsert_rejects_unsafe_path(
@@ -730,6 +772,92 @@ def test_secrets_refs_expose_structured_aws_auth_state(
     assert aws["validation"]["auth"]["role_credentials_valid"] is True
     assert aws["validation"]["auth"]["sso_session_valid"] is False
     assert aws["validation"]["auth"]["login_supported"] is True
+
+
+def test_secrets_refs_keep_aws_ref_valid_when_sso_can_mint_role_credentials(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    class _FakeAwsBackend:
+        def auth_status(self):
+            return {
+                "profile": "ros2ws",
+                "region": "eu-north-1",
+                "uses_sso": True,
+                "runtime_ready": True,
+                "login_supported": True,
+                "login_recommended": False,
+                "status": "sso_session_valid_no_role_credentials",
+                "message": (
+                    "IAM Identity Center sign-in session is valid. "
+                    "Active role credentials are not cached yet, "
+                    "but the AWS SDK can mint them on the first real request."
+                ),
+                "sso_session_expires_at": "2026-03-16T20:00:00Z",
+                "sso_session_valid": True,
+                "role_credentials_expires_at": "",
+                "role_credentials_valid": False,
+                "login_command": "aws sso login --profile ros2ws",
+            }
+
+        def auth_validation_errors(self):
+            return []
+
+    monkeypatch.setattr(gateway_api, "_aws_backend_from_current_env", lambda: _FakeAwsBackend())
+
+    response = client.get("/api/secrets/refs")
+
+    assert response.status_code == 200
+    refs = response.json()["refs"]
+    aws = next(item for item in refs if item["name"] == "aws_profile")
+    assert aws["validation"]["valid"] is True
+    assert aws["validation"]["auth"]["status"] == "sso_session_valid_no_role_credentials"
+    assert aws["validation"]["auth"]["runtime_ready"] is True
+    assert aws["validation"]["auth"]["role_credentials_valid"] is False
+    assert aws["validation"]["auth"]["sso_session_valid"] is True
+
+
+def test_secrets_refs_keep_non_sso_aws_profile_runtime_ready(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    class _FakeAwsBackend:
+        def auth_status(self):
+            return {
+                "profile": "ros2ws",
+                "region": "eu-north-1",
+                "uses_sso": False,
+                "runtime_ready": True,
+                "login_supported": False,
+                "login_recommended": False,
+                "status": "profile_configured",
+                "message": (
+                    "AWS profile is configured and does not use SSO. "
+                    "The AWS SDK will resolve credentials on the first real request."
+                ),
+                "sso_session_expires_at": "",
+                "sso_session_valid": False,
+                "role_credentials_expires_at": "",
+                "role_credentials_valid": False,
+                "login_command": "",
+            }
+
+        def auth_validation_errors(self):
+            return []
+
+    monkeypatch.setattr(gateway_api, "_aws_backend_from_current_env", lambda: _FakeAwsBackend())
+
+    response = client.get("/api/secrets/refs")
+
+    assert response.status_code == 200
+    refs = response.json()["refs"]
+    aws = next(item for item in refs if item["name"] == "aws_profile")
+    assert aws["validation"]["valid"] is True
+    assert aws["validation"]["auth"]["status"] == "profile_configured"
+    assert aws["validation"]["auth"]["runtime_ready"] is True
+    assert aws["validation"]["auth"]["uses_sso"] is False
 
 
 def test_secrets_aws_sso_login_endpoints(repo_root: Path, tmp_path: Path, monkeypatch) -> None:

@@ -9,11 +9,15 @@
   "scenario": "clean_baseline",
   "execution_mode": "batch",
   "aggregate_scope": "provider_only",
+  "metrics_semantics_version": 2,
+  "legacy_metrics": false,
+  "mixed_semantics": false,
   "samples": 2,
   "total_samples": 2,
   "successful_samples": 2,
   "failed_samples": 0,
   "aggregate_samples": 2,
+  "warning_samples": 2,
   "mean_metrics": {},
   "metric_counts": {},
   "metric_statistics": {},
@@ -27,6 +31,7 @@
   "cost_totals": {},
   "streaming_metrics": {},
   "resource_metrics": {},
+  "diagnostic_metrics": {},
   "provider_summaries": [
     {
       "provider_key": "providers/provider_a",
@@ -34,50 +39,73 @@
       "provider_id": "fake_provider_a",
       "provider_preset": "",
       "provider_label": "",
+      "metrics_semantics_version": 2,
+      "legacy_metrics": false,
+      "mixed_semantics": false,
       "samples": 1,
       "total_samples": 1,
       "successful_samples": 1,
       "failed_samples": 0,
       "aggregate_samples": 1,
+      "warning_samples": 1,
       "mean_metrics": {
+        "audio_duration_sec": 8.308,
         "cer": 0.0,
         "confidence": 0.92,
-        "cpu_percent": 4.9,
-        "gpu_memory_mb": 0.0,
-        "gpu_util_percent": 0.0,
+        "duration_mismatch_sec": 0.0,
+        "end_to_end_latency_ms": 15.0,
+        "end_to_end_rtf": 0.0018054886856042369,
+        "estimated_cost_usd": 0.0,
         "inference_ms": 0.0,
-        "memory_mb": 153.6796875,
-        "model_load_ms": 1.064567,
+        "measured_audio_duration_sec": 8.308,
+        "per_utterance_latency_ms": 15.0,
         "postprocess_ms": 0.0,
         "preprocess_ms": 0.0,
-        "provider_call_cold_start": 1.0,
-        "provider_call_warm_start": 0.0,
-        "provider_init_cold_start": 1.0,
-        "provider_init_warm_start": 0.0,
-        "provider_invocation_index": 1.0,
+        "provider_compute_latency_ms": 15.0,
+        "provider_compute_rtf": 0.0018054886856042369,
+        "real_time_factor": 0.0018054886856042369,
         "sample_accuracy": 1.0,
+        "time_to_final_result_ms": 15.0,
+        "time_to_first_result_ms": 15.0,
+        "time_to_result_ms": 15.0,
+        "total_latency_ms": 15.0,
         "wer": 0.0
       },
       "metric_counts": {
+        "audio_duration_sec": 1,
         "cer": 1,
         "confidence": 1,
-        "cpu_percent": 1,
-        "gpu_memory_mb": 1,
-        "gpu_util_percent": 1,
+        "duration_mismatch_sec": 1,
+        "end_to_end_latency_ms": 1,
+        "end_to_end_rtf": 1,
+        "estimated_cost_usd": 1,
         "inference_ms": 1,
-        "memory_mb": 1,
-        "model_load_ms": 1,
+        "measured_audio_duration_sec": 1,
+        "per_utterance_latency_ms": 1,
         "postprocess_ms": 1,
         "preprocess_ms": 1,
-        "provider_call_cold_start": 1,
-        "provider_call_warm_start": 1,
-        "provider_init_cold_start": 1,
-        "provider_init_warm_start": 1,
-        "provider_invocation_index": 1,
+        "provider_compute_latency_ms": 1,
+        "provider_compute_rtf": 1,
+        "real_time_factor": 1,
         "sample_accuracy": 1,
+        "time_to_final_result_ms": 1,
+        "time_to_first_result_ms": 1,
+        "time_to_result_ms": 1,
+        "total_latency_ms": 1,
         "wer": 1
       },
       "metric_statistics": {
+        "audio_duration_sec": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 8.308,
+          "mean": 8.308,
+          "min": 8.308,
+          "max": 8.308,
+          "p50": 8.308,
+          "p95": 8.308,
+          "value": 8.308
+        },
         "cer": {
           "count": 1,
           "aggregator": "corpus_rate",
@@ -93,19 +121,10 @@
           "min": 0.92,
           "max": 0.92,
           "p50": 0.92,
-          "p95": 0.92
+          "p95": 0.92,
+          "value": 0.92
         },
-        "cpu_percent": {
-          "count": 1,
-          "aggregator": "mean",
-          "sum": 4.9,
-          "mean": 4.9,
-          "min": 4.9,
-          "max": 4.9,
-          "p50": 4.9,
-          "p95": 4.9
-        },
-        "gpu_memory_mb": {
+        "duration_mismatch_sec": {
           "count": 1,
           "aggregator": "mean",
           "sum": 0.0,
@@ -113,9 +132,32 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "gpu_util_percent": {
+        "end_to_end_latency_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "end_to_end_rtf": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 0.0018054886856042369,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
+        },
+        "estimated_cost_usd": {
           "count": 1,
           "aggregator": "mean",
           "sum": 0.0,
@@ -123,7 +165,8 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
         "inference_ms": {
           "count": 1,
@@ -133,27 +176,30 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "memory_mb": {
+        "measured_audio_duration_sec": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 153.6796875,
-          "mean": 153.6796875,
-          "min": 153.6796875,
-          "max": 153.6796875,
-          "p50": 153.6796875,
-          "p95": 153.6796875
+          "sum": 8.308,
+          "mean": 8.308,
+          "min": 8.308,
+          "max": 8.308,
+          "p50": 8.308,
+          "p95": 8.308,
+          "value": 8.308
         },
-        "model_load_ms": {
+        "per_utterance_latency_ms": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 1.064567,
-          "mean": 1.064567,
-          "min": 1.064567,
-          "max": 1.064567,
-          "p50": 1.064567,
-          "p95": 1.064567
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
         "postprocess_ms": {
           "count": 1,
@@ -163,7 +209,8 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
         "preprocess_ms": {
           "count": 1,
@@ -173,57 +220,41 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "provider_call_cold_start": {
+        "provider_compute_latency_ms": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 1.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
-        "provider_call_warm_start": {
+        "provider_compute_rtf": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 0.0,
-          "mean": 0.0,
-          "min": 0.0,
-          "max": 0.0,
-          "p50": 0.0,
-          "p95": 0.0
+          "sum": 0.0018054886856042369,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
         },
-        "provider_init_cold_start": {
+        "real_time_factor": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 1.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
-        },
-        "provider_init_warm_start": {
-          "count": 1,
-          "aggregator": "mean",
-          "sum": 0.0,
-          "mean": 0.0,
-          "min": 0.0,
-          "max": 0.0,
-          "p50": 0.0,
-          "p95": 0.0
-        },
-        "provider_invocation_index": {
-          "count": 1,
-          "aggregator": "mean",
-          "sum": 1.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
+          "sum": 0.0018054886856042369,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
         },
         "sample_accuracy": {
           "count": 1,
@@ -231,6 +262,50 @@
           "numerator": 1,
           "denominator": 1,
           "value": 1.0
+        },
+        "time_to_final_result_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "time_to_first_result_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "time_to_result_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "total_latency_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
         "wer": {
           "count": 1,
@@ -241,6 +316,22 @@
         }
       },
       "metric_metadata": {
+        "audio_duration_sec": {
+          "name": "audio_duration_sec",
+          "display_name": "Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Effective audio duration used for normalization; canonical flows prefer measured duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
         "cer": {
           "name": "cer",
           "display_name": "CER",
@@ -252,7 +343,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "confidence": {
           "name": "confidence",
@@ -265,46 +359,186 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "cpu_percent": {
-          "name": "cpu_percent",
-          "display_name": "CPU Usage",
+        "cpu_percent_mean": {
+          "name": "cpu_percent_mean",
+          "display_name": "CPU Usage Mean",
           "unit": "percent",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "Host CPU utilization sampled during the run.",
+          "description": "Mean host CPU utilization sampled during the request lifetime.",
+          "summary_aggregator": "duration_weighted_mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "cpu_percent_peak": {
+          "name": "cpu_percent_peak",
+          "display_name": "CPU Usage Peak",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak host CPU utilization sampled during the request lifetime.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "declared_audio_duration_sec": {
+          "name": "declared_audio_duration_sec",
+          "display_name": "Declared Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Reference duration declared by the dataset manifest or caller metadata.",
           "summary_aggregator": "mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "gpu_memory_mb": {
-          "name": "gpu_memory_mb",
-          "display_name": "GPU Memory",
+        "duration_mismatch_sec": {
+          "name": "duration_mismatch_sec",
+          "display_name": "Duration Mismatch",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "lower",
+          "description": "Absolute mismatch between measured and declared audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "end_to_end_latency_ms": {
+          "name": "end_to_end_latency_ms",
+          "display_name": "End-To-End Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Outer wall-clock latency from request/segment/stream start to final result availability.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "end_to_end_rtf": {
+          "name": "end_to_end_rtf",
+          "display_name": "End-To-End RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock end-to-end latency divided by measured audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "estimated_cost_usd": {
+          "name": "estimated_cost_usd",
+          "display_name": "Estimated Cost",
+          "unit": "usd",
+          "category": "cost",
+          "preferred_direction": "lower",
+          "description": "Estimated provider cost for the sample using the selected preset pricing metadata.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_memory_mb_mean": {
+          "name": "gpu_memory_mb_mean",
+          "display_name": "GPU Memory Mean",
           "unit": "mb",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "NVIDIA GPU memory sampled during the run when available.",
-          "summary_aggregator": "mean",
+          "description": "Mean NVIDIA GPU memory sampled during the request lifetime when available.",
+          "summary_aggregator": "duration_weighted_mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "gpu_util_percent": {
-          "name": "gpu_util_percent",
-          "display_name": "GPU Usage",
+        "gpu_memory_mb_peak": {
+          "name": "gpu_memory_mb_peak",
+          "display_name": "GPU Memory Peak",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak NVIDIA GPU memory sampled during the request lifetime when available.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_util_percent_mean": {
+          "name": "gpu_util_percent_mean",
+          "display_name": "GPU Usage Mean",
           "unit": "percent",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "NVIDIA GPU utilization sampled during the run when available.",
-          "summary_aggregator": "mean",
+          "description": "Mean NVIDIA GPU utilization sampled during the request lifetime when available.",
+          "summary_aggregator": "duration_weighted_mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_util_percent_peak": {
+          "name": "gpu_util_percent_peak",
+          "display_name": "GPU Usage Peak",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak NVIDIA GPU utilization sampled during the request lifetime when available.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "inference_ms": {
           "name": "inference_ms",
@@ -317,20 +551,74 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "memory_mb": {
-          "name": "memory_mb",
-          "display_name": "Memory",
-          "unit": "mb",
-          "category": "resource",
-          "preferred_direction": "lower",
-          "description": "Resident memory sampled during the run.",
+        "measured_audio_duration_sec": {
+          "name": "measured_audio_duration_sec",
+          "display_name": "Measured Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Audio duration measured from the processed file or bytes and used for canonical normalization.",
           "summary_aggregator": "mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "memory_mb_mean": {
+          "name": "memory_mb_mean",
+          "display_name": "Memory Mean",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Mean resident memory sampled during the request lifetime.",
+          "summary_aggregator": "duration_weighted_mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "memory_mb_peak": {
+          "name": "memory_mb_peak",
+          "display_name": "Memory Peak",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak resident memory sampled during the request lifetime.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "per_utterance_latency_ms": {
+          "name": "per_utterance_latency_ms",
+          "display_name": "Per-Utterance Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_latency_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_latency_ms"
         },
         "postprocess_ms": {
           "name": "postprocess_ms",
@@ -343,7 +631,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "preprocess_ms": {
           "name": "preprocess_ms",
@@ -356,7 +647,58 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "provider_compute_latency_ms": {
+          "name": "provider_compute_latency_ms",
+          "display_name": "Provider Compute Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider-reported compute latency from normalized ASR result timings.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "provider_compute_rtf": {
+          "name": "provider_compute_rtf",
+          "display_name": "Provider Compute RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider compute latency divided by measured audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "real_time_factor": {
+          "name": "real_time_factor",
+          "display_name": "RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_rtf.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_rtf"
         },
         "sample_accuracy": {
           "name": "sample_accuracy",
@@ -369,7 +711,74 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_final_result_ms": {
+          "name": "time_to_final_result_ms",
+          "display_name": "Time To Final Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock latency from request/stream start to the final result.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_first_result_ms": {
+          "name": "time_to_first_result_ms",
+          "display_name": "Time To First Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock latency from request/stream start to the first visible partial or final result.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_result_ms": {
+          "name": "time_to_result_ms",
+          "display_name": "Time To Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of time_to_final_result_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "time_to_final_result_ms"
+        },
+        "total_latency_ms": {
+          "name": "total_latency_ms",
+          "display_name": "Total Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_latency_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_latency_ms"
         },
         "wer": {
           "name": "wer",
@@ -382,7 +791,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         }
       },
       "aggregate_excludes_corrupted": true,
@@ -394,27 +806,33 @@
         "wer": 0.0
       },
       "latency_metrics": {
+        "end_to_end_latency_ms": 15.0,
+        "end_to_end_rtf": 0.0018054886856042369,
         "inference_ms": 0.0,
+        "per_utterance_latency_ms": 15.0,
         "postprocess_ms": 0.0,
-        "preprocess_ms": 0.0
+        "preprocess_ms": 0.0,
+        "provider_compute_latency_ms": 15.0,
+        "provider_compute_rtf": 0.0018054886856042369,
+        "real_time_factor": 0.0018054886856042369,
+        "time_to_final_result_ms": 15.0,
+        "time_to_first_result_ms": 15.0,
+        "time_to_result_ms": 15.0,
+        "total_latency_ms": 15.0
       },
       "reliability_metrics": {},
-      "cost_metrics": {},
-      "cost_totals": {},
-      "streaming_metrics": {},
-      "resource_metrics": {
-        "cpu_percent": 4.9,
-        "gpu_memory_mb": 0.0,
-        "gpu_util_percent": 0.0,
-        "memory_mb": 153.6796875
+      "cost_metrics": {
+        "estimated_cost_usd": 0.0
       },
-      "other_metrics": {
-        "model_load_ms": 1.064567,
-        "provider_call_cold_start": 1.0,
-        "provider_call_warm_start": 0.0,
-        "provider_init_cold_start": 1.0,
-        "provider_init_warm_start": 0.0,
-        "provider_invocation_index": 1.0
+      "cost_totals": {
+        "estimated_cost_usd": 0.0
+      },
+      "streaming_metrics": {},
+      "resource_metrics": {},
+      "diagnostic_metrics": {
+        "audio_duration_sec": 8.308,
+        "duration_mismatch_sec": 0.0,
+        "measured_audio_duration_sec": 8.308
       }
     },
     {
@@ -423,50 +841,73 @@
       "provider_id": "fake_provider_b",
       "provider_preset": "",
       "provider_label": "",
+      "metrics_semantics_version": 2,
+      "legacy_metrics": false,
+      "mixed_semantics": false,
       "samples": 1,
       "total_samples": 1,
       "successful_samples": 1,
       "failed_samples": 0,
       "aggregate_samples": 1,
+      "warning_samples": 1,
       "mean_metrics": {
+        "audio_duration_sec": 8.308,
         "cer": 0.0,
         "confidence": 0.92,
-        "cpu_percent": 2.5,
-        "gpu_memory_mb": 0.0,
-        "gpu_util_percent": 0.0,
+        "duration_mismatch_sec": 0.0,
+        "end_to_end_latency_ms": 15.0,
+        "end_to_end_rtf": 0.0018054886856042369,
+        "estimated_cost_usd": 0.0,
         "inference_ms": 0.0,
-        "memory_mb": 153.6796875,
-        "model_load_ms": 0.919925,
+        "measured_audio_duration_sec": 8.308,
+        "per_utterance_latency_ms": 15.0,
         "postprocess_ms": 0.0,
         "preprocess_ms": 0.0,
-        "provider_call_cold_start": 1.0,
-        "provider_call_warm_start": 0.0,
-        "provider_init_cold_start": 1.0,
-        "provider_init_warm_start": 0.0,
-        "provider_invocation_index": 1.0,
+        "provider_compute_latency_ms": 15.0,
+        "provider_compute_rtf": 0.0018054886856042369,
+        "real_time_factor": 0.0018054886856042369,
         "sample_accuracy": 1.0,
+        "time_to_final_result_ms": 15.0,
+        "time_to_first_result_ms": 15.0,
+        "time_to_result_ms": 15.0,
+        "total_latency_ms": 15.0,
         "wer": 0.0
       },
       "metric_counts": {
+        "audio_duration_sec": 1,
         "cer": 1,
         "confidence": 1,
-        "cpu_percent": 1,
-        "gpu_memory_mb": 1,
-        "gpu_util_percent": 1,
+        "duration_mismatch_sec": 1,
+        "end_to_end_latency_ms": 1,
+        "end_to_end_rtf": 1,
+        "estimated_cost_usd": 1,
         "inference_ms": 1,
-        "memory_mb": 1,
-        "model_load_ms": 1,
+        "measured_audio_duration_sec": 1,
+        "per_utterance_latency_ms": 1,
         "postprocess_ms": 1,
         "preprocess_ms": 1,
-        "provider_call_cold_start": 1,
-        "provider_call_warm_start": 1,
-        "provider_init_cold_start": 1,
-        "provider_init_warm_start": 1,
-        "provider_invocation_index": 1,
+        "provider_compute_latency_ms": 1,
+        "provider_compute_rtf": 1,
+        "real_time_factor": 1,
         "sample_accuracy": 1,
+        "time_to_final_result_ms": 1,
+        "time_to_first_result_ms": 1,
+        "time_to_result_ms": 1,
+        "total_latency_ms": 1,
         "wer": 1
       },
       "metric_statistics": {
+        "audio_duration_sec": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 8.308,
+          "mean": 8.308,
+          "min": 8.308,
+          "max": 8.308,
+          "p50": 8.308,
+          "p95": 8.308,
+          "value": 8.308
+        },
         "cer": {
           "count": 1,
           "aggregator": "corpus_rate",
@@ -482,19 +923,10 @@
           "min": 0.92,
           "max": 0.92,
           "p50": 0.92,
-          "p95": 0.92
+          "p95": 0.92,
+          "value": 0.92
         },
-        "cpu_percent": {
-          "count": 1,
-          "aggregator": "mean",
-          "sum": 2.5,
-          "mean": 2.5,
-          "min": 2.5,
-          "max": 2.5,
-          "p50": 2.5,
-          "p95": 2.5
-        },
-        "gpu_memory_mb": {
+        "duration_mismatch_sec": {
           "count": 1,
           "aggregator": "mean",
           "sum": 0.0,
@@ -502,9 +934,32 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "gpu_util_percent": {
+        "end_to_end_latency_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "end_to_end_rtf": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 0.0018054886856042369,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
+        },
+        "estimated_cost_usd": {
           "count": 1,
           "aggregator": "mean",
           "sum": 0.0,
@@ -512,7 +967,8 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
         "inference_ms": {
           "count": 1,
@@ -522,27 +978,30 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "memory_mb": {
+        "measured_audio_duration_sec": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 153.6796875,
-          "mean": 153.6796875,
-          "min": 153.6796875,
-          "max": 153.6796875,
-          "p50": 153.6796875,
-          "p95": 153.6796875
+          "sum": 8.308,
+          "mean": 8.308,
+          "min": 8.308,
+          "max": 8.308,
+          "p50": 8.308,
+          "p95": 8.308,
+          "value": 8.308
         },
-        "model_load_ms": {
+        "per_utterance_latency_ms": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 0.919925,
-          "mean": 0.919925,
-          "min": 0.919925,
-          "max": 0.919925,
-          "p50": 0.919925,
-          "p95": 0.919925
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
         "postprocess_ms": {
           "count": 1,
@@ -552,7 +1011,8 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
         "preprocess_ms": {
           "count": 1,
@@ -562,57 +1022,41 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "provider_call_cold_start": {
+        "provider_compute_latency_ms": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 1.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
-        "provider_call_warm_start": {
+        "provider_compute_rtf": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 0.0,
-          "mean": 0.0,
-          "min": 0.0,
-          "max": 0.0,
-          "p50": 0.0,
-          "p95": 0.0
+          "sum": 0.0018054886856042369,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
         },
-        "provider_init_cold_start": {
+        "real_time_factor": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 1.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
-        },
-        "provider_init_warm_start": {
-          "count": 1,
-          "aggregator": "mean",
-          "sum": 0.0,
-          "mean": 0.0,
-          "min": 0.0,
-          "max": 0.0,
-          "p50": 0.0,
-          "p95": 0.0
-        },
-        "provider_invocation_index": {
-          "count": 1,
-          "aggregator": "mean",
-          "sum": 1.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
+          "sum": 0.0018054886856042369,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
         },
         "sample_accuracy": {
           "count": 1,
@@ -620,6 +1064,50 @@
           "numerator": 1,
           "denominator": 1,
           "value": 1.0
+        },
+        "time_to_final_result_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "time_to_first_result_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "time_to_result_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "total_latency_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
         "wer": {
           "count": 1,
@@ -630,6 +1118,22 @@
         }
       },
       "metric_metadata": {
+        "audio_duration_sec": {
+          "name": "audio_duration_sec",
+          "display_name": "Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Effective audio duration used for normalization; canonical flows prefer measured duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
         "cer": {
           "name": "cer",
           "display_name": "CER",
@@ -641,7 +1145,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "confidence": {
           "name": "confidence",
@@ -654,46 +1161,186 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "cpu_percent": {
-          "name": "cpu_percent",
-          "display_name": "CPU Usage",
+        "cpu_percent_mean": {
+          "name": "cpu_percent_mean",
+          "display_name": "CPU Usage Mean",
           "unit": "percent",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "Host CPU utilization sampled during the run.",
+          "description": "Mean host CPU utilization sampled during the request lifetime.",
+          "summary_aggregator": "duration_weighted_mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "cpu_percent_peak": {
+          "name": "cpu_percent_peak",
+          "display_name": "CPU Usage Peak",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak host CPU utilization sampled during the request lifetime.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "declared_audio_duration_sec": {
+          "name": "declared_audio_duration_sec",
+          "display_name": "Declared Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Reference duration declared by the dataset manifest or caller metadata.",
           "summary_aggregator": "mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "gpu_memory_mb": {
-          "name": "gpu_memory_mb",
-          "display_name": "GPU Memory",
+        "duration_mismatch_sec": {
+          "name": "duration_mismatch_sec",
+          "display_name": "Duration Mismatch",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "lower",
+          "description": "Absolute mismatch between measured and declared audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "end_to_end_latency_ms": {
+          "name": "end_to_end_latency_ms",
+          "display_name": "End-To-End Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Outer wall-clock latency from request/segment/stream start to final result availability.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "end_to_end_rtf": {
+          "name": "end_to_end_rtf",
+          "display_name": "End-To-End RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock end-to-end latency divided by measured audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "estimated_cost_usd": {
+          "name": "estimated_cost_usd",
+          "display_name": "Estimated Cost",
+          "unit": "usd",
+          "category": "cost",
+          "preferred_direction": "lower",
+          "description": "Estimated provider cost for the sample using the selected preset pricing metadata.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_memory_mb_mean": {
+          "name": "gpu_memory_mb_mean",
+          "display_name": "GPU Memory Mean",
           "unit": "mb",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "NVIDIA GPU memory sampled during the run when available.",
-          "summary_aggregator": "mean",
+          "description": "Mean NVIDIA GPU memory sampled during the request lifetime when available.",
+          "summary_aggregator": "duration_weighted_mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "gpu_util_percent": {
-          "name": "gpu_util_percent",
-          "display_name": "GPU Usage",
+        "gpu_memory_mb_peak": {
+          "name": "gpu_memory_mb_peak",
+          "display_name": "GPU Memory Peak",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak NVIDIA GPU memory sampled during the request lifetime when available.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_util_percent_mean": {
+          "name": "gpu_util_percent_mean",
+          "display_name": "GPU Usage Mean",
           "unit": "percent",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "NVIDIA GPU utilization sampled during the run when available.",
-          "summary_aggregator": "mean",
+          "description": "Mean NVIDIA GPU utilization sampled during the request lifetime when available.",
+          "summary_aggregator": "duration_weighted_mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_util_percent_peak": {
+          "name": "gpu_util_percent_peak",
+          "display_name": "GPU Usage Peak",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak NVIDIA GPU utilization sampled during the request lifetime when available.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "inference_ms": {
           "name": "inference_ms",
@@ -706,20 +1353,74 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "memory_mb": {
-          "name": "memory_mb",
-          "display_name": "Memory",
-          "unit": "mb",
-          "category": "resource",
-          "preferred_direction": "lower",
-          "description": "Resident memory sampled during the run.",
+        "measured_audio_duration_sec": {
+          "name": "measured_audio_duration_sec",
+          "display_name": "Measured Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Audio duration measured from the processed file or bytes and used for canonical normalization.",
           "summary_aggregator": "mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "memory_mb_mean": {
+          "name": "memory_mb_mean",
+          "display_name": "Memory Mean",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Mean resident memory sampled during the request lifetime.",
+          "summary_aggregator": "duration_weighted_mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "memory_mb_peak": {
+          "name": "memory_mb_peak",
+          "display_name": "Memory Peak",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak resident memory sampled during the request lifetime.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "per_utterance_latency_ms": {
+          "name": "per_utterance_latency_ms",
+          "display_name": "Per-Utterance Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_latency_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_latency_ms"
         },
         "postprocess_ms": {
           "name": "postprocess_ms",
@@ -732,7 +1433,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "preprocess_ms": {
           "name": "preprocess_ms",
@@ -745,7 +1449,58 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "provider_compute_latency_ms": {
+          "name": "provider_compute_latency_ms",
+          "display_name": "Provider Compute Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider-reported compute latency from normalized ASR result timings.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "provider_compute_rtf": {
+          "name": "provider_compute_rtf",
+          "display_name": "Provider Compute RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider compute latency divided by measured audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "real_time_factor": {
+          "name": "real_time_factor",
+          "display_name": "RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_rtf.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_rtf"
         },
         "sample_accuracy": {
           "name": "sample_accuracy",
@@ -758,7 +1513,74 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_final_result_ms": {
+          "name": "time_to_final_result_ms",
+          "display_name": "Time To Final Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock latency from request/stream start to the final result.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_first_result_ms": {
+          "name": "time_to_first_result_ms",
+          "display_name": "Time To First Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock latency from request/stream start to the first visible partial or final result.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_result_ms": {
+          "name": "time_to_result_ms",
+          "display_name": "Time To Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of time_to_final_result_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "time_to_final_result_ms"
+        },
+        "total_latency_ms": {
+          "name": "total_latency_ms",
+          "display_name": "Total Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_latency_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_latency_ms"
         },
         "wer": {
           "name": "wer",
@@ -771,7 +1593,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         }
       },
       "aggregate_excludes_corrupted": true,
@@ -783,27 +1608,33 @@
         "wer": 0.0
       },
       "latency_metrics": {
+        "end_to_end_latency_ms": 15.0,
+        "end_to_end_rtf": 0.0018054886856042369,
         "inference_ms": 0.0,
+        "per_utterance_latency_ms": 15.0,
         "postprocess_ms": 0.0,
-        "preprocess_ms": 0.0
+        "preprocess_ms": 0.0,
+        "provider_compute_latency_ms": 15.0,
+        "provider_compute_rtf": 0.0018054886856042369,
+        "real_time_factor": 0.0018054886856042369,
+        "time_to_final_result_ms": 15.0,
+        "time_to_first_result_ms": 15.0,
+        "time_to_result_ms": 15.0,
+        "total_latency_ms": 15.0
       },
       "reliability_metrics": {},
-      "cost_metrics": {},
-      "cost_totals": {},
-      "streaming_metrics": {},
-      "resource_metrics": {
-        "cpu_percent": 2.5,
-        "gpu_memory_mb": 0.0,
-        "gpu_util_percent": 0.0,
-        "memory_mb": 153.6796875
+      "cost_metrics": {
+        "estimated_cost_usd": 0.0
       },
-      "other_metrics": {
-        "model_load_ms": 0.919925,
-        "provider_call_cold_start": 1.0,
-        "provider_call_warm_start": 0.0,
-        "provider_init_cold_start": 1.0,
-        "provider_init_warm_start": 0.0,
-        "provider_invocation_index": 1.0
+      "cost_totals": {
+        "estimated_cost_usd": 0.0
+      },
+      "streaming_metrics": {},
+      "resource_metrics": {},
+      "diagnostic_metrics": {
+        "audio_duration_sec": 8.308,
+        "duration_mismatch_sec": 0.0,
+        "measured_audio_duration_sec": 8.308
       }
     }
   ],
@@ -814,50 +1645,73 @@
       "provider_id": "fake_provider_a",
       "provider_preset": "",
       "provider_label": "",
+      "metrics_semantics_version": 2,
+      "legacy_metrics": false,
+      "mixed_semantics": false,
       "samples": 1,
       "total_samples": 1,
       "successful_samples": 1,
       "failed_samples": 0,
       "aggregate_samples": 1,
+      "warning_samples": 1,
       "mean_metrics": {
+        "audio_duration_sec": 8.308,
         "cer": 0.0,
         "confidence": 0.92,
-        "cpu_percent": 4.9,
-        "gpu_memory_mb": 0.0,
-        "gpu_util_percent": 0.0,
+        "duration_mismatch_sec": 0.0,
+        "end_to_end_latency_ms": 15.0,
+        "end_to_end_rtf": 0.0018054886856042369,
+        "estimated_cost_usd": 0.0,
         "inference_ms": 0.0,
-        "memory_mb": 153.6796875,
-        "model_load_ms": 1.064567,
+        "measured_audio_duration_sec": 8.308,
+        "per_utterance_latency_ms": 15.0,
         "postprocess_ms": 0.0,
         "preprocess_ms": 0.0,
-        "provider_call_cold_start": 1.0,
-        "provider_call_warm_start": 0.0,
-        "provider_init_cold_start": 1.0,
-        "provider_init_warm_start": 0.0,
-        "provider_invocation_index": 1.0,
+        "provider_compute_latency_ms": 15.0,
+        "provider_compute_rtf": 0.0018054886856042369,
+        "real_time_factor": 0.0018054886856042369,
         "sample_accuracy": 1.0,
+        "time_to_final_result_ms": 15.0,
+        "time_to_first_result_ms": 15.0,
+        "time_to_result_ms": 15.0,
+        "total_latency_ms": 15.0,
         "wer": 0.0
       },
       "metric_counts": {
+        "audio_duration_sec": 1,
         "cer": 1,
         "confidence": 1,
-        "cpu_percent": 1,
-        "gpu_memory_mb": 1,
-        "gpu_util_percent": 1,
+        "duration_mismatch_sec": 1,
+        "end_to_end_latency_ms": 1,
+        "end_to_end_rtf": 1,
+        "estimated_cost_usd": 1,
         "inference_ms": 1,
-        "memory_mb": 1,
-        "model_load_ms": 1,
+        "measured_audio_duration_sec": 1,
+        "per_utterance_latency_ms": 1,
         "postprocess_ms": 1,
         "preprocess_ms": 1,
-        "provider_call_cold_start": 1,
-        "provider_call_warm_start": 1,
-        "provider_init_cold_start": 1,
-        "provider_init_warm_start": 1,
-        "provider_invocation_index": 1,
+        "provider_compute_latency_ms": 1,
+        "provider_compute_rtf": 1,
+        "real_time_factor": 1,
         "sample_accuracy": 1,
+        "time_to_final_result_ms": 1,
+        "time_to_first_result_ms": 1,
+        "time_to_result_ms": 1,
+        "total_latency_ms": 1,
         "wer": 1
       },
       "metric_statistics": {
+        "audio_duration_sec": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 8.308,
+          "mean": 8.308,
+          "min": 8.308,
+          "max": 8.308,
+          "p50": 8.308,
+          "p95": 8.308,
+          "value": 8.308
+        },
         "cer": {
           "count": 1,
           "aggregator": "corpus_rate",
@@ -873,19 +1727,10 @@
           "min": 0.92,
           "max": 0.92,
           "p50": 0.92,
-          "p95": 0.92
+          "p95": 0.92,
+          "value": 0.92
         },
-        "cpu_percent": {
-          "count": 1,
-          "aggregator": "mean",
-          "sum": 4.9,
-          "mean": 4.9,
-          "min": 4.9,
-          "max": 4.9,
-          "p50": 4.9,
-          "p95": 4.9
-        },
-        "gpu_memory_mb": {
+        "duration_mismatch_sec": {
           "count": 1,
           "aggregator": "mean",
           "sum": 0.0,
@@ -893,9 +1738,32 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "gpu_util_percent": {
+        "end_to_end_latency_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "end_to_end_rtf": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 0.0018054886856042369,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
+        },
+        "estimated_cost_usd": {
           "count": 1,
           "aggregator": "mean",
           "sum": 0.0,
@@ -903,7 +1771,8 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
         "inference_ms": {
           "count": 1,
@@ -913,27 +1782,30 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "memory_mb": {
+        "measured_audio_duration_sec": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 153.6796875,
-          "mean": 153.6796875,
-          "min": 153.6796875,
-          "max": 153.6796875,
-          "p50": 153.6796875,
-          "p95": 153.6796875
+          "sum": 8.308,
+          "mean": 8.308,
+          "min": 8.308,
+          "max": 8.308,
+          "p50": 8.308,
+          "p95": 8.308,
+          "value": 8.308
         },
-        "model_load_ms": {
+        "per_utterance_latency_ms": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 1.064567,
-          "mean": 1.064567,
-          "min": 1.064567,
-          "max": 1.064567,
-          "p50": 1.064567,
-          "p95": 1.064567
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
         "postprocess_ms": {
           "count": 1,
@@ -943,7 +1815,8 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
         "preprocess_ms": {
           "count": 1,
@@ -953,57 +1826,41 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "provider_call_cold_start": {
+        "provider_compute_latency_ms": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 1.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
-        "provider_call_warm_start": {
+        "provider_compute_rtf": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 0.0,
-          "mean": 0.0,
-          "min": 0.0,
-          "max": 0.0,
-          "p50": 0.0,
-          "p95": 0.0
+          "sum": 0.0018054886856042369,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
         },
-        "provider_init_cold_start": {
+        "real_time_factor": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 1.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
-        },
-        "provider_init_warm_start": {
-          "count": 1,
-          "aggregator": "mean",
-          "sum": 0.0,
-          "mean": 0.0,
-          "min": 0.0,
-          "max": 0.0,
-          "p50": 0.0,
-          "p95": 0.0
-        },
-        "provider_invocation_index": {
-          "count": 1,
-          "aggregator": "mean",
-          "sum": 1.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
+          "sum": 0.0018054886856042369,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
         },
         "sample_accuracy": {
           "count": 1,
@@ -1011,6 +1868,50 @@
           "numerator": 1,
           "denominator": 1,
           "value": 1.0
+        },
+        "time_to_final_result_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "time_to_first_result_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "time_to_result_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "total_latency_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
         "wer": {
           "count": 1,
@@ -1021,6 +1922,22 @@
         }
       },
       "metric_metadata": {
+        "audio_duration_sec": {
+          "name": "audio_duration_sec",
+          "display_name": "Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Effective audio duration used for normalization; canonical flows prefer measured duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
         "cer": {
           "name": "cer",
           "display_name": "CER",
@@ -1032,7 +1949,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "confidence": {
           "name": "confidence",
@@ -1045,46 +1965,186 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "cpu_percent": {
-          "name": "cpu_percent",
-          "display_name": "CPU Usage",
+        "cpu_percent_mean": {
+          "name": "cpu_percent_mean",
+          "display_name": "CPU Usage Mean",
           "unit": "percent",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "Host CPU utilization sampled during the run.",
+          "description": "Mean host CPU utilization sampled during the request lifetime.",
+          "summary_aggregator": "duration_weighted_mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "cpu_percent_peak": {
+          "name": "cpu_percent_peak",
+          "display_name": "CPU Usage Peak",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak host CPU utilization sampled during the request lifetime.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "declared_audio_duration_sec": {
+          "name": "declared_audio_duration_sec",
+          "display_name": "Declared Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Reference duration declared by the dataset manifest or caller metadata.",
           "summary_aggregator": "mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "gpu_memory_mb": {
-          "name": "gpu_memory_mb",
-          "display_name": "GPU Memory",
+        "duration_mismatch_sec": {
+          "name": "duration_mismatch_sec",
+          "display_name": "Duration Mismatch",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "lower",
+          "description": "Absolute mismatch between measured and declared audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "end_to_end_latency_ms": {
+          "name": "end_to_end_latency_ms",
+          "display_name": "End-To-End Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Outer wall-clock latency from request/segment/stream start to final result availability.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "end_to_end_rtf": {
+          "name": "end_to_end_rtf",
+          "display_name": "End-To-End RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock end-to-end latency divided by measured audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "estimated_cost_usd": {
+          "name": "estimated_cost_usd",
+          "display_name": "Estimated Cost",
+          "unit": "usd",
+          "category": "cost",
+          "preferred_direction": "lower",
+          "description": "Estimated provider cost for the sample using the selected preset pricing metadata.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_memory_mb_mean": {
+          "name": "gpu_memory_mb_mean",
+          "display_name": "GPU Memory Mean",
           "unit": "mb",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "NVIDIA GPU memory sampled during the run when available.",
-          "summary_aggregator": "mean",
+          "description": "Mean NVIDIA GPU memory sampled during the request lifetime when available.",
+          "summary_aggregator": "duration_weighted_mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "gpu_util_percent": {
-          "name": "gpu_util_percent",
-          "display_name": "GPU Usage",
+        "gpu_memory_mb_peak": {
+          "name": "gpu_memory_mb_peak",
+          "display_name": "GPU Memory Peak",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak NVIDIA GPU memory sampled during the request lifetime when available.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_util_percent_mean": {
+          "name": "gpu_util_percent_mean",
+          "display_name": "GPU Usage Mean",
           "unit": "percent",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "NVIDIA GPU utilization sampled during the run when available.",
-          "summary_aggregator": "mean",
+          "description": "Mean NVIDIA GPU utilization sampled during the request lifetime when available.",
+          "summary_aggregator": "duration_weighted_mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_util_percent_peak": {
+          "name": "gpu_util_percent_peak",
+          "display_name": "GPU Usage Peak",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak NVIDIA GPU utilization sampled during the request lifetime when available.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "inference_ms": {
           "name": "inference_ms",
@@ -1097,20 +2157,74 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "memory_mb": {
-          "name": "memory_mb",
-          "display_name": "Memory",
-          "unit": "mb",
-          "category": "resource",
-          "preferred_direction": "lower",
-          "description": "Resident memory sampled during the run.",
+        "measured_audio_duration_sec": {
+          "name": "measured_audio_duration_sec",
+          "display_name": "Measured Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Audio duration measured from the processed file or bytes and used for canonical normalization.",
           "summary_aggregator": "mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "memory_mb_mean": {
+          "name": "memory_mb_mean",
+          "display_name": "Memory Mean",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Mean resident memory sampled during the request lifetime.",
+          "summary_aggregator": "duration_weighted_mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "memory_mb_peak": {
+          "name": "memory_mb_peak",
+          "display_name": "Memory Peak",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak resident memory sampled during the request lifetime.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "per_utterance_latency_ms": {
+          "name": "per_utterance_latency_ms",
+          "display_name": "Per-Utterance Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_latency_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_latency_ms"
         },
         "postprocess_ms": {
           "name": "postprocess_ms",
@@ -1123,7 +2237,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "preprocess_ms": {
           "name": "preprocess_ms",
@@ -1136,7 +2253,58 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "provider_compute_latency_ms": {
+          "name": "provider_compute_latency_ms",
+          "display_name": "Provider Compute Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider-reported compute latency from normalized ASR result timings.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "provider_compute_rtf": {
+          "name": "provider_compute_rtf",
+          "display_name": "Provider Compute RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider compute latency divided by measured audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "real_time_factor": {
+          "name": "real_time_factor",
+          "display_name": "RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_rtf.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_rtf"
         },
         "sample_accuracy": {
           "name": "sample_accuracy",
@@ -1149,7 +2317,74 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_final_result_ms": {
+          "name": "time_to_final_result_ms",
+          "display_name": "Time To Final Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock latency from request/stream start to the final result.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_first_result_ms": {
+          "name": "time_to_first_result_ms",
+          "display_name": "Time To First Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock latency from request/stream start to the first visible partial or final result.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_result_ms": {
+          "name": "time_to_result_ms",
+          "display_name": "Time To Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of time_to_final_result_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "time_to_final_result_ms"
+        },
+        "total_latency_ms": {
+          "name": "total_latency_ms",
+          "display_name": "Total Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_latency_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_latency_ms"
         },
         "wer": {
           "name": "wer",
@@ -1162,7 +2397,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         }
       },
       "aggregate_excludes_corrupted": true,
@@ -1174,27 +2412,33 @@
         "wer": 0.0
       },
       "latency_metrics": {
+        "end_to_end_latency_ms": 15.0,
+        "end_to_end_rtf": 0.0018054886856042369,
         "inference_ms": 0.0,
+        "per_utterance_latency_ms": 15.0,
         "postprocess_ms": 0.0,
-        "preprocess_ms": 0.0
+        "preprocess_ms": 0.0,
+        "provider_compute_latency_ms": 15.0,
+        "provider_compute_rtf": 0.0018054886856042369,
+        "real_time_factor": 0.0018054886856042369,
+        "time_to_final_result_ms": 15.0,
+        "time_to_first_result_ms": 15.0,
+        "time_to_result_ms": 15.0,
+        "total_latency_ms": 15.0
       },
       "reliability_metrics": {},
-      "cost_metrics": {},
-      "cost_totals": {},
-      "streaming_metrics": {},
-      "resource_metrics": {
-        "cpu_percent": 4.9,
-        "gpu_memory_mb": 0.0,
-        "gpu_util_percent": 0.0,
-        "memory_mb": 153.6796875
+      "cost_metrics": {
+        "estimated_cost_usd": 0.0
       },
-      "other_metrics": {
-        "model_load_ms": 1.064567,
-        "provider_call_cold_start": 1.0,
-        "provider_call_warm_start": 0.0,
-        "provider_init_cold_start": 1.0,
-        "provider_init_warm_start": 0.0,
-        "provider_invocation_index": 1.0
+      "cost_totals": {
+        "estimated_cost_usd": 0.0
+      },
+      "streaming_metrics": {},
+      "resource_metrics": {},
+      "diagnostic_metrics": {
+        "audio_duration_sec": 8.308,
+        "duration_mismatch_sec": 0.0,
+        "measured_audio_duration_sec": 8.308
       }
     },
     "providers/provider_b": {
@@ -1203,50 +2447,73 @@
       "provider_id": "fake_provider_b",
       "provider_preset": "",
       "provider_label": "",
+      "metrics_semantics_version": 2,
+      "legacy_metrics": false,
+      "mixed_semantics": false,
       "samples": 1,
       "total_samples": 1,
       "successful_samples": 1,
       "failed_samples": 0,
       "aggregate_samples": 1,
+      "warning_samples": 1,
       "mean_metrics": {
+        "audio_duration_sec": 8.308,
         "cer": 0.0,
         "confidence": 0.92,
-        "cpu_percent": 2.5,
-        "gpu_memory_mb": 0.0,
-        "gpu_util_percent": 0.0,
+        "duration_mismatch_sec": 0.0,
+        "end_to_end_latency_ms": 15.0,
+        "end_to_end_rtf": 0.0018054886856042369,
+        "estimated_cost_usd": 0.0,
         "inference_ms": 0.0,
-        "memory_mb": 153.6796875,
-        "model_load_ms": 0.919925,
+        "measured_audio_duration_sec": 8.308,
+        "per_utterance_latency_ms": 15.0,
         "postprocess_ms": 0.0,
         "preprocess_ms": 0.0,
-        "provider_call_cold_start": 1.0,
-        "provider_call_warm_start": 0.0,
-        "provider_init_cold_start": 1.0,
-        "provider_init_warm_start": 0.0,
-        "provider_invocation_index": 1.0,
+        "provider_compute_latency_ms": 15.0,
+        "provider_compute_rtf": 0.0018054886856042369,
+        "real_time_factor": 0.0018054886856042369,
         "sample_accuracy": 1.0,
+        "time_to_final_result_ms": 15.0,
+        "time_to_first_result_ms": 15.0,
+        "time_to_result_ms": 15.0,
+        "total_latency_ms": 15.0,
         "wer": 0.0
       },
       "metric_counts": {
+        "audio_duration_sec": 1,
         "cer": 1,
         "confidence": 1,
-        "cpu_percent": 1,
-        "gpu_memory_mb": 1,
-        "gpu_util_percent": 1,
+        "duration_mismatch_sec": 1,
+        "end_to_end_latency_ms": 1,
+        "end_to_end_rtf": 1,
+        "estimated_cost_usd": 1,
         "inference_ms": 1,
-        "memory_mb": 1,
-        "model_load_ms": 1,
+        "measured_audio_duration_sec": 1,
+        "per_utterance_latency_ms": 1,
         "postprocess_ms": 1,
         "preprocess_ms": 1,
-        "provider_call_cold_start": 1,
-        "provider_call_warm_start": 1,
-        "provider_init_cold_start": 1,
-        "provider_init_warm_start": 1,
-        "provider_invocation_index": 1,
+        "provider_compute_latency_ms": 1,
+        "provider_compute_rtf": 1,
+        "real_time_factor": 1,
         "sample_accuracy": 1,
+        "time_to_final_result_ms": 1,
+        "time_to_first_result_ms": 1,
+        "time_to_result_ms": 1,
+        "total_latency_ms": 1,
         "wer": 1
       },
       "metric_statistics": {
+        "audio_duration_sec": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 8.308,
+          "mean": 8.308,
+          "min": 8.308,
+          "max": 8.308,
+          "p50": 8.308,
+          "p95": 8.308,
+          "value": 8.308
+        },
         "cer": {
           "count": 1,
           "aggregator": "corpus_rate",
@@ -1262,19 +2529,10 @@
           "min": 0.92,
           "max": 0.92,
           "p50": 0.92,
-          "p95": 0.92
+          "p95": 0.92,
+          "value": 0.92
         },
-        "cpu_percent": {
-          "count": 1,
-          "aggregator": "mean",
-          "sum": 2.5,
-          "mean": 2.5,
-          "min": 2.5,
-          "max": 2.5,
-          "p50": 2.5,
-          "p95": 2.5
-        },
-        "gpu_memory_mb": {
+        "duration_mismatch_sec": {
           "count": 1,
           "aggregator": "mean",
           "sum": 0.0,
@@ -1282,9 +2540,32 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "gpu_util_percent": {
+        "end_to_end_latency_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "end_to_end_rtf": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 0.0018054886856042369,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
+        },
+        "estimated_cost_usd": {
           "count": 1,
           "aggregator": "mean",
           "sum": 0.0,
@@ -1292,7 +2573,8 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
         "inference_ms": {
           "count": 1,
@@ -1302,27 +2584,30 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "memory_mb": {
+        "measured_audio_duration_sec": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 153.6796875,
-          "mean": 153.6796875,
-          "min": 153.6796875,
-          "max": 153.6796875,
-          "p50": 153.6796875,
-          "p95": 153.6796875
+          "sum": 8.308,
+          "mean": 8.308,
+          "min": 8.308,
+          "max": 8.308,
+          "p50": 8.308,
+          "p95": 8.308,
+          "value": 8.308
         },
-        "model_load_ms": {
+        "per_utterance_latency_ms": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 0.919925,
-          "mean": 0.919925,
-          "min": 0.919925,
-          "max": 0.919925,
-          "p50": 0.919925,
-          "p95": 0.919925
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
         "postprocess_ms": {
           "count": 1,
@@ -1332,7 +2617,8 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
         "preprocess_ms": {
           "count": 1,
@@ -1342,57 +2628,41 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "provider_call_cold_start": {
+        "provider_compute_latency_ms": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 1.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
-        "provider_call_warm_start": {
+        "provider_compute_rtf": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 0.0,
-          "mean": 0.0,
-          "min": 0.0,
-          "max": 0.0,
-          "p50": 0.0,
-          "p95": 0.0
+          "sum": 0.0018054886856042369,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
         },
-        "provider_init_cold_start": {
+        "real_time_factor": {
           "count": 1,
           "aggregator": "mean",
-          "sum": 1.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
-        },
-        "provider_init_warm_start": {
-          "count": 1,
-          "aggregator": "mean",
-          "sum": 0.0,
-          "mean": 0.0,
-          "min": 0.0,
-          "max": 0.0,
-          "p50": 0.0,
-          "p95": 0.0
-        },
-        "provider_invocation_index": {
-          "count": 1,
-          "aggregator": "mean",
-          "sum": 1.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
+          "sum": 0.0018054886856042369,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
         },
         "sample_accuracy": {
           "count": 1,
@@ -1400,6 +2670,50 @@
           "numerator": 1,
           "denominator": 1,
           "value": 1.0
+        },
+        "time_to_final_result_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "time_to_first_result_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "time_to_result_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "total_latency_ms": {
+          "count": 1,
+          "aggregator": "mean",
+          "sum": 15.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
         "wer": {
           "count": 1,
@@ -1410,6 +2724,22 @@
         }
       },
       "metric_metadata": {
+        "audio_duration_sec": {
+          "name": "audio_duration_sec",
+          "display_name": "Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Effective audio duration used for normalization; canonical flows prefer measured duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
         "cer": {
           "name": "cer",
           "display_name": "CER",
@@ -1421,7 +2751,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "confidence": {
           "name": "confidence",
@@ -1434,46 +2767,186 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "cpu_percent": {
-          "name": "cpu_percent",
-          "display_name": "CPU Usage",
+        "cpu_percent_mean": {
+          "name": "cpu_percent_mean",
+          "display_name": "CPU Usage Mean",
           "unit": "percent",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "Host CPU utilization sampled during the run.",
+          "description": "Mean host CPU utilization sampled during the request lifetime.",
+          "summary_aggregator": "duration_weighted_mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "cpu_percent_peak": {
+          "name": "cpu_percent_peak",
+          "display_name": "CPU Usage Peak",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak host CPU utilization sampled during the request lifetime.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "declared_audio_duration_sec": {
+          "name": "declared_audio_duration_sec",
+          "display_name": "Declared Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Reference duration declared by the dataset manifest or caller metadata.",
           "summary_aggregator": "mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "gpu_memory_mb": {
-          "name": "gpu_memory_mb",
-          "display_name": "GPU Memory",
+        "duration_mismatch_sec": {
+          "name": "duration_mismatch_sec",
+          "display_name": "Duration Mismatch",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "lower",
+          "description": "Absolute mismatch between measured and declared audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "end_to_end_latency_ms": {
+          "name": "end_to_end_latency_ms",
+          "display_name": "End-To-End Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Outer wall-clock latency from request/segment/stream start to final result availability.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "end_to_end_rtf": {
+          "name": "end_to_end_rtf",
+          "display_name": "End-To-End RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock end-to-end latency divided by measured audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "estimated_cost_usd": {
+          "name": "estimated_cost_usd",
+          "display_name": "Estimated Cost",
+          "unit": "usd",
+          "category": "cost",
+          "preferred_direction": "lower",
+          "description": "Estimated provider cost for the sample using the selected preset pricing metadata.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_memory_mb_mean": {
+          "name": "gpu_memory_mb_mean",
+          "display_name": "GPU Memory Mean",
           "unit": "mb",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "NVIDIA GPU memory sampled during the run when available.",
-          "summary_aggregator": "mean",
+          "description": "Mean NVIDIA GPU memory sampled during the request lifetime when available.",
+          "summary_aggregator": "duration_weighted_mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "gpu_util_percent": {
-          "name": "gpu_util_percent",
-          "display_name": "GPU Usage",
+        "gpu_memory_mb_peak": {
+          "name": "gpu_memory_mb_peak",
+          "display_name": "GPU Memory Peak",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak NVIDIA GPU memory sampled during the request lifetime when available.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_util_percent_mean": {
+          "name": "gpu_util_percent_mean",
+          "display_name": "GPU Usage Mean",
           "unit": "percent",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "NVIDIA GPU utilization sampled during the run when available.",
-          "summary_aggregator": "mean",
+          "description": "Mean NVIDIA GPU utilization sampled during the request lifetime when available.",
+          "summary_aggregator": "duration_weighted_mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_util_percent_peak": {
+          "name": "gpu_util_percent_peak",
+          "display_name": "GPU Usage Peak",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak NVIDIA GPU utilization sampled during the request lifetime when available.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "inference_ms": {
           "name": "inference_ms",
@@ -1486,20 +2959,74 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "memory_mb": {
-          "name": "memory_mb",
-          "display_name": "Memory",
-          "unit": "mb",
-          "category": "resource",
-          "preferred_direction": "lower",
-          "description": "Resident memory sampled during the run.",
+        "measured_audio_duration_sec": {
+          "name": "measured_audio_duration_sec",
+          "display_name": "Measured Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Audio duration measured from the processed file or bytes and used for canonical normalization.",
           "summary_aggregator": "mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "memory_mb_mean": {
+          "name": "memory_mb_mean",
+          "display_name": "Memory Mean",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Mean resident memory sampled during the request lifetime.",
+          "summary_aggregator": "duration_weighted_mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "memory_mb_peak": {
+          "name": "memory_mb_peak",
+          "display_name": "Memory Peak",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak resident memory sampled during the request lifetime.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "per_utterance_latency_ms": {
+          "name": "per_utterance_latency_ms",
+          "display_name": "Per-Utterance Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_latency_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_latency_ms"
         },
         "postprocess_ms": {
           "name": "postprocess_ms",
@@ -1512,7 +3039,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "preprocess_ms": {
           "name": "preprocess_ms",
@@ -1525,7 +3055,58 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "provider_compute_latency_ms": {
+          "name": "provider_compute_latency_ms",
+          "display_name": "Provider Compute Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider-reported compute latency from normalized ASR result timings.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "provider_compute_rtf": {
+          "name": "provider_compute_rtf",
+          "display_name": "Provider Compute RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider compute latency divided by measured audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "real_time_factor": {
+          "name": "real_time_factor",
+          "display_name": "RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_rtf.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_rtf"
         },
         "sample_accuracy": {
           "name": "sample_accuracy",
@@ -1538,7 +3119,74 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_final_result_ms": {
+          "name": "time_to_final_result_ms",
+          "display_name": "Time To Final Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock latency from request/stream start to the final result.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_first_result_ms": {
+          "name": "time_to_first_result_ms",
+          "display_name": "Time To First Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock latency from request/stream start to the first visible partial or final result.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_result_ms": {
+          "name": "time_to_result_ms",
+          "display_name": "Time To Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of time_to_final_result_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "time_to_final_result_ms"
+        },
+        "total_latency_ms": {
+          "name": "total_latency_ms",
+          "display_name": "Total Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_latency_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_latency_ms"
         },
         "wer": {
           "name": "wer",
@@ -1551,7 +3199,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         }
       },
       "aggregate_excludes_corrupted": true,
@@ -1563,76 +3214,105 @@
         "wer": 0.0
       },
       "latency_metrics": {
+        "end_to_end_latency_ms": 15.0,
+        "end_to_end_rtf": 0.0018054886856042369,
         "inference_ms": 0.0,
+        "per_utterance_latency_ms": 15.0,
         "postprocess_ms": 0.0,
-        "preprocess_ms": 0.0
+        "preprocess_ms": 0.0,
+        "provider_compute_latency_ms": 15.0,
+        "provider_compute_rtf": 0.0018054886856042369,
+        "real_time_factor": 0.0018054886856042369,
+        "time_to_final_result_ms": 15.0,
+        "time_to_first_result_ms": 15.0,
+        "time_to_result_ms": 15.0,
+        "total_latency_ms": 15.0
       },
       "reliability_metrics": {},
-      "cost_metrics": {},
-      "cost_totals": {},
-      "streaming_metrics": {},
-      "resource_metrics": {
-        "cpu_percent": 2.5,
-        "gpu_memory_mb": 0.0,
-        "gpu_util_percent": 0.0,
-        "memory_mb": 153.6796875
+      "cost_metrics": {
+        "estimated_cost_usd": 0.0
       },
-      "other_metrics": {
-        "model_load_ms": 0.919925,
-        "provider_call_cold_start": 1.0,
-        "provider_call_warm_start": 0.0,
-        "provider_init_cold_start": 1.0,
-        "provider_init_warm_start": 0.0,
-        "provider_invocation_index": 1.0
+      "cost_totals": {
+        "estimated_cost_usd": 0.0
+      },
+      "streaming_metrics": {},
+      "resource_metrics": {},
+      "diagnostic_metrics": {
+        "audio_duration_sec": 8.308,
+        "duration_mismatch_sec": 0.0,
+        "measured_audio_duration_sec": 8.308
       }
     }
   },
   "noise_summary": {
     "clean": {
+      "metrics_semantics_version": 2,
+      "legacy_metrics": false,
+      "mixed_semantics": false,
       "samples": 2,
       "total_samples": 2,
       "successful_samples": 2,
       "failed_samples": 0,
       "aggregate_samples": 2,
+      "warning_samples": 2,
       "mean_metrics": {
+        "audio_duration_sec": 8.308,
         "cer": 0.0,
         "confidence": 0.92,
-        "cpu_percent": 3.7,
-        "gpu_memory_mb": 0.0,
-        "gpu_util_percent": 0.0,
+        "duration_mismatch_sec": 0.0,
+        "end_to_end_latency_ms": 15.0,
+        "end_to_end_rtf": 0.0018054886856042369,
+        "estimated_cost_usd": 0.0,
         "inference_ms": 0.0,
-        "memory_mb": 153.6796875,
-        "model_load_ms": 0.992246,
+        "measured_audio_duration_sec": 8.308,
+        "per_utterance_latency_ms": 15.0,
         "postprocess_ms": 0.0,
         "preprocess_ms": 0.0,
-        "provider_call_cold_start": 1.0,
-        "provider_call_warm_start": 0.0,
-        "provider_init_cold_start": 1.0,
-        "provider_init_warm_start": 0.0,
-        "provider_invocation_index": 1.0,
+        "provider_compute_latency_ms": 15.0,
+        "provider_compute_rtf": 0.0018054886856042369,
+        "real_time_factor": 0.0018054886856042369,
         "sample_accuracy": 1.0,
+        "time_to_final_result_ms": 15.0,
+        "time_to_first_result_ms": 15.0,
+        "time_to_result_ms": 15.0,
+        "total_latency_ms": 15.0,
         "wer": 0.0
       },
       "metric_counts": {
+        "audio_duration_sec": 2,
         "cer": 2,
         "confidence": 2,
-        "cpu_percent": 2,
-        "gpu_memory_mb": 2,
-        "gpu_util_percent": 2,
+        "duration_mismatch_sec": 2,
+        "end_to_end_latency_ms": 2,
+        "end_to_end_rtf": 2,
+        "estimated_cost_usd": 2,
         "inference_ms": 2,
-        "memory_mb": 2,
-        "model_load_ms": 2,
+        "measured_audio_duration_sec": 2,
+        "per_utterance_latency_ms": 2,
         "postprocess_ms": 2,
         "preprocess_ms": 2,
-        "provider_call_cold_start": 2,
-        "provider_call_warm_start": 2,
-        "provider_init_cold_start": 2,
-        "provider_init_warm_start": 2,
-        "provider_invocation_index": 2,
+        "provider_compute_latency_ms": 2,
+        "provider_compute_rtf": 2,
+        "real_time_factor": 2,
         "sample_accuracy": 2,
+        "time_to_final_result_ms": 2,
+        "time_to_first_result_ms": 2,
+        "time_to_result_ms": 2,
+        "total_latency_ms": 2,
         "wer": 2
       },
       "metric_statistics": {
+        "audio_duration_sec": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 16.616,
+          "mean": 8.308,
+          "min": 8.308,
+          "max": 8.308,
+          "p50": 8.308,
+          "p95": 8.308,
+          "value": 8.308
+        },
         "cer": {
           "count": 2,
           "aggregator": "corpus_rate",
@@ -1648,19 +3328,10 @@
           "min": 0.92,
           "max": 0.92,
           "p50": 0.92,
-          "p95": 0.92
+          "p95": 0.92,
+          "value": 0.92
         },
-        "cpu_percent": {
-          "count": 2,
-          "aggregator": "mean",
-          "sum": 7.4,
-          "mean": 3.7,
-          "min": 2.5,
-          "max": 4.9,
-          "p50": 3.7,
-          "p95": 4.78
-        },
-        "gpu_memory_mb": {
+        "duration_mismatch_sec": {
           "count": 2,
           "aggregator": "mean",
           "sum": 0.0,
@@ -1668,9 +3339,32 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "gpu_util_percent": {
+        "end_to_end_latency_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 30.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "end_to_end_rtf": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 0.0036109773712084737,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
+        },
+        "estimated_cost_usd": {
           "count": 2,
           "aggregator": "mean",
           "sum": 0.0,
@@ -1678,7 +3372,8 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
         "inference_ms": {
           "count": 2,
@@ -1688,27 +3383,30 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "memory_mb": {
+        "measured_audio_duration_sec": {
           "count": 2,
           "aggregator": "mean",
-          "sum": 307.359375,
-          "mean": 153.6796875,
-          "min": 153.6796875,
-          "max": 153.6796875,
-          "p50": 153.6796875,
-          "p95": 153.6796875
+          "sum": 16.616,
+          "mean": 8.308,
+          "min": 8.308,
+          "max": 8.308,
+          "p50": 8.308,
+          "p95": 8.308,
+          "value": 8.308
         },
-        "model_load_ms": {
+        "per_utterance_latency_ms": {
           "count": 2,
           "aggregator": "mean",
-          "sum": 1.984492,
-          "mean": 0.992246,
-          "min": 0.919925,
-          "max": 1.064567,
-          "p50": 0.992246,
-          "p95": 1.0573349
+          "sum": 30.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
         "postprocess_ms": {
           "count": 2,
@@ -1718,7 +3416,8 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
         "preprocess_ms": {
           "count": 2,
@@ -1728,57 +3427,41 @@
           "min": 0.0,
           "max": 0.0,
           "p50": 0.0,
-          "p95": 0.0
+          "p95": 0.0,
+          "value": 0.0
         },
-        "provider_call_cold_start": {
+        "provider_compute_latency_ms": {
           "count": 2,
           "aggregator": "mean",
-          "sum": 2.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
+          "sum": 30.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
-        "provider_call_warm_start": {
+        "provider_compute_rtf": {
           "count": 2,
           "aggregator": "mean",
-          "sum": 0.0,
-          "mean": 0.0,
-          "min": 0.0,
-          "max": 0.0,
-          "p50": 0.0,
-          "p95": 0.0
+          "sum": 0.0036109773712084737,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
         },
-        "provider_init_cold_start": {
+        "real_time_factor": {
           "count": 2,
           "aggregator": "mean",
-          "sum": 2.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
-        },
-        "provider_init_warm_start": {
-          "count": 2,
-          "aggregator": "mean",
-          "sum": 0.0,
-          "mean": 0.0,
-          "min": 0.0,
-          "max": 0.0,
-          "p50": 0.0,
-          "p95": 0.0
-        },
-        "provider_invocation_index": {
-          "count": 2,
-          "aggregator": "mean",
-          "sum": 2.0,
-          "mean": 1.0,
-          "min": 1.0,
-          "max": 1.0,
-          "p50": 1.0,
-          "p95": 1.0
+          "sum": 0.0036109773712084737,
+          "mean": 0.0018054886856042369,
+          "min": 0.0018054886856042369,
+          "max": 0.0018054886856042369,
+          "p50": 0.0018054886856042369,
+          "p95": 0.0018054886856042369,
+          "value": 0.0018054886856042369
         },
         "sample_accuracy": {
           "count": 2,
@@ -1786,6 +3469,50 @@
           "numerator": 2,
           "denominator": 2,
           "value": 1.0
+        },
+        "time_to_final_result_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 30.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "time_to_first_result_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 30.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "time_to_result_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 30.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
+        },
+        "total_latency_ms": {
+          "count": 2,
+          "aggregator": "mean",
+          "sum": 30.0,
+          "mean": 15.0,
+          "min": 15.0,
+          "max": 15.0,
+          "p50": 15.0,
+          "p95": 15.0,
+          "value": 15.0
         },
         "wer": {
           "count": 2,
@@ -1796,6 +3523,22 @@
         }
       },
       "metric_metadata": {
+        "audio_duration_sec": {
+          "name": "audio_duration_sec",
+          "display_name": "Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Effective audio duration used for normalization; canonical flows prefer measured duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
         "cer": {
           "name": "cer",
           "display_name": "CER",
@@ -1807,7 +3550,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "confidence": {
           "name": "confidence",
@@ -1820,46 +3566,186 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "cpu_percent": {
-          "name": "cpu_percent",
-          "display_name": "CPU Usage",
+        "cpu_percent_mean": {
+          "name": "cpu_percent_mean",
+          "display_name": "CPU Usage Mean",
           "unit": "percent",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "Host CPU utilization sampled during the run.",
+          "description": "Mean host CPU utilization sampled during the request lifetime.",
+          "summary_aggregator": "duration_weighted_mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "cpu_percent_peak": {
+          "name": "cpu_percent_peak",
+          "display_name": "CPU Usage Peak",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak host CPU utilization sampled during the request lifetime.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "declared_audio_duration_sec": {
+          "name": "declared_audio_duration_sec",
+          "display_name": "Declared Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Reference duration declared by the dataset manifest or caller metadata.",
           "summary_aggregator": "mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "gpu_memory_mb": {
-          "name": "gpu_memory_mb",
-          "display_name": "GPU Memory",
+        "duration_mismatch_sec": {
+          "name": "duration_mismatch_sec",
+          "display_name": "Duration Mismatch",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "lower",
+          "description": "Absolute mismatch between measured and declared audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "end_to_end_latency_ms": {
+          "name": "end_to_end_latency_ms",
+          "display_name": "End-To-End Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Outer wall-clock latency from request/segment/stream start to final result availability.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "end_to_end_rtf": {
+          "name": "end_to_end_rtf",
+          "display_name": "End-To-End RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock end-to-end latency divided by measured audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "estimated_cost_usd": {
+          "name": "estimated_cost_usd",
+          "display_name": "Estimated Cost",
+          "unit": "usd",
+          "category": "cost",
+          "preferred_direction": "lower",
+          "description": "Estimated provider cost for the sample using the selected preset pricing metadata.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_memory_mb_mean": {
+          "name": "gpu_memory_mb_mean",
+          "display_name": "GPU Memory Mean",
           "unit": "mb",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "NVIDIA GPU memory sampled during the run when available.",
-          "summary_aggregator": "mean",
+          "description": "Mean NVIDIA GPU memory sampled during the request lifetime when available.",
+          "summary_aggregator": "duration_weighted_mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "gpu_util_percent": {
-          "name": "gpu_util_percent",
-          "display_name": "GPU Usage",
+        "gpu_memory_mb_peak": {
+          "name": "gpu_memory_mb_peak",
+          "display_name": "GPU Memory Peak",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak NVIDIA GPU memory sampled during the request lifetime when available.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_util_percent_mean": {
+          "name": "gpu_util_percent_mean",
+          "display_name": "GPU Usage Mean",
           "unit": "percent",
           "category": "resource",
           "preferred_direction": "lower",
-          "description": "NVIDIA GPU utilization sampled during the run when available.",
-          "summary_aggregator": "mean",
+          "description": "Mean NVIDIA GPU utilization sampled during the request lifetime when available.",
+          "summary_aggregator": "duration_weighted_mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "gpu_util_percent_peak": {
+          "name": "gpu_util_percent_peak",
+          "display_name": "GPU Usage Peak",
+          "unit": "percent",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak NVIDIA GPU utilization sampled during the request lifetime when available.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "inference_ms": {
           "name": "inference_ms",
@@ -1872,20 +3758,74 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
-        "memory_mb": {
-          "name": "memory_mb",
-          "display_name": "Memory",
-          "unit": "mb",
-          "category": "resource",
-          "preferred_direction": "lower",
-          "description": "Resident memory sampled during the run.",
+        "measured_audio_duration_sec": {
+          "name": "measured_audio_duration_sec",
+          "display_name": "Measured Audio Duration",
+          "unit": "sec",
+          "category": "diagnostic",
+          "preferred_direction": "higher",
+          "description": "Audio duration measured from the processed file or bytes and used for canonical normalization.",
           "summary_aggregator": "mean",
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "memory_mb_mean": {
+          "name": "memory_mb_mean",
+          "display_name": "Memory Mean",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Mean resident memory sampled during the request lifetime.",
+          "summary_aggregator": "duration_weighted_mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "end_to_end_latency_ms",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "memory_mb_peak": {
+          "name": "memory_mb_peak",
+          "display_name": "Memory Peak",
+          "unit": "mb",
+          "category": "resource",
+          "preferred_direction": "lower",
+          "description": "Peak resident memory sampled during the request lifetime.",
+          "summary_aggregator": "max",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "per_utterance_latency_ms": {
+          "name": "per_utterance_latency_ms",
+          "display_name": "Per-Utterance Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_latency_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_latency_ms"
         },
         "postprocess_ms": {
           "name": "postprocess_ms",
@@ -1898,7 +3838,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         },
         "preprocess_ms": {
           "name": "preprocess_ms",
@@ -1911,7 +3854,58 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "provider_compute_latency_ms": {
+          "name": "provider_compute_latency_ms",
+          "display_name": "Provider Compute Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider-reported compute latency from normalized ASR result timings.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "provider_compute_rtf": {
+          "name": "provider_compute_rtf",
+          "display_name": "Provider Compute RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Provider compute latency divided by measured audio duration.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "real_time_factor": {
+          "name": "real_time_factor",
+          "display_name": "RTF",
+          "unit": "ratio",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_rtf.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_rtf"
         },
         "sample_accuracy": {
           "name": "sample_accuracy",
@@ -1924,7 +3918,74 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_final_result_ms": {
+          "name": "time_to_final_result_ms",
+          "display_name": "Time To Final Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock latency from request/stream start to the final result.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_first_result_ms": {
+          "name": "time_to_first_result_ms",
+          "display_name": "Time To First Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Wall-clock latency from request/stream start to the first visible partial or final result.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
+        },
+        "time_to_result_ms": {
+          "name": "time_to_result_ms",
+          "display_name": "Time To Result",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of time_to_final_result_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "time_to_final_result_ms"
+        },
+        "total_latency_ms": {
+          "name": "total_latency_ms",
+          "display_name": "Total Latency",
+          "unit": "ms",
+          "category": "latency",
+          "preferred_direction": "lower",
+          "description": "Deprecated alias of provider_compute_latency_ms.",
+          "summary_aggregator": "mean",
+          "applicable_execution_modes": [
+            "batch",
+            "streaming"
+          ],
+          "summary_weight_metric": "",
+          "deprecated": true,
+          "alias_of": "provider_compute_latency_ms"
         },
         "wer": {
           "name": "wer",
@@ -1937,7 +3998,10 @@
           "applicable_execution_modes": [
             "batch",
             "streaming"
-          ]
+          ],
+          "summary_weight_metric": "",
+          "deprecated": false,
+          "alias_of": ""
         }
       },
       "aggregate_excludes_corrupted": true,
@@ -1949,27 +4013,33 @@
         "wer": 0.0
       },
       "latency_metrics": {
+        "end_to_end_latency_ms": 15.0,
+        "end_to_end_rtf": 0.0018054886856042369,
         "inference_ms": 0.0,
+        "per_utterance_latency_ms": 15.0,
         "postprocess_ms": 0.0,
-        "preprocess_ms": 0.0
+        "preprocess_ms": 0.0,
+        "provider_compute_latency_ms": 15.0,
+        "provider_compute_rtf": 0.0018054886856042369,
+        "real_time_factor": 0.0018054886856042369,
+        "time_to_final_result_ms": 15.0,
+        "time_to_first_result_ms": 15.0,
+        "time_to_result_ms": 15.0,
+        "total_latency_ms": 15.0
       },
       "reliability_metrics": {},
-      "cost_metrics": {},
-      "cost_totals": {},
-      "streaming_metrics": {},
-      "resource_metrics": {
-        "cpu_percent": 3.7,
-        "gpu_memory_mb": 0.0,
-        "gpu_util_percent": 0.0,
-        "memory_mb": 153.6796875
+      "cost_metrics": {
+        "estimated_cost_usd": 0.0
       },
-      "other_metrics": {
-        "model_load_ms": 0.992246,
-        "provider_call_cold_start": 1.0,
-        "provider_call_warm_start": 0.0,
-        "provider_init_cold_start": 1.0,
-        "provider_init_warm_start": 0.0,
-        "provider_invocation_index": 1.0
+      "cost_totals": {
+        "estimated_cost_usd": 0.0
+      },
+      "streaming_metrics": {},
+      "resource_metrics": {},
+      "diagnostic_metrics": {
+        "audio_duration_sec": 8.308,
+        "duration_mismatch_sec": 0.0,
+        "measured_audio_duration_sec": 8.308
       }
     }
   }

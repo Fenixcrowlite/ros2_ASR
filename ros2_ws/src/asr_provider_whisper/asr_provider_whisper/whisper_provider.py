@@ -8,55 +8,10 @@ from typing import Any
 from asr_backend_whisper.backend import WhisperAsrBackend
 from asr_core.audio import pcm_rms
 from asr_core.models import AsrRequest
-from asr_core.normalized import LatencyMetadata, NormalizedAsrResult, NormalizedWord
 from asr_provider_base.adapter import AsrProviderAdapter
 from asr_provider_base.capabilities import ProviderCapabilities
 from asr_provider_base.models import ProviderAudio, ProviderStatus
-
-
-def _normalize(
-    provider_id: str, audio: ProviderAudio, response: Any, is_partial: bool
-) -> NormalizedAsrResult:
-    words = [
-        NormalizedWord(
-            word=item.word,
-            start_sec=float(item.start_sec),
-            end_sec=float(item.end_sec),
-            confidence=float(item.confidence),
-            confidence_available=item.confidence > 0,
-        )
-        for item in response.word_timestamps
-    ]
-    return NormalizedAsrResult(
-        request_id=audio.request_id,
-        session_id=audio.session_id,
-        provider_id=provider_id,
-        text=response.text,
-        is_final=not is_partial,
-        is_partial=is_partial,
-        utterance_start_sec=words[0].start_sec if words else 0.0,
-        utterance_end_sec=words[-1].end_sec if words else 0.0,
-        audio_duration_sec=float(getattr(response, "audio_duration_sec", 0.0) or 0.0),
-        words=words,
-        confidence=float(response.confidence),
-        confidence_available=response.confidence > 0,
-        timestamps_available=bool(words),
-        language=response.language,
-        language_detected=False,
-        latency=LatencyMetadata(
-            total_ms=float(getattr(response.timings, "total_ms", 0.0) or 0.0),
-            preprocess_ms=float(getattr(response.timings, "preprocess_ms", 0.0) or 0.0),
-            inference_ms=float(getattr(response.timings, "inference_ms", 0.0) or 0.0),
-            postprocess_ms=float(getattr(response.timings, "postprocess_ms", 0.0) or 0.0),
-            first_partial_ms=0.0,
-            finalization_ms=float(getattr(response.timings, "postprocess_ms", 0.0) or 0.0),
-        ),
-        raw_metadata_ref="",
-        degraded=not response.success,
-        error_code=response.error_code,
-        error_message=response.error_message,
-        tags=[],
-    )
+from asr_provider_base import normalize_backend_response
 
 
 class WhisperProvider(AsrProviderAdapter):
@@ -123,7 +78,13 @@ class WhisperProvider(AsrProviderAdapter):
             },
         )
         response = self._backend.recognize_once(request)
-        result = _normalize(self.provider_id, audio, response, is_partial=False)
+        result = normalize_backend_response(
+            provider_id=self.provider_id,
+            audio=audio,
+            response=response,
+            is_partial=False,
+            allow_empty_final=True,
+        )
         if (
             response.success
             and not str(response.text or "").strip()

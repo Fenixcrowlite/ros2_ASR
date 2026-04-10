@@ -61,6 +61,8 @@ def azure_secret_status(
     endpoint_value, endpoint_source = resolve_env_value("ASR_AZURE_ENDPOINT", ref_source_path)
     local_env_path = local_env_file_path(ref_source_path)
     endpoint_text = str(endpoint_value or "").strip()
+    key_present = bool(key_value)
+    region_present = bool(region_value)
     endpoint_mode = "none"
     if endpoint_text:
         endpoint_mode = (
@@ -68,11 +70,24 @@ def azure_secret_status(
             if endpoint_text.startswith(("https://", "http://", "wss://"))
             else "endpoint_id"
         )
+    if key_present and region_present:
+        status = "ready"
+        message = "Azure Speech credentials are ready for provider validation and runtime use."
+    elif key_present:
+        status = "missing_region"
+        message = "Azure needs AZURE_SPEECH_REGION."
+    elif region_present:
+        status = "missing_speech_key"
+        message = "Azure needs AZURE_SPEECH_KEY."
+    else:
+        status = "missing_credentials"
+        message = "Azure needs AZURE_SPEECH_KEY and AZURE_SPEECH_REGION."
     return {
-        "runtime_ready": bool(key_value and region_value),
+        "runtime_ready": bool(key_present and region_present),
+        "status": status,
         "local_env_file": str(local_env_path),
         "local_env_file_exists": local_env_path.exists(),
-        "speech_key_present": bool(key_value),
+        "speech_key_present": key_present,
         "speech_key_source": key_source or "missing",
         "speech_key_masked": "***" if key_value else "",
         "region": region_value,
@@ -80,11 +95,7 @@ def azure_secret_status(
         "endpoint": endpoint_value,
         "endpoint_source": endpoint_source or "missing",
         "endpoint_mode": endpoint_mode,
-        "message": (
-            "Azure Speech credentials are ready for provider validation and runtime use."
-            if key_value and region_value
-            else "Azure needs AZURE_SPEECH_KEY and AZURE_SPEECH_REGION."
-        ),
+        "message": message,
     }
 
 
@@ -153,6 +164,7 @@ def google_secret_status(
     source = str(resolved_source or "").strip() or "missing"
     auth: dict[str, Any] = {
         "runtime_ready": False,
+        "status": "missing_credentials",
         "file_path": file_path,
         "file_source": source,
         "file_exists": bool(file_path and Path(file_path).exists()),
@@ -167,16 +179,19 @@ def google_secret_status(
         return auth
     path = Path(file_path)
     if not path.exists():
+        auth["status"] = "file_missing"
         auth["message"] = f"Referenced Google credentials file does not exist: {file_path}"
         return auth
 
     try:
         payload = json.loads(path.read_text(encoding="utf-8"))
     except Exception as exc:
+        auth["status"] = "invalid_json"
         auth["message"] = f"Google credentials JSON is unreadable: {exc}"
         return auth
 
     if not isinstance(payload, dict):
+        auth["status"] = "invalid_credential_file"
         auth["message"] = "Google credentials file must be a JSON object."
         return auth
 
@@ -190,6 +205,7 @@ def google_secret_status(
         and bool(payload.get("private_key"))
     )
     auth["runtime_ready"] = bool(auth["service_account_valid"])
+    auth["status"] = "ready" if auth["runtime_ready"] else "invalid_service_account_json"
     auth["message"] = (
         "Google service-account JSON is ready for provider validation and runtime use."
         if auth["runtime_ready"]
@@ -313,6 +329,14 @@ def validate_secret_file(
             str(detail.get("resolved_file_path", "") or ""),
             str(detail.get("resolved_file_path_source", "") or ""),
         )
+        google_status = str(detail["auth"].get("status", "") or "")
+        google_message = str(detail["auth"].get("message", "") or "").strip()
+        if google_status in {
+            "invalid_json",
+            "invalid_credential_file",
+            "invalid_service_account_json",
+        } and google_message not in issues:
+            issues.append(google_message)
     if ref.provider in {"huggingface_local", "huggingface_api"} and ref.kind == "env":
         detail["auth"] = huggingface_status_factory(
             ref.source_path,

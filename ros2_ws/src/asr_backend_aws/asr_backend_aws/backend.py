@@ -584,22 +584,22 @@ class AwsAsrBackend(AsrBackend):
         if status["login_supported"]:
             status["login_command"] = f"aws sso login --profile {self.profile}"
 
-        cli_cache_expiry = self._latest_cli_cache_expiry(account_id=account_id)
-        if cli_cache_expiry is not None:
-            status["role_credentials_expires_at"] = (
-                cli_cache_expiry.astimezone(UTC).isoformat().replace("+00:00", "Z")
-            )
-            status["role_credentials_valid"] = cli_cache_expiry > now
-
         if not status["uses_sso"]:
-            if status["role_credentials_valid"]:
-                status["status"] = "role_credentials_valid"
-                status["message"] = "AWS profile resolves to valid role credentials."
-                status["runtime_ready"] = True
-            else:
-                status["status"] = "profile_configured"
-                status["message"] = "AWS profile is configured and does not use SSO."
+            status["status"] = "profile_configured"
+            status["message"] = (
+                "AWS profile is configured and does not use SSO. "
+                "The AWS SDK will resolve credentials on the first real request."
+            )
+            status["runtime_ready"] = True
             return status
+
+        if account_id:
+            cli_cache_expiry = self._latest_cli_cache_expiry(account_id=account_id)
+            if cli_cache_expiry is not None:
+                status["role_credentials_expires_at"] = (
+                    cli_cache_expiry.astimezone(UTC).isoformat().replace("+00:00", "Z")
+                )
+                status["role_credentials_valid"] = cli_cache_expiry > now
 
         sso_expiry = self._latest_sso_cache_expiry(start_url=start_url, sso_region=sso_region)
         if sso_expiry is not None:
@@ -683,11 +683,11 @@ class AwsAsrBackend(AsrBackend):
 
         with self._aws_env_overrides():
             if self.profile:
-                cached_credentials = self._load_cli_cache_credentials(
-                    account_id=self._profile_sso_account_id()
-                )
-                if cached_credentials:
-                    return boto3.Session(region_name=self.region, **cached_credentials)
+                account_id = self._profile_sso_account_id()
+                if account_id:
+                    cached_credentials = self._load_cli_cache_credentials(account_id=account_id)
+                    if cached_credentials:
+                        return boto3.Session(region_name=self.region, **cached_credentials)
                 return boto3.Session(profile_name=self.profile, region_name=self.region)
             kwargs: dict[str, str] = {"region_name": self.region}
             if self.access_key_id and self.secret_access_key:

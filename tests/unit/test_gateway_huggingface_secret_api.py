@@ -42,7 +42,9 @@ def test_gateway_huggingface_token_save_updates_secret_refs_and_dashboard(
 
     refs = {item["name"]: item for item in gateway_api.secret_refs()["refs"]}
     assert refs["huggingface_api_token"]["validation"]["auth"]["runtime_ready"] is True
+    assert refs["huggingface_api_token"]["validation"]["auth"]["status"] == "ready"
     assert refs["huggingface_local_token"]["validation"]["auth"]["runtime_ready"] is True
+    assert refs["huggingface_local_token"]["validation"]["auth"]["status"] == "ready"
 
     cloud_rows = {item["provider"]: item for item in gateway_api._cloud_credential_overview()}
     assert cloud_rows["huggingface_api"]["runtime_ready"] is True
@@ -58,4 +60,6 @@ def test_gateway_huggingface_token_save_updates_secret_refs_and_dashboard(
     assert cleared["saved"] is True
     refs_after_clear = {item["name"]: item for item in gateway_api.secret_refs()["refs"]}
     assert refs_after_clear["huggingface_api_token"]["validation"]["auth"]["runtime_ready"] is False
+    assert refs_after_clear["huggingface_api_token"]["validation"]["auth"]["status"] == "missing_credentials"
     assert refs_after_clear["huggingface_local_token"]["validation"]["auth"]["runtime_ready"] is True
+    assert refs_after_clear["huggingface_local_token"]["validation"]["auth"]["status"] == "optional_missing"

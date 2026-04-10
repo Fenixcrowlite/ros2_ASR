@@ -11,6 +11,12 @@ from asr_datasets import DatasetSample
 from asr_metrics.engine import MetricEngine
 from asr_metrics.plugins import MetricContext
 from asr_metrics.quality import require_quality_reference, text_quality_support
+from asr_metrics.semantics import (
+    METRICS_SEMANTICS_VERSION,
+    apply_legacy_metric_aliases,
+    resolve_audio_duration_fields,
+)
+from asr_metrics.system import ResourceSampler
 from asr_observability import (
     FileTraceExporter,
     ObservabilityConfig,
@@ -38,6 +44,37 @@ class BatchExecutor:
     def _stream_replay_rate(execution_meta: dict[str, Any]) -> float:
         return max(float(execution_meta.get("streaming_replay_rate", 1.0) or 0.0), 0.0)
 
+    @staticmethod
+    def _duration_fields(sample: DatasetSample, active_audio_path: str) -> dict[str, Any]:
+        declared_audio_duration_sec = float(sample.duration_sec or 0.0) or None
+        measured_audio_duration_sec: float | None = None
+        try:
+            measured_audio_duration_sec = float(wav_duration_sec(active_audio_path))
+        except Exception:
+            measured_audio_duration_sec = None
+        duration_fields = resolve_audio_duration_fields(
+            measured_audio_duration_sec=measured_audio_duration_sec,
+            declared_audio_duration_sec=declared_audio_duration_sec,
+        )
+        duration_fields["audio_duration_source"] = (
+            "measured_file"
+            if duration_fields.get("measured_audio_duration_sec") not in (None, 0.0)
+            else "manifest_declared"
+        )
+        return duration_fields
+
+    @staticmethod
+    def _estimated_cost_usd(duration_fields: dict[str, Any], execution_meta: dict[str, Any]) -> float:
+        provider_cost_per_minute = float(
+            execution_meta.get("estimated_cost_usd_per_min", 0.0)
+            or execution_meta.get("provider_cost_per_minute_usd", 0.0)
+            or 0.0
+        )
+        if provider_cost_per_minute <= 0.0:
+            return float(execution_meta.get("estimated_cost_usd", 0.0) or 0.0)
+        effective_duration_sec = float(duration_fields.get("audio_duration_sec", 0.0) or 0.0)
+        return (effective_duration_sec / 60.0) * provider_cost_per_minute
+
     def _require_quality_reference(self, sample: DatasetSample) -> None:
         if not any(
             metric_name in {"wer", "cer", "sample_accuracy"}
@@ -48,6 +85,41 @@ class BatchExecutor:
             sample.transcript,
             context=f"Benchmark sample `{sample.sample_id}` quality metrics",
         )
+
+    @staticmethod
+    def _populate_metric_envelope(
+        metrics: dict[str, Any],
+        *,
+        duration_fields: dict[str, Any],
+        provider_compute_latency_ms: float,
+        end_to_end_latency_ms: float,
+        time_to_first_result_ms: float,
+        time_to_final_result_ms: float,
+        finalization_latency_ms: float | None,
+        estimated_cost_usd: float,
+        partial_count: int = 0,
+        first_partial_latency_ms: float = 0.0,
+    ) -> dict[str, Any]:
+        metrics.update(duration_fields)
+        metrics["provider_compute_latency_ms"] = float(provider_compute_latency_ms)
+        metrics["end_to_end_latency_ms"] = float(end_to_end_latency_ms)
+        metrics["time_to_first_result_ms"] = float(time_to_first_result_ms)
+        metrics["time_to_final_result_ms"] = float(time_to_final_result_ms)
+        metrics["estimated_cost_usd"] = float(estimated_cost_usd)
+        metrics["partial_count"] = int(partial_count)
+        metrics["first_partial_latency_ms"] = float(first_partial_latency_ms)
+        if finalization_latency_ms is not None:
+            metrics["finalization_latency_ms"] = float(finalization_latency_ms)
+        return apply_legacy_metric_aliases(metrics)
+
+    @staticmethod
+    def _trace_fields(trace) -> dict[str, Any]:
+        return {
+            "trace_artifact_ref": trace.artifact_path,
+            "trace_corrupted": bool(trace.validation.corrupted),
+            "trace_warnings": list(trace.validation.warnings),
+            "trace_warning_count": len(trace.validation.warnings),
+        }
 
     def run_sample(
         self,
@@ -62,12 +134,8 @@ class BatchExecutor:
     ) -> dict[str, Any]:
         execution_meta = execution_meta or {}
         active_audio_path = str(sample_audio_path or sample.audio_path)
-        audio_duration_sec = float(sample.duration_sec or 0.0)
-        if audio_duration_sec <= 0.0:
-            try:
-                audio_duration_sec = float(wav_duration_sec(active_audio_path))
-            except Exception:
-                audio_duration_sec = 0.0
+        duration_fields = self._duration_fields(sample, active_audio_path)
+        audio_duration_sec = float(duration_fields.get("audio_duration_sec", 0.0) or 0.0)
 
         audio = ProviderAudio(
             session_id=session_id,
@@ -97,33 +165,48 @@ class BatchExecutor:
             },
         )
         provider_meta = provider_runtime_metadata(provider, record_invocation=True)
-        with trace_collector.stage(
-            "provider_recognize",
-            component=getattr(provider, "provider_id", "provider"),
-            code_path=f"{type(provider).__module__}.{type(provider).__name__}.recognize_once",
-            input_summary={
-                "audio_duration_sec": audio_duration_sec,
-                "language": sample.language,
-                "provider_profile": provider_profile,
-            },
-        ) as stage_output:
-            result = provider.recognize_once(audio)
-            stage_output["latency_ms"] = float(result.latency.total_ms)
-            stage_output["success"] = not bool(result.error_code)
-            stage_output["provider_id"] = result.provider_id
-            stage_output["text_length"] = len(str(result.text or ""))
+        resource_sampler = ResourceSampler() if self.observability_config is not None else None
+        execution_started_at = perf_counter()
+        if resource_sampler is not None:
+            resource_sampler.start()
+        try:
+            with trace_collector.stage(
+                "provider_recognize",
+                component=getattr(provider, "provider_id", "provider"),
+                code_path=f"{type(provider).__module__}.{type(provider).__name__}.recognize_once",
+                input_summary={
+                    "audio_duration_sec": audio_duration_sec,
+                    "language": sample.language,
+                    "provider_profile": provider_profile,
+                },
+            ) as stage_output:
+                result = provider.recognize_once(audio)
+                stage_output["latency_ms"] = float(result.latency.total_ms)
+                stage_output["success"] = not bool(result.error_code)
+                stage_output["provider_id"] = result.provider_id
+                stage_output["text_length"] = len(str(result.text or ""))
+            end_to_end_latency_ms = max(
+                (perf_counter() - execution_started_at) * 1000.0,
+                float(result.latency.total_ms),
+                0.0,
+            )
+        finally:
+            resource_sample = resource_sampler.stop() if resource_sampler is not None else None
 
-        estimated_cost_usd = float(execution_meta.get("estimated_cost_usd", 0.0) or 0.0)
+        estimated_cost_usd = self._estimated_cost_usd(duration_fields, execution_meta)
         self._require_quality_reference(sample)
         quality_support = text_quality_support(sample.transcript, result.text)
         context = MetricContext(
             reference_text=sample.transcript,
             hypothesis_text=result.text,
-            latency_ms=result.latency.total_ms,
             success=not result.degraded and not result.error_code,
             execution_mode=str(execution_meta.get("execution_mode", "batch") or "batch"),
-            audio_duration_sec=audio_duration_sec,
+            provider_compute_latency_ms=float(result.latency.total_ms),
+            end_to_end_latency_ms=end_to_end_latency_ms,
+            measured_audio_duration_sec=float(duration_fields.get("audio_duration_sec", 0.0) or 0.0),
             estimated_cost_usd=estimated_cost_usd,
+            time_to_first_result_ms=end_to_end_latency_ms,
+            time_to_final_result_ms=end_to_end_latency_ms,
             quality_support=quality_support,
         )
         metrics = self.metric_engine.evaluate(context)
@@ -132,8 +215,20 @@ class BatchExecutor:
         metrics["inference_ms"] = float(result.latency.inference_ms)
         metrics["postprocess_ms"] = float(result.latency.postprocess_ms)
         metrics.update(provider_meta)
+        self._populate_metric_envelope(
+            metrics,
+            duration_fields=duration_fields,
+            provider_compute_latency_ms=float(result.latency.total_ms),
+            end_to_end_latency_ms=end_to_end_latency_ms,
+            time_to_first_result_ms=end_to_end_latency_ms,
+            time_to_final_result_ms=end_to_end_latency_ms,
+            finalization_latency_ms=None,
+            estimated_cost_usd=estimated_cost_usd,
+        )
+
         trace_artifact_ref = ""
         trace_corrupted = False
+        trace_warnings: list[str] = []
         if (
             self.observability_config is not None
             and self.trace_exporter is not None
@@ -150,11 +245,17 @@ class BatchExecutor:
                 error_code=result.error_code,
                 error_message=result.error_message,
                 language=result.language or sample.language,
-                audio_duration_sec=audio_duration_sec,
+                measured_audio_duration_sec=duration_fields.get("measured_audio_duration_sec"),
+                declared_audio_duration_sec=duration_fields.get("declared_audio_duration_sec"),
                 preprocess_ms=float(result.latency.preprocess_ms),
                 inference_ms=float(result.latency.inference_ms),
                 postprocess_ms=float(result.latency.postprocess_ms),
-                total_latency_ms=float(result.latency.total_ms),
+                provider_compute_latency_ms=float(result.latency.total_ms),
+                end_to_end_latency_ms=end_to_end_latency_ms,
+                time_to_first_result_ms=end_to_end_latency_ms,
+                time_to_final_result_ms=end_to_end_latency_ms,
+                resource_sample=resource_sample,
+                audio_duration_source=str(duration_fields.get("audio_duration_source", "")),
                 reference_text=sample.transcript,
                 extra_metrics=metrics,
             )
@@ -162,11 +263,29 @@ class BatchExecutor:
                 run_dir=self.run_dir,
                 trace=trace,
             )
-            trace_corrupted = bool(trace.validation.corrupted)
-            metrics["cpu_percent"] = trace.metrics.get("cpu_percent", 0.0)
-            metrics["memory_mb"] = trace.metrics.get("memory_mb", 0.0)
-            metrics["gpu_util_percent"] = trace.metrics.get("gpu_util_percent", 0.0)
-            metrics["gpu_memory_mb"] = trace.metrics.get("gpu_memory_mb", 0.0)
+            trace_fields = self._trace_fields(trace)
+            trace_corrupted = bool(trace_fields["trace_corrupted"])
+            trace_warnings = list(trace_fields["trace_warnings"])
+            metrics.update(
+                {
+                    key: trace.metrics.get(key)
+                    for key in (
+                        "cpu_percent_mean",
+                        "cpu_percent_peak",
+                        "memory_mb_mean",
+                        "memory_mb_peak",
+                        "gpu_util_percent_mean",
+                        "gpu_util_percent_peak",
+                        "gpu_memory_mb_mean",
+                        "gpu_memory_mb_peak",
+                        "cpu_percent",
+                        "memory_mb",
+                        "gpu_util_percent",
+                        "gpu_memory_mb",
+                    )
+                    if key in trace.metrics
+                }
+            )
 
         return {
             "run_id": run_id,
@@ -182,6 +301,8 @@ class BatchExecutor:
             "error_code": result.error_code,
             "error_message": result.error_message,
             "metrics": metrics,
+            "metrics_semantics_version": METRICS_SEMANTICS_VERSION,
+            "legacy_metrics": False,
             "execution_mode": execution_meta.get("execution_mode", "batch"),
             "streaming_mode": execution_meta.get("streaming_mode", "none"),
             "scenario": execution_meta.get("scenario", "clean_baseline"),
@@ -191,12 +312,18 @@ class BatchExecutor:
             "provider_preset": execution_meta.get("provider_preset", ""),
             "input_audio_path": active_audio_path,
             "audio_duration_sec": audio_duration_sec,
+            "measured_audio_duration_sec": duration_fields.get("measured_audio_duration_sec"),
+            "declared_audio_duration_sec": duration_fields.get("declared_audio_duration_sec"),
+            "duration_mismatch_sec": duration_fields.get("duration_mismatch_sec"),
+            "audio_duration_source": duration_fields.get("audio_duration_source"),
             "confidence": float(result.confidence),
             "preprocess_ms": float(result.latency.preprocess_ms),
             "inference_ms": float(result.latency.inference_ms),
             "postprocess_ms": float(result.latency.postprocess_ms),
             "trace_artifact_ref": trace_artifact_ref,
             "trace_corrupted": trace_corrupted,
+            "trace_warnings": trace_warnings,
+            "trace_warning_count": len(trace_warnings),
             "normalized_result": result.as_dict(),
         }
 
@@ -213,12 +340,8 @@ class BatchExecutor:
     ) -> dict[str, Any]:
         execution_meta = execution_meta or {}
         active_audio_path = str(sample_audio_path or sample.audio_path)
-        audio_duration_sec = float(sample.duration_sec or 0.0)
-        if audio_duration_sec <= 0.0:
-            try:
-                audio_duration_sec = float(wav_duration_sec(active_audio_path))
-            except Exception:
-                audio_duration_sec = 0.0
+        duration_fields = self._duration_fields(sample, active_audio_path)
+        audio_duration_sec = float(duration_fields.get("audio_duration_sec", 0.0) or 0.0)
 
         sample_rate_hz, channels, sample_width_bytes, _ = wav_info(active_audio_path)
         chunk_ms = int(execution_meta.get("streaming_chunk_ms", 500) or 500)
@@ -242,88 +365,123 @@ class BatchExecutor:
         provider_meta = provider_runtime_metadata(provider, record_invocation=True)
 
         partial_count = 0
+        seen_partial_texts: set[str] = set()
         first_partial_latency_ms = 0.0
         start = perf_counter()
         replay_rate = self._stream_replay_rate(execution_meta)
         streamed_audio_sec = 0.0
-        with trace_collector.stage(
-            "provider_stream",
-            component=getattr(provider, "provider_id", "provider"),
-            code_path=f"{type(provider).__module__}.{type(provider).__name__}.start_stream",
-            input_summary={
-                "audio_duration_sec": audio_duration_sec,
-                "language": sample.language,
-                "provider_profile": provider_profile,
-                "chunk_ms": chunk_ms,
-            },
-        ) as stage_output:
-            provider.start_stream(
-                {
-                    "session_id": session_id,
-                    "request_id": request_id,
+        stop_requested_at = 0.0
+        resource_sampler = ResourceSampler() if self.observability_config is not None else None
+        if resource_sampler is not None:
+            resource_sampler.start()
+        try:
+            with trace_collector.stage(
+                "provider_stream",
+                component=getattr(provider, "provider_id", "provider"),
+                code_path=f"{type(provider).__module__}.{type(provider).__name__}.start_stream",
+                input_summary={
+                    "audio_duration_sec": audio_duration_sec,
                     "language": sample.language,
-                    "sample_rate_hz": sample_rate_hz,
-                    "channels": channels,
-                    "encoding": "pcm_s16le"
-                    if sample_width_bytes == 2
-                    else f"pcm_s{sample_width_bytes * 8}le",
-                    "sample_width_bytes": sample_width_bytes,
-                }
-            )
-            for chunk in wav_pcm_chunks(active_audio_path, chunk_sec):
-                updates = []
-                partial = provider.push_audio(chunk)
-                if partial is not None:
-                    updates.append(partial)
-                updates.extend(provider.drain_stream_results())
-                for update in updates:
+                    "provider_profile": provider_profile,
+                    "chunk_ms": chunk_ms,
+                },
+            ) as stage_output:
+                provider.start_stream(
+                    {
+                        "session_id": session_id,
+                        "request_id": request_id,
+                        "language": sample.language,
+                        "sample_rate_hz": sample_rate_hz,
+                        "channels": channels,
+                        "encoding": "pcm_s16le"
+                        if sample_width_bytes == 2
+                        else f"pcm_s{sample_width_bytes * 8}le",
+                        "sample_width_bytes": sample_width_bytes,
+                    }
+                )
+                for chunk in wav_pcm_chunks(active_audio_path, chunk_sec):
+                    updates = []
+                    partial = provider.push_audio(chunk)
+                    if partial is not None:
+                        updates.append(partial)
+                    updates.extend(provider.drain_stream_results())
+                    for update in updates:
+                        if not update.is_partial or not update.text:
+                            continue
+                        partial_text = str(update.text or "").strip()
+                        if not partial_text or partial_text in seen_partial_texts:
+                            continue
+                        seen_partial_texts.add(partial_text)
+                        partial_count += 1
+                        if first_partial_latency_ms <= 0.0:
+                            first_partial_latency_ms = max(
+                                float(update.latency.first_partial_ms or 0.0),
+                                (perf_counter() - start) * 1000.0,
+                            )
+                    if replay_rate > 0.0:
+                        bytes_per_second = max(
+                            int(sample_rate_hz)
+                            * max(int(channels), 1)
+                            * max(int(sample_width_bytes), 1),
+                            1,
+                        )
+                        streamed_audio_sec += len(chunk) / float(bytes_per_second)
+                        target_elapsed_sec = streamed_audio_sec / replay_rate
+                        remaining_sec = target_elapsed_sec - (perf_counter() - start)
+                        if remaining_sec > 0.0:
+                            sleep(remaining_sec)
+                stop_requested_at = perf_counter()
+                result = provider.stop_stream()
+                for update in provider.drain_stream_results():
                     if not update.is_partial or not update.text:
                         continue
+                    partial_text = str(update.text or "").strip()
+                    if not partial_text or partial_text in seen_partial_texts:
+                        continue
+                    seen_partial_texts.add(partial_text)
                     partial_count += 1
                     if first_partial_latency_ms <= 0.0:
-                        first_partial_latency_ms = float(
-                            update.latency.first_partial_ms or (perf_counter() - start) * 1000.0
+                        first_partial_latency_ms = max(
+                            float(update.latency.first_partial_ms or 0.0),
+                            (perf_counter() - start) * 1000.0,
                         )
-                if replay_rate > 0.0:
-                    bytes_per_second = max(
-                        int(sample_rate_hz)
-                        * max(int(channels), 1)
-                        * max(int(sample_width_bytes), 1),
-                        1,
-                    )
-                    streamed_audio_sec += len(chunk) / float(bytes_per_second)
-                    target_elapsed_sec = streamed_audio_sec / replay_rate
-                    remaining_sec = target_elapsed_sec - (perf_counter() - start)
-                    if remaining_sec > 0.0:
-                        sleep(remaining_sec)
-            result = provider.stop_stream()
-            for update in provider.drain_stream_results():
-                if not update.is_partial or not update.text:
-                    continue
-                partial_count += 1
-                if first_partial_latency_ms <= 0.0:
-                    first_partial_latency_ms = float(
-                        update.latency.first_partial_ms or (perf_counter() - start) * 1000.0
-                    )
-            stage_output["partial_count"] = partial_count
-            stage_output["first_partial_latency_ms"] = first_partial_latency_ms
-            stage_output["latency_ms"] = float(result.latency.total_ms)
-            stage_output["provider_id"] = result.provider_id
-            stage_output["text_length"] = len(str(result.text or ""))
-        finalization_latency_ms = float(result.latency.finalization_ms or 0.0)
-        estimated_cost_usd = float(execution_meta.get("estimated_cost_usd", 0.0) or 0.0)
+                stage_output["partial_count"] = partial_count
+                stage_output["first_partial_latency_ms"] = first_partial_latency_ms
+                stage_output["latency_ms"] = float(result.latency.total_ms)
+                stage_output["provider_id"] = result.provider_id
+                stage_output["text_length"] = len(str(result.text or ""))
+            end_to_end_latency_ms = max(
+                (perf_counter() - start) * 1000.0,
+                float(result.latency.total_ms),
+                0.0,
+            )
+        finally:
+            resource_sample = resource_sampler.stop() if resource_sampler is not None else None
+
+        if first_partial_latency_ms <= 0.0:
+            first_partial_latency_ms = end_to_end_latency_ms
+        provider_first_partial_ms = float(result.latency.first_partial_ms or 0.0)
+        time_to_first_result_ms = max(first_partial_latency_ms, provider_first_partial_ms)
+        time_to_final_result_ms = end_to_end_latency_ms
+        finalization_latency_ms = (
+            max((perf_counter() - stop_requested_at) * 1000.0, 0.0) if stop_requested_at > 0.0 else 0.0
+        )
+        estimated_cost_usd = self._estimated_cost_usd(duration_fields, execution_meta)
         self._require_quality_reference(sample)
         quality_support = text_quality_support(sample.transcript, result.text)
 
         context = MetricContext(
             reference_text=sample.transcript,
             hypothesis_text=result.text,
-            latency_ms=result.latency.total_ms,
             success=not result.degraded and not result.error_code,
             execution_mode="streaming",
-            audio_duration_sec=audio_duration_sec,
+            provider_compute_latency_ms=float(result.latency.total_ms),
+            end_to_end_latency_ms=end_to_end_latency_ms,
+            measured_audio_duration_sec=float(duration_fields.get("audio_duration_sec", 0.0) or 0.0),
             estimated_cost_usd=estimated_cost_usd,
-            first_partial_latency_ms=first_partial_latency_ms,
+            first_partial_latency_ms=float(result.latency.first_partial_ms or first_partial_latency_ms),
+            time_to_first_result_ms=time_to_first_result_ms,
+            time_to_final_result_ms=time_to_final_result_ms,
             finalization_latency_ms=finalization_latency_ms,
             partial_count=partial_count,
             quality_support=quality_support,
@@ -334,16 +492,27 @@ class BatchExecutor:
         metrics["inference_ms"] = float(result.latency.inference_ms)
         metrics["postprocess_ms"] = float(result.latency.postprocess_ms)
         metrics.update(provider_meta)
+        self._populate_metric_envelope(
+            metrics,
+            duration_fields=duration_fields,
+            provider_compute_latency_ms=float(result.latency.total_ms),
+            end_to_end_latency_ms=end_to_end_latency_ms,
+            time_to_first_result_ms=time_to_first_result_ms,
+            time_to_final_result_ms=time_to_final_result_ms,
+            finalization_latency_ms=finalization_latency_ms,
+            estimated_cost_usd=estimated_cost_usd,
+            partial_count=partial_count,
+            first_partial_latency_ms=float(result.latency.first_partial_ms or first_partial_latency_ms),
+        )
+
         trace_artifact_ref = ""
         trace_corrupted = False
+        trace_warnings: list[str] = []
         if (
             self.observability_config is not None
             and self.trace_exporter is not None
             and self.run_dir
         ):
-            trace_collector.set_metric("first_partial_latency_ms", first_partial_latency_ms)
-            trace_collector.set_metric("finalization_latency_ms", finalization_latency_ms)
-            trace_collector.set_metric("partial_count", partial_count)
             trace = build_benchmark_trace(
                 collector=trace_collector,
                 config=self.observability_config,
@@ -355,11 +524,18 @@ class BatchExecutor:
                 error_code=result.error_code,
                 error_message=result.error_message,
                 language=result.language or sample.language,
-                audio_duration_sec=audio_duration_sec,
+                measured_audio_duration_sec=duration_fields.get("measured_audio_duration_sec"),
+                declared_audio_duration_sec=duration_fields.get("declared_audio_duration_sec"),
                 preprocess_ms=float(result.latency.preprocess_ms),
                 inference_ms=float(result.latency.inference_ms),
                 postprocess_ms=float(result.latency.postprocess_ms),
-                total_latency_ms=float(result.latency.total_ms),
+                provider_compute_latency_ms=float(result.latency.total_ms),
+                end_to_end_latency_ms=end_to_end_latency_ms,
+                time_to_first_result_ms=time_to_first_result_ms,
+                time_to_final_result_ms=time_to_final_result_ms,
+                finalization_latency_ms=finalization_latency_ms,
+                resource_sample=resource_sample,
+                audio_duration_source=str(duration_fields.get("audio_duration_source", "")),
                 reference_text=sample.transcript,
                 extra_metrics=metrics,
             )
@@ -367,11 +543,29 @@ class BatchExecutor:
                 run_dir=self.run_dir,
                 trace=trace,
             )
-            trace_corrupted = bool(trace.validation.corrupted)
-            metrics["cpu_percent"] = trace.metrics.get("cpu_percent", 0.0)
-            metrics["memory_mb"] = trace.metrics.get("memory_mb", 0.0)
-            metrics["gpu_util_percent"] = trace.metrics.get("gpu_util_percent", 0.0)
-            metrics["gpu_memory_mb"] = trace.metrics.get("gpu_memory_mb", 0.0)
+            trace_fields = self._trace_fields(trace)
+            trace_corrupted = bool(trace_fields["trace_corrupted"])
+            trace_warnings = list(trace_fields["trace_warnings"])
+            metrics.update(
+                {
+                    key: trace.metrics.get(key)
+                    for key in (
+                        "cpu_percent_mean",
+                        "cpu_percent_peak",
+                        "memory_mb_mean",
+                        "memory_mb_peak",
+                        "gpu_util_percent_mean",
+                        "gpu_util_percent_peak",
+                        "gpu_memory_mb_mean",
+                        "gpu_memory_mb_peak",
+                        "cpu_percent",
+                        "memory_mb",
+                        "gpu_util_percent",
+                        "gpu_memory_mb",
+                    )
+                    if key in trace.metrics
+                }
+            )
 
         return {
             "run_id": run_id,
@@ -387,6 +581,8 @@ class BatchExecutor:
             "error_code": result.error_code,
             "error_message": result.error_message,
             "metrics": metrics,
+            "metrics_semantics_version": METRICS_SEMANTICS_VERSION,
+            "legacy_metrics": False,
             "execution_mode": "streaming",
             "streaming_mode": execution_meta.get("streaming_mode", "none"),
             "scenario": execution_meta.get("scenario", "clean_baseline"),
@@ -396,8 +592,12 @@ class BatchExecutor:
             "provider_preset": execution_meta.get("provider_preset", ""),
             "input_audio_path": active_audio_path,
             "audio_duration_sec": audio_duration_sec,
+            "measured_audio_duration_sec": duration_fields.get("measured_audio_duration_sec"),
+            "declared_audio_duration_sec": duration_fields.get("declared_audio_duration_sec"),
+            "duration_mismatch_sec": duration_fields.get("duration_mismatch_sec"),
+            "audio_duration_source": duration_fields.get("audio_duration_source"),
             "partial_count": partial_count,
-            "first_partial_latency_ms": first_partial_latency_ms,
+            "first_partial_latency_ms": float(result.latency.first_partial_ms or first_partial_latency_ms),
             "finalization_latency_ms": finalization_latency_ms,
             "confidence": float(result.confidence),
             "preprocess_ms": float(result.latency.preprocess_ms),
@@ -405,5 +605,7 @@ class BatchExecutor:
             "postprocess_ms": float(result.latency.postprocess_ms),
             "trace_artifact_ref": trace_artifact_ref,
             "trace_corrupted": trace_corrupted,
+            "trace_warnings": trace_warnings,
+            "trace_warning_count": len(trace_warnings),
             "normalized_result": result.as_dict(),
         }

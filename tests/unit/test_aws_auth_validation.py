@@ -27,6 +27,7 @@ sso_region = eu-north-1
 
 [profile ros2ws]
 sso_session = ros2ws-sso
+sso_account_id = 123456789012
 region = eu-north-1
 output = json
 """.strip(),
@@ -67,9 +68,21 @@ output = json
 {"accessToken":"token","startUrl":"https://example.awsapps.com/start","region":"eu-north-1","expiresAt":"2026-06-09T15:56:33Z"}
 """.strip(),
     )
+    _write(
+        tmp_path / ".aws" / "cli" / "cache" / "role.json",
+        """
+{"ProviderType":"sso","Credentials":{"AccessKeyId":"ASIAOTHER","SecretAccessKey":"secret","SessionToken":"token","Expiration":"2026-06-10T09:17:43Z","AccountId":"999999999999"}}
+""".strip(),
+    )
 
     backend = AwsAsrBackend(config={"profile": "ros2ws", "region": "eu-north-1"})
+    status = backend.auth_status()
+
     assert backend.auth_validation_errors() == []
+    assert status["status"] == "sso_session_valid_no_role_credentials"
+    assert status["runtime_ready"] is True
+    assert status["sso_session_valid"] is True
+    assert status["role_credentials_valid"] is False
 
 
 def test_aws_auth_validation_accepts_valid_cli_cache_when_sso_token_is_expired(
@@ -110,6 +123,72 @@ output = json
     assert status["status"] == "role_credentials_valid_sso_expired"
     assert status["runtime_ready"] is True
     assert status["login_recommended"] is True
+
+
+def test_non_sso_profile_is_runtime_ready_without_borrowing_sso_cli_cache(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setenv("HOME", str(tmp_path))
+    _write(
+        tmp_path / ".aws" / "config",
+        """
+[profile ros2ws]
+region = eu-north-1
+output = json
+""".strip(),
+    )
+    _write(
+        tmp_path / ".aws" / "cli" / "cache" / "role.json",
+        """
+{"ProviderType":"sso","Credentials":{"AccessKeyId":"ASIAOTHER","SecretAccessKey":"secret","SessionToken":"token","Expiration":"2026-06-10T09:17:43Z","AccountId":"999999999999"}}
+""".strip(),
+    )
+
+    backend = AwsAsrBackend(config={"profile": "ros2ws", "region": "eu-north-1"})
+    status = backend.auth_status()
+
+    assert status["status"] == "profile_configured"
+    assert status["runtime_ready"] is True
+    assert status["role_credentials_valid"] is False
+    assert status["role_credentials_expires_at"] == ""
+
+
+def test_non_sso_profile_does_not_use_unrelated_sso_cli_cache_credentials(
+    monkeypatch,
+    tmp_path: Path,
+) -> None:
+    monkeypatch.setenv("HOME", str(tmp_path))
+    _write(
+        tmp_path / ".aws" / "config",
+        """
+[profile ros2ws]
+region = eu-north-1
+output = json
+""".strip(),
+    )
+    _write(
+        tmp_path / ".aws" / "cli" / "cache" / "role.json",
+        """
+{"ProviderType":"sso","Credentials":{"AccessKeyId":"ASIAOTHER","SecretAccessKey":"secret","SessionToken":"token","Expiration":"2026-06-10T09:17:43Z","AccountId":"999999999999"}}
+""".strip(),
+    )
+
+    calls: list[dict[str, str]] = []
+
+    class _FakeSession:
+        def __init__(self, **kwargs):
+            calls.append(kwargs)
+
+        def client(self, name: str, region_name: str | None = None):
+            return {"name": name, "region_name": region_name}
+
+    monkeypatch.setitem(sys.modules, "boto3", SimpleNamespace(Session=_FakeSession))
+
+    backend = AwsAsrBackend(config={"profile": "ros2ws", "region": "eu-north-1", "s3_bucket": "dummy"})
+    backend._clients()
+
+    assert calls == [{"profile_name": "ros2ws", "region_name": "eu-north-1"}]
 
 
 def test_aws_clients_use_valid_cli_cache_credentials_before_sso_refresh(

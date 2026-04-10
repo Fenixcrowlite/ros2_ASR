@@ -53,9 +53,46 @@ def test_google_secret_status_reads_service_account_json(tmp_path: Path) -> None
     )
 
     assert status["runtime_ready"] is True
+    assert status["status"] == "ready"
     assert status["project_id"] == "demo-project"
     assert status["client_email_masked"].endswith("@demo-project.iam.gserviceaccount.com")
     assert status["credential_type"] == "service_account"
+
+
+def test_google_secret_status_detects_invalid_json(tmp_path: Path) -> None:
+    credential_file = tmp_path / "service-account.json"
+    credential_file.write_text("{not-json", encoding="utf-8")
+
+    status = google_secret_status(
+        "unused",
+        resolved_file_path=str(credential_file),
+        resolved_source="path",
+    )
+
+    assert status["runtime_ready"] is False
+    assert status["status"] == "invalid_json"
+
+
+def test_google_secret_status_detects_incomplete_service_account_json(tmp_path: Path) -> None:
+    credential_file = tmp_path / "service-account.json"
+    credential_file.write_text(
+        json.dumps(
+            {
+                "type": "service_account",
+                "project_id": "demo-project",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    status = google_secret_status(
+        "unused",
+        resolved_file_path=str(credential_file),
+        resolved_source="path",
+    )
+
+    assert status["runtime_ready"] is False
+    assert status["status"] == "invalid_service_account_json"
 
 
 def test_azure_secret_status_reports_runtime_ready(tmp_path: Path) -> None:
@@ -75,9 +112,30 @@ def test_azure_secret_status_reports_runtime_ready(tmp_path: Path) -> None:
     )
 
     assert status["runtime_ready"] is True
+    assert status["status"] == "ready"
     assert status["speech_key_source"] == "local_env_file"
     assert status["region"] == "eastus"
     assert status["endpoint_mode"] == "url"
+
+
+def test_azure_secret_status_reports_missing_region(tmp_path: Path) -> None:
+    env_file = tmp_path / "runtime.env"
+    env_file.write_text("AZURE_SPEECH_KEY=test\n", encoding="utf-8")
+
+    values = {
+        "AZURE_SPEECH_KEY": ("test", "local_env_file"),
+        "AZURE_SPEECH_REGION": ("", ""),
+        "ASR_AZURE_ENDPOINT": ("", ""),
+    }
+
+    status = azure_secret_status(
+        "secrets/refs/azure.yaml",
+        resolve_env_value=lambda key, _source: values.get(key, ("", "")),
+        local_env_file_path=lambda _source: env_file,
+    )
+
+    assert status["runtime_ready"] is False
+    assert status["status"] == "missing_region"
 
 
 def test_huggingface_secret_status_marks_local_token_optional(tmp_path: Path) -> None:
@@ -164,6 +222,56 @@ def test_validate_secret_file_builds_google_auth_detail(tmp_path: Path) -> None:
     assert detail["valid"] is True
     assert detail["resolved_file_path"] == str(credential_file)
     assert detail["auth"]["runtime_ready"] is True
+
+
+def test_validate_secret_file_marks_invalid_google_auth_payload(tmp_path: Path) -> None:
+    refs_root = tmp_path / "secrets" / "refs"
+    refs_root.mkdir(parents=True)
+    ref_file = refs_root / "google_service_account.yaml"
+    ref_file.write_text("placeholder", encoding="utf-8")
+    credential_file = tmp_path / "secrets" / "google" / "service-account.json"
+    credential_file.parent.mkdir(parents=True)
+    credential_file.write_text(
+        json.dumps(
+            {
+                "type": "service_account",
+                "project_id": "demo-project",
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    ref = SimpleNamespace(
+        ref_id="google_service_account",
+        provider="google",
+        kind="file",
+        path="secrets/google/service-account.json",
+        env_fallback="",
+        required=[],
+        optional=[],
+        masked=True,
+        source_path=str(ref_file),
+    )
+
+    detail = validate_secret_file(
+        ref_file,
+        load_secret_ref=lambda _path: ref,
+        resolve_secret_ref=lambda _ref: {"file_path": str(credential_file)},
+        resolve_env_value=lambda _key, _source: ("", ""),
+        aws_backend_factory=lambda: None,
+        azure_status_factory=lambda _source: {},
+        google_status_factory=lambda source, file_path, resolved_source: google_secret_status(
+            source,
+            resolved_file_path=file_path,
+            resolved_source=resolved_source,
+        ),
+        huggingface_status_factory=lambda _source, _provider, _required: {},
+    )
+
+    assert detail["valid"] is False
+    assert detail["auth"]["runtime_ready"] is False
+    assert detail["auth"]["status"] == "invalid_service_account_json"
+    assert any("complete service-account JSON" in issue for issue in detail["issues"])
 
 
 def test_validate_secret_file_includes_aws_auth_issues(tmp_path: Path) -> None:

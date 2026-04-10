@@ -82,6 +82,8 @@ class PipelineTraceCollector:
             self._trace.metadata[str(key)] = value
 
     def finalize(self) -> PipelineTrace:
+        if self._trace.finished_ns > 0:
+            return self._trace
         finished_ns = time.perf_counter_ns()
         self._trace.finished_ns = finished_ns
         self._trace.total_duration_ms = max((finished_ns - self._started_ns) / 1_000_000.0, 0.0)

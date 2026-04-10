@@ -113,7 +113,7 @@ export function initBenchmarkPage(ctx) {
         {
           key: 'provider',
           label: 'Provider',
-          value: (row) => ui.escapeHtml(row.provider_profile || row.provider_id || row.provider_key || 'unknown'),
+          value: (row) => `${ui.escapeHtml(row.provider_profile || row.provider_id || row.provider_key || 'unknown')}${row.legacy_metrics ? ' <span class="badge badge-warning">Legacy semantics</span>' : ''}`,
         },
         {
           key: 'preset',
@@ -126,8 +126,8 @@ export function initBenchmarkPage(ctx) {
         { key: 'wer', label: 'WER', value: (row) => fmtMetric(row.quality_metrics?.wer) },
         { key: 'cer', label: 'CER', value: (row) => fmtMetric(row.quality_metrics?.cer) },
         { key: 'acc', label: 'Exact Match Rate', value: (row) => fmtMetric(row.quality_metrics?.sample_accuracy) },
-        { key: 'lat', label: 'Latency ms', value: (row) => fmtMetric(row.latency_metrics?.total_latency_ms) },
-        { key: 'rtf', label: 'RTF', value: (row) => fmtMetric(row.latency_metrics?.real_time_factor) },
+        { key: 'lat', label: 'End-to-end ms', value: (row) => fmtMetric(row.latency_metrics?.end_to_end_latency_ms) },
+        { key: 'rtf', label: 'End-to-end RTF', value: (row) => fmtMetric(row.latency_metrics?.end_to_end_rtf) },
         { key: 'succ_rate', label: 'Success Rate', value: (row) => fmtMetric(row.reliability_metrics?.success_rate) },
         { key: 'fail_rate', label: 'Failure Rate', value: (row) => fmtMetric(row.reliability_metrics?.failure_rate) },
         { key: 'cost_mean', label: 'Mean Cost USD', value: (row) => fmtMetric(row.cost_metrics?.estimated_cost_usd) },
@@ -453,7 +453,7 @@ export function initBenchmarkPage(ctx) {
                 .map((item) => {
                   const name = item.provider_profile || item.provider_id || item.provider_key || 'unknown';
                   const wer = item.quality_metrics?.wer;
-                  const latency = item.latency_metrics?.total_latency_ms;
+                  const latency = item.latency_metrics?.end_to_end_latency_ms;
                   return `${name}: wer=${wer ?? 'n/a'}, latency=${latency ?? 'n/a'}`;
                 })
                 .join(' | ')

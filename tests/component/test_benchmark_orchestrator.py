@@ -8,6 +8,7 @@ import pytest
 import yaml  # type: ignore[import-untyped]
 from asr_benchmark_core.models import BenchmarkRunRequest
 from asr_benchmark_core.orchestrator import BenchmarkOrchestrator
+from asr_core.audio import wav_duration_sec
 from asr_provider_base import register_provider
 
 from tests.utils.fakes import FakeProviderAdapter
@@ -595,7 +596,8 @@ def test_benchmark_orchestrator_uses_preset_cost_and_omits_streaming_metrics_in_
         )
     )
 
-    assert summary.mean_metrics["estimated_cost_usd"] == 0.25
+    expected_cost = (float(wav_duration_sec(str(imported_audio))) / 60.0) * 0.5
+    assert summary.mean_metrics["estimated_cost_usd"] == pytest.approx(expected_cost)
     assert "first_partial_latency_ms" not in summary.mean_metrics
     assert "partial_count" not in summary.mean_metrics
     summary_payload = json.loads(
@@ -603,14 +605,13 @@ def test_benchmark_orchestrator_uses_preset_cost_and_omits_streaming_metrics_in_
             artifacts / "benchmark_runs" / "bench_cost_run" / "reports" / "summary.json"
         ).read_text(encoding="utf-8")
     )
-    assert summary_payload["cost_metrics"]["estimated_cost_usd"] == 0.25
-    assert summary_payload["cost_totals"]["estimated_cost_usd"] == 0.25
+    assert summary_payload["cost_metrics"]["estimated_cost_usd"] == pytest.approx(expected_cost)
+    assert summary_payload["cost_totals"]["estimated_cost_usd"] == pytest.approx(expected_cost)
     resource_metrics = summary_payload["resource_metrics"]
-    assert resource_metrics["cpu_percent"] >= 0.0
-    assert resource_metrics["memory_mb"] >= 0.0
-    assert resource_metrics["gpu_util_percent"] >= 0.0
-    assert resource_metrics["gpu_memory_mb"] >= 0.0
-    assert summary_payload["metric_statistics"]["estimated_cost_usd"]["sum"] == 0.25
+    if resource_metrics:
+        assert resource_metrics["cpu_percent_mean"] >= 0.0
+        assert resource_metrics["memory_mb_mean"] >= 0.0
+    assert summary_payload["metric_statistics"]["estimated_cost_usd"]["sum"] == pytest.approx(expected_cost)
 
     csv_text = (
         artifacts / "benchmark_runs" / "bench_cost_run" / "metrics" / "results.csv"

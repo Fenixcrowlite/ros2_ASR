@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 from collections.abc import Callable, Mapping
 from datetime import UTC, datetime
 from pathlib import Path
@@ -11,6 +12,7 @@ from asr_config import resolve_profile
 from asr_datasets import DatasetRegistry, load_manifest
 from asr_metrics.definitions import metric_preference as metric_preference_from_registry
 from asr_metrics.quality import text_quality_support
+from asr_metrics.semantics import METRICS_SEMANTICS_VERSION
 from fastapi import HTTPException
 
 ReadJsonFn = Callable[[Path, Any], Any]
@@ -123,8 +125,19 @@ def resolved_run_completed_at(
     summary: Mapping[str, Any] | None,
     job: Mapping[str, Any],
 ) -> str:
-    del summary
+    summary_map = summary if isinstance(summary, Mapping) else {}
     explicit = str(job.get("completed_at", "") or "").strip()
+    if explicit:
+        return explicit
+    explicit = str(summary_map.get("completed_at", "") or "").strip()
+    if explicit:
+        return explicit
+    run_manifest = {}
+    try:
+        run_manifest = json.loads((run_dir_path / "manifest" / "run_manifest.json").read_text(encoding="utf-8"))
+    except Exception:
+        run_manifest = {}
+    explicit = str(run_manifest.get("completed_at", "") or "").strip()
     if explicit:
         return explicit
     state = resolved_run_state(run_dir_path=run_dir_path, summary={}, job=job)
@@ -303,7 +316,10 @@ def list_benchmark_history(
             {
                 "run_id": run_id,
                 "state": state,
-                "started_at": job.get("started_at", run_manifest.get("created_at", "")),
+                "started_at": job.get(
+                    "started_at",
+                    run_manifest.get("started_at", run_manifest.get("created_at", "")),
+                ),
                 "completed_at": resolved_run_completed_at(
                     run_dir_path=run_dir_path,
                     summary=summary if isinstance(summary, Mapping) else {},
@@ -321,6 +337,10 @@ def list_benchmark_history(
                     "execution_mode",
                     run_manifest.get("execution_mode", "batch"),
                 ),
+                "metrics_semantics_version": summary.get("metrics_semantics_version", 1),
+                "legacy_metrics": bool(summary.get("legacy_metrics", True)),
+                "mixed_semantics": bool(summary.get("mixed_semantics", False)),
+                "warning_samples": int(summary.get("warning_samples", 0) or 0),
                 "aggregate_scope": summary.get("aggregate_scope", "provider_only"),
                 "providers": run_manifest.get("providers", []),
                 "total_samples": summary.get("total_samples", run_manifest.get("sample_count", 0)),
@@ -352,6 +372,10 @@ def list_benchmark_history(
                 "state": job_state.get("state", "unknown"),
                 "started_at": job_state.get("started_at", ""),
                 "completed_at": job_state.get("completed_at", ""),
+                "metrics_semantics_version": 1,
+                "legacy_metrics": True,
+                "mixed_semantics": False,
+                "warning_samples": 0,
                 "benchmark_profile": job_state.get("benchmark_profile", ""),
                 "dataset_profile": job_state.get("dataset_profile", ""),
                 "scenario": job_state.get("scenario", ""),
@@ -427,7 +451,28 @@ def run_detail(
             job=job,
         ),
         "run_manifest": run_manifest,
-        "summary": summary,
+        "summary": {
+            **summary,
+            "metrics_semantics_version": summary.get("metrics_semantics_version", 1)
+            if isinstance(summary, Mapping)
+            else 1,
+            "legacy_metrics": bool(summary.get("legacy_metrics", True))
+            if isinstance(summary, Mapping)
+            else True,
+            "mixed_semantics": bool(summary.get("mixed_semantics", False))
+            if isinstance(summary, Mapping)
+            else False,
+            "warning_samples": int(summary.get("warning_samples", 0) or 0)
+            if isinstance(summary, Mapping)
+            else 0,
+        }
+        if isinstance(summary, Mapping)
+        else {
+            "metrics_semantics_version": 1,
+            "legacy_metrics": True,
+            "mixed_semantics": False,
+            "warning_samples": 0,
+        },
         "results_head": results_head,
         "results_count": results_count,
         "artifacts": {
@@ -458,10 +503,15 @@ def compare_runs(
     subjects: list[dict[str, Any]] = []
     by_run: dict[str, dict[str, float]] = {}
     discovered_metric_names: set[str] = set()
+    semantics_versions: set[int] = set()
+    mixed_semantics = False
 
     for detail in details:
         result_run_id = str(detail.get("run_id", ""))
         summary = detail.get("summary", {})
+        if isinstance(summary, Mapping):
+            semantics_versions.add(int(summary.get("metrics_semantics_version", 1) or 1))
+            mixed_semantics = mixed_semantics or bool(summary.get("mixed_semantics", False))
         provider_summaries = summary.get("provider_summaries", [])
         if isinstance(provider_summaries, list) and provider_summaries:
             for provider_summary in provider_summaries:
@@ -493,6 +543,16 @@ def compare_runs(
                         "provider_profile": str(provider_summary.get("provider_profile", "") or ""),
                         "provider_id": str(provider_summary.get("provider_id", "") or ""),
                         "provider_preset": str(provider_summary.get("provider_preset", "") or ""),
+                        "metrics_semantics_version": int(
+                            provider_summary.get(
+                                "metrics_semantics_version",
+                                summary.get("metrics_semantics_version", 1),
+                            )
+                            or 1
+                        ),
+                        "legacy_metrics": bool(
+                            provider_summary.get("legacy_metrics", summary.get("legacy_metrics", True))
+                        ),
                     }
                 )
                 by_run[entity_id] = row
@@ -517,11 +577,18 @@ def compare_runs(
                 "provider_profile": "",
                 "provider_id": "",
                 "provider_preset": "",
+                "metrics_semantics_version": int(summary.get("metrics_semantics_version", 1) or 1)
+                if isinstance(summary, Mapping)
+                else 1,
+                "legacy_metrics": bool(summary.get("legacy_metrics", True))
+                if isinstance(summary, Mapping)
+                else True,
             }
         )
         by_run[result_run_id] = row
 
     metric_names = sorted(set(metrics) if metrics else discovered_metric_names)
+    mixed_semantics = mixed_semantics or len(semantics_versions) > 1
 
     table: list[dict[str, Any]] = []
     entity_ids = [str(subject.get("entity_id", "")) for subject in subjects]
@@ -529,7 +596,7 @@ def compare_runs(
         values = {entity_id: by_run.get(entity_id, {}).get(metric) for entity_id in entity_ids}
         available = {entity_id: val for entity_id, val in values.items() if val is not None}
         best_run = ""
-        if available:
+        if available and not mixed_semantics:
             if metric_preference_func(metric) == "lower":
                 best_run = min(available, key=lambda entity_id: available[entity_id])
             else:
@@ -546,6 +613,13 @@ def compare_runs(
 
     return {
         "run_ids": run_ids,
+        "metrics_semantics_version": METRICS_SEMANTICS_VERSION,
+        "mixed_semantics": mixed_semantics,
+        "comparison_warning": (
+            "Mixed metrics semantics detected. v1 and v2 runs are not directly comparable."
+            if mixed_semantics
+            else ""
+        ),
         "subjects": subjects,
         "metrics": metric_names,
         "by_run": by_run,

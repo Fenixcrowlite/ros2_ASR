@@ -130,9 +130,10 @@ class BenchmarkOrchestrator:
             "wer",
             "cer",
             "sample_accuracy",
-            "total_latency_ms",
-            "per_utterance_latency_ms",
-            "real_time_factor",
+            "provider_compute_latency_ms",
+            "end_to_end_latency_ms",
+            "provider_compute_rtf",
+            "end_to_end_rtf",
             "success_rate",
             "failure_rate",
         ]
@@ -362,11 +363,18 @@ class BenchmarkOrchestrator:
         )
 
     def _build_run_manifest(
-        self, request: BenchmarkRunRequest, plan: ResolvedBenchmarkPlan
+        self,
+        request: BenchmarkRunRequest,
+        plan: ResolvedBenchmarkPlan,
+        *,
+        started_at: str,
+        completed_at: str = "",
     ) -> dict[str, Any]:
         return {
             "run_id": plan.run_id,
             "created_at": datetime.now(UTC).isoformat(),
+            "started_at": started_at,
+            "completed_at": completed_at,
             "benchmark_profile": request.benchmark_profile,
             "dataset_profile": plan.dataset_profile_ref,
             "providers": plan.provider_profiles,
@@ -386,14 +394,11 @@ class BenchmarkOrchestrator:
         }
 
     @staticmethod
-    def _estimate_provider_cost(sample: Any, execution: dict[str, Any]) -> float:
+    def _estimate_provider_cost_per_minute(execution: dict[str, Any]) -> float:
         provider_cost_per_minute = float(
             execution.get("preset", {}).get("estimated_cost_usd_per_min", 0.0) or 0.0
         )
-        if provider_cost_per_minute <= 0:
-            return 0.0
-        duration_min = max(float(sample.duration_sec or 0.0), 0.0) / 60.0
-        return duration_min * provider_cost_per_minute
+        return provider_cost_per_minute if provider_cost_per_minute > 0 else 0.0
 
     @staticmethod
     def _resolve_sample_audio_path(
@@ -424,7 +429,7 @@ class BenchmarkOrchestrator:
             "provider_label": execution.get("preset", {}).get("label", ""),
             "quality_tier": execution.get("preset", {}).get("quality_tier", "balanced"),
             "resource_tier": execution.get("preset", {}).get("resource_tier", "medium"),
-            "estimated_cost_usd": self._estimate_provider_cost(sample, execution),
+            "estimated_cost_usd_per_min": self._estimate_provider_cost_per_minute(execution),
             "execution_mode": plan.execution_mode,
             "streaming_mode": caps.streaming_mode if plan.execution_mode == "streaming" else "none",
             "streaming_chunk_ms": int(
@@ -524,8 +529,10 @@ class BenchmarkOrchestrator:
     def run(self, request: BenchmarkRunRequest) -> BenchmarkRunSummary:
         plan = self._resolve_run_plan(request)
         run_dir = self.artifact_store.make_benchmark_run(plan.run_id)
+        started_at = datetime.now(UTC).isoformat()
         manifest_ref = self.artifact_store.save_manifest(
-            run_dir, self._build_run_manifest(request, plan)
+            run_dir,
+            self._build_run_manifest(request, plan, started_at=started_at),
         )
 
         metric_engine = MetricEngine(enabled_metrics=plan.enabled_metrics)
@@ -548,6 +555,16 @@ class BenchmarkOrchestrator:
             results=results,
             scenario=plan.scenario,
             execution_mode=plan.execution_mode,
+        )
+        completed_at = datetime.now(UTC).isoformat()
+        self.artifact_store.save_manifest(
+            run_dir,
+            self._build_run_manifest(
+                request,
+                plan,
+                started_at=started_at,
+                completed_at=completed_at,
+            ),
         )
 
         summary_ref = self.artifact_store.save_json(run_dir / "reports" / "summary.json", summary)
@@ -712,11 +729,15 @@ class BenchmarkOrchestrator:
             )
         if len(provider_summaries) > 1:
             aggregate = {
+                "metrics_semantics_version": aggregate.get("metrics_semantics_version", 2),
+                "legacy_metrics": aggregate.get("legacy_metrics", False),
+                "mixed_semantics": aggregate.get("mixed_semantics", False),
                 "samples": aggregate["samples"],
                 "total_samples": aggregate["total_samples"],
                 "successful_samples": aggregate["successful_samples"],
                 "failed_samples": aggregate["failed_samples"],
                 "aggregate_samples": aggregate["aggregate_samples"],
+                "warning_samples": aggregate.get("warning_samples", 0),
                 "mean_metrics": {},
                 "metric_counts": {},
                 "metric_statistics": {},
@@ -730,6 +751,7 @@ class BenchmarkOrchestrator:
                 "cost_totals": {},
                 "streaming_metrics": {},
                 "resource_metrics": {},
+                "diagnostic_metrics": {},
             }
 
         summary = {

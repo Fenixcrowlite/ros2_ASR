@@ -6,6 +6,8 @@ from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from typing import Any
 
+from asr_metrics.semantics import METRICS_SEMANTICS_VERSION
+
 
 def utc_now_iso() -> str:
     return datetime.now(UTC).isoformat()
@@ -45,6 +47,8 @@ class PipelineTrace:
     trace_id: str
     trace_type: str
     created_at: str
+    metrics_semantics_version: int = METRICS_SEMANTICS_VERSION
+    legacy_metrics: bool = False
     request_id: str = ""
     session_id: str = ""
     run_id: str = ""

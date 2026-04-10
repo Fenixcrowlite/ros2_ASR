@@ -13,44 +13,7 @@ from asr_core.normalized import LatencyMetadata, NormalizedAsrResult, Normalized
 from asr_provider_base.adapter import AsrProviderAdapter
 from asr_provider_base.capabilities import ProviderCapabilities
 from asr_provider_base.models import ProviderAudio, ProviderStatus
-
-
-def _normalize(provider_id: str, audio: ProviderAudio, response: Any) -> NormalizedAsrResult:
-    words = [
-        NormalizedWord(
-            word=item.word,
-            start_sec=float(item.start_sec),
-            end_sec=float(item.end_sec),
-            confidence=float(item.confidence),
-            confidence_available=item.confidence > 0,
-        )
-        for item in response.word_timestamps
-    ]
-    return NormalizedAsrResult(
-        request_id=audio.request_id,
-        session_id=audio.session_id,
-        provider_id=provider_id,
-        text=response.text,
-        is_final=True,
-        is_partial=False,
-        utterance_start_sec=words[0].start_sec if words else 0.0,
-        utterance_end_sec=words[-1].end_sec if words else 0.0,
-        audio_duration_sec=float(getattr(response, "audio_duration_sec", 0.0) or 0.0),
-        words=words,
-        confidence=float(response.confidence),
-        confidence_available=response.confidence > 0,
-        timestamps_available=bool(words),
-        language=response.language,
-        latency=LatencyMetadata(
-            total_ms=float(response.timings.total_ms),
-            preprocess_ms=float(response.timings.preprocess_ms),
-            inference_ms=float(response.timings.inference_ms),
-            postprocess_ms=float(response.timings.postprocess_ms),
-        ),
-        degraded=not response.success,
-        error_code=response.error_code,
-        error_message=response.error_message,
-    )
+from asr_provider_base import normalize_backend_response
 
 
 class VoskProvider(AsrProviderAdapter):
@@ -66,6 +29,7 @@ class VoskProvider(AsrProviderAdapter):
         self._stream_request_id = "stream"
         self._stream_started_at = 0.0
         self._stream_first_partial_ms = 0.0
+        self._stream_stop_requested_at = 0.0
         self._stream_recognizer: Any = None
 
     def initialize(self, config: dict[str, Any], credentials_ref: dict[str, str]) -> None:
@@ -120,7 +84,12 @@ class VoskProvider(AsrProviderAdapter):
             metadata=audio.metadata,
         )
         resp = self._backend.recognize_once(req)
-        return _normalize(self.provider_id, audio, resp)
+        return normalize_backend_response(
+            provider_id=self.provider_id,
+            audio=audio,
+            response=resp,
+            is_partial=False,
+        )
 
     def start_stream(self, options: dict[str, Any] | None = None) -> None:
         opts = options or {}
@@ -139,6 +108,7 @@ class VoskProvider(AsrProviderAdapter):
         self._stream_request_id = str(opts.get("request_id", "stream") or "stream")
         self._stream_started_at = time.perf_counter()
         self._stream_first_partial_ms = 0.0
+        self._stream_stop_requested_at = 0.0
         self._stream_recognizer = self._backend._vosk_module.KaldiRecognizer(self._backend._model, self._stream_rate)  # noqa: SLF001
         self._stream_recognizer.SetWords(True)
         self._status = ProviderStatus(provider_id=self.provider_id, state="streaming")
@@ -182,6 +152,7 @@ class VoskProvider(AsrProviderAdapter):
         if self._stream_recognizer is None:
             raise RuntimeError("Vosk stream is not active")
 
+        self._stream_stop_requested_at = time.perf_counter()
         final = json.loads(self._stream_recognizer.FinalResult())
         words = [
             NormalizedWord(
@@ -196,6 +167,11 @@ class VoskProvider(AsrProviderAdapter):
         confidences = [word.confidence for word in words if word.confidence > 0]
         avg_conf = sum(confidences) / len(confidences) if confidences else 0.0
         elapsed_ms = (time.perf_counter() - self._stream_started_at) * 1000.0 if self._stream_started_at else 0.0
+        finalization_ms = (
+            max((time.perf_counter() - self._stream_stop_requested_at) * 1000.0, 0.0)
+            if self._stream_stop_requested_at > 0.0
+            else 0.0
+        )
         duration_sec = sum(len(chunk) for chunk in self._stream_chunks) / float(max(self._stream_rate * 2, 1))
         result = NormalizedAsrResult(
             request_id=self._stream_request_id,
@@ -214,14 +190,15 @@ class VoskProvider(AsrProviderAdapter):
             latency=LatencyMetadata(
                 total_ms=float(elapsed_ms),
                 preprocess_ms=0.0,
-                inference_ms=max(float(elapsed_ms) - 1.0, 0.0),
-                postprocess_ms=1.0,
+                inference_ms=max(float(elapsed_ms) - finalization_ms, 0.0),
+                postprocess_ms=finalization_ms,
                 first_partial_ms=float(self._stream_first_partial_ms),
-                finalization_ms=1.0,
+                finalization_ms=finalization_ms,
             ),
         )
         self._stream_recognizer = None
         self._stream_chunks = []
+        self._stream_stop_requested_at = 0.0
         self._status = ProviderStatus(provider_id=self.provider_id, state="ready")
         return result
 
@@ -233,5 +210,6 @@ class VoskProvider(AsrProviderAdapter):
         self._stream_chunks = []
         self._stream_started_at = 0.0
         self._stream_first_partial_ms = 0.0
+        self._stream_stop_requested_at = 0.0
         self._backend = None
         self._status = ProviderStatus(provider_id=self.provider_id, state="stopped")

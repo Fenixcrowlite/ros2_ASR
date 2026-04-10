@@ -16,6 +16,119 @@ function renderAuthFlag(ui, label, value, tone = '') {
   )}</span></p></div>`;
 }
 
+function renderAuthBadge(ui, label, text, tone = '') {
+  return `<div class="stack-item"><strong>${ui.escapeHtml(label)}</strong><p><span class="${ui.statusBadgeClass(
+    tone || 'muted'
+  )}">${ui.escapeHtml(text)}</span></p></div>`;
+}
+
+function secretsAuthTone(auth, validation = {}, options = {}) {
+  const status = String(auth?.status || '').trim();
+  const optional = Boolean(options.optional);
+  if (status === 'optional_missing') {
+    return 'warning';
+  }
+  if (auth?.runtime_ready) {
+    return auth?.login_recommended ? 'warning' : 'valid';
+  }
+  if (auth?.login_recommended) {
+    return 'warning';
+  }
+  if (optional && validation?.valid) {
+    return 'warning';
+  }
+  return validation?.valid ? 'valid' : 'invalid';
+}
+
+function awsRuntimeReadyDescription(auth) {
+  const status = String(auth.status || '').trim();
+  if (status === 'static_credentials') {
+    return 'Runtime and benchmark requests can use the configured AWS access keys.';
+  }
+  if (status === 'profile_configured') {
+    return 'Runtime and benchmark requests can start now. The AWS SDK will resolve profile credentials on the first real request.';
+  }
+  if (status === 'sso_session_valid_no_role_credentials') {
+    return 'Runtime and benchmark requests can start now. AWS will mint role credentials on the first real request.';
+  }
+  if (status === 'role_credentials_valid_sso_expired') {
+    return 'Runtime and benchmark requests can keep using the cached role credentials until they expire, but a new SSO login is recommended.';
+  }
+  if (status === 'role_credentials_valid' && !auth.uses_sso) {
+    return 'Runtime and benchmark requests can use the current AWS profile credentials.';
+  }
+  return auth.runtime_ready
+    ? 'Runtime and benchmark requests can use the current role credentials.'
+    : 'A new IAM Identity Center / SSO login is needed before AWS-backed runs can start.';
+}
+
+function googleRuntimeReadyDescription(auth) {
+  const status = String(auth.status || '').trim();
+  if (status === 'ready') {
+    return 'Google service-account credentials are ready for provider validation and runtime use.';
+  }
+  if (status === 'file_missing') {
+    return 'Google credential file path is configured, but the file is missing on disk.';
+  }
+  if (status === 'invalid_json') {
+    return 'Google credential file exists, but its JSON cannot be parsed.';
+  }
+  if (status === 'invalid_credential_file') {
+    return 'Google credential file exists, but it is not a JSON object.';
+  }
+  if (status === 'invalid_service_account_json') {
+    return 'Google credential file exists, but it is not a complete service-account JSON.';
+  }
+  return 'Google still needs a valid service-account JSON file.';
+}
+
+function azureRuntimeReadyDescription(auth) {
+  const status = String(auth.status || '').trim();
+  if (status === 'ready') {
+    return 'Azure credentials are available for provider validation and runtime session startup.';
+  }
+  if (status === 'missing_region') {
+    return 'Azure still needs a speech region before the provider can start.';
+  }
+  if (status === 'missing_speech_key') {
+    return 'Azure still needs a speech key before the provider can start.';
+  }
+  return 'Azure still needs a speech key and a region before the provider can start.';
+}
+
+function renderAwsSsoFlag(ui, auth) {
+  return renderAuthFlag(ui, 'Uses SSO / IAM Identity Center', Boolean(auth.uses_sso), auth.uses_sso ? 'valid' : 'muted');
+}
+
+function renderAwsSsoSessionFlag(ui, auth) {
+  if (!auth.uses_sso) {
+    return renderAuthBadge(ui, 'SSO sign-in session', 'n/a', 'muted');
+  }
+  if (auth.sso_session_valid) {
+    return renderAuthFlag(ui, 'SSO sign-in session', true, 'valid');
+  }
+  if (auth.sso_session_expires_at) {
+    return renderAuthBadge(ui, 'SSO sign-in session', 'expired', 'warning');
+  }
+  return renderAuthBadge(ui, 'SSO sign-in session', auth.login_recommended ? 'login required' : 'not ready', 'warning');
+}
+
+function renderAwsRoleCredentialsFlag(ui, auth) {
+  if (auth.role_credentials_valid) {
+    return renderAuthFlag(ui, 'Cached role credentials', true, 'valid');
+  }
+  if (!auth.uses_sso) {
+    return renderAuthBadge(ui, 'Cached role credentials', 'n/a', 'muted');
+  }
+  if (String(auth.status || '').trim() === 'sso_session_valid_no_role_credentials') {
+    return renderAuthBadge(ui, 'Cached role credentials', 'mint on first request', 'warning');
+  }
+  if (auth.role_credentials_expires_at) {
+    return renderAuthBadge(ui, 'Cached role credentials', 'expired', auth.runtime_ready ? 'warning' : 'invalid');
+  }
+  return renderAuthBadge(ui, 'Cached role credentials', 'missing', auth.runtime_ready ? 'warning' : 'invalid');
+}
+
 function awsDeviceLoginPageUrl(startUrl) {
   const text = String(startUrl || '').trim();
   if (!text) {
@@ -75,25 +188,30 @@ function renderAwsAuthSummary(ui, awsRef) {
     {
       key: 'Auth state',
       value: auth.status || 'unknown',
-      tone: auth.runtime_ready ? (auth.login_recommended ? 'warning' : 'valid') : auth.login_recommended ? 'warning' : 'invalid',
+      tone: secretsAuthTone(auth, validation),
     },
     { key: 'AWS profile', value: auth.profile || 'not set' },
     { key: 'Region', value: auth.region || 'not set' },
     { key: 'Runtime ready', value: auth.runtime_ready ? 'yes' : 'no', tone: auth.runtime_ready ? 'valid' : 'invalid' },
     { key: 'SSO start URL', value: auth.sso_start_url || 'not set' },
-    { key: 'SSO sign-in session expires', value: ui.fmtDate(auth.sso_session_expires_at) },
-    { key: 'Role credentials expire', value: ui.fmtDate(auth.role_credentials_expires_at) },
+    { key: 'SSO sign-in session expires', value: auth.uses_sso ? ui.fmtDate(auth.sso_session_expires_at) : 'n/a' },
+    {
+      key: 'Role credentials expire',
+      value: auth.role_credentials_expires_at
+        ? ui.fmtDate(auth.role_credentials_expires_at)
+        : String(auth.status || '').trim() === 'sso_session_valid_no_role_credentials'
+        ? 'after first request'
+        : auth.uses_sso
+        ? '—'
+        : 'n/a',
+    },
     { key: 'Login command', value: auth.login_command || 'n/a' },
   ];
 
   return `
     <div class="stack-item">
       <strong>${ui.escapeHtml(auth.message || 'AWS auth state')}</strong>
-      <p>${ui.escapeHtml(
-        auth.runtime_ready
-          ? 'Runtime and benchmark requests can use the current role credentials.'
-          : 'A new IAM Identity Center / SSO login is needed before AWS-backed runs can start.'
-      )}</p>
+      <p>${ui.escapeHtml(awsRuntimeReadyDescription(auth))}</p>
     </div>
     ${summary
       .map(
@@ -105,9 +223,9 @@ function renderAwsAuthSummary(ui, awsRef) {
         `
       )
       .join('')}
-    ${renderAuthFlag(ui, 'Uses SSO / IAM Identity Center', Boolean(auth.uses_sso), auth.uses_sso ? 'valid' : 'invalid')}
-    ${renderAuthFlag(ui, 'SSO sign-in session valid', Boolean(auth.sso_session_valid), auth.sso_session_valid ? 'valid' : 'warning')}
-    ${renderAuthFlag(ui, 'Role credentials valid', Boolean(auth.role_credentials_valid), auth.role_credentials_valid ? 'valid' : 'invalid')}
+    ${renderAwsSsoFlag(ui, auth)}
+    ${renderAwsSsoSessionFlag(ui, auth)}
+    ${renderAwsRoleCredentialsFlag(ui, auth)}
   `;
 }
 
@@ -143,19 +261,16 @@ function renderGoogleAuthSummary(ui, googleRef) {
     return ui.renderEmpty('Google auth details are not available for this ref yet.');
   }
 
-  const tone = auth.runtime_ready ? 'valid' : 'invalid';
+  const tone = secretsAuthTone(auth, validation);
+  const state = auth.status || (auth.runtime_ready ? 'ready' : 'missing_credentials');
   return `
     <div class="stack-item">
       <strong>${ui.escapeHtml(auth.message || 'Google auth state')}</strong>
-      <p>${ui.escapeHtml(
-        auth.runtime_ready
-          ? 'Google service-account credentials are ready for provider validation and runtime use.'
-          : 'Google still needs a valid service-account JSON file.'
-      )}</p>
+      <p>${ui.escapeHtml(googleRuntimeReadyDescription(auth))}</p>
     </div>
     <div class="stack-item">
       <strong>Overall state</strong>
-      <p><span class="${ui.statusBadgeClass(tone)}">${ui.escapeHtml(auth.runtime_ready ? 'ready' : 'missing_credentials')}</span></p>
+      <p><span class="${ui.statusBadgeClass(tone)}">${ui.escapeHtml(state)}</span></p>
     </div>
     <div class="stack-item">
       <strong>Credential file</strong>
@@ -188,19 +303,16 @@ function renderAzureAuthSummary(ui, azureRef) {
     return ui.renderEmpty('Azure auth details are not available for this ref yet.');
   }
 
-  const tone = auth.runtime_ready ? 'valid' : 'invalid';
+  const tone = secretsAuthTone(auth, validation);
+  const state = auth.status || (auth.runtime_ready ? 'ready' : 'missing_credentials');
   return `
     <div class="stack-item">
       <strong>${ui.escapeHtml(auth.message || 'Azure auth state')}</strong>
-      <p>${ui.escapeHtml(
-        auth.runtime_ready
-          ? 'Azure credentials are available for provider validation and runtime session startup.'
-          : 'Azure still needs a speech key and a region before the provider can start.'
-      )}</p>
+      <p>${ui.escapeHtml(azureRuntimeReadyDescription(auth))}</p>
     </div>
     <div class="stack-item">
       <strong>Overall state</strong>
-      <p><span class="${ui.statusBadgeClass(tone)}">${ui.escapeHtml(auth.runtime_ready ? 'ready' : 'missing_credentials')}</span></p>
+      <p><span class="${ui.statusBadgeClass(tone)}">${ui.escapeHtml(state)}</span></p>
     </div>
     <div class="stack-item">
       <strong>Speech key</strong>
@@ -242,7 +354,7 @@ function renderHuggingFaceAuthSummary(ui, localRef, apiRef) {
     }
     const validation = ref.validation || {};
     const auth = validation.auth || {};
-    const tone = auth.runtime_ready ? 'valid' : optional && validation.valid ? 'warning' : 'invalid';
+    const tone = secretsAuthTone(auth, validation, { optional });
     return `
       <div class="stack-item">
         <strong>${ui.escapeHtml(label)}</strong>
@@ -371,7 +483,7 @@ export function initSecretsPage(ctx) {
           value: (row) => {
             const auth = row.validation?.auth || {};
             const state = auth.status || 'n/a';
-            const tone = auth.runtime_ready ? (auth.login_recommended ? 'warning' : 'valid') : auth.login_recommended ? 'warning' : row.validation?.valid ? 'valid' : 'invalid';
+            const tone = secretsAuthTone(auth, row.validation || {});
             return `<span class="${ui.statusBadgeClass(tone)}">${ui.escapeHtml(state)}</span>`;
           },
         },

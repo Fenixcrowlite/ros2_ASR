@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import json
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
+from time import perf_counter
 from typing import Any, cast
 
 import rclpy
@@ -50,6 +51,7 @@ from asr_provider_base.config import resolve_provider_selection_from_runtime_pay
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
+from asr_metrics.system import ResourceSampler
 
 from asr_runtime_nodes.converters import to_asr_result_msg, to_partial_msg
 from asr_runtime_nodes.transport import decode_transport_metadata, delivery_latency_ms
@@ -101,11 +103,16 @@ class ProviderStreamTraceState:
     provider_metrics: dict[str, Any]
     collector: PipelineTraceCollector | None = None
     predicted_artifact_path: str = ""
+    resource_sampler: ResourceSampler | None = None
+    started_at_monotonic: float = 0.0
+    stop_requested_at_monotonic: float = 0.0
     chunk_count: int = 0
     sequence_gap_count: int = 0
     last_topic_delivery_ms: float = 0.0
     max_topic_delivery_ms: float = 0.0
     time_to_first_result_ms: float = 0.0
+    partial_count: int = 0
+    seen_partial_texts: set[str] = field(default_factory=set)
 
 
 class AsrOrchestratorNode(Node):
@@ -746,6 +753,7 @@ class AsrOrchestratorNode(Node):
         max_topic_delivery_ms: float,
         sequence_gap_count: int,
         chunk_count: int,
+        partial_count: int,
         time_to_first_result_ms: float,
         time_to_final_result_ms: float,
     ) -> dict[str, Any]:
@@ -756,6 +764,7 @@ class AsrOrchestratorNode(Node):
                 "max_topic_delivery_ms": max(float(max_topic_delivery_ms), 0.0),
                 "sequence_gap_count": max(int(sequence_gap_count), 0),
                 "chunk_count": max(int(chunk_count), 0),
+                "partial_count": max(int(partial_count), 0),
                 "time_to_first_result_ms": max(float(time_to_first_result_ms), 0.0),
                 "time_to_final_result_ms": max(float(time_to_final_result_ms), 0.0),
             }
@@ -827,6 +836,8 @@ class AsrOrchestratorNode(Node):
         provider_metrics = provider_runtime_metadata(self.provider, record_invocation=True)
         collector: PipelineTraceCollector | None = None
         predicted_trace_path = ""
+        resource_sampler: ResourceSampler | None = None
+        execution_started_at = perf_counter()
         if getattr(self, "_observability_config", None) is not None:
             collector = PipelineTraceCollector(
                 trace_type="runtime_segment",
@@ -857,6 +868,8 @@ class AsrOrchestratorNode(Node):
                     transport_meta.get("sequence_gap_count", 0) or 0
                 )
                 stage_output["chunk_count"] = int(transport_meta.get("segment_chunk_count", 0) or 0)
+            resource_sampler = ResourceSampler()
+            resource_sampler.start()
         try:
             if collector is not None:
                 with collector.stage(
@@ -888,6 +901,12 @@ class AsrOrchestratorNode(Node):
                 ) as stage_output:
                     self._publish_result(result)
                     stage_output["raw_metadata_ref"] = result.raw_metadata_ref
+                end_to_end_latency_ms = max(
+                    (perf_counter() - execution_started_at) * 1000.0,
+                    float(result.latency.total_ms),
+                    0.0,
+                )
+                resource_sample = resource_sampler.stop() if resource_sampler is not None else None
                 trace = build_runtime_trace(
                     collector=collector,
                     config=self._observability_config,
@@ -899,19 +918,26 @@ class AsrOrchestratorNode(Node):
                     error_code=result.error_code,
                     error_message=result.error_message,
                     language=result.language or self.language,
-                    audio_duration_sec=float(result.audio_duration_sec),
+                    measured_audio_duration_sec=float(result.audio_duration_sec or 0.0) or None,
+                    declared_audio_duration_sec=float(result.audio_duration_sec or 0.0) or None,
                     preprocess_ms=float(result.latency.preprocess_ms),
                     inference_ms=float(result.latency.inference_ms),
                     postprocess_ms=float(result.latency.postprocess_ms),
-                    total_latency_ms=float(result.latency.total_ms),
+                    provider_compute_latency_ms=float(result.latency.total_ms),
+                    end_to_end_latency_ms=end_to_end_latency_ms,
+                    time_to_first_result_ms=end_to_end_latency_ms,
+                    time_to_final_result_ms=end_to_end_latency_ms,
+                    resource_sample=resource_sample,
+                    audio_duration_source="measured_bytes",
                     extra_metrics=AsrOrchestratorNode._runtime_trace_metrics(
                         provider_metrics=provider_metrics,
                         topic_delivery_ms=topic_delivery_ms,
                         max_topic_delivery_ms=topic_delivery_ms,
                         sequence_gap_count=int(transport_meta.get("sequence_gap_count", 0) or 0),
                         chunk_count=int(transport_meta.get("segment_chunk_count", 0) or 0),
-                        time_to_first_result_ms=float(result.latency.first_partial_ms or 0.0),
-                        time_to_final_result_ms=float(result.latency.total_ms),
+                        partial_count=0,
+                        time_to_first_result_ms=end_to_end_latency_ms,
+                        time_to_final_result_ms=end_to_end_latency_ms,
                     ),
                 )
                 if trace.validation.corrupted:
@@ -932,6 +958,8 @@ class AsrOrchestratorNode(Node):
                 # segment yields a degraded/empty result.
                 self.session_state = "ready"
         except Exception as exc:
+            if resource_sampler is not None:
+                resource_sampler.stop()
             self._handle_provider_runtime_failure(
                 error_code="provider_segment_error",
                 error_message=str(exc),
@@ -984,19 +1012,26 @@ class AsrOrchestratorNode(Node):
     def _handle_stream_update(self, result: NormalizedAsrResult | None) -> None:
         if result is None:
             return
+        trace_state = getattr(self, "_stream_trace_state", None)
         if result.is_partial:
-            trace_state = getattr(self, "_stream_trace_state", None)
-            if (
-                trace_state is not None
-                and result.text
-                and trace_state.time_to_first_result_ms <= 0.0
-            ):
-                trace_state.time_to_first_result_ms = float(
-                    result.latency.first_partial_ms or result.latency.total_ms or 0.0
-                )
+            partial_text = str(result.text or "").strip()
+            if trace_state is not None and partial_text and partial_text not in trace_state.seen_partial_texts:
+                trace_state.seen_partial_texts.add(partial_text)
+                trace_state.partial_count += 1
+                if trace_state.time_to_first_result_ms <= 0.0 and trace_state.started_at_monotonic > 0.0:
+                    trace_state.time_to_first_result_ms = max(
+                        float(result.latency.first_partial_ms or 0.0),
+                        (perf_counter() - trace_state.started_at_monotonic) * 1000.0,
+                    )
             if self.enable_partials and result.text:
                 self._publish_partial_result(result)
             return
+        if trace_state is not None and trace_state.time_to_first_result_ms <= 0.0:
+            if trace_state.started_at_monotonic > 0.0:
+                trace_state.time_to_first_result_ms = max(
+                    (perf_counter() - trace_state.started_at_monotonic) * 1000.0,
+                    0.0,
+                )
         self._publish_result(result)
 
     def _publish_runtime_error_result(
@@ -1033,7 +1068,15 @@ class AsrOrchestratorNode(Node):
         ):
             return
         observability_config = cast(ObservabilityConfig, self._observability_config)
-        total_latency_ms = trace_state.collector.finalize().total_duration_ms
+        end_to_end_latency_ms = trace_state.collector.finalize().total_duration_ms
+        resource_sample = (
+            trace_state.resource_sampler.stop() if trace_state.resource_sampler is not None else None
+        )
+        finalization_latency_ms = (
+            max((perf_counter() - trace_state.stop_requested_at_monotonic) * 1000.0, 0.0)
+            if trace_state.stop_requested_at_monotonic > 0.0
+            else None
+        )
         trace = build_runtime_trace(
             collector=trace_state.collector,
             config=observability_config,
@@ -1045,19 +1088,26 @@ class AsrOrchestratorNode(Node):
             error_code=error_code,
             error_message=error_message,
             language=str(getattr(self, "language", "") or ""),
-            audio_duration_sec=0.0,
+            measured_audio_duration_sec=None,
+            declared_audio_duration_sec=None,
             preprocess_ms=0.0,
             inference_ms=0.0,
             postprocess_ms=0.0,
-            total_latency_ms=total_latency_ms,
+            provider_compute_latency_ms=0.0,
+            end_to_end_latency_ms=end_to_end_latency_ms,
+            time_to_first_result_ms=trace_state.time_to_first_result_ms or end_to_end_latency_ms,
+            time_to_final_result_ms=end_to_end_latency_ms,
+            finalization_latency_ms=finalization_latency_ms,
+            resource_sample=resource_sample,
             extra_metrics=AsrOrchestratorNode._runtime_trace_metrics(
                 provider_metrics=trace_state.provider_metrics,
                 topic_delivery_ms=trace_state.last_topic_delivery_ms,
                 max_topic_delivery_ms=trace_state.max_topic_delivery_ms,
                 sequence_gap_count=trace_state.sequence_gap_count,
                 chunk_count=trace_state.chunk_count,
-                time_to_first_result_ms=trace_state.time_to_first_result_ms,
-                time_to_final_result_ms=total_latency_ms,
+                partial_count=trace_state.partial_count,
+                time_to_first_result_ms=trace_state.time_to_first_result_ms or end_to_end_latency_ms,
+                time_to_final_result_ms=end_to_end_latency_ms,
             ),
         )
         if trace.validation.corrupted:
@@ -1142,9 +1192,11 @@ class AsrOrchestratorNode(Node):
         if self._stream_active:
             return
         self._stream_request_id = make_request_id()
+        started_at_monotonic = perf_counter()
         provider = AsrOrchestratorNode._active_provider(self)
         provider_metrics = provider_runtime_metadata(provider, record_invocation=True)
         collector: PipelineTraceCollector | None = None
+        resource_sampler: ResourceSampler | None = None
         if getattr(self, "_observability_config", None) is not None:
             collector = PipelineTraceCollector(
                 trace_type="runtime_provider_stream",
@@ -1158,12 +1210,16 @@ class AsrOrchestratorNode(Node):
                     "audio_source": str(getattr(self, "audio_source", "") or ""),
                 },
             )
+            resource_sampler = ResourceSampler()
+            resource_sampler.start()
         self._stream_trace_state = ProviderStreamTraceState(
             provider_metrics=provider_metrics,
             collector=collector,
             predicted_artifact_path=AsrOrchestratorNode._predict_runtime_trace_path(
                 self, collector
             ),
+            resource_sampler=resource_sampler,
+            started_at_monotonic=started_at_monotonic,
         )
         provider.start_stream(self._stream_start_options(msg))
         self._stream_active = True
@@ -1181,6 +1237,8 @@ class AsrOrchestratorNode(Node):
         provider = AsrOrchestratorNode._active_provider(self)
         trace_state = getattr(self, "_stream_trace_state", None)
         collector = trace_state.collector if trace_state is not None else None
+        if trace_state is not None and trace_state.stop_requested_at_monotonic <= 0.0:
+            trace_state.stop_requested_at_monotonic = perf_counter()
         if collector is not None:
             with collector.stage(
                 "provider_stream_finalize",
@@ -1210,6 +1268,25 @@ class AsrOrchestratorNode(Node):
             ) as stage_output:
                 self._publish_result(result)
                 stage_output["raw_metadata_ref"] = result.raw_metadata_ref
+            end_to_end_latency_ms = (
+                max(
+                    (perf_counter() - trace_state.started_at_monotonic) * 1000.0,
+                    float(result.latency.total_ms),
+                    0.0,
+                )
+                if trace_state is not None and trace_state.started_at_monotonic > 0.0
+                else collector.finalize().total_duration_ms
+            )
+            finalization_latency_ms = (
+                max((perf_counter() - trace_state.stop_requested_at_monotonic) * 1000.0, 0.0)
+                if trace_state is not None and trace_state.stop_requested_at_monotonic > 0.0
+                else float(result.latency.finalization_ms or 0.0)
+            )
+            resource_sample = (
+                trace_state.resource_sampler.stop()
+                if trace_state is not None and trace_state.resource_sampler is not None
+                else None
+            )
             trace = build_runtime_trace(
                 collector=collector,
                 config=observability_config,
@@ -1221,11 +1298,22 @@ class AsrOrchestratorNode(Node):
                 error_code=result.error_code,
                 error_message=result.error_message,
                 language=result.language or self.language,
-                audio_duration_sec=float(result.audio_duration_sec),
+                measured_audio_duration_sec=float(result.audio_duration_sec or 0.0) or None,
+                declared_audio_duration_sec=float(result.audio_duration_sec or 0.0) or None,
                 preprocess_ms=float(result.latency.preprocess_ms),
                 inference_ms=float(result.latency.inference_ms),
                 postprocess_ms=float(result.latency.postprocess_ms),
-                total_latency_ms=float(result.latency.total_ms),
+                provider_compute_latency_ms=float(result.latency.total_ms),
+                end_to_end_latency_ms=end_to_end_latency_ms,
+                time_to_first_result_ms=(
+                    trace_state.time_to_first_result_ms
+                    if trace_state is not None and trace_state.time_to_first_result_ms > 0.0
+                    else end_to_end_latency_ms
+                ),
+                time_to_final_result_ms=end_to_end_latency_ms,
+                finalization_latency_ms=finalization_latency_ms,
+                resource_sample=resource_sample,
+                audio_duration_source="measured_bytes",
                 extra_metrics=AsrOrchestratorNode._runtime_trace_metrics(
                     provider_metrics=trace_state.provider_metrics if trace_state else {},
                     topic_delivery_ms=(
@@ -1238,10 +1326,13 @@ class AsrOrchestratorNode(Node):
                         trace_state.sequence_gap_count if trace_state is not None else 0
                     ),
                     chunk_count=trace_state.chunk_count if trace_state is not None else 0,
+                    partial_count=trace_state.partial_count if trace_state is not None else 0,
                     time_to_first_result_ms=(
-                        trace_state.time_to_first_result_ms if trace_state is not None else 0.0
+                        trace_state.time_to_first_result_ms
+                        if trace_state is not None and trace_state.time_to_first_result_ms > 0.0
+                        else end_to_end_latency_ms
                     ),
-                    time_to_final_result_ms=float(result.latency.total_ms),
+                    time_to_final_result_ms=end_to_end_latency_ms,
                 ),
             )
             if trace.validation.corrupted:
@@ -1449,6 +1540,8 @@ class AsrOrchestratorNode(Node):
         self.audio_session_active = False
         self.session_state = "stopping"
         self._stop_requested_at = self.get_clock().now()
+        if self._stream_trace_state is not None and self._stream_trace_state.stop_requested_at_monotonic <= 0.0:
+            self._stream_trace_state.stop_requested_at_monotonic = perf_counter()
         self.session_updated_at = self._stop_requested_at
         self.last_error_code = ""
         self.last_error_message = ""
@@ -1518,6 +1611,10 @@ class AsrOrchestratorNode(Node):
             response.result.success = False
             response.result.error_message = "Provider is not initialized"
             return response
+        execution_started_at = perf_counter()
+        resource_sampler = ResourceSampler() if getattr(self, "_observability_config", None) is not None else None
+        if resource_sampler is not None:
+            resource_sampler.start()
         collector = PipelineTraceCollector(
             trace_type="runtime_recognize_once",
             request_id="",
@@ -1551,6 +1648,8 @@ class AsrOrchestratorNode(Node):
                 stage_output["bytes_read"] = len(audio_bytes)
                 stage_output["audio_duration_sec"] = audio_duration_sec
         except FileNotFoundError as exc:
+            if resource_sampler is not None:
+                resource_sampler.stop()
             response.result.success = False
             response.result.error_message = str(exc)
             return response
@@ -1583,6 +1682,8 @@ class AsrOrchestratorNode(Node):
                 )
             )
         except Exception as exc:
+            if resource_sampler is not None:
+                resource_sampler.stop()
             response.result.success = False
             response.result.error_message = str(exc)
             response.resolved_profile = clean_provider_profile
@@ -1629,6 +1730,8 @@ class AsrOrchestratorNode(Node):
                     stage_output["text_length"] = len(str(result.text or ""))
                     stage_output["latency_ms"] = float(result.latency.total_ms)
             except Exception as exc:
+                if resource_sampler is not None:
+                    resource_sampler.stop()
                 self.last_error_code = "recognize_once_failed"
                 self.last_error_message = str(exc)
                 self.session_updated_at = self.get_clock().now()
@@ -1649,6 +1752,12 @@ class AsrOrchestratorNode(Node):
                 ) as stage_output:
                     self._publish_result(result)
                     stage_output["raw_metadata_ref"] = result.raw_metadata_ref
+                end_to_end_latency_ms = max(
+                    (perf_counter() - execution_started_at) * 1000.0,
+                    float(result.latency.total_ms),
+                    0.0,
+                )
+                resource_sample = resource_sampler.stop() if resource_sampler is not None else None
                 trace = build_runtime_trace(
                     collector=collector,
                     config=self._observability_config,
@@ -1660,19 +1769,26 @@ class AsrOrchestratorNode(Node):
                     error_code=result.error_code,
                     error_message=result.error_message,
                     language=result.language or clean_language,
-                    audio_duration_sec=audio_duration_sec,
+                    measured_audio_duration_sec=audio_duration_sec or None,
+                    declared_audio_duration_sec=audio_duration_sec or None,
                     preprocess_ms=float(result.latency.preprocess_ms),
                     inference_ms=float(result.latency.inference_ms),
                     postprocess_ms=float(result.latency.postprocess_ms),
-                    total_latency_ms=float(result.latency.total_ms),
+                    provider_compute_latency_ms=float(result.latency.total_ms),
+                    end_to_end_latency_ms=end_to_end_latency_ms,
+                    time_to_first_result_ms=end_to_end_latency_ms,
+                    time_to_final_result_ms=end_to_end_latency_ms,
+                    resource_sample=resource_sample,
+                    audio_duration_source="measured_file",
                     extra_metrics=AsrOrchestratorNode._runtime_trace_metrics(
                         provider_metrics=provider_metrics,
                         topic_delivery_ms=0.0,
                         max_topic_delivery_ms=0.0,
                         sequence_gap_count=0,
                         chunk_count=1,
-                        time_to_first_result_ms=float(result.latency.first_partial_ms or 0.0),
-                        time_to_final_result_ms=float(result.latency.total_ms),
+                        partial_count=0,
+                        time_to_first_result_ms=end_to_end_latency_ms,
+                        time_to_final_result_ms=end_to_end_latency_ms,
                     ),
                 )
                 if trace.validation.corrupted:
@@ -1688,6 +1804,8 @@ class AsrOrchestratorNode(Node):
             self._copy_result_message(to_asr_result_msg(result), response.result)
             response.resolved_profile = resolved_profile
             if getattr(self, "_observability_config", None) is None:
+                if resource_sampler is not None:
+                    resource_sampler.stop()
                 self._publish_result(result)
         finally:
             if should_teardown_provider and active_provider is not None:

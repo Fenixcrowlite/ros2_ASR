@@ -2608,6 +2608,27 @@ def runtime_recognize_once(req: RecognizeRequest) -> dict[str, Any]:
         provider_settings=dict(req.provider_settings or {}),
     )
     payload = {"message": res.message, **res.payload}
+    payload["asr_metrics"] = {
+        "metrics_semantics_version": payload.get("metrics_semantics_version", 1),
+        "legacy_metrics": payload.get("legacy_metrics", True),
+        "provider_compute_latency_ms": payload.get("provider_compute_latency_ms", payload.get("latency_ms", 0.0)),
+        "end_to_end_latency_ms": payload.get("end_to_end_latency_ms"),
+        "time_to_first_result_ms": payload.get("time_to_first_result_ms"),
+        "time_to_final_result_ms": payload.get("time_to_final_result_ms"),
+        "finalization_latency_ms": payload.get("finalization_latency_ms"),
+        "provider_compute_rtf": payload.get("provider_compute_rtf"),
+        "end_to_end_rtf": payload.get("end_to_end_rtf"),
+        "measured_audio_duration_sec": payload.get("measured_audio_duration_sec"),
+        "declared_audio_duration_sec": payload.get("declared_audio_duration_sec"),
+        "duration_mismatch_sec": payload.get("duration_mismatch_sec"),
+        "audio_duration_source": payload.get("audio_duration_source"),
+    }
+    payload["transport_diagnostics"] = {
+        "service_wait_ms": payload.get("service_wait_ms", 0.0),
+        "service_call_ms": payload.get("service_call_ms", 0.0),
+        "service_latency_ms": payload.get("service_latency_ms", 0.0),
+        "gateway_request_ms": payload.get("gateway_request_ms", 0.0),
+    }
     ros.record_runtime_result(payload)
     _RUNTIME_RESULTS.appendleft({"time": _now_iso(), **payload})
     _record_runtime_event(
@@ -2624,7 +2645,8 @@ def runtime_recognize_once(req: RecognizeRequest) -> dict[str, Any]:
             "preprocess_ms": payload.get("preprocess_ms", 0.0),
             "inference_ms": payload.get("inference_ms", 0.0),
             "postprocess_ms": payload.get("postprocess_ms", 0.0),
-            "latency_ms": payload.get("latency_ms", 0.0),
+            "latency_ms": payload.get("provider_compute_latency_ms", payload.get("latency_ms", 0.0)),
+            "end_to_end_latency_ms": payload.get("end_to_end_latency_ms", 0.0),
             "service_latency_ms": payload.get("service_latency_ms", 0.0),
             "gateway_request_ms": payload.get("gateway_request_ms", 0.0),
             "success": res.success,

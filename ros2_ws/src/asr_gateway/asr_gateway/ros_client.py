@@ -10,6 +10,7 @@ from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 import rclpy
@@ -51,6 +52,77 @@ def _stamp_to_iso(stamp: Any) -> str:
     if sec <= 0 and nanosec <= 0:
         return ""
     return datetime.fromtimestamp(sec + (nanosec / 1_000_000_000.0), tz=UTC).isoformat()
+
+
+def _trace_path(raw_metadata_ref: Any) -> Path | None:
+    candidate = str(raw_metadata_ref or "").strip()
+    if not candidate:
+        return None
+    path = Path(candidate)
+    if path.exists():
+        return path
+    relative = Path.cwd() / candidate
+    if relative.exists():
+        return relative
+    return None
+
+
+def _trace_metrics(raw_metadata_ref: Any) -> dict[str, Any]:
+    path = _trace_path(raw_metadata_ref)
+    if path is None:
+        return {}
+    try:
+        payload = json.loads(path.read_text(encoding="utf-8"))
+    except Exception:
+        return {}
+    metrics = payload.get("metrics", {})
+    if not isinstance(metrics, dict):
+        metrics = {}
+    validation = payload.get("validation", {})
+    warnings = validation.get("warnings", []) if isinstance(validation, dict) else []
+    return {
+        "metrics_semantics_version": payload.get("metrics_semantics_version", 1),
+        "legacy_metrics": bool(payload.get("legacy_metrics", True)),
+        "provider_compute_latency_ms": metrics.get("provider_compute_latency_ms"),
+        "end_to_end_latency_ms": metrics.get("end_to_end_latency_ms"),
+        "time_to_first_result_ms": metrics.get("time_to_first_result_ms"),
+        "time_to_final_result_ms": metrics.get("time_to_final_result_ms"),
+        "finalization_latency_ms": metrics.get("finalization_latency_ms"),
+        "provider_compute_rtf": metrics.get("provider_compute_rtf"),
+        "end_to_end_rtf": metrics.get("end_to_end_rtf"),
+        "measured_audio_duration_sec": metrics.get("measured_audio_duration_sec"),
+        "declared_audio_duration_sec": metrics.get("declared_audio_duration_sec"),
+        "duration_mismatch_sec": metrics.get("duration_mismatch_sec"),
+        "audio_duration_source": metrics.get("audio_duration_source"),
+        "cpu_percent_mean": metrics.get("cpu_percent_mean"),
+        "cpu_percent_peak": metrics.get("cpu_percent_peak"),
+        "memory_mb_mean": metrics.get("memory_mb_mean"),
+        "memory_mb_peak": metrics.get("memory_mb_peak"),
+        "gpu_util_percent_mean": metrics.get("gpu_util_percent_mean"),
+        "gpu_util_percent_peak": metrics.get("gpu_util_percent_peak"),
+        "gpu_memory_mb_mean": metrics.get("gpu_memory_mb_mean"),
+        "gpu_memory_mb_peak": metrics.get("gpu_memory_mb_peak"),
+        "trace_warning_count": len(warnings),
+        "trace_warnings": list(warnings),
+    }
+
+
+def _enrich_runtime_payload(payload: dict[str, Any]) -> dict[str, Any]:
+    enriched = dict(payload)
+    trace_metrics = _trace_metrics(enriched.get("raw_metadata_ref"))
+    for key, value in trace_metrics.items():
+        if value in (None, ""):
+            continue
+        enriched[key] = value
+    enriched.setdefault("metrics_semantics_version", 1)
+    enriched.setdefault("legacy_metrics", True)
+    enriched.setdefault(
+        "provider_compute_latency_ms",
+        float(enriched.get("latency_ms", 0.0) or 0.0),
+    )
+    if "end_to_end_latency_ms" not in enriched and "time_to_final_result_ms" in enriched:
+        enriched["end_to_end_latency_ms"] = enriched.get("time_to_final_result_ms")
+    return enriched
 
 
 class RuntimeObserver:
@@ -183,7 +255,8 @@ class RuntimeObserver:
         queue_ref.appendleft(item)
 
     def _on_final_result(self, msg: AsrResult) -> None:
-        payload = {
+        payload = _enrich_runtime_payload(
+            {
             "time": _stamp_to_iso(msg.header.stamp),
             "type": "final",
             "request_id": msg.request_id,
@@ -203,7 +276,8 @@ class RuntimeObserver:
             "latency_ms": float(msg.total_ms),
             "degraded": bool(msg.degraded),
             "raw_metadata_ref": msg.raw_metadata_ref,
-        }
+            }
+        )
         with self._lock:
             self._push_unique(self._recent_results, payload, unique_key="request_id")
 
@@ -259,7 +333,8 @@ class RuntimeObserver:
 
     def record_result(self, payload: dict[str, Any]) -> None:
         request_id = str(payload.get("request_id", "") or "").strip()
-        item = {
+        item = _enrich_runtime_payload(
+            {
             "time": datetime.now(UTC).isoformat(),
             "type": str(payload.get("type", "final") or "final"),
             "request_id": request_id,
@@ -279,7 +354,8 @@ class RuntimeObserver:
             "latency_ms": float(payload.get("latency_ms", 0.0) or 0.0),
             "degraded": bool(payload.get("degraded", False)),
             "raw_metadata_ref": str(payload.get("raw_metadata_ref", "") or ""),
-        }
+            }
+        )
         with self._lock:
             self._push_unique(self._recent_results, item, unique_key="request_id")
 
@@ -652,26 +728,28 @@ class GatewayRosClient:
             response_builder=lambda response: GatewayResponse(
                 bool(response.result.success),
                 "ok",
-                {
-                    "request_id": response.result.request_id,
-                    "session_id": response.result.session_id,
-                    "text": response.result.text,
-                    "provider_id": response.result.provider_id,
-                    "confidence": float(response.result.confidence),
-                    "confidence_available": bool(response.result.confidence_available),
-                    "success": bool(response.result.success),
-                    "error_code": response.result.error_code,
-                    "error_message": response.result.error_message,
-                    "language": response.result.language,
-                    "audio_duration_sec": float(response.result.audio_duration_sec),
-                    "preprocess_ms": float(response.result.preprocess_ms),
-                    "inference_ms": float(response.result.inference_ms),
-                    "postprocess_ms": float(response.result.postprocess_ms),
-                    "latency_ms": float(response.result.total_ms),
-                    "degraded": bool(response.result.degraded),
-                    "raw_metadata_ref": response.result.raw_metadata_ref,
-                    "resolved_profile": response.resolved_profile,
-                },
+                _enrich_runtime_payload(
+                    {
+                        "request_id": response.result.request_id,
+                        "session_id": response.result.session_id,
+                        "text": response.result.text,
+                        "provider_id": response.result.provider_id,
+                        "confidence": float(response.result.confidence),
+                        "confidence_available": bool(response.result.confidence_available),
+                        "success": bool(response.result.success),
+                        "error_code": response.result.error_code,
+                        "error_message": response.result.error_message,
+                        "language": response.result.language,
+                        "audio_duration_sec": float(response.result.audio_duration_sec),
+                        "preprocess_ms": float(response.result.preprocess_ms),
+                        "inference_ms": float(response.result.inference_ms),
+                        "postprocess_ms": float(response.result.postprocess_ms),
+                        "latency_ms": float(response.result.total_ms),
+                        "degraded": bool(response.result.degraded),
+                        "raw_metadata_ref": response.result.raw_metadata_ref,
+                        "resolved_profile": response.resolved_profile,
+                    }
+                ),
             ),
             unavailable_message="recognize_once service unavailable",
             no_response_message="No response from recognize_once",

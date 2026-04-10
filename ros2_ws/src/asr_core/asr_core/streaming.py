@@ -86,7 +86,7 @@ class StreamAccumulator:
                     confidence=float(confidence or 0.0),
                     language=str(language or self.language),
                     backend_info=merged_info,
-                    timings=AsrTimings(postprocess_ms=float(elapsed_ms)),
+                    timings=AsrTimings(inference_ms=float(elapsed_ms)),
                     audio_duration_sec=float(self.audio_duration_sec or 0.0),
                     success=True,
                     raw_response=raw_response,

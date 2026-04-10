@@ -403,7 +403,7 @@ export function initRuntimePage(ctx) {
           <div class="stack-item">
             <strong>${ui.escapeHtml(item.provider_id || 'provider')} · ${ui.escapeHtml(item.type || 'final')}</strong>
             <p>${ui.escapeHtml(item.text || '(empty transcript)')}</p>
-            <p class="muted">request=${ui.escapeHtml(item.request_id || '')} latency=${ui.escapeHtml(String(item.latency_ms ?? ''))}</p>
+            <p class="muted">request=${ui.escapeHtml(item.request_id || '')} provider_ms=${ui.escapeHtml(String(item.provider_compute_latency_ms ?? item.latency_ms ?? ''))} e2e_ms=${ui.escapeHtml(String(item.end_to_end_latency_ms ?? item.time_to_final_result_ms ?? ''))}</p>
             <p class="muted">${ui.escapeHtml(item.degraded ? 'mode=degraded' : 'mode=normal')}</p>
             <p class="muted">${ui.escapeHtml(item.time || '')}</p>
           </div>

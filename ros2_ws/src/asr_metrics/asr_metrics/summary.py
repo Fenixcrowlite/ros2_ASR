@@ -6,8 +6,9 @@ from collections import defaultdict
 from statistics import mean
 from typing import Any
 
-from asr_metrics.definitions import metric_definition, metric_metadata
+from asr_metrics.definitions import metric_applicable, metric_definition, metric_metadata
 from asr_metrics.quality import has_quality_reference, text_quality_support
+from asr_metrics.semantics import METRICS_SEMANTICS_VERSION, metric_semantics_version
 
 
 def _coerce_float(value: Any) -> float | None:
@@ -44,6 +45,7 @@ def _scalar_statistics(values: list[float], *, aggregator: str = "mean") -> dict
         "max": float(ordered[-1]),
         "p50": _percentile(ordered, 0.50),
         "p95": _percentile(ordered, 0.95),
+        "value": float(mean(ordered)),
     }
 
 
@@ -70,6 +72,42 @@ def _sum_statistics(values: list[float]) -> dict[str, Any]:
     }
 
 
+def _max_statistics(values: list[float]) -> dict[str, Any]:
+    return {
+        "count": len(values),
+        "aggregator": "max",
+        "max": float(max(values)),
+        "value": float(max(values)),
+    }
+
+
+def _duration_weighted_mean_statistics(
+    values: list[float],
+    weights: list[float],
+) -> dict[str, Any]:
+    if not values or not weights or len(values) != len(weights):
+        return _scalar_statistics(values, aggregator="duration_weighted_mean")
+    usable = [(value, weight) for value, weight in zip(values, weights, strict=False) if weight > 0.0]
+    if not usable:
+        return _scalar_statistics(values, aggregator="duration_weighted_mean")
+    numerator = sum(value * weight for value, weight in usable)
+    denominator = sum(weight for _, weight in usable)
+    weighted_mean = numerator / denominator if denominator > 0 else 0.0
+    ordered = sorted(value for value, _ in usable)
+    return {
+        "count": len(usable),
+        "aggregator": "duration_weighted_mean",
+        "weighted_sum": float(numerator),
+        "weight_total": float(denominator),
+        "mean": float(weighted_mean),
+        "min": float(ordered[0]),
+        "max": float(ordered[-1]),
+        "p50": _percentile(ordered, 0.50),
+        "p95": _percentile(ordered, 0.95),
+        "value": float(weighted_mean),
+    }
+
+
 def _metric_groups(
     mean_metrics: dict[str, float],
     metric_statistics: dict[str, dict[str, Any]],
@@ -81,6 +119,7 @@ def _metric_groups(
     cost_totals: dict[str, float] = {}
     streaming_metrics: dict[str, float] = {}
     resource_metrics: dict[str, float] = {}
+    diagnostic_metrics: dict[str, float] = {}
     other_metrics: dict[str, float] = {}
 
     for name, value in sorted(mean_metrics.items()):
@@ -100,6 +139,8 @@ def _metric_groups(
             streaming_metrics[name] = value
         elif definition.category == "resource":
             resource_metrics[name] = value
+        elif definition.category == "diagnostic":
+            diagnostic_metrics[name] = value
         else:
             other_metrics[name] = value
 
@@ -121,6 +162,7 @@ def _metric_groups(
         "cost_totals": cost_totals,
         "streaming_metrics": streaming_metrics,
         "resource_metrics": resource_metrics,
+        "diagnostic_metrics": diagnostic_metrics,
     }
     if other_metrics:
         grouped["other_metrics"] = other_metrics
@@ -130,12 +172,8 @@ def _metric_groups(
 def summarize_result_rows(
     rows: list[dict[str, Any]], *, exclude_corrupted: bool = False
 ) -> dict[str, Any]:
-    """Build logically-clean aggregates from benchmark result rows.
+    """Build logically-clean aggregates from benchmark result rows."""
 
-    When ``exclude_corrupted`` is enabled, aggregate metrics are computed from
-    rows whose trace validation did not mark them as corrupted while total run
-    counts still reflect every processed row.
-    """
     total_samples = len(rows)
     successful_samples = sum(1 for row in rows if bool(row.get("success")))
     failed_samples = total_samples - successful_samples
@@ -146,22 +184,51 @@ def summarize_result_rows(
     )
     aggregate_samples = len(aggregate_rows)
     corrupted_samples = total_samples - aggregate_samples
+    warning_samples = sum(
+        1
+        for row in aggregate_rows
+        if bool(row.get("trace_warnings"))
+        or int(row.get("trace_warning_count", 0) or 0) > 0
+        or bool(row.get("warning_messages"))
+    )
 
     enabled_metric_names: set[str] = set()
     metric_values: dict[str, list[float]] = defaultdict(list)
+    metric_weights: dict[str, list[float]] = defaultdict(list)
     quality_supports: list[dict[str, Any]] = []
+
+    semantics_versions = sorted(
+        {
+            int(metric_semantics_version(row))
+            for row in rows
+        }
+    )
+    mixed_semantics = len(semantics_versions) > 1
+    legacy_metrics = any(bool(row.get("legacy_metrics")) for row in rows) or any(
+        version < METRICS_SEMANTICS_VERSION for version in semantics_versions
+    )
 
     for row in aggregate_rows:
         row_metrics = row.get("metrics", {})
+        execution_mode = str(row.get("execution_mode", "batch") or "batch")
         if isinstance(row_metrics, dict):
             for name, value in row_metrics.items():
                 metric_name = str(name or "").strip()
-                if not metric_name:
+                if not metric_name or not metric_applicable(metric_name, execution_mode=execution_mode):
                     continue
                 enabled_metric_names.add(metric_name)
                 coerced = _coerce_float(value)
-                if coerced is not None:
-                    metric_values[metric_name].append(coerced)
+                if coerced is None:
+                    continue
+                metric_values[metric_name].append(coerced)
+                definition = metric_definition(metric_name)
+                if definition is not None and definition.summary_aggregator == "duration_weighted_mean":
+                    weight_value = _coerce_float(
+                        row_metrics.get(definition.summary_weight_metric)
+                        if definition.summary_weight_metric
+                        else None
+                    )
+                    metric_weights[metric_name].append(weight_value if weight_value and weight_value > 0 else 1.0)
 
         support_payload = row.get("quality_support")
         if isinstance(support_payload, dict):
@@ -237,23 +304,29 @@ def summarize_result_rows(
         metric_counts[metric_name] = len(series)
         if aggregator == "rate":
             metric_statistics[metric_name] = _rate_statistics(series)
-            mean_metrics[metric_name] = float(metric_statistics[metric_name]["value"])
-            continue
-        if aggregator == "sum":
+        elif aggregator == "sum":
             metric_statistics[metric_name] = _sum_statistics(series)
-            mean_metrics[metric_name] = float(metric_statistics[metric_name]["value"])
-            continue
-
-        value = float(mean(series))
-        mean_metrics[metric_name] = value
-        metric_statistics[metric_name] = _scalar_statistics(series, aggregator=aggregator)
+        elif aggregator == "max":
+            metric_statistics[metric_name] = _max_statistics(series)
+        elif aggregator == "duration_weighted_mean":
+            metric_statistics[metric_name] = _duration_weighted_mean_statistics(
+                series,
+                metric_weights.get(metric_name, []),
+            )
+        else:
+            metric_statistics[metric_name] = _scalar_statistics(series, aggregator=aggregator)
+        mean_metrics[metric_name] = float(metric_statistics[metric_name]["value"])
 
     return {
+        "metrics_semantics_version": METRICS_SEMANTICS_VERSION,
+        "legacy_metrics": legacy_metrics,
+        "mixed_semantics": mixed_semantics,
         "samples": total_samples,
         "total_samples": total_samples,
         "successful_samples": successful_samples,
         "failed_samples": failed_samples,
         "aggregate_samples": aggregate_samples,
+        "warning_samples": warning_samples,
         "mean_metrics": mean_metrics,
         "metric_counts": metric_counts,
         "metric_statistics": metric_statistics,

@@ -9,7 +9,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-ROS_TIME_RE = re.compile(r"\[(\d{9,}(?:\.\d+)?)\]")
+ROS_TIME_RE = re.compile(r"\[([0-9]+(?:\.[0-9]+)?)\]")
 ISO_TIME_RE = re.compile(
     r"(\d{4}-\d{2}-\d{2}[ T]\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?)"
 )
@@ -176,8 +176,16 @@ def log_files(logs_root: Path, component: str) -> list[Path]:
 def _parse_timestamp(line: str) -> str:
     ros_match = ROS_TIME_RE.search(line)
     if ros_match:
+        raw = ros_match.group(1).strip()
         try:
-            return datetime.fromtimestamp(float(ros_match.group(1)), tz=UTC).isoformat()
+            if "." in raw:
+                value = float(raw)
+                if 946684800.0 <= value <= 4102444800.0:
+                    return datetime.fromtimestamp(value, tz=UTC).isoformat()
+            elif 9 <= len(raw) <= 10:
+                value = float(raw)
+                if 946684800.0 <= value <= 4102444800.0:
+                    return datetime.fromtimestamp(value, tz=UTC).isoformat()
         except ValueError:
             return ""
     iso_match = ISO_TIME_RE.search(line)
