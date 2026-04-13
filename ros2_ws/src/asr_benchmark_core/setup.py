@@ -1,3 +1,5 @@
+"""Setuptools entrypoint for the `asr_benchmark_core` package."""
+
 from setuptools import find_packages, setup
 
 package_name = "asr_benchmark_core"

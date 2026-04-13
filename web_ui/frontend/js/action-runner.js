@@ -1,3 +1,4 @@
+// Shared async action runner for browser-side API actions.
 export function errorMessage(error) {
   if (error instanceof Error && error.message) {
     return error.message;

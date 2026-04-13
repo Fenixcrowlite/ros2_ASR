@@ -1,3 +1,5 @@
+"""Setuptools entrypoint for the `asr_storage` package."""
+
 from setuptools import find_packages, setup
 
 package_name = "asr_storage"

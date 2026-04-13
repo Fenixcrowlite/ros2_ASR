@@ -15,6 +15,8 @@ DEFAULT_DEPLOYMENT_PROFILE = "dev_local"
 
 @dataclass(slots=True)
 class ObservabilityConfig:
+    """Resolved metrics/trace export configuration loaded from YAML profiles."""
+
     profile_id: str = f"metrics/{DEFAULT_OBSERVABILITY_PROFILE}"
     artifact_root: str = "artifacts"
     reports_root: str = "reports"
@@ -107,6 +109,7 @@ def load_observability_config(
     profile_id: str | None = None,
     deployment_profile: str = DEFAULT_DEPLOYMENT_PROFILE,
 ) -> ObservabilityConfig:
+    """Load and merge observability configuration from base, deployment, and profile YAML."""
     requested = str(
         profile_id or os.getenv("ASR_METRICS_PROFILE") or DEFAULT_OBSERVABILITY_PROFILE
     ).strip()

@@ -71,7 +71,10 @@ class BatchExecutor:
         return duration_fields
 
     @staticmethod
-    def _estimated_cost_usd(duration_fields: dict[str, Any], execution_meta: dict[str, Any]) -> float:
+    def _estimated_cost_usd(
+        duration_fields: dict[str, Any],
+        execution_meta: dict[str, Any],
+    ) -> float:
         provider_cost_per_minute = float(
             execution_meta.get("estimated_cost_usd_per_min", 0.0)
             or execution_meta.get("provider_cost_per_minute_usd", 0.0)
@@ -81,6 +84,29 @@ class BatchExecutor:
             return float(execution_meta.get("estimated_cost_usd", 0.0) or 0.0)
         effective_duration_sec = float(duration_fields.get("audio_duration_sec", 0.0) or 0.0)
         return (effective_duration_sec / 60.0) * provider_cost_per_minute
+
+    @staticmethod
+    def _trace_resource_metrics(trace: Any) -> dict[str, float]:
+        metrics: dict[str, float] = {}
+        for key in (
+            "cpu_percent_mean",
+            "cpu_percent_peak",
+            "memory_mb_mean",
+            "memory_mb_peak",
+            "gpu_util_percent_mean",
+            "gpu_util_percent_peak",
+            "gpu_memory_mb_mean",
+            "gpu_memory_mb_peak",
+            "cpu_percent",
+            "memory_mb",
+            "gpu_util_percent",
+            "gpu_memory_mb",
+        ):
+            value = trace.metrics.get(key)
+            if value is None:
+                continue
+            metrics[key] = float(value)
+        return metrics
 
     def _require_quality_reference(self, sample: DatasetSample) -> None:
         if not any(
@@ -214,7 +240,9 @@ class BatchExecutor:
             execution_mode=str(execution_meta.get("execution_mode", "batch") or "batch"),
             provider_compute_latency_ms=float(result.latency.total_ms),
             end_to_end_latency_ms=end_to_end_latency_ms,
-            measured_audio_duration_sec=float(duration_fields.get("audio_duration_sec", 0.0) or 0.0),
+            measured_audio_duration_sec=float(
+                duration_fields.get("audio_duration_sec", 0.0) or 0.0
+            ),
             estimated_cost_usd=estimated_cost_usd,
             time_to_first_result_ms=end_to_end_latency_ms,
             time_to_final_result_ms=end_to_end_latency_ms,
@@ -277,26 +305,7 @@ class BatchExecutor:
             trace_fields = self._trace_fields(trace)
             trace_corrupted = bool(trace_fields["trace_corrupted"])
             trace_warnings = list(trace_fields["trace_warnings"])
-            metrics.update(
-                {
-                    key: trace.metrics.get(key)
-                    for key in (
-                        "cpu_percent_mean",
-                        "cpu_percent_peak",
-                        "memory_mb_mean",
-                        "memory_mb_peak",
-                        "gpu_util_percent_mean",
-                        "gpu_util_percent_peak",
-                        "gpu_memory_mb_mean",
-                        "gpu_memory_mb_peak",
-                        "cpu_percent",
-                        "memory_mb",
-                        "gpu_util_percent",
-                        "gpu_memory_mb",
-                    )
-                    if key in trace.metrics
-                }
-            )
+            metrics.update(self._trace_resource_metrics(trace))
 
         return {
             "run_id": run_id,
@@ -480,7 +489,9 @@ class BatchExecutor:
         time_to_first_result_ms = max(first_partial_latency_ms, provider_first_partial_ms)
         time_to_final_result_ms = end_to_end_latency_ms
         finalization_latency_ms = (
-            max((perf_counter() - stop_requested_at) * 1000.0, 0.0) if stop_requested_at > 0.0 else 0.0
+            max((perf_counter() - stop_requested_at) * 1000.0, 0.0)
+            if stop_requested_at > 0.0
+            else 0.0
         )
         estimated_cost_usd = self._estimated_cost_usd(duration_fields, execution_meta)
         self._require_quality_reference(sample)
@@ -493,9 +504,13 @@ class BatchExecutor:
             execution_mode="streaming",
             provider_compute_latency_ms=float(result.latency.total_ms),
             end_to_end_latency_ms=end_to_end_latency_ms,
-            measured_audio_duration_sec=float(duration_fields.get("audio_duration_sec", 0.0) or 0.0),
+            measured_audio_duration_sec=float(
+                duration_fields.get("audio_duration_sec", 0.0) or 0.0
+            ),
             estimated_cost_usd=estimated_cost_usd,
-            first_partial_latency_ms=float(result.latency.first_partial_ms or first_partial_latency_ms),
+            first_partial_latency_ms=float(
+                result.latency.first_partial_ms or first_partial_latency_ms
+            ),
             time_to_first_result_ms=time_to_first_result_ms,
             time_to_final_result_ms=time_to_final_result_ms,
             finalization_latency_ms=finalization_latency_ms,
@@ -518,7 +533,9 @@ class BatchExecutor:
             finalization_latency_ms=finalization_latency_ms,
             estimated_cost_usd=estimated_cost_usd,
             partial_count=partial_count,
-            first_partial_latency_ms=float(result.latency.first_partial_ms or first_partial_latency_ms),
+            first_partial_latency_ms=float(
+                result.latency.first_partial_ms or first_partial_latency_ms
+            ),
         )
 
         trace_artifact_ref = ""
@@ -562,26 +579,7 @@ class BatchExecutor:
             trace_fields = self._trace_fields(trace)
             trace_corrupted = bool(trace_fields["trace_corrupted"])
             trace_warnings = list(trace_fields["trace_warnings"])
-            metrics.update(
-                {
-                    key: trace.metrics.get(key)
-                    for key in (
-                        "cpu_percent_mean",
-                        "cpu_percent_peak",
-                        "memory_mb_mean",
-                        "memory_mb_peak",
-                        "gpu_util_percent_mean",
-                        "gpu_util_percent_peak",
-                        "gpu_memory_mb_mean",
-                        "gpu_memory_mb_peak",
-                        "cpu_percent",
-                        "memory_mb",
-                        "gpu_util_percent",
-                        "gpu_memory_mb",
-                    )
-                    if key in trace.metrics
-                }
-            )
+            metrics.update(self._trace_resource_metrics(trace))
 
         return {
             "run_id": run_id,
@@ -613,7 +611,9 @@ class BatchExecutor:
             "duration_mismatch_sec": duration_fields.get("duration_mismatch_sec"),
             "audio_duration_source": duration_fields.get("audio_duration_source"),
             "partial_count": partial_count,
-            "first_partial_latency_ms": float(result.latency.first_partial_ms or first_partial_latency_ms),
+            "first_partial_latency_ms": float(
+                result.latency.first_partial_ms or first_partial_latency_ms
+            ),
             "finalization_latency_ms": finalization_latency_ms,
             "confidence": float(result.confidence),
             "preprocess_ms": float(result.latency.preprocess_ms),

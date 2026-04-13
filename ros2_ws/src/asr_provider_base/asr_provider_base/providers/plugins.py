@@ -15,6 +15,8 @@ _CAMEL_BOUNDARY_RE = re.compile(r"(?<!^)(?=[A-Z])")
 
 @dataclass(slots=True)
 class ProviderPluginSpec:
+    """Discovered provider plugin descriptor from profiles or environment."""
+
     provider_id: str
     adapter_path: str = ""
     source: str = "profile"

@@ -12,6 +12,8 @@ from asr_observability.models import PipelineTrace, StageTrace, utc_now_iso
 
 
 class PipelineTraceCollector:
+    """Collect high-resolution timing and metadata for one pipeline execution."""
+
     def __init__(
         self,
         *,
@@ -37,6 +39,7 @@ class PipelineTraceCollector:
 
     @property
     def trace(self) -> PipelineTrace:
+        """Expose the mutable trace object being built."""
         return self._trace
 
     @contextmanager
@@ -49,6 +52,7 @@ class PipelineTraceCollector:
         input_summary: dict[str, Any] | None = None,
         notes: str = "",
     ) -> Iterator[dict[str, Any]]:
+        """Context manager that records one timed stage and its output summary."""
         started_ns = time.perf_counter_ns()
         wall_started_at = utc_now_iso()
         output_summary: dict[str, Any] = {}
@@ -73,15 +77,18 @@ class PipelineTraceCollector:
             )
 
     def set_metric(self, name: str, value: Any) -> None:
+        """Attach one metric value to the trace."""
         self._trace.metrics[str(name)] = value
 
     def update_metadata(self, **kwargs: Any) -> None:
+        """Merge non-null metadata keys into the trace header."""
         for key, value in kwargs.items():
             if value is None:
                 continue
             self._trace.metadata[str(key)] = value
 
     def finalize(self) -> PipelineTrace:
+        """Seal the trace with total duration and return it."""
         if self._trace.finished_ns > 0:
             return self._trace
         finished_ns = time.perf_counter_ns()

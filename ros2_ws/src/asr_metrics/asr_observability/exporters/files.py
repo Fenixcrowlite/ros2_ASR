@@ -12,6 +12,8 @@ from asr_observability.models import PipelineTrace
 
 
 class FileTraceExporter:
+    """Persist runtime and benchmark traces to JSON plus optional CSV indexes."""
+
     def __init__(self, config: ObservabilityConfig) -> None:
         self.config = config
 

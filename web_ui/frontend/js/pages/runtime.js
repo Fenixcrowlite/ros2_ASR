@@ -1,3 +1,4 @@
+// Runtime page controller for the browser UI.
 import { createActionRunner } from '../action-runner.js';
 import { renderProviderGuideHtml } from '../provider-guides.js';
 
@@ -402,6 +403,7 @@ export function initRuntimePage(ctx) {
       { key: 'Provider Streaming Mode', value: status.streaming_mode || 'none' },
       { key: 'Status Message', value: effectiveRuntimeMessage() },
       { key: 'Streaming Supported', value: String(status.streaming_supported ?? false) },
+      { key: 'Provider Runtime Ready', value: String(status.provider_runtime_ready ?? status.cloud_credentials_available ?? false) },
       { key: 'Cloud Credentials Available', value: String(status.cloud_credentials_available ?? false) },
       { key: 'Runtime Nodes Ready', value: `${readyNodes}/${nodeStatuses.length || 0}` },
     ];

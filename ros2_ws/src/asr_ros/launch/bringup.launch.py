@@ -1,3 +1,5 @@
+"""ROS launch description for bringup.launch."""
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument
 from launch.conditions import IfCondition
@@ -6,6 +8,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description() -> LaunchDescription:
+    """Launch the legacy runtime trio: ASR server, audio capture, and text output."""
     # `config` points to global runtime YAML consumed by asr_server_node.
     config_arg = DeclareLaunchArgument("config", default_value="configs/default.yaml")
     # Audio capture parameters (can override YAML quickly from CLI).

@@ -11,6 +11,8 @@ import requests  # type: ignore[import-untyped]
 
 @dataclass(slots=True)
 class HuggingFaceInferenceError(RuntimeError):
+    """Typed error raised for transport, auth, and API-level HF failures."""
+
     code: str
     message: str
     status_code: int = 0

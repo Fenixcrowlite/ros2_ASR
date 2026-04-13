@@ -639,6 +639,7 @@ class AsrServerNode(Node):
 
 
 def main() -> None:
+    """Start the legacy all-in-one ASR server node."""
     rclpy.init()
     node = AsrServerNode()
     try:

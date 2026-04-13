@@ -21,11 +21,13 @@ def _deep_merge(base: dict[str, Any], patch: dict[str, Any]) -> dict[str, Any]:
 
 
 def provider_ui(payload: dict[str, Any]) -> dict[str, Any]:
+    """Return the UI-specific provider metadata block from a provider profile."""
     ui = payload.get("ui", {})
     return ui if isinstance(ui, dict) else {}
 
 
 def provider_presets(payload: dict[str, Any]) -> list[dict[str, Any]]:
+    """Expand provider UI presets into normalized rows used by gateway/runtime code."""
     ui = provider_ui(payload)
     raw = ui.get("model_presets", {})
     if not isinstance(raw, dict):
@@ -53,6 +55,7 @@ def provider_presets(payload: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def default_preset_id(payload: dict[str, Any]) -> str:
+    """Return the explicitly configured or first available provider preset ID."""
     ui = provider_ui(payload)
     explicit = str(ui.get("default_model_preset", "")).strip()
     if explicit:
@@ -67,6 +70,7 @@ def resolve_provider_execution(
     preset_id: str = "",
     settings_overrides: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
+    """Resolve final provider settings after applying preset and explicit overrides."""
     settings = payload.get("settings", {})
     base_settings = dict(settings) if isinstance(settings, dict) else {}
     selected_preset = str(preset_id or default_preset_id(payload) or "").strip()

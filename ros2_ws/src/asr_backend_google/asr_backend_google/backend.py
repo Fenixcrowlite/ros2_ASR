@@ -5,8 +5,9 @@ from __future__ import annotations
 import queue
 import threading
 import time
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 from asr_core.audio import (
     pcm_duration_sec,
@@ -464,7 +465,7 @@ class GoogleAsrBackend(AsrBackend):
                 error_code=error_code,
                 error_message=error_message,
                 backend_info={"provider": "google", "model": self.model, "region": self.region},
-                language=language,
+                anguage=language,
             )
 
     def streaming_recognize(

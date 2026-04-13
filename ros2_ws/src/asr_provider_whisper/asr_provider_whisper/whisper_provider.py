@@ -8,10 +8,11 @@ from typing import Any
 from asr_backend_whisper.backend import WhisperAsrBackend
 from asr_core.audio import pcm_rms
 from asr_core.models import AsrRequest
+from asr_core.normalized import NormalizedAsrResult
+from asr_provider_base import normalize_backend_response
 from asr_provider_base.adapter import AsrProviderAdapter
 from asr_provider_base.capabilities import ProviderCapabilities
 from asr_provider_base.models import ProviderAudio, ProviderStatus
-from asr_provider_base import normalize_backend_response
 
 
 class WhisperProvider(AsrProviderAdapter):
@@ -114,7 +115,9 @@ class WhisperProvider(AsrProviderAdapter):
         if audio.wav_path:
             try:
                 with wave.open(audio.wav_path, "rb") as wf:
-                    frames = wf.readframes(wf.getframerate() * min(3, max(1, wf.getnchannels())))
+                    frames = wf.readframes(
+                        wf.getframerate() * min(3, max(1, wf.getnchannels()))
+                    )
                     if frames:
                         return (
                             pcm_rms(

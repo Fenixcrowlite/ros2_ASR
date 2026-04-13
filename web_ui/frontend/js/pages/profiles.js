@@ -1,3 +1,4 @@
+// Profiles page controller for the browser UI.
 function getPathValue(payload, path, fallback = '') {
   const parts = path.split('.');
   let cursor = payload;

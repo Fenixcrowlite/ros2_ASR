@@ -692,6 +692,7 @@ class AudioInputNode(Node):
 
 
 def main() -> None:
+    """Start the audio input node until shutdown is requested."""
     rclpy.init()
     node = AudioInputNode()
     try:

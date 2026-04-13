@@ -8,12 +8,15 @@ from typing import Any
 
 @dataclass(slots=True)
 class ProviderSelection:
+    """Resolved runtime provider choice plus preset and settings overrides."""
+
     profile: str
     preset: str = ""
     settings: dict[str, object] = field(default_factory=dict)
 
 
 def normalize_provider_profile_id(value: str) -> str:
+    """Normalize short provider IDs into `providers/<id>` profile references."""
     text = str(value or "").strip()
     if not text:
         return ""

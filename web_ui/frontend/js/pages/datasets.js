@@ -1,3 +1,4 @@
+// Datasets page controller for the browser UI.
 export function initDatasetsPage(ctx) {
   const { api, ui } = ctx;
 

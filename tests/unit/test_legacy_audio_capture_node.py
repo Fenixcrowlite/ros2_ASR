@@ -3,8 +3,8 @@ from __future__ import annotations
 import sys
 import types
 
-import pytest
 import asr_ros.audio_capture_node as legacy_audio_capture_module
+import pytest
 
 if "rcl_interfaces.msg" not in sys.modules:
     rcl_interfaces_mod = types.ModuleType("rcl_interfaces")
@@ -39,7 +39,6 @@ if "rclpy.executors" in sys.modules and not hasattr(sys.modules["rclpy.executors
     sys.modules["rclpy.executors"].ExternalShutdownException = _ExternalShutdownException
 
 from asr_ros.audio_capture_node import AudioCaptureNode
-
 
 pytestmark = pytest.mark.legacy
 

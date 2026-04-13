@@ -5,6 +5,8 @@
 - providers: `providers/fake_artifact_toggle`
 - scenario: `clean_baseline`
 - execution_mode: `batch`
+- noise_modes: `none`
+- noise_levels: `clean`
 - aggregate_scope: `single_provider`
 - total_samples: `1`
 - successful_samples: `1`

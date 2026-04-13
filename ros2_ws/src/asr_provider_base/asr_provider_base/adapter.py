@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterable
 from abc import ABC, abstractmethod
+from collections.abc import Iterable
 from typing import Any
 
 from asr_core.normalized import NormalizedAsrResult

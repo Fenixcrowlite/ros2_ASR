@@ -11,6 +11,8 @@ from typing import Any
 
 @dataclass(slots=True)
 class DatasetSample:
+    """Canonical dataset manifest row consumed by the benchmark subsystem."""
+
     sample_id: str
     audio_path: str
     transcript: str
@@ -36,6 +38,7 @@ def _resolve_audio_path(manifest_path: Path, raw_audio_path: str) -> str:
 
 
 def validate_sample(sample: DatasetSample) -> list[str]:
+    """Validate one dataset sample and return human-readable errors."""
     errors: list[str] = []
     if not sample.sample_id:
         errors.append("sample_id is required")
@@ -49,6 +52,7 @@ def validate_sample(sample: DatasetSample) -> list[str]:
 
 
 def load_manifest(path: str) -> list[DatasetSample]:
+    """Load a JSONL dataset manifest into typed dataset samples."""
     manifest_path = Path(path)
     if not manifest_path.exists():
         raise FileNotFoundError(f"Dataset manifest not found: {manifest_path}")
@@ -93,6 +97,7 @@ def load_manifest(path: str) -> list[DatasetSample]:
 
 
 def save_manifest(path: str, samples: list[DatasetSample]) -> None:
+    """Write dataset samples as newline-delimited JSON objects."""
     manifest_path = Path(path)
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     with manifest_path.open("w", encoding="utf-8") as handle:

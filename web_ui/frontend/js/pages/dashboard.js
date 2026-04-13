@@ -1,3 +1,4 @@
+// Dashboard page controller for the browser UI.
 export function initDashboardPage(ctx) {
   const { api, ui, state, navigate } = ctx;
 

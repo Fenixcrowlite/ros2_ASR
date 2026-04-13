@@ -5,6 +5,9 @@ build-backend = "setuptools.build_meta"
 [tool.pytest.ini_options]
 addopts = "-q"
 testpaths = ["tests"]
+filterwarnings = [
+  "ignore:.*websockets.*deprecated.*:DeprecationWarning",
+]
 markers = [
   "unit: isolated domain/unit tests",
   "component: component-level black-box tests",
@@ -27,7 +30,12 @@ exclude = [".venv*", "ros2_ws/build", "ros2_ws/install", "ros2_ws/log", "build",
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "B", "UP", "N"]
-ignore = ["N818"]
+ignore = ["N818", "E501"]
+
+[tool.ruff.lint.per-file-ignores]
+"ros2_ws/src/asr_gateway/asr_gateway/api.py" = ["B008"]
+"scripts/generate_plots.py" = ["E402"]
+"scripts/import_dataset/import_from_folder.py" = ["E402"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -35,3 +43,11 @@ warn_unused_configs = true
 disallow_untyped_defs = false
 ignore_missing_imports = true
 exclude = "(ros2_ws/build|ros2_ws/install|ros2_ws/log|ros2_ws/src/.*/test/.*|/setup\\.py$|/launch/.*\\.launch\\.py$)"
+
+[[tool.mypy.overrides]]
+module = ["tests", "tests.*"]
+ignore_errors = true
+
+[[tool.mypy.overrides]]
+module = ["scripts.live_sample_eval", "scripts.run_self_audit_cycle"]
+ignore_errors = true

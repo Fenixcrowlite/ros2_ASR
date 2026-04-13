@@ -265,6 +265,7 @@ class AudioPreprocessNode(Node):
 
 
 def main() -> None:
+    """Start the audio preprocessing node until shutdown is requested."""
     rclpy.init()
     node = AudioPreprocessNode()
     try:

@@ -7,6 +7,8 @@ from dataclasses import dataclass
 
 @dataclass(slots=True)
 class Scenario:
+    """Named benchmark scenario with a stable descriptive label."""
+
     name: str
     description: str
 
@@ -34,7 +36,10 @@ DEFAULT_SCENARIOS = {
 
 
 class ScenarioManager:
+    """Resolve known scenario names into typed scenario objects."""
+
     def resolve(self, names: list[str]) -> list[Scenario]:
+        """Return only the scenarios that are known to the current registry."""
         resolved: list[Scenario] = []
         for name in names:
             if name in DEFAULT_SCENARIOS:

@@ -1,3 +1,4 @@
+// Provider-specific guidance snippets rendered by browser UI pages.
 export function renderProviderGuideHtml(ui, row) {
   const providerId = String(row?.provider_id || '').trim();
   if (!providerId) {

@@ -27,10 +27,12 @@ _DEFAULT_IMPORTS: dict[str, tuple[str, str]] = {
 
 
 def register_provider(provider_id: str, cls: type[AsrProviderAdapter]) -> None:
+    """Register a provider adapter class under a stable provider ID."""
     _REGISTRY[provider_id] = cls
 
 
 def list_providers(*, configs_root: str = "configs") -> list[str]:
+    """List built-in and plugin-provided provider IDs."""
     discovered = discover_provider_plugins(configs_root=configs_root)
     return sorted(set(_REGISTRY.keys()) | set(_DEFAULT_IMPORTS.keys()) | set(discovered.keys()))
 
@@ -67,6 +69,7 @@ def create_provider(
     configs_root: str = "configs",
     **kwargs: Any,
 ) -> AsrProviderAdapter:
+    """Instantiate a provider from an explicit adapter path, plugin, or built-in map."""
     if str(adapter_path or "").strip():
         cls = _provider_class_from_adapter_path(adapter_path)
         return cls(**kwargs)

@@ -1,11 +1,11 @@
 """Provider adapter base package."""
 
+from asr_provider_base.adapter import AsrProviderAdapter
 from asr_provider_base.adapters import (
     backend_info_float,
     normalize_backend_response,
     normalize_words,
 )
-from asr_provider_base.adapter import AsrProviderAdapter
 from asr_provider_base.capabilities import ProviderCapabilities
 from asr_provider_base.catalog import (
     default_preset_id,

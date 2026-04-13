@@ -1,3 +1,5 @@
+"""ROS launch description for demo.launch."""
+
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
@@ -6,6 +8,7 @@ from launch_ros.substitutions import FindPackageShare
 
 
 def generate_launch_description() -> LaunchDescription:
+    """Launch the legacy demo by delegating to `bringup.launch.py`."""
     # Demo is a thin wrapper around full bringup launch.
     config_arg = DeclareLaunchArgument("config", default_value="configs/default.yaml")
     bringup = IncludeLaunchDescription(

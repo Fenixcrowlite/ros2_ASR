@@ -22,6 +22,7 @@ REQUIRED_BENCHMARK_KEYS = (
 
 
 def validate_runtime_payload(payload: dict[str, Any]) -> list[str]:
+    """Validate the resolved runtime profile payload used by runtime nodes."""
     errors: list[str] = []
     for key in REQUIRED_RUNTIME_KEYS:
         if key not in payload:
@@ -118,6 +119,7 @@ def validate_runtime_payload(payload: dict[str, Any]) -> list[str]:
 
 
 def validate_benchmark_payload(payload: dict[str, Any]) -> list[str]:
+    """Validate the resolved benchmark profile payload before execution."""
     errors: list[str] = []
     supported_noise_levels = {"clean", "light", "medium", "heavy", "extreme"}
     supported_noise_modes = {"white", "pink", "brown", "babble", "hum"}
@@ -210,6 +212,7 @@ def validate_benchmark_payload(payload: dict[str, Any]) -> list[str]:
 
 
 def validate_metric_payload(payload: dict[str, Any]) -> list[str]:
+    """Validate a metric selection payload against the metric registry."""
     errors: list[str] = []
     metrics = payload.get("metrics", [])
     if not isinstance(metrics, list) or not metrics:

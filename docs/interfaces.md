@@ -155,6 +155,7 @@ Response:
 - `streaming_supported`
 - `streaming_mode`
 - `cloud_credentials_available`
+- `provider_runtime_ready`
 - `status_message`
 - `session_id`
 - `session_state`

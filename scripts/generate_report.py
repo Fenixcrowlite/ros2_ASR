@@ -115,6 +115,12 @@ def _build_legacy_report(raw_payload: list[dict[str, object]], input_path: Path)
 def _build_canonical_summary_report(summary_payload: dict[str, object]) -> list[str]:
     provider_summaries = summary_payload.get("provider_summaries", [])
     providers = provider_summaries if isinstance(provider_summaries, list) else []
+    providers_value = summary_payload.get("providers", [])
+    provider_labels = (
+        [str(item) for item in providers_value]
+        if isinstance(providers_value, list)
+        else []
+    )
 
     lines: list[str] = []
     lines.append("# ASR Benchmark Report")
@@ -124,7 +130,7 @@ def _build_canonical_summary_report(summary_payload: dict[str, object]) -> list[
     lines.append(f"Dataset ID: {summary_payload.get('dataset_id', '')}")
     lines.append(f"Execution Mode: {summary_payload.get('execution_mode', 'batch')}")
     lines.append(f"Aggregate Scope: {summary_payload.get('aggregate_scope', 'provider_only')}")
-    lines.append(f"Providers: {', '.join(summary_payload.get('providers', []))}")
+    lines.append(f"Providers: {', '.join(provider_labels)}")
     lines.append(f"Total Samples: {summary_payload.get('total_samples', 0)}")
     lines.append(f"Successful Samples: {summary_payload.get('successful_samples', 0)}")
     lines.append(f"Failed Samples: {summary_payload.get('failed_samples', 0)}")

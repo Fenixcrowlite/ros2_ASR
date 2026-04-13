@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 import rclpy
+from asr_core.ros_parameters import parameter_string
 from rclpy.node import Node
 
-from asr_core.ros_parameters import parameter_string
 from asr_benchmark.runner import run_benchmark
 
 

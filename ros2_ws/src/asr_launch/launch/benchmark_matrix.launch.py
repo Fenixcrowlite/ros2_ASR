@@ -14,6 +14,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description() -> LaunchDescription:
+    """Launch the benchmark manager for provider-matrix benchmark scenarios."""
     assert_no_conflicting_managed_stack()
     configs_root = DeclareLaunchArgument("configs_root", default_value="configs")
     artifacts_root = DeclareLaunchArgument("artifacts_root", default_value="artifacts")

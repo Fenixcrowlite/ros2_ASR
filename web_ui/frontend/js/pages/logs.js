@@ -1,3 +1,4 @@
+// Logs and diagnostics page controller for the browser UI.
 export function initLogsPage(ctx) {
   const { api, ui } = ctx;
 

@@ -6,6 +6,7 @@ string[] capabilities
 bool streaming_supported
 string streaming_mode
 bool cloud_credentials_available
+bool provider_runtime_ready
 string status_message
 string session_id
 string session_state

@@ -8,6 +8,8 @@ from typing import Any
 
 @dataclass(slots=True)
 class ProviderAudio:
+    """Normalized audio payload handed to provider adapters."""
+
     session_id: str
     request_id: str
     language: str
@@ -20,6 +22,8 @@ class ProviderAudio:
 
 @dataclass(slots=True)
 class ProviderStatus:
+    """Health/status snapshot reported by a provider adapter."""
+
     provider_id: str
     state: str
     message: str = ""
@@ -30,6 +34,8 @@ class ProviderStatus:
 
 @dataclass(slots=True)
 class ProviderMetadata:
+    """Static or slowly-changing metadata describing the provider implementation."""
+
     provider_id: str
     display_name: str = ""
     implementation: str = ""
@@ -43,6 +49,8 @@ class ProviderMetadata:
 
 @dataclass(slots=True)
 class ProviderRuntimeMetrics:
+    """Provider-side operational counters that complement benchmark metrics."""
+
     model_load_ms: float = 0.0
     requests_total: int = 0
     stream_sessions_total: int = 0
@@ -54,6 +62,7 @@ class ProviderRuntimeMetrics:
     extra: dict[str, Any] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
+        """Serialize runtime metrics into a plain dictionary for APIs and reports."""
         return {
             "model_load_ms": float(self.model_load_ms),
             "requests_total": int(self.requests_total),

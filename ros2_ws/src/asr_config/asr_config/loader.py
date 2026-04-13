@@ -159,6 +159,7 @@ def snapshot_resolved_config(
     payload: dict[str, Any],
     resolved_root: Path,
 ) -> str:
+    """Persist a resolved profile snapshot for artifact/debugging purposes."""
     resolved_root.mkdir(parents=True, exist_ok=True)
     filename = f"{profile_type}__{profile_id.replace('/', '_')}.json"
     path = resolved_root / filename

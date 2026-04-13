@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import threading
 import shutil
 import subprocess
+import threading
 import time
 from dataclasses import dataclass
 
@@ -63,6 +63,8 @@ def collect_gpu_optional() -> tuple[float | None, float | None]:
 
 @dataclass(slots=True)
 class ResourceSampleSummary:
+    """Aggregated CPU/RAM/GPU samples collected over one request or run."""
+
     cpu_percent_mean: float | None = None
     cpu_percent_peak: float | None = None
     memory_mb_mean: float | None = None
@@ -73,6 +75,7 @@ class ResourceSampleSummary:
     gpu_memory_mb_peak: float | None = None
 
     def as_metrics(self) -> dict[str, float | None]:
+        """Flatten aggregate samples into metric-style key/value pairs."""
         return {
             "cpu_percent_mean": self.cpu_percent_mean,
             "cpu_percent_peak": self.cpu_percent_peak,

@@ -1,3 +1,4 @@
+// Secrets and cloud-credential page controller for the browser UI.
 import { createActionRunner } from '../action-runner.js';
 
 // Secrets page shows credential readiness and recovery actions without exposing

@@ -7,6 +7,8 @@ from dataclasses import dataclass
 
 @dataclass(slots=True)
 class ProviderCapabilities:
+    """Describe what a provider can do so callers can plan around limitations."""
+
     supports_streaming: bool = False
     streaming_mode: str = "none"  # none | native
     supports_batch: bool = True

@@ -1,3 +1,4 @@
+// Shared browser UI rendering and utility helpers.
 function escapeHtml(value) {
   return String(value ?? '')
     .replaceAll('&', '&amp;')

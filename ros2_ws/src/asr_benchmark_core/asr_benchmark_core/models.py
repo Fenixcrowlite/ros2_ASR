@@ -8,6 +8,8 @@ from typing import Any
 
 @dataclass(slots=True)
 class BenchmarkRunRequest:
+    """Top-level request model accepted by the benchmark orchestrator."""
+
     benchmark_profile: str
     dataset_profile: str = ""
     providers: list[str] = field(default_factory=list)
@@ -19,6 +21,8 @@ class BenchmarkRunRequest:
 
 @dataclass(slots=True)
 class BenchmarkSampleResult:
+    """Per-sample benchmark outcome after one provider execution."""
+
     run_id: str
     provider_profile: str
     sample_id: str
@@ -31,6 +35,8 @@ class BenchmarkSampleResult:
 
 @dataclass(slots=True)
 class BenchmarkRunSummary:
+    """Run-level benchmark summary persisted into reports and gateway views."""
+
     run_id: str
     benchmark_profile: str
     dataset_id: str

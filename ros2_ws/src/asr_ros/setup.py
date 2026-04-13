@@ -1,3 +1,5 @@
+"""Setuptools entrypoint for the `asr_ros` package."""
+
 from setuptools import find_packages, setup
 
 package_name = "asr_ros"

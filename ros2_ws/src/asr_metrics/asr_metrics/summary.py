@@ -87,7 +87,11 @@ def _duration_weighted_mean_statistics(
 ) -> dict[str, Any]:
     if not values or not weights or len(values) != len(weights):
         return _scalar_statistics(values, aggregator="duration_weighted_mean")
-    usable = [(value, weight) for value, weight in zip(values, weights, strict=False) if weight > 0.0]
+    usable = [
+        (value, weight)
+        for value, weight in zip(values, weights, strict=False)
+        if weight > 0.0
+    ]
     if not usable:
         return _scalar_statistics(values, aggregator="duration_weighted_mean")
     numerator = sum(value * weight for value, weight in usable)
@@ -214,7 +218,10 @@ def summarize_result_rows(
         if isinstance(row_metrics, dict):
             for name, value in row_metrics.items():
                 metric_name = str(name or "").strip()
-                if not metric_name or not metric_applicable(metric_name, execution_mode=execution_mode):
+                if not metric_name or not metric_applicable(
+                    metric_name,
+                    execution_mode=execution_mode,
+                ):
                     continue
                 enabled_metric_names.add(metric_name)
                 coerced = _coerce_float(value)
@@ -222,13 +229,18 @@ def summarize_result_rows(
                     continue
                 metric_values[metric_name].append(coerced)
                 definition = metric_definition(metric_name)
-                if definition is not None and definition.summary_aggregator == "duration_weighted_mean":
+                if (
+                    definition is not None
+                    and definition.summary_aggregator == "duration_weighted_mean"
+                ):
                     weight_value = _coerce_float(
                         row_metrics.get(definition.summary_weight_metric)
                         if definition.summary_weight_metric
                         else None
                     )
-                    metric_weights[metric_name].append(weight_value if weight_value and weight_value > 0 else 1.0)
+                    metric_weights[metric_name].append(
+                        weight_value if weight_value and weight_value > 0 else 1.0
+                    )
 
         support_payload = row.get("quality_support")
         if isinstance(support_payload, dict):

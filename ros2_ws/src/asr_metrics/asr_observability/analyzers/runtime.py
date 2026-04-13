@@ -134,6 +134,7 @@ def build_runtime_trace(
     reference_text: str = "",
     extra_metrics: dict[str, Any] | None = None,
 ) -> PipelineTrace:
+    """Finalize a runtime trace with canonical metrics and optional quality data."""
     collector.update_metadata(
         provider_id=provider_id,
         text=text,
@@ -201,6 +202,7 @@ def build_benchmark_trace(
     reference_text: str,
     extra_metrics: dict[str, Any] | None = None,
 ) -> PipelineTrace:
+    """Finalize a benchmark trace with quality metrics and canonical timing fields."""
     collector.update_metadata(
         provider_id=provider_id,
         language=language,

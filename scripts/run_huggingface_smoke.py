@@ -175,7 +175,7 @@ def main() -> None:
             "provider_id": result.provider_id,
             "wav_path": str(wav_path),
             "language": language,
-            "success": bool(result.success),
+            "success": not bool(result.error_code),
             "degraded": bool(result.degraded),
             "text": result.text,
             "confidence": float(result.confidence),

@@ -1,3 +1,5 @@
+"""Setuptools entrypoint for the `asr_provider_huggingface` package."""
+
 from setuptools import find_packages, setup
 
 package_name = "asr_provider_huggingface"

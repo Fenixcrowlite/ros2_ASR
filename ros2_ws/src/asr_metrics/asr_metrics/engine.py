@@ -7,6 +7,8 @@ from asr_metrics.plugins import DEFAULT_PLUGINS, MetricContext
 
 
 class MetricEngine:
+    """Evaluate a configured subset of metric plugins for one execution context."""
+
     def __init__(self, enabled_metrics: list[str] | None = None) -> None:
         requested = enabled_metrics or ["wer", "cer", "total_latency_ms", "success_rate"]
         errors = validate_metric_names(requested)
@@ -22,6 +24,7 @@ class MetricEngine:
             self.enabled_metrics.append(normalized)
 
     def evaluate(self, context: MetricContext) -> dict[str, float]:
+        """Compute all enabled and applicable metrics for one sample result."""
         result: dict[str, float] = {}
         for metric_name in self.enabled_metrics:
             if not metric_applicable(

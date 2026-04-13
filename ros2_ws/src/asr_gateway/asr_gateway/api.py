@@ -15,7 +15,7 @@ from collections import deque
 from collections.abc import MutableMapping
 from contextlib import asynccontextmanager
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
@@ -24,8 +24,10 @@ import yaml  # type: ignore[import-untyped]
 from asr_benchmark_core.noise import (
     apply_noise_to_wav,
     canonicalize_scenario_name,
-    noise_catalog as benchmark_noise_catalog,
     resolve_noise_plan,
+)
+from asr_benchmark_core.noise import (
+    noise_catalog as benchmark_noise_catalog,
 )
 from asr_config import (
     list_profiles,
@@ -41,40 +43,6 @@ from asr_config import (
 )
 from asr_core import make_request_id, make_run_id, make_session_id
 from asr_datasets import DatasetEntry, DatasetRegistry, import_from_uploaded_files, load_manifest
-from asr_gateway.ros_client import GatewayRosClient
-from asr_gateway.log_views import (
-    collect_logs as collect_logs_helper,
-    detect_severity as detect_severity_helper,
-    log_files as log_files_helper,
-    tail_lines as tail_lines_helper,
-)
-from asr_gateway.result_views import (
-    compare_runs as compare_runs_helper,
-    list_benchmark_history as list_benchmark_history_helper,
-    metric_preference as metric_preference_helper,
-    resolved_run_message as resolved_run_message_helper,
-    resolved_run_state as resolved_run_state_helper,
-    run_detail as run_detail_helper,
-    run_dir as run_dir_helper,
-)
-from asr_gateway.runtime_assets import (
-    list_runtime_samples as list_runtime_samples_helper,
-    noise_output_target_for_snr,
-    resolve_runtime_sample_path as resolve_runtime_sample_path_helper,
-    runtime_upload_target as runtime_upload_target_helper,
-    wav_metadata_from_bytes as wav_metadata_from_bytes_helper,
-    wav_metadata_from_file as wav_metadata_from_file_helper,
-)
-from asr_gateway.secret_state import (
-    aws_backend_from_current_env as aws_backend_from_current_env_helper,
-    azure_secret_status as azure_secret_status_helper,
-    google_secret_status as google_secret_status_helper,
-    huggingface_secret_status as huggingface_secret_status_helper,
-    normalize_ref_name as normalize_ref_name_helper,
-    secret_ref_path as secret_ref_path_helper,
-    validate_secret_file as validate_secret_file_helper,
-    mask_email as mask_email_helper,
-)
 from asr_metrics.quality import has_quality_reference
 from asr_provider_base import ProviderAudio, ProviderManager, create_provider, list_providers
 from asr_provider_base.catalog import (
@@ -88,6 +56,83 @@ from fastapi import FastAPI, HTTPException, Query
 from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
+
+from asr_gateway.log_views import (
+    collect_logs as collect_logs_helper,
+)
+from asr_gateway.log_views import (
+    detect_severity as detect_severity_helper,
+)
+from asr_gateway.log_views import (
+    log_files as log_files_helper,
+)
+from asr_gateway.log_views import (
+    tail_lines as tail_lines_helper,
+)
+from asr_gateway.result_views import (
+    compare_runs as compare_runs_helper,
+)
+from asr_gateway.result_views import (
+    list_benchmark_history as list_benchmark_history_helper,
+)
+from asr_gateway.result_views import (
+    metric_preference as metric_preference_helper,
+)
+from asr_gateway.result_views import (
+    resolved_run_message as resolved_run_message_helper,
+)
+from asr_gateway.result_views import (
+    resolved_run_state as resolved_run_state_helper,
+)
+from asr_gateway.result_views import (
+    run_detail as run_detail_helper,
+)
+from asr_gateway.result_views import (
+    run_dir as run_dir_helper,
+)
+from asr_gateway.ros_client import GatewayRosClient
+from asr_gateway.runtime_assets import (
+    list_runtime_samples as list_runtime_samples_helper,
+)
+from asr_gateway.runtime_assets import (
+    noise_output_target_for_snr,
+)
+from asr_gateway.runtime_assets import (
+    resolve_runtime_sample_path as resolve_runtime_sample_path_helper,
+)
+from asr_gateway.runtime_assets import (
+    runtime_upload_target as runtime_upload_target_helper,
+)
+from asr_gateway.runtime_assets import (
+    wav_metadata_from_bytes as wav_metadata_from_bytes_helper,
+)
+from asr_gateway.runtime_assets import (
+    wav_metadata_from_file as wav_metadata_from_file_helper,
+)
+from asr_gateway.secret_state import (
+    aws_backend_from_current_env as aws_backend_from_current_env_helper,
+)
+from asr_gateway.secret_state import (
+    azure_secret_status as azure_secret_status_helper,
+)
+from asr_gateway.secret_state import (
+    google_secret_status as google_secret_status_helper,
+)
+from asr_gateway.secret_state import (
+    huggingface_secret_status as huggingface_secret_status_helper,
+)
+from asr_gateway.secret_state import (
+    mask_email as mask_email_helper,
+)
+from asr_gateway.secret_state import (
+    normalize_ref_name as normalize_ref_name_helper,
+)
+from asr_gateway.secret_state import (
+    secret_ref_path as secret_ref_path_helper,
+)
+from asr_gateway.secret_state import (
+    validate_secret_file as validate_secret_file_helper,
+)
 
 try:
     import python_multipart  # type: ignore[import-not-found]  # noqa: F401
@@ -453,7 +498,7 @@ class ResultExportRequest(BaseModel):
 
 
 def _now_iso() -> str:
-    return datetime.now(timezone.utc).isoformat()
+    return datetime.now(UTC).isoformat()
 
 
 def _clean_name(raw: str, what: str) -> str:
@@ -1062,7 +1107,7 @@ def _provider_capabilities(provider_id: str) -> dict[str, Any]:
 def _profile_mtime(path: Path) -> str:
     if not path.exists():
         return ""
-    return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).isoformat()
+    return datetime.fromtimestamp(path.stat().st_mtime, tz=UTC).isoformat()
 
 
 def _validate_profile(profile_type: str, profile_id: str) -> tuple[bool, str]:
@@ -2806,7 +2851,7 @@ def providers_test(req: ProviderTestRequest) -> dict[str, Any]:
             "confidence_available": result.confidence_available,
         }
     except Exception as exc:
-        raise HTTPException(status_code=400, detail=str(exc))
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
     finally:
         if adapter is not None:
             adapter.teardown()
@@ -3639,7 +3684,7 @@ def results_export(req: ResultExportRequest) -> dict[str, Any]:
     compare_payload = _compare_runs(run_ids, [])
 
     export_name = (
-        req.name.strip() or f"comparison_{datetime.now(timezone.utc).strftime('%Y%m%dT%H%M%SZ')}"
+        req.name.strip() or f"comparison_{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}"
     )
     export_name = _clean_name(export_name, "name")
     export_dir = ARTIFACTS_ROOT / "exports" / export_name

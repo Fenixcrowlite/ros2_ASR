@@ -14,6 +14,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description() -> LaunchDescription:
+    """Launch the modern runtime pipeline together with the HTTP gateway."""
     assert_no_conflicting_managed_stack()
     # This is the smallest "real" stack for operators: the live ASR pipeline
     # plus the HTTP gateway that serves the browser UI and talks to ROS.

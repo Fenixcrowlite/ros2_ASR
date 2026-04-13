@@ -1,3 +1,4 @@
+// Shared in-browser application state container.
 export const state = {
   activePage: 'dashboard',
   runtime: {

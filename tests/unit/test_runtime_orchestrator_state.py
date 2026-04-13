@@ -365,6 +365,7 @@ def test_get_status_marks_cloud_credentials_unavailable_when_validation_fails() 
     assert response.backend == "azure"
     assert response.streaming_mode == "native"
     assert response.cloud_credentials_available is False
+    assert response.provider_runtime_ready is False
 
 
 def test_get_status_marks_local_provider_ready_without_cloud_credentials() -> None:
@@ -375,3 +376,4 @@ def test_get_status_marks_local_provider_ready_without_cloud_credentials() -> No
 
     assert response.backend == "azure"
     assert response.cloud_credentials_available is True
+    assert response.provider_runtime_ready is True

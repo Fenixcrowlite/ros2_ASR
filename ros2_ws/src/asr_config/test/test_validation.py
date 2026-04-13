@@ -1,3 +1,5 @@
+"""Unit tests for benchmark configuration validation helpers."""
+
 from __future__ import annotations
 
 import unittest

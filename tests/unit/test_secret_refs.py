@@ -4,7 +4,13 @@ from pathlib import Path
 
 import pytest
 import yaml  # type: ignore[import-untyped]
-from asr_config.secrets import load_secret_ref, mask_secret_values, resolve_env_value, resolve_secret_ref, write_local_env_values
+from asr_config.secrets import (
+    load_secret_ref,
+    mask_secret_values,
+    resolve_env_value,
+    resolve_secret_ref,
+    write_local_env_values,
+)
 
 
 def _write_yaml(path: Path, payload: dict) -> None:

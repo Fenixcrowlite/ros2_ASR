@@ -15,6 +15,7 @@ from asr_core.factory import register_backend
 from asr_core.language import normalize_language_code
 from asr_core.models import AsrRequest, AsrResponse, AsrTimings, BackendCapabilities, WordTimestamp
 
+
 @register_backend("whisper")
 class WhisperAsrBackend(AsrBackend):
     """Whisper integration for high-quality local ASR."""

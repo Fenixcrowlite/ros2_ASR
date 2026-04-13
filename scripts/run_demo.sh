@@ -6,6 +6,7 @@ cd "$ROOT_DIR"
 
 RUNTIME_PROFILE="${ASR_RUNTIME_PROFILE:-default_runtime}"
 PROVIDER_PROFILE="${ASR_PROVIDER_PROFILE:-providers/whisper_local}"
+SKIP_BUILD="${ASR_SKIP_BUILD:-0}"
 CANONICAL_SKIP_PACKAGES=(--packages-skip asr_ros asr_benchmark)
 
 find_conflicting_managed_processes() {
@@ -29,10 +30,9 @@ if [ -n "$CONFLICTS" ]; then
   exit 1
 fi
 
-# Build workspace and start the current minimal runtime service surface.
 source "$ROOT_DIR/scripts/source_runtime_env.sh" --with-ros
+INSTALL_SETUP="${ASR_COLCON_INSTALL_PREFIX}/setup.bash"
 
-# Keep colcon isolated from venv site-packages while preserving ROS python paths.
 filter_colcon_pythonpath() {
   local current="${PYTHONPATH-}"
   local filtered=""
@@ -53,23 +53,31 @@ filter_colcon_pythonpath() {
 }
 
 ORIGINAL_PYTHONPATH="${PYTHONPATH-}"
-COLCON_PYTHONPATH="$(filter_colcon_pythonpath)"
-COLCON_PYTHON_BIN="${VIRTUAL_ENV:-}/bin/python"
-if [ ! -x "$COLCON_PYTHON_BIN" ]; then
-  COLCON_PYTHON_BIN="$(command -v python3)"
-fi
-if [ -n "$COLCON_PYTHONPATH" ]; then
-  COLCON_PYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" \
-    PYTHONPATH="$COLCON_PYTHONPATH" \
-    bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon --log-base ros2_ws/log build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --symlink-install \
-      "${CANONICAL_SKIP_PACKAGES[@]}" \
-      --cmake-args -DPYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" -DPython3_EXECUTABLE="$COLCON_PYTHON_BIN"
+if [[ "$SKIP_BUILD" == "1" || "$SKIP_BUILD" == "true" || "$SKIP_BUILD" == "yes" ]]; then
+  if [ ! -f "$INSTALL_SETUP" ]; then
+    echo "ERROR: ${INSTALL_SETUP} not found. Run make build or unset ASR_SKIP_BUILD." >&2
+    exit 1
+  fi
 else
-  COLCON_PYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" \
-    PYTHONPATH="" \
-    bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon --log-base ros2_ws/log build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --symlink-install \
-      "${CANONICAL_SKIP_PACKAGES[@]}" \
-      --cmake-args -DPYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" -DPython3_EXECUTABLE="$COLCON_PYTHON_BIN"
+  # Keep colcon isolated from venv site-packages while preserving ROS python paths.
+  COLCON_PYTHONPATH="$(filter_colcon_pythonpath)"
+  COLCON_PYTHON_BIN="${VIRTUAL_ENV:-}/bin/python"
+  if [ ! -x "$COLCON_PYTHON_BIN" ]; then
+    COLCON_PYTHON_BIN="$(command -v python3)"
+  fi
+  if [ -n "$COLCON_PYTHONPATH" ]; then
+    COLCON_PYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" \
+      PYTHONPATH="$COLCON_PYTHONPATH" \
+      bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon --log-base ros2_ws/log build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --symlink-install \
+        "${CANONICAL_SKIP_PACKAGES[@]}" \
+        --cmake-args -DPYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" -DPython3_EXECUTABLE="$COLCON_PYTHON_BIN"
+  else
+    COLCON_PYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" \
+      PYTHONPATH="" \
+      bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon --log-base ros2_ws/log build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --symlink-install \
+        "${CANONICAL_SKIP_PACKAGES[@]}" \
+        --cmake-args -DPYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" -DPython3_EXECUTABLE="$COLCON_PYTHON_BIN"
+  fi
 fi
 if [ -n "${ORIGINAL_PYTHONPATH}" ]; then
   export PYTHONPATH="${ORIGINAL_PYTHONPATH}"
@@ -77,7 +85,7 @@ else
   unset PYTHONPATH
 fi
 set +u
-source "${ASR_COLCON_INSTALL_PREFIX}/setup.bash"
+source "$INSTALL_SETUP"
 set -u
 ros2 launch asr_launch runtime_minimal.launch.py \
   runtime_profile:="$RUNTIME_PROFILE" \

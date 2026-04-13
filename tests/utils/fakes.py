@@ -411,6 +411,7 @@ class FakeGatewayRosClient:
                 "streaming_supported": streaming_supported,
                 "streaming_mode": streaming_mode,
                 "cloud_credentials_available": False,
+                "provider_runtime_ready": True,
                 "status_message": "runtime active" if self.runtime_started else "runtime idle",
                 "session_id": self.session_id if self.runtime_started else "",
                 "session_state": state,

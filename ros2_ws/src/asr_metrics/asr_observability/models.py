@@ -10,11 +10,14 @@ from asr_metrics.semantics import METRICS_SEMANTICS_VERSION
 
 
 def utc_now_iso() -> str:
+    """Return the current UTC timestamp in ISO-8601 format."""
     return datetime.now(UTC).isoformat()
 
 
 @dataclass(slots=True)
 class StageTrace:
+    """One timed stage inside a runtime or benchmark pipeline trace."""
+
     stage: str
     component: str
     code_path: str
@@ -28,22 +31,28 @@ class StageTrace:
     notes: str = ""
 
     def as_dict(self) -> dict[str, Any]:
+        """Serialize the stage trace into a plain dictionary."""
         return asdict(self)
 
 
 @dataclass(slots=True)
 class ValidationReport:
+    """Validation outcome attached to an exported pipeline trace."""
+
     valid: bool = True
     corrupted: bool = False
     errors: list[str] = field(default_factory=list)
     warnings: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
+        """Serialize the validation report into a plain dictionary."""
         return asdict(self)
 
 
 @dataclass(slots=True)
 class PipelineTrace:
+    """Full observability trace for one runtime request or benchmark execution."""
+
     trace_id: str
     trace_type: str
     created_at: str
@@ -63,6 +72,7 @@ class PipelineTrace:
     artifact_path: str = ""
 
     def as_dict(self) -> dict[str, Any]:
+        """Serialize nested trace data into a JSON-friendly dictionary."""
         payload = asdict(self)
         payload["stages"] = [stage.as_dict() for stage in self.stages]
         payload["validation"] = self.validation.as_dict()

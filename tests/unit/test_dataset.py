@@ -6,7 +6,6 @@ from pathlib import Path
 import pytest
 from asr_benchmark.dataset import load_manifest_csv
 
-
 pytestmark = pytest.mark.legacy
 
 

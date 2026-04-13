@@ -4,8 +4,9 @@ from __future__ import annotations
 
 import os
 import re
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import yaml  # type: ignore[import-untyped]
 
@@ -49,6 +50,7 @@ def _project_root_from_source(source_path: str) -> Path:
 
 
 def local_env_file_path(source_path: str = "") -> Path:
+    """Return the local `.env`-style file used for runtime secret injection."""
     env_path = os.getenv("ASR_LOCAL_ENV_FILE", "").strip()
     if env_path:
         return Path(env_path).expanduser()
@@ -57,6 +59,7 @@ def local_env_file_path(source_path: str = "") -> Path:
 
 
 def load_local_env_values(source_path: str = "") -> dict[str, str]:
+    """Load key/value pairs from the local runtime env file when it exists."""
     path = local_env_file_path(source_path)
     if not path.exists():
         return {}
@@ -82,6 +85,7 @@ def load_local_env_values(source_path: str = "") -> dict[str, str]:
 
 
 def resolve_env_value(key: str, source_path: str = "") -> tuple[str, str]:
+    """Resolve a secret from process env first and local env file second."""
     process_value = os.getenv(key, "").strip()
     if process_value:
         return process_value, "process_env"
@@ -98,6 +102,7 @@ def write_local_env_values(
     source_path: str = "",
     unset: Iterable[str] = (),
 ) -> Path:
+    """Update the local runtime env file and return its path."""
     path = local_env_file_path(source_path)
     current = load_local_env_values(source_path)
     for key in unset:

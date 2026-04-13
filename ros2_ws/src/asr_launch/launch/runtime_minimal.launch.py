@@ -14,6 +14,7 @@ from launch_ros.actions import Node
 
 
 def generate_launch_description() -> LaunchDescription:
+    """Launch the smallest complete runtime pipeline for file-based operation."""
     assert_no_conflicting_managed_stack()
     runtime_profile = DeclareLaunchArgument("runtime_profile", default_value="default_runtime")
     provider_profile = DeclareLaunchArgument(

@@ -35,6 +35,7 @@ def detect_conflicting_managed_processes(
     project_root: Path,
     exclude_pids: set[int] | None = None,
 ) -> list[dict[str, object]]:
+    """Find already-running managed ASR processes from the same workspace."""
     exclude = set(exclude_pids or set())
     markers = _managed_install_markers(project_root)
     conflicts: list[dict[str, object]] = []
@@ -57,6 +58,7 @@ def detect_conflicting_managed_processes(
 
 
 def assert_no_conflicting_managed_stack() -> None:
+    """Abort launch when another managed stack from this workspace is already running."""
     project_root = _find_project_root(Path(__file__))
     ps_output = subprocess.run(
         ["ps", "-eo", "pid=,args="],

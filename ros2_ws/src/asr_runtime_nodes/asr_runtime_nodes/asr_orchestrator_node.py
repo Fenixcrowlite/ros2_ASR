@@ -34,6 +34,7 @@ from asr_interfaces.srv import (
     StopRuntimeSession,
     ValidateConfig,
 )
+from asr_metrics.system import ResourceSampler
 from asr_observability import (
     FileTraceExporter,
     ObservabilityConfig,
@@ -51,7 +52,6 @@ from asr_provider_base.config import resolve_provider_selection_from_runtime_pay
 from rclpy.executors import SingleThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import DurabilityPolicy, QoSProfile, ReliabilityPolicy
-from asr_metrics.system import ResourceSampler
 
 from asr_runtime_nodes.converters import to_asr_result_msg, to_partial_msg
 from asr_runtime_nodes.transport import decode_transport_metadata, delivery_latency_ms
@@ -1861,7 +1861,9 @@ class AsrOrchestratorNode(Node):
         response.backend = self.provider_id
         response.model = self.provider_preset
         response.region = ""
-        response.cloud_credentials_available = self.provider is not None
+        provider_runtime_ready = self.provider is not None
+        response.cloud_credentials_available = provider_runtime_ready
+        response.provider_runtime_ready = provider_runtime_ready
         if self.provider is not None:
             caps = self.provider.discover_capabilities()
             response.capabilities = [
@@ -1875,9 +1877,11 @@ class AsrOrchestratorNode(Node):
             response.streaming_mode = caps.streaming_mode
             if caps.requires_network:
                 try:
-                    response.cloud_credentials_available = len(self.provider.validate_config()) == 0
+                    provider_runtime_ready = len(self.provider.validate_config()) == 0
                 except Exception:
-                    response.cloud_credentials_available = False
+                    provider_runtime_ready = False
+                response.cloud_credentials_available = provider_runtime_ready
+                response.provider_runtime_ready = provider_runtime_ready
         response.status_message = self.session_state
         response.session_id = self.session_id
         response.session_state = self.session_state
@@ -1933,6 +1937,7 @@ class AsrOrchestratorNode(Node):
 
 
 def main() -> None:
+    """Start the runtime orchestrator node until shutdown is requested."""
     rclpy.init()
     node = AsrOrchestratorNode()
     try:

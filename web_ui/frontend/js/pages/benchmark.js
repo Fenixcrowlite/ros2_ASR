@@ -1,3 +1,4 @@
+// Benchmark page controller for the browser UI.
 const TIER_SCORE = {
   low: 1,
   medium: 2,

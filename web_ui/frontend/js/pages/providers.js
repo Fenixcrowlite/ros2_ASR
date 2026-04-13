@@ -1,3 +1,4 @@
+// Providers page controller for the browser UI.
 import { renderProviderGuideHtml } from '../provider-guides.js';
 
 export function initProvidersPage(ctx) {

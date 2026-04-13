@@ -7,6 +7,8 @@ from dataclasses import asdict, dataclass
 
 @dataclass(frozen=True, slots=True)
 class MetricDefinition:
+    """Describes one metric exposed by the benchmark/runtime reporting layer."""
+
     name: str
     display_name: str
     unit: str
@@ -20,6 +22,7 @@ class MetricDefinition:
     alias_of: str = ""
 
     def as_dict(self) -> dict[str, object]:
+        """Serialize the metric definition for APIs, reports, and UI metadata."""
         return asdict(self)
 
 
@@ -102,7 +105,10 @@ METRIC_DEFINITIONS: dict[str, MetricDefinition] = {
         "ms",
         "latency",
         "lower",
-        "Wall-clock latency from request/stream start to the first visible partial or final result.",
+        (
+            "Wall-clock latency from request/stream start to the first visible "
+            "partial or final result."
+        ),
     ),
     "time_to_final_result_ms": _metric(
         "time_to_final_result_ms",
@@ -222,7 +228,10 @@ METRIC_DEFINITIONS: dict[str, MetricDefinition] = {
         "sec",
         "diagnostic",
         "higher",
-        "Audio duration measured from the processed file or bytes and used for canonical normalization.",
+        (
+            "Audio duration measured from the processed file or bytes and used "
+            "for canonical normalization."
+        ),
     ),
     "declared_audio_duration_sec": _metric(
         "declared_audio_duration_sec",
@@ -246,7 +255,10 @@ METRIC_DEFINITIONS: dict[str, MetricDefinition] = {
         "sec",
         "diagnostic",
         "higher",
-        "Effective audio duration used for normalization; canonical flows prefer measured duration.",
+        (
+            "Effective audio duration used for normalization; canonical flows "
+            "prefer measured duration."
+        ),
     ),
     "estimated_cost_usd": _metric(
         "estimated_cost_usd",
@@ -422,10 +434,12 @@ METRIC_DEFINITIONS: dict[str, MetricDefinition] = {
 
 
 def metric_definition(name: str) -> MetricDefinition | None:
+    """Return the canonical metric definition for a name, if it exists."""
     return METRIC_DEFINITIONS.get(str(name or "").strip())
 
 
 def metric_metadata(names: list[str] | tuple[str, ...] | set[str]) -> dict[str, dict[str, object]]:
+    """Return serialized metadata for the requested subset of metrics."""
     payload: dict[str, dict[str, object]] = {}
     for name in names:
         definition = metric_definition(str(name))
@@ -436,11 +450,13 @@ def metric_metadata(names: list[str] | tuple[str, ...] | set[str]) -> dict[str, 
 
 
 def validate_metric_names(names: list[str] | tuple[str, ...] | set[str]) -> list[str]:
+    """Validate metric names against the registry and return unknown-name errors."""
     unknown = sorted({str(name).strip() for name in names if metric_definition(str(name)) is None})
     return [f"Unknown metric: {name}" for name in unknown]
 
 
 def metric_preference(name: str) -> str:
+    """Return whether higher or lower values are considered better for a metric."""
     definition = metric_definition(name)
     if definition is None:
         return "higher"
@@ -448,6 +464,7 @@ def metric_preference(name: str) -> str:
 
 
 def metric_applicable(name: str, *, execution_mode: str) -> bool:
+    """Return whether a metric is meaningful for the requested execution mode."""
     definition = metric_definition(name)
     if definition is None:
         return False

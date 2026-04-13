@@ -5,9 +5,7 @@ import time
 from types import SimpleNamespace
 
 import pytest
-
 from asr_ros.asr_server_node import AsrServerNode
-
 
 pytestmark = pytest.mark.legacy
 

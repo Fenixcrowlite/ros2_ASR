@@ -8,6 +8,7 @@ from typing import Any
 from asr_core.normalized import LatencyMetadata, NormalizedAsrResult
 from asr_provider_base.capabilities import ProviderCapabilities
 from asr_provider_base.models import ProviderAudio
+
 from asr_provider_huggingface.common import (
     BaseHuggingFaceProvider,
     api_return_timestamps,
@@ -22,6 +23,8 @@ from asr_provider_huggingface.http_client import (
 
 
 class HuggingFaceAPIProvider(BaseHuggingFaceProvider):
+    """Hosted Hugging Face inference adapter using HTTP requests."""
+
     provider_id = "huggingface_api"
     display_name = "Hugging Face API"
     implementation = "requests"

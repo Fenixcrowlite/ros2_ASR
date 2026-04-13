@@ -9,6 +9,7 @@ _TRANSPORT_PREFIX = "asr_transport:"
 
 
 def encode_transport_metadata(metadata: dict[str, Any]) -> str:
+    """Encode transport metadata into a compact `frame_id` payload."""
     payload = {
         str(key): value
         for key, value in metadata.items()
@@ -23,6 +24,7 @@ def encode_transport_metadata(metadata: dict[str, Any]) -> str:
 
 
 def decode_transport_metadata(frame_id: object) -> dict[str, Any]:
+    """Decode transport metadata previously stored in `frame_id`."""
     text = str(frame_id or "").strip()
     if not text.startswith(_TRANSPORT_PREFIX):
         return {}
@@ -34,12 +36,14 @@ def decode_transport_metadata(frame_id: object) -> dict[str, Any]:
 
 
 def stamp_to_ns(stamp: object) -> int:
+    """Convert a ROS time-like object into nanoseconds."""
     sec = int(getattr(stamp, "sec", 0) or 0)
     nanosec = int(getattr(stamp, "nanosec", 0) or 0)
     return max((sec * 1_000_000_000) + nanosec, 0)
 
 
 def delivery_latency_ms(*, now_ns: int, stamp: object) -> float:
+    """Compute how long ago a message was published based on its ROS stamp."""
     published_ns = stamp_to_ns(stamp)
     if published_ns <= 0 or now_ns <= 0:
         return 0.0
@@ -47,6 +51,7 @@ def delivery_latency_ms(*, now_ns: int, stamp: object) -> float:
 
 
 def sequence_gap(previous: int | None, current: int | None) -> int:
+    """Return the number of dropped sequence IDs between two observations."""
     if previous is None or previous < 0 or current is None or current < 0:
         return 0
     if current <= previous + 1:

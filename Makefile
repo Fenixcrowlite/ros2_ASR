@@ -100,7 +100,8 @@ up: build
 	bash scripts/run_web_ui.sh --mode $(GATEWAY_MODE) --stack $(GATEWAY_STACK) --port $(GATEWAY_PORT)
 
 up-runtime: build
-	ASR_RUNTIME_PROFILE=$(RUNTIME_PROFILE) ASR_PROVIDER_PROFILE=$(PROVIDER_PROFILE) bash scripts/run_demo.sh
+	bash scripts/run_web_ui.sh --stop --port $(GATEWAY_PORT)
+	ASR_SKIP_BUILD=1 ASR_RUNTIME_PROFILE=$(RUNTIME_PROFILE) ASR_PROVIDER_PROFILE=$(PROVIDER_PROFILE) bash scripts/run_demo.sh
 
 up-lan: build
 	$(MAKE) up GATEWAY_MODE=lan

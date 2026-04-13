@@ -299,6 +299,7 @@ class BenchmarkManagerNode(Node):
 
 
 def main() -> None:
+    """Start the benchmark manager node until shutdown is requested."""
     rclpy.init()
     node = BenchmarkManagerNode()
     try:

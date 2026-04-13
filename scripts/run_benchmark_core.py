@@ -75,6 +75,15 @@ def _canonical_row_to_legacy_record(row: dict[str, object]) -> BenchmarkRecord:
     normalized_payload = normalized_result if isinstance(normalized_result, dict) else {}
     latency_payload = normalized_payload.get("latency", {})
     latency = latency_payload if isinstance(latency_payload, dict) else {}
+
+    def _metric_float(name: str, default: float = 0.0) -> float:
+        value = metric_values.get(name, default)
+        return float(value) if isinstance(value, (int, float, str)) else default
+
+    def _row_float(name: str, default: float = 0.0) -> float:
+        value = row.get(name, default)
+        return float(value) if isinstance(value, (int, float, str)) else default
+
     request_id = str(normalized_payload.get("request_id", "") or "").strip()
     if not request_id:
         request_id = (
@@ -91,25 +100,21 @@ def _canonical_row_to_legacy_record(row: dict[str, object]) -> BenchmarkRecord:
         audio_id=str(row.get("sample_id", "") or ""),
         backend=_provider_backend_label(row),
         scenario=str(row.get("scenario", "clean_baseline") or "clean_baseline"),
-        snr_db=(
-            float(row.get("noise_snr_db", 0.0))
-            if row.get("noise_snr_db") is not None
-            else None
-        ),
+        snr_db=_row_float("noise_snr_db") if row.get("noise_snr_db") is not None else None,
         wav_path=str(row.get("input_audio_path", "") or ""),
         language=str(normalized_payload.get("language", "") or ""),
-        duration_sec=float(row.get("audio_duration_sec", 0.0) or 0.0),
+        duration_sec=_row_float("audio_duration_sec"),
         text=str(row.get("text", "") or ""),
         transcript_ref=str(row.get("reference_text", "") or ""),
         transcript_hyp=str(row.get("text", "") or ""),
-        wer=float(metric_values.get("wer", 0.0) or 0.0),
-        cer=float(metric_values.get("cer", 0.0) or 0.0),
+        wer=_metric_float("wer"),
+        cer=_metric_float("cer"),
         latency_ms=total_latency_ms,
         preprocess_ms=0.0,
         inference_ms=inference_ms,
         postprocess_ms=0.0,
-        audio_duration_sec=float(row.get("audio_duration_sec", 0.0) or 0.0),
-        rtf=float(metric_values.get("real_time_factor", 0.0) or 0.0),
+        audio_duration_sec=_row_float("audio_duration_sec"),
+        rtf=_metric_float("real_time_factor"),
         cpu_percent=0.0,
         ram_mb=0.0,
         gpu_util_percent=0.0,
@@ -117,7 +122,7 @@ def _canonical_row_to_legacy_record(row: dict[str, object]) -> BenchmarkRecord:
         success=bool(row.get("success", False)),
         error_code=str(row.get("error_code", "") or ""),
         error_message=str(row.get("error_message", "") or ""),
-        cost_estimate=float(metric_values.get("estimated_cost_usd", 0.0) or 0.0),
+        cost_estimate=_metric_float("estimated_cost_usd"),
     )
 
 

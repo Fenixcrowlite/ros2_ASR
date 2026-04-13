@@ -8,6 +8,8 @@ from typing import Any
 
 @dataclass(slots=True)
 class NormalizedWord:
+    """Provider-neutral word-level timing entry."""
+
     word: str
     start_sec: float
     end_sec: float
@@ -17,6 +19,8 @@ class NormalizedWord:
 
 @dataclass(slots=True)
 class LatencyMetadata:
+    """Canonical latency breakdown attached to normalized ASR results."""
+
     total_ms: float = 0.0
     preprocess_ms: float = 0.0
     inference_ms: float = 0.0
@@ -27,6 +31,8 @@ class LatencyMetadata:
 
 @dataclass(slots=True)
 class NormalizedAsrResult:
+    """Canonical result model shared across runtime, benchmark, and gateway code."""
+
     request_id: str
     session_id: str
     provider_id: str
@@ -50,6 +56,7 @@ class NormalizedAsrResult:
     tags: list[str] = field(default_factory=list)
 
     def as_dict(self) -> dict[str, Any]:
+        """Serialize nested dataclasses into a JSON-friendly dictionary."""
         payload = asdict(self)
         payload["words"] = [asdict(word) for word in self.words]
         payload["latency"] = asdict(self.latency)
@@ -58,6 +65,8 @@ class NormalizedAsrResult:
 
 @dataclass(slots=True)
 class SessionState:
+    """Minimal runtime session status projection."""
+
     session_id: str
     state: str
     provider_id: str

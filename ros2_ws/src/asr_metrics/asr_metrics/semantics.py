@@ -58,6 +58,7 @@ OPTIONAL_CANONICAL_METRICS = {
 
 
 def float_or_none(value: Any) -> float | None:
+    """Best-effort float conversion that treats empty values as missing."""
     if value is None or value == "":
         return None
     try:
@@ -67,6 +68,7 @@ def float_or_none(value: Any) -> float | None:
 
 
 def int_or_none(value: Any) -> int | None:
+    """Best-effort int conversion that treats empty values as missing."""
     if value is None or value == "":
         return None
     try:
@@ -76,16 +78,19 @@ def int_or_none(value: Any) -> int | None:
 
 
 def duration_mismatch_threshold_sec(measured: float, declared: float) -> float:
+    """Return the tolerance used when comparing measured vs declared duration."""
     return max(0.05, 0.02 * max(abs(float(measured)), abs(float(declared))))
 
 
 def duration_mismatch_sec(measured: float | None, declared: float | None) -> float:
+    """Return the absolute duration difference, or zero when one side is missing."""
     if measured is None or declared is None:
         return 0.0
     return abs(float(measured) - float(declared))
 
 
 def duration_mismatch_is_suspicious(measured: float | None, declared: float | None) -> bool:
+    """Return whether the duration mismatch exceeds the allowed tolerance."""
     if measured is None or declared is None:
         return False
     mismatch = duration_mismatch_sec(measured, declared)
@@ -97,6 +102,7 @@ def resolve_audio_duration_fields(
     measured_audio_duration_sec: float | None,
     declared_audio_duration_sec: float | None,
 ) -> dict[str, Any]:
+    """Build canonical audio-duration fields shared by runtime and benchmark metrics."""
     measured = float_or_none(measured_audio_duration_sec)
     declared = float_or_none(declared_audio_duration_sec)
     source = "manifest_declared"
@@ -114,6 +120,7 @@ def resolve_audio_duration_fields(
 
 
 def ensure_canonical_rtfs(metrics: dict[str, Any]) -> None:
+    """Backfill canonical real-time-factor metrics from latency and duration values."""
     measured_duration = float_or_none(metrics.get("measured_audio_duration_sec"))
     if measured_duration is None or measured_duration <= 0.0:
         measured_duration = float_or_none(metrics.get("audio_duration_sec"))
@@ -128,6 +135,7 @@ def ensure_canonical_rtfs(metrics: dict[str, Any]) -> None:
 
 
 def apply_legacy_metric_aliases(metrics: dict[str, Any]) -> dict[str, Any]:
+    """Populate deprecated metric aliases so old readers still see expected keys."""
     ensure_canonical_rtfs(metrics)
     for legacy_name, canonical_name in LEGACY_ALIAS_MAP.items():
         if metrics.get(legacy_name) in (None, "") and metrics.get(canonical_name) not in (None, ""):
@@ -136,11 +144,13 @@ def apply_legacy_metric_aliases(metrics: dict[str, Any]) -> dict[str, Any]:
 
 
 def alias_tolerance(canonical_value: Any) -> float:
+    """Return the tolerance used when comparing canonical and alias metric values."""
     numeric = abs(float(float_or_none(canonical_value) or 0.0))
     return max(2.0, numeric * 0.02)
 
 
 def metric_semantics_version(payload: Any) -> int:
+    """Extract the metrics semantics version from a dict or object payload."""
     if isinstance(payload, dict):
         version = int_or_none(payload.get("metrics_semantics_version"))
         if version is not None:
@@ -152,10 +162,10 @@ def metric_semantics_version(payload: Any) -> int:
 
 
 def is_legacy_metrics_payload(payload: Any) -> bool:
+    """Return whether a payload should be interpreted with legacy metric semantics."""
     if isinstance(payload, dict) and "legacy_metrics" in payload:
         return bool(payload.get("legacy_metrics"))
     legacy = getattr(payload, "legacy_metrics", None)
     if legacy is not None:
         return bool(legacy)
     return metric_semantics_version(payload) < METRICS_SEMANTICS_VERSION
-

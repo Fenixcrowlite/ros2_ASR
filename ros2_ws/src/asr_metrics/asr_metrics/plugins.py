@@ -10,6 +10,8 @@ from asr_metrics.quality import TextQualitySupport, text_quality_support
 
 @dataclass(slots=True)
 class MetricContext:
+    """Normalized input passed to every metric plugin."""
+
     reference_text: str
     hypothesis_text: str
     success: bool
@@ -28,6 +30,7 @@ class MetricContext:
     quality_support: TextQualitySupport | None = None
 
     def __post_init__(self) -> None:
+        """Backfill derived latency and duration fields used by alias metrics."""
         if self.provider_compute_latency_ms <= 0.0 and self.latency_ms > 0.0:
             self.provider_compute_latency_ms = float(self.latency_ms)
         if self.end_to_end_latency_ms <= 0.0 and self.provider_compute_latency_ms > 0.0:
@@ -41,14 +44,19 @@ class MetricContext:
 
 
 class MetricPlugin(ABC):
+    """Abstract metric plugin contract."""
+
     name = "metric"
 
     @abstractmethod
     def compute(self, context: MetricContext) -> float:
+        """Compute one metric value from the normalized execution context."""
         raise NotImplementedError
 
 
 class WerMetric(MetricPlugin):
+    """Word error rate against the normalized reference text."""
+
     name = "wer"
 
     def compute(self, context: MetricContext) -> float:
@@ -60,6 +68,8 @@ class WerMetric(MetricPlugin):
 
 
 class CerMetric(MetricPlugin):
+    """Character error rate against the normalized reference text."""
+
     name = "cer"
 
     def compute(self, context: MetricContext) -> float:
@@ -71,6 +81,8 @@ class CerMetric(MetricPlugin):
 
 
 class ProviderComputeLatencyMetric(MetricPlugin):
+    """Provider-side compute latency reported in milliseconds."""
+
     name = "provider_compute_latency_ms"
 
     def compute(self, context: MetricContext) -> float:
@@ -78,6 +90,8 @@ class ProviderComputeLatencyMetric(MetricPlugin):
 
 
 class EndToEndLatencyMetric(MetricPlugin):
+    """Wall-clock latency from request start to final result."""
+
     name = "end_to_end_latency_ms"
 
     def compute(self, context: MetricContext) -> float:
@@ -85,6 +99,8 @@ class EndToEndLatencyMetric(MetricPlugin):
 
 
 class LatencyMetric(MetricPlugin):
+    """Deprecated alias for provider compute latency."""
+
     name = "total_latency_ms"
 
     def compute(self, context: MetricContext) -> float:
@@ -92,6 +108,8 @@ class LatencyMetric(MetricPlugin):
 
 
 class PerUtteranceLatencyMetric(MetricPlugin):
+    """Deprecated alias for provider compute latency on one utterance."""
+
     name = "per_utterance_latency_ms"
 
     def compute(self, context: MetricContext) -> float:
@@ -99,6 +117,8 @@ class PerUtteranceLatencyMetric(MetricPlugin):
 
 
 class ProviderComputeRtfMetric(MetricPlugin):
+    """Provider compute real-time factor using measured audio duration."""
+
     name = "provider_compute_rtf"
 
     def compute(self, context: MetricContext) -> float:
@@ -107,6 +127,8 @@ class ProviderComputeRtfMetric(MetricPlugin):
 
 
 class EndToEndRtfMetric(MetricPlugin):
+    """End-to-end real-time factor using measured audio duration."""
+
     name = "end_to_end_rtf"
 
     def compute(self, context: MetricContext) -> float:
@@ -115,6 +137,8 @@ class EndToEndRtfMetric(MetricPlugin):
 
 
 class RealTimeFactorMetric(MetricPlugin):
+    """Deprecated alias for provider compute real-time factor."""
+
     name = "real_time_factor"
 
     def compute(self, context: MetricContext) -> float:
@@ -123,6 +147,8 @@ class RealTimeFactorMetric(MetricPlugin):
 
 
 class TimeToFirstResultMetric(MetricPlugin):
+    """Latency until the first visible partial or final result."""
+
     name = "time_to_first_result_ms"
 
     def compute(self, context: MetricContext) -> float:
@@ -130,6 +156,8 @@ class TimeToFirstResultMetric(MetricPlugin):
 
 
 class TimeToFinalResultMetric(MetricPlugin):
+    """Latency until the final result is available."""
+
     name = "time_to_final_result_ms"
 
     def compute(self, context: MetricContext) -> float:
@@ -137,6 +165,8 @@ class TimeToFinalResultMetric(MetricPlugin):
 
 
 class TimeToResultMetric(MetricPlugin):
+    """Deprecated alias for time to final result."""
+
     name = "time_to_result_ms"
 
     def compute(self, context: MetricContext) -> float:
@@ -144,6 +174,8 @@ class TimeToResultMetric(MetricPlugin):
 
 
 class EstimatedCostMetric(MetricPlugin):
+    """Estimated monetary cost associated with one request/sample."""
+
     name = "estimated_cost_usd"
 
     def compute(self, context: MetricContext) -> float:
@@ -151,6 +183,8 @@ class EstimatedCostMetric(MetricPlugin):
 
 
 class FirstPartialLatencyMetric(MetricPlugin):
+    """Latency reported by the provider until the first partial result."""
+
     name = "first_partial_latency_ms"
 
     def compute(self, context: MetricContext) -> float:
@@ -158,6 +192,8 @@ class FirstPartialLatencyMetric(MetricPlugin):
 
 
 class FinalizationLatencyMetric(MetricPlugin):
+    """Time spent finalizing a result after the first visible output."""
+
     name = "finalization_latency_ms"
 
     def compute(self, context: MetricContext) -> float:
@@ -165,6 +201,8 @@ class FinalizationLatencyMetric(MetricPlugin):
 
 
 class PartialCountMetric(MetricPlugin):
+    """Number of partial updates emitted before the final result."""
+
     name = "partial_count"
 
     def compute(self, context: MetricContext) -> float:
@@ -172,6 +210,8 @@ class PartialCountMetric(MetricPlugin):
 
 
 class SuccessMetric(MetricPlugin):
+    """Binary success metric encoded as 1.0 or 0.0."""
+
     name = "success_rate"
 
     def compute(self, context: MetricContext) -> float:
@@ -179,6 +219,8 @@ class SuccessMetric(MetricPlugin):
 
 
 class FailureMetric(MetricPlugin):
+    """Binary failure metric encoded as 1.0 or 0.0."""
+
     name = "failure_rate"
 
     def compute(self, context: MetricContext) -> float:
@@ -186,6 +228,8 @@ class FailureMetric(MetricPlugin):
 
 
 class SampleAccuracyMetric(MetricPlugin):
+    """Exact-match accuracy after normalization."""
+
     name = "sample_accuracy"
 
     def compute(self, context: MetricContext) -> float:

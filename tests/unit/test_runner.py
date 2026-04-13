@@ -13,7 +13,6 @@ from asr_benchmark.runner import (
 from asr_core.models import AsrResponse, AsrTimings
 from asr_metrics.collector import MetricsCollector
 
-
 pytestmark = pytest.mark.legacy
 
 

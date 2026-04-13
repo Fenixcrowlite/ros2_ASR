@@ -88,6 +88,7 @@ class AsrTextOutputNode(Node):
 
 
 def main() -> None:
+    """Start the legacy text relay node."""
     rclpy.init()
     node = AsrTextOutputNode()
     try:

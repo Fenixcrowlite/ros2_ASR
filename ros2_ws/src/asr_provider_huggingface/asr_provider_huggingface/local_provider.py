@@ -8,6 +8,7 @@ from typing import Any
 from asr_core.normalized import LatencyMetadata, NormalizedAsrResult
 from asr_provider_base.capabilities import ProviderCapabilities
 from asr_provider_base.models import ProviderAudio
+
 from asr_provider_huggingface.common import (
     BaseHuggingFaceProvider,
     build_transcription_result,
@@ -19,6 +20,8 @@ from asr_provider_huggingface.common import (
 
 
 class HuggingFaceLocalProvider(BaseHuggingFaceProvider):
+    """Local Hugging Face adapter backed by `transformers.pipeline`."""
+
     provider_id = "huggingface_local"
     display_name = "Hugging Face Local"
     implementation = "transformers.pipeline"
@@ -105,8 +108,8 @@ class HuggingFaceLocalProvider(BaseHuggingFaceProvider):
     def _load_pipeline(self) -> Any:
         if self._pipeline is not None:
             return self._pipeline
-        from transformers import pipeline  # type: ignore[import-not-found]
         import torch  # type: ignore[import-not-found]
+        from transformers import pipeline  # type: ignore[import-not-found]
 
         self._resolved_device = self._resolve_device(torch)
         self._resolved_dtype = self._resolve_dtype(torch)

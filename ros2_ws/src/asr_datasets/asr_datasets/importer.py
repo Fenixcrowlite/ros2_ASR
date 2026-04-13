@@ -20,6 +20,7 @@ def import_from_folder(
     imported_root: str = "datasets/imported",
     manifests_root: str = "datasets/manifests",
 ) -> tuple[str, int]:
+    """Copy WAV files from a folder into managed storage and create a manifest."""
     source = Path(source_folder)
     if not source.exists():
         raise FileNotFoundError(f"Source folder does not exist: {source}")

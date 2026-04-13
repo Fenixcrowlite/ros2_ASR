@@ -34,8 +34,7 @@ def _bootstrap_imports() -> Path:
 PROJECT_ROOT = _bootstrap_imports()
 REPORTS_ROOT = PROJECT_ROOT / "reports"
 
-from fastapi.testclient import TestClient  # noqa: E402
-
+import asr_gateway.api as gateway_api  # noqa: E402
 import rclpy  # noqa: E402
 from asr_benchmark_core import BenchmarkOrchestrator, BenchmarkRunRequest  # noqa: E402
 from asr_gateway.ros_client import GatewayRosClient  # noqa: E402
@@ -43,9 +42,8 @@ from asr_runtime_nodes.asr_orchestrator_node import AsrOrchestratorNode  # noqa:
 from asr_runtime_nodes.audio_input_node import AudioInputNode  # noqa: E402
 from asr_runtime_nodes.audio_preprocess_node import AudioPreprocessNode  # noqa: E402
 from asr_runtime_nodes.vad_segmenter_node import VadSegmenterNode  # noqa: E402
+from fastapi.testclient import TestClient  # noqa: E402
 from rclpy.executors import MultiThreadedExecutor  # noqa: E402
-
-import asr_gateway.api as gateway_api  # noqa: E402
 
 
 def _now_utc() -> str:
@@ -149,11 +147,11 @@ def _preset_iteration_markdown(title: str, rows: list[dict[str, Any]]) -> str:
     best_wer: tuple[str, float] | None = None
     for row in rows:
         preset = str(
-            (
+            
                 row.get("results", [{}])[0].get("provider_preset", "default")
                 if row.get("results")
                 else "default"
-            )
+            
         )
         metrics = dict(row.get("mean_metrics", {}) or {})
         latency = float(metrics.get("total_latency_ms", 0.0) or 0.0)

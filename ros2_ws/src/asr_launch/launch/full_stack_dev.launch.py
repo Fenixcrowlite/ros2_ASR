@@ -13,6 +13,7 @@ from launch.substitutions import LaunchConfiguration, ThisLaunchFileDir
 
 
 def generate_launch_description() -> LaunchDescription:
+    """Launch the runtime stack, gateway, and benchmark manager together."""
     # "Full stack" means the operator/runtime path plus the benchmark backend
     # used by dataset import, benchmark execution, and results pages.
     runtime_profile = DeclareLaunchArgument("runtime_profile", default_value="default_runtime")

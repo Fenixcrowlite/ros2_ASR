@@ -10,6 +10,8 @@ from typing import Any
 
 @dataclass(slots=True)
 class DatasetEntry:
+    """Registered dataset pointer stored in the dataset registry file."""
+
     dataset_id: str
     manifest_ref: str
     sample_count: int
@@ -17,6 +19,8 @@ class DatasetEntry:
 
 
 class DatasetRegistry:
+    """Small JSON-backed registry that tracks available benchmark datasets."""
+
     def __init__(self, registry_path: str = "datasets/registry/datasets.json") -> None:
         self.registry_path = Path(registry_path)
         self.registry_path.parent.mkdir(parents=True, exist_ok=True)
@@ -37,6 +41,7 @@ class DatasetRegistry:
         )
 
     def list(self) -> list[DatasetEntry]:
+        """Return all registered datasets as typed entries."""
         payload = self._load()
         entries: list[DatasetEntry] = []
         for item in payload.get("datasets", []):
@@ -51,6 +56,7 @@ class DatasetRegistry:
         return entries
 
     def register(self, entry: DatasetEntry) -> None:
+        """Insert or replace a dataset entry by `dataset_id`."""
         payload = self._load()
         datasets = [
             item

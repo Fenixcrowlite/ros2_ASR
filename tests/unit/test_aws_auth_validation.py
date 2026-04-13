@@ -5,9 +5,8 @@ import uuid
 from pathlib import Path
 from types import SimpleNamespace
 
-import pytest
-
 import asr_backend_aws.backend as aws_backend_module
+import pytest
 from asr_backend_aws.backend import AwsAsrBackend
 
 

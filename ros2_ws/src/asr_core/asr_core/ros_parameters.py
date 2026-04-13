@@ -16,6 +16,7 @@ _PARAMETER_STRING = 4
 
 
 def parameter_scalar(node: Any, name: str) -> Any:
+    """Read a parameter and return a plain Python scalar when possible."""
     value = node.get_parameter(name).get_parameter_value()
     param_type = int(getattr(value, "type", _PARAMETER_NOT_SET) or _PARAMETER_NOT_SET)
     if param_type == _PARAMETER_BOOL:
@@ -30,6 +31,7 @@ def parameter_scalar(node: Any, name: str) -> Any:
 
 
 def parameter_string(node: Any, name: str, *, default: str = "") -> str:
+    """Read a parameter as string with a fallback default."""
     value = parameter_scalar(node, name)
     if value is None:
         return default
@@ -37,6 +39,7 @@ def parameter_string(node: Any, name: str, *, default: str = "") -> str:
 
 
 def parameter_bool(node: Any, name: str, *, default: bool = False) -> bool:
+    """Read a parameter as bool, accepting common string spellings."""
     value = parameter_scalar(node, name)
     if value is None:
         return default
@@ -51,6 +54,7 @@ def parameter_bool(node: Any, name: str, *, default: bool = False) -> bool:
 
 
 def parameter_int(node: Any, name: str, *, default: int = 0) -> int:
+    """Read a parameter as int with permissive scalar coercion."""
     value = parameter_scalar(node, name)
     if value is None:
         return default
@@ -67,6 +71,7 @@ def parameter_int(node: Any, name: str, *, default: int = 0) -> int:
 
 
 def parameter_float(node: Any, name: str, *, default: float = 0.0) -> float:
+    """Read a parameter as float with permissive scalar coercion."""
     value = parameter_scalar(node, name)
     if value is None:
         return default

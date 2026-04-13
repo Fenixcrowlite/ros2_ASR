@@ -46,6 +46,7 @@ def provider_runtime_metadata(
     *,
     record_invocation: bool = False,
 ) -> dict[str, Any]:
+    """Project cold-start and invocation metadata tracked on the adapter instance."""
     invocation_count = int(getattr(provider, "_asr_provider_invocation_count", 0) or 0)
     call_cold_start = invocation_count == 0
     if record_invocation:

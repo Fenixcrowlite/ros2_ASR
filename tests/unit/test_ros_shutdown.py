@@ -4,7 +4,6 @@ import pytest
 from asr_core import shutdown as shutdown_module
 from asr_ros.shutdown import safe_shutdown_node
 
-
 pytestmark = pytest.mark.legacy
 
 

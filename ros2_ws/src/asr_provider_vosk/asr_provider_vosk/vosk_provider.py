@@ -10,10 +10,10 @@ from typing import Any
 from asr_backend_vosk.backend import VoskAsrBackend
 from asr_core.models import AsrRequest
 from asr_core.normalized import LatencyMetadata, NormalizedAsrResult, NormalizedWord
+from asr_provider_base import normalize_backend_response
 from asr_provider_base.adapter import AsrProviderAdapter
 from asr_provider_base.capabilities import ProviderCapabilities
 from asr_provider_base.models import ProviderAudio, ProviderStatus
-from asr_provider_base import normalize_backend_response
 
 
 class VoskProvider(AsrProviderAdapter):

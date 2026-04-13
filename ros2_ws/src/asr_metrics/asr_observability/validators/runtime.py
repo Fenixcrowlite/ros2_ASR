@@ -11,6 +11,7 @@ from asr_metrics.semantics import (
     float_or_none,
     metric_semantics_version,
 )
+
 from asr_observability.models import PipelineTrace, ValidationReport
 
 
@@ -145,6 +146,7 @@ def validate_trace(
     *,
     require_ordered_timestamps: bool = True,
 ) -> ValidationReport:
+    """Validate an exported trace for structural and semantic consistency."""
     report = ValidationReport()
     _validate_stage_order(
         trace,

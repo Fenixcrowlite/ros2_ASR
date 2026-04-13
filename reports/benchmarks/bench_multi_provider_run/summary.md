@@ -5,6 +5,8 @@
 - providers: `providers/provider_a, providers/provider_b`
 - scenario: `clean_baseline`
 - execution_mode: `batch`
+- noise_modes: `none`
+- noise_levels: `clean`
 - aggregate_scope: `provider_only`
 - total_samples: `2`
 - successful_samples: `2`

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import signal
+from signal import Handlers, Signals
 from threading import Event
 from typing import Any
 
@@ -58,7 +59,7 @@ def spin_node_until_shutdown(*, node: Any, rclpy_module: Any, timeout_sec: float
         return
 
     stop_requested = Event()
-    previous_handlers: dict[int, Any] = {}
+    previous_handlers: dict[Signals, Any] = {}
 
     def _request_stop(signum: int, _frame: Any) -> None:
         _ = signum

@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -33,7 +33,7 @@ class ArtifactStore:
 
     @staticmethod
     def _timestamp() -> str:
-        return datetime.now(timezone.utc).strftime("%Y%m%dT%H%M%SZ")
+        return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
 
     def make_runtime_session(self, session_id: str) -> Path:
         session_dir = self.runtime_root / session_id

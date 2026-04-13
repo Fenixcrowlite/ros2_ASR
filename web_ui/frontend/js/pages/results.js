@@ -1,3 +1,4 @@
+// Results page controller for the browser UI.
 export function initResultsPage(ctx) {
   const { api, ui, state } = ctx;
 
@@ -29,6 +30,23 @@ export function initResultsPage(ctx) {
 
   function fmtMetric(value) {
     return ui.escapeHtml(metricText(value));
+  }
+
+  function firstPresent(...values) {
+    for (const value of values) {
+      if (value != null && value !== '') {
+        return value;
+      }
+    }
+    return null;
+  }
+
+  function statisticValue(statistic = {}) {
+    return firstPresent(statistic.value, statistic.mean);
+  }
+
+  function mutedLabel(text) {
+    return `<span class="muted">${ui.escapeHtml(text)}</span>`;
   }
 
   function normalizeQualityText(text) {
@@ -236,8 +254,10 @@ export function initResultsPage(ctx) {
       'sample_accuracy',
       'provider_compute_latency_ms',
       'end_to_end_latency_ms',
+      'total_latency_ms',
       'provider_compute_rtf',
       'end_to_end_rtf',
+      'real_time_factor',
       'time_to_first_result_ms',
       'time_to_final_result_ms',
       'success_rate',
@@ -404,6 +424,8 @@ export function initResultsPage(ctx) {
       return ui.renderEmpty('No per-provider summary available for this run.');
     }
 
+    const batchMode = String(summary.execution_mode || '').toLowerCase() === 'batch';
+
     return ui.table(
       [
         {
@@ -422,8 +444,39 @@ export function initResultsPage(ctx) {
         { key: 'wer', label: 'WER', value: (row) => fmtMetric(row.quality_metrics?.wer) },
         { key: 'cer', label: 'CER', value: (row) => fmtMetric(row.quality_metrics?.cer) },
         { key: 'acc', label: 'Exact Match Rate', value: (row) => fmtMetric(row.quality_metrics?.sample_accuracy) },
-        { key: 'lat', label: 'End-to-end ms', value: (row) => fmtMetric(row.latency_metrics?.end_to_end_latency_ms) },
-        { key: 'rtf', label: 'End-to-end RTF', value: (row) => fmtMetric(row.latency_metrics?.end_to_end_rtf) },
+        {
+          key: 'lat',
+          label: 'End-to-end ms',
+          value: (row) =>
+            fmtMetric(
+              firstPresent(
+                row.latency_metrics?.end_to_end_latency_ms,
+                row.latency_metrics?.total_latency_ms,
+                row.latency_metrics?.per_utterance_latency_ms,
+                row.mean_metrics?.end_to_end_latency_ms,
+                row.mean_metrics?.total_latency_ms,
+                row.mean_metrics?.per_utterance_latency_ms,
+                statisticValue(row.metric_statistics?.end_to_end_latency_ms),
+                statisticValue(row.metric_statistics?.total_latency_ms),
+                statisticValue(row.metric_statistics?.per_utterance_latency_ms)
+              )
+            ),
+        },
+        {
+          key: 'rtf',
+          label: 'End-to-end RTF',
+          value: (row) =>
+            fmtMetric(
+              firstPresent(
+                row.latency_metrics?.end_to_end_rtf,
+                row.latency_metrics?.real_time_factor,
+                row.mean_metrics?.end_to_end_rtf,
+                row.mean_metrics?.real_time_factor,
+                statisticValue(row.metric_statistics?.end_to_end_rtf),
+                statisticValue(row.metric_statistics?.real_time_factor)
+              )
+            ),
+        },
         { key: 'succ_rate', label: 'Success Rate', value: (row) => fmtMetric(row.reliability_metrics?.success_rate) },
         { key: 'fail_rate', label: 'Failure Rate', value: (row) => fmtMetric(row.reliability_metrics?.failure_rate) },
         { key: 'cost_mean', label: 'Mean Cost USD', value: (row) => fmtMetric(row.cost_metrics?.estimated_cost_usd) },
@@ -435,22 +488,44 @@ export function initResultsPage(ctx) {
         {
           key: 'first_partial',
           label: 'First Result ms',
-          value: (row) => fmtMetric(row.latency_metrics?.time_to_first_result_ms),
+          value: (row) => {
+            const value = firstPresent(
+              row.latency_metrics?.time_to_first_result_ms,
+              row.streaming_metrics?.time_to_first_result_ms,
+              row.mean_metrics?.time_to_first_result_ms,
+              statisticValue(row.metric_statistics?.time_to_first_result_ms)
+            );
+            return value == null && batchMode ? mutedLabel('n/a (batch)') : fmtMetric(value);
+          },
         },
         {
           key: 'finalization',
           label: 'Finalization ms',
-          value: (row) => fmtMetric(row.streaming_metrics?.finalization_latency_ms),
+          value: (row) => {
+            const value = firstPresent(
+              row.streaming_metrics?.finalization_latency_ms,
+              row.mean_metrics?.finalization_latency_ms,
+              statisticValue(row.metric_statistics?.finalization_latency_ms)
+            );
+            return value == null && batchMode ? mutedLabel('n/a (batch)') : fmtMetric(value);
+          },
         },
         {
           key: 'partials',
           label: 'Partial Count',
-          value: (row) => fmtMetric(row.streaming_metrics?.partial_count),
+          value: (row) => {
+            const value = firstPresent(
+              row.streaming_metrics?.partial_count,
+              row.mean_metrics?.partial_count,
+              statisticValue(row.metric_statistics?.partial_count)
+            );
+            return value == null && batchMode ? mutedLabel('n/a (batch)') : fmtMetric(value);
+          },
         },
         {
           key: 'detail',
           label: 'Details',
-          value: (row) => renderProviderBreakdown(row, summary.metric_metadata || {}),
+          value: (row) => renderProviderBreakdown(row, row.metric_metadata || summary.metric_metadata || {}),
         },
       ],
       providerSummaries
@@ -502,8 +577,24 @@ export function initResultsPage(ctx) {
         },
         { key: 'wer', label: 'WER', value: (row) => fmtMetric(row.metrics?.wer) },
         { key: 'cer', label: 'CER', value: (row) => fmtMetric(row.metrics?.cer) },
-        { key: 'latency', label: 'End-to-end ms', value: (row) => fmtMetric(row.metrics?.end_to_end_latency_ms ?? row.metrics?.time_to_final_result_ms) },
-        { key: 'rtf', label: 'End-to-end RTF', value: (row) => fmtMetric(row.metrics?.end_to_end_rtf) },
+        {
+          key: 'latency',
+          label: 'End-to-end ms',
+          value: (row) =>
+            fmtMetric(
+              firstPresent(
+                row.metrics?.end_to_end_latency_ms,
+                row.metrics?.time_to_final_result_ms,
+                row.metrics?.total_latency_ms,
+                row.metrics?.per_utterance_latency_ms
+              )
+            ),
+        },
+        {
+          key: 'rtf',
+          label: 'End-to-end RTF',
+          value: (row) => fmtMetric(firstPresent(row.metrics?.end_to_end_rtf, row.metrics?.real_time_factor)),
+        },
         { key: 'cost', label: 'Cost USD', value: (row) => fmtMetric(row.metrics?.estimated_cost_usd) },
         { key: 'error', label: 'Error', value: (row) => ui.escapeHtml(row.error_code || '') },
         {

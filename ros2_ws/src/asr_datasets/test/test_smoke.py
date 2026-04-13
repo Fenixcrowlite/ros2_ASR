@@ -1,3 +1,5 @@
+"""Smoke tests for `asr_datasets` imports and package wiring."""
+
 from __future__ import annotations
 
 import importlib

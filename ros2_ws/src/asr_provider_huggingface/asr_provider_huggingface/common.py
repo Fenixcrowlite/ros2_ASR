@@ -19,6 +19,7 @@ from asr_provider_base.models import (
 
 
 def language_to_hf_token(language: str) -> str:
+    """Map a locale-like language code to the short token expected by HF models."""
     text = str(language or "").strip()
     if not text:
         return ""
@@ -26,6 +27,7 @@ def language_to_hf_token(language: str) -> str:
 
 
 def resolve_token(credentials_ref: dict[str, str]) -> str:
+    """Resolve the first supported Hugging Face token key from credentials."""
     for key in ("HF_TOKEN", "HUGGING_FACE_HUB_TOKEN", "HUGGINGFACEHUB_API_TOKEN"):
         value = str(credentials_ref.get(key, "") or "").strip()
         if value:
@@ -108,6 +110,7 @@ def provider_audio_to_wav_bytes(audio: ProviderAudio) -> bytes:
 
 
 def provider_audio_duration_sec(audio: ProviderAudio) -> float:
+    """Estimate audio duration from a WAV file, WAV bytes, or raw PCM metadata."""
     if audio.wav_path:
         with wave.open(audio.wav_path, "rb") as reader:
             return float(reader.getnframes() / float(reader.getframerate() or 1))
@@ -125,6 +128,7 @@ def provider_audio_duration_sec(audio: ProviderAudio) -> float:
 
 
 def local_timestamp_mode(config: dict[str, Any], *, enable_word_timestamps: bool) -> str | bool | None:
+    """Translate provider config into the timestamp mode expected by local pipelines."""
     if not enable_word_timestamps:
         return None
     raw = str(config.get("return_timestamps", "word") or "word").strip().lower()
@@ -138,6 +142,7 @@ def local_timestamp_mode(config: dict[str, Any], *, enable_word_timestamps: bool
 
 
 def api_return_timestamps(config: dict[str, Any], *, enable_word_timestamps: bool) -> bool:
+    """Resolve whether the hosted HF API should be asked for timestamps."""
     if not enable_word_timestamps:
         return False
     raw = str(config.get("return_timestamps", "true") or "true").strip().lower()
@@ -145,6 +150,7 @@ def api_return_timestamps(config: dict[str, Any], *, enable_word_timestamps: boo
 
 
 def transcription_chunks_to_words(chunks: list[dict[str, Any]] | None) -> list[NormalizedWord]:
+    """Convert Hugging Face chunk rows into normalized word timestamps."""
     words: list[NormalizedWord] = []
     for item in chunks or []:
         text = str(item.get("text", "") or "").strip()
@@ -176,6 +182,7 @@ def build_transcription_result(
     tags: list[str] | None = None,
     raw_metadata_ref: str = "",
 ) -> NormalizedAsrResult:
+    """Build a normalized ASR result from a Hugging Face transcription payload."""
     text = str(payload.get("text", "") or "").strip()
     chunks = payload.get("chunks", [])
     chunk_rows = chunks if isinstance(chunks, list) else []

@@ -1,3 +1,5 @@
+"""Unit tests for benchmark noise catalog and augmentation helpers."""
+
 from __future__ import annotations
 
 import math

@@ -6,6 +6,7 @@ import math
 import random
 import shutil
 import wave
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -64,7 +65,9 @@ NOISE_MODES: tuple[dict[str, Any], ...] = (
         "id": "brown",
         "label": "Brown Noise",
         "family": "colored",
-        "description": "Low-frequency-heavy rumble that stresses endpointing and low-band robustness.",
+        "description": (
+            "Low-frequency-heavy rumble that stresses endpointing and low-band robustness."
+        ),
     },
     {
         "id": "babble",
@@ -107,11 +110,13 @@ SCENARIO_NOISE_DEFAULTS: dict[str, dict[str, Any]] = {
 
 
 def canonicalize_scenario_name(scenario: str) -> str:
+    """Normalize scenario aliases to the canonical scenario identifier."""
     name = str(scenario or "").strip() or "clean_baseline"
     return str(SCENARIO_ALIASES.get(name, name))
 
 
 def noise_catalog() -> dict[str, Any]:
+    """Return the noise levels, modes, defaults, and aliases for UI/API callers."""
     return {
         "levels": [dict(item) for item in NOISE_LEVELS],
         "modes": [dict(item) for item in NOISE_MODES],
@@ -154,6 +159,7 @@ def resolve_noise_plan(
     benchmark_settings: dict[str, Any] | None = None,
     profile_scenarios: list[str] | None = None,
 ) -> list[dict[str, Any]]:
+    """Resolve the concrete noise variants that should be executed for a run."""
     settings = benchmark_settings or {}
     noise_cfg = settings.get("noise", {})
     if not isinstance(noise_cfg, dict):
@@ -174,9 +180,8 @@ def resolve_noise_plan(
     if not selected_levels:
         selected_levels = list(scenario_defaults.get("levels", ["clean"]))
 
-    mode = str(
-        noise_cfg.get("mode", scenario_defaults.get("mode", "white")) or scenario_defaults.get("mode", "white")
-    ).strip().lower()
+    default_mode = str(scenario_defaults.get("mode", "white") or "white")
+    mode = str(noise_cfg.get("mode", default_mode) or default_mode).strip().lower()
     if mode in {"", "none"}:
         mode = str(scenario_defaults.get("mode", "white") or "white")
     if mode not in NOISE_MODES_DB:
@@ -201,7 +206,7 @@ def resolve_noise_plan(
     return plans
 
 
-def _rms(values: list[float | int]) -> float:
+def _rms(values: Sequence[float | int]) -> float:
     if not values:
         return 0.0
     return math.sqrt(sum(float(value) * float(value) for value in values) / float(len(values)))
@@ -336,7 +341,7 @@ def _generate_hum_noise(
         time_sec = index / float(sample_rate_hz)
         harmonic = sum(
             weight * math.sin((math.tau * frequency * time_sec) + phase)
-            for (weight, frequency), phase in zip(harmonic_weights, phases)
+            for (weight, frequency), phase in zip(harmonic_weights, phases, strict=False)
         )
         modulation = 0.88 + (0.12 * math.sin((math.tau * 0.35 * time_sec) + modulation_phase))
         out.append((harmonic * modulation) + (0.12 * hiss[index]))
@@ -385,6 +390,7 @@ def apply_noise_to_wav(
     seed: int,
     noise_mode: str = "white",
 ) -> str:
+    """Create a deterministic noisy WAV variant and return the output path."""
     source = Path(source_path)
     target = Path(output_path)
     target.parent.mkdir(parents=True, exist_ok=True)

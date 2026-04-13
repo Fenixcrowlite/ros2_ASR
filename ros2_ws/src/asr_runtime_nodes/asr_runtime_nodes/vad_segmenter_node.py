@@ -428,6 +428,7 @@ class VadSegmenterNode(Node):
 
 
 def main() -> None:
+    """Start the VAD segmenter node until shutdown is requested."""
     rclpy.init()
     node = VadSegmenterNode()
     try:

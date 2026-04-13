@@ -20,6 +20,7 @@ def _sec_to_time(value: float) -> Time:
 
 
 def to_asr_result_msg(result: NormalizedAsrResult) -> AsrResult:
+    """Convert the normalized provider result into the full ROS result message."""
     msg = AsrResult()
     msg.request_id = result.request_id
     msg.session_id = result.session_id
@@ -62,6 +63,7 @@ def to_asr_result_msg(result: NormalizedAsrResult) -> AsrResult:
 
 
 def to_partial_msg(result: NormalizedAsrResult) -> AsrResultPartial:
+    """Convert a normalized result into the lightweight partial-result message."""
     msg = AsrResultPartial()
     msg.session_id = result.session_id
     msg.request_id = result.request_id
@@ -83,6 +85,7 @@ def build_partial_from_text(
     text_tokens: Iterable[str],
     language: str,
 ) -> AsrResultPartial:
+    """Build a partial ROS message from incremental text tokens."""
     text = " ".join(text_tokens).strip()
     result = NormalizedAsrResult(
         request_id=request_id,

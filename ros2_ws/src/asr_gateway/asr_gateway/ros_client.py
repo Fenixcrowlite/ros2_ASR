@@ -866,6 +866,9 @@ class GatewayRosClient:
                     "streaming_supported": bool(response.streaming_supported),
                     "streaming_mode": str(response.streaming_mode),
                     "cloud_credentials_available": bool(response.cloud_credentials_available),
+                    "provider_runtime_ready": bool(
+                        getattr(response, "provider_runtime_ready", response.cloud_credentials_available)
+                    ),
                     "status_message": response.status_message,
                     "session_id": response.session_id,
                     "session_state": response.session_state,

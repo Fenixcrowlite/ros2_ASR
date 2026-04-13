@@ -248,6 +248,7 @@ class AudioCaptureNode(Node):
 
 
 def main() -> None:
+    """Start the legacy audio capture node."""
     rclpy.init()
     node = AudioCaptureNode()
     try:
