@@ -1,4 +1,9 @@
-"""Batch executor for benchmark sample x provider matrix."""
+"""Batch executor for benchmark sample x provider matrix.
+
+The orchestrator owns *what* should be executed; this module owns *how* one
+provider is run against one sample, both for batch and streaming benchmark
+paths.
+"""
 
 from __future__ import annotations
 
@@ -27,6 +32,8 @@ from asr_provider_base import ProviderAudio, provider_runtime_metadata
 
 
 class BatchExecutor:
+    """Execute one resolved benchmark sample/provider unit of work."""
+
     def __init__(
         self,
         metric_engine: MetricEngine,
@@ -132,6 +139,8 @@ class BatchExecutor:
         sample_audio_path: str | None = None,
         execution_meta: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+        # Batch mode is the simplest benchmark path: one WAV file goes into one
+        # provider request and produces one normalized result row.
         execution_meta = execution_meta or {}
         active_audio_path = str(sample_audio_path or sample.audio_path)
         duration_fields = self._duration_fields(sample, active_audio_path)
@@ -193,6 +202,8 @@ class BatchExecutor:
         finally:
             resource_sample = resource_sampler.stop() if resource_sampler is not None else None
 
+        # Metrics are computed from the normalized provider result plus the
+        # benchmark-side timing/duration envelope gathered around the call.
         estimated_cost_usd = self._estimated_cost_usd(duration_fields, execution_meta)
         self._require_quality_reference(sample)
         quality_support = text_quality_support(sample.transcript, result.text)
@@ -338,6 +349,8 @@ class BatchExecutor:
         sample_audio_path: str | None = None,
         execution_meta: dict[str, Any] | None = None,
     ) -> dict[str, Any]:
+        # Streaming mode replays one WAV as deterministic PCM chunks and asks
+        # the provider to behave as if it were serving a live stream.
         execution_meta = execution_meta or {}
         active_audio_path = str(sample_audio_path or sample.audio_path)
         duration_fields = self._duration_fields(sample, active_audio_path)
@@ -400,6 +413,9 @@ class BatchExecutor:
                     }
                 )
                 for chunk in wav_pcm_chunks(active_audio_path, chunk_sec):
+                    # Partial handling intentionally deduplicates repeated text
+                    # because many providers resend the same hypothesis as the
+                    # stream stabilizes.
                     updates = []
                     partial = provider.push_audio(chunk)
                     if partial is not None:

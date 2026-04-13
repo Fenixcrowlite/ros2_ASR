@@ -1,5 +1,6 @@
 # Architecture Docs Index
 
+- `codebase_reading_guide.md`
 - `project_explained_from_zero.md`
 - `project_uml.md`
 - `uml/`

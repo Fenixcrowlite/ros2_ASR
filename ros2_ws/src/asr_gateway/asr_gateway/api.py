@@ -21,7 +21,12 @@ from typing import Any
 from urllib.parse import urlparse
 
 import yaml  # type: ignore[import-untyped]
-from asr_benchmark_core.noise import apply_noise_to_wav, resolve_noise_plan
+from asr_benchmark_core.noise import (
+    apply_noise_to_wav,
+    canonicalize_scenario_name,
+    noise_catalog as benchmark_noise_catalog,
+    resolve_noise_plan,
+)
 from asr_config import (
     list_profiles,
     load_secret_ref,
@@ -322,6 +327,8 @@ class RecognizeRequest(BaseModel):
 class NoiseGenerateRequest(BaseModel):
     source_wav: str
     snr_levels: list[float] = Field(default_factory=list)
+    noise_mode: str = "white"
+    seed: int = 1337
 
 
 class BenchmarkRunRequest(BaseModel):
@@ -680,8 +687,13 @@ def _resolve_runtime_sample_path(value: str, *, label: str = "sample_path") -> P
     )
 
 
-def _noise_output_target(source: Path, snr_db: float) -> Path:
-    return noise_output_target_for_snr(source, snr_db=snr_db, noise_root=RUNTIME_NOISE_ROOT)
+def _noise_output_target(source: Path, snr_db: float, noise_mode: str) -> Path:
+    return noise_output_target_for_snr(
+        source,
+        snr_db=snr_db,
+        noise_mode=noise_mode,
+        noise_root=RUNTIME_NOISE_ROOT,
+    )
 
 
 def _module_ok(module_name: str) -> tuple[bool, str]:
@@ -1895,17 +1907,43 @@ def _preflight_benchmark_request(req: BenchmarkRunRequest) -> dict[str, Any]:
             detail="execution_mode must be one of: batch, streaming",
         )
 
-    scenario = str(req.scenario or "").strip() or str(
-        (benchmark_payload.get("scenarios") or ["clean_baseline"])[0]
+    scenario = canonicalize_scenario_name(
+        str(req.scenario or "").strip()
+        or str((benchmark_payload.get("scenarios") or ["clean_baseline"])[0])
     )
     try:
-        resolve_noise_plan(
+        noise_plan = resolve_noise_plan(
             scenario=scenario,
             benchmark_settings=merged_settings,
             profile_scenarios=[str(item) for item in benchmark_payload.get("scenarios", [])],
         )
     except Exception as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+    scenario = str(noise_plan[0].get("scenario", scenario) if noise_plan else scenario)
+
+    noise_levels = [
+        str(item.get("noise_level", "") or "").strip()
+        for item in noise_plan
+        if str(item.get("noise_level", "") or "").strip()
+    ]
+    merged_noise_cfg = dict(merged_settings.get("noise", {}))
+    if noise_levels:
+        merged_noise_cfg["levels"] = noise_levels
+    resolved_seed = (
+        noise_plan[0].get("seed", merged_noise_cfg.get("seed", 1337))
+        if noise_plan
+        else merged_noise_cfg.get("seed", 1337)
+    )
+    merged_noise_cfg["seed"] = int(
+        resolved_seed or 1337
+    )
+    noisy_variant = next(
+        (item for item in noise_plan if str(item.get("noise_mode", "none")) != "none"),
+        None,
+    )
+    if noisy_variant:
+        merged_noise_cfg["mode"] = str(noisy_variant.get("noise_mode", "white") or "white")
+    merged_settings["noise"] = merged_noise_cfg
 
     for provider_profile in normalized_providers:
         override = normalized_overrides.get(provider_profile, {})
@@ -2373,6 +2411,11 @@ def runtime_samples() -> dict[str, Any]:
     return _list_runtime_samples()
 
 
+@app.get("/api/noise/catalog")
+def noise_catalog() -> dict[str, Any]:
+    return benchmark_noise_catalog()
+
+
 @app.post("/api/runtime/generate_noise")
 def runtime_generate_noise(req: NoiseGenerateRequest) -> dict[str, Any]:
     generation_started = time.perf_counter()
@@ -2385,22 +2428,28 @@ def runtime_generate_noise(req: NoiseGenerateRequest) -> dict[str, Any]:
     if not source.exists():
         raise HTTPException(status_code=404, detail=f"Source WAV not found: {req.source_wav}")
 
+    noise_mode = str(req.noise_mode or "white").strip().lower() or "white"
     generated: list[dict[str, Any]] = []
     for snr_db in req.snr_levels:
         variant_started = time.perf_counter()
-        target = _noise_output_target(source, float(snr_db))
-        output_path = Path(
-            apply_noise_to_wav(
-                source_path=str(source),
-                output_path=str(target),
-                snr_db=float(snr_db),
-                seed=1337,
+        target = _noise_output_target(source, float(snr_db), noise_mode)
+        try:
+            output_path = Path(
+                apply_noise_to_wav(
+                    source_path=str(source),
+                    output_path=str(target),
+                    snr_db=float(snr_db),
+                    seed=int(req.seed or 1337),
+                    noise_mode=noise_mode,
+                )
             )
-        )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
         generated.append(
             {
                 "path": _project_relative_path(output_path),
                 "snr_db": float(snr_db),
+                "noise_mode": noise_mode,
                 "name": output_path.name,
                 "generation_ms": max((time.perf_counter() - variant_started) * 1000.0, 0.0),
                 **_wav_metadata_from_file(output_path),
@@ -2413,6 +2462,7 @@ def runtime_generate_noise(req: NoiseGenerateRequest) -> dict[str, Any]:
     }
     payload = {
         "source_wav": _project_relative_path(source),
+        "noise_mode": noise_mode,
         "generated": generated,
         "catalog": _list_runtime_samples(),
         "metrics": metrics,
@@ -2422,6 +2472,7 @@ def runtime_generate_noise(req: NoiseGenerateRequest) -> dict[str, Any]:
         f"Generated {len(generated)} noise variants",
         {
             "source_wav": payload["source_wav"],
+            "noise_mode": noise_mode,
             "snr_levels": [float(item["snr_db"]) for item in generated],
             "total_generation_ms": float(metrics["total_generation_ms"]),
         },
@@ -3693,7 +3744,7 @@ def diagnostics_preflight() -> dict[str, Any]:
 def diagnostics_issues() -> dict[str, Any]:
     issues = _diagnostics_issues()
     return {
-        "issues": issues,
+        "issues": issues, 
         "counts": {
             "error": len([item for item in issues if item.get("severity") == "error"]),
             "warning": len([item for item in issues if item.get("severity") == "warning"]),

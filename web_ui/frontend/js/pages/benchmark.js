@@ -7,6 +7,9 @@ const TIER_SCORE = {
   unknown: 0,
 };
 
+// Benchmark page is a draft builder for one benchmark run. Most helpers below
+// exist to keep the visible form, the review JSON, and the final request
+// payload in sync.
 function safeJson(raw) {
   const text = String(raw || '').trim();
   if (!text) {
@@ -47,10 +50,39 @@ export function initBenchmarkPage(ctx) {
   const reviewRoot = document.getElementById('benchmarkReview');
   const qualityResourceRoot = document.getElementById('benchmarkQualityResourceView');
   const noiseLevelsRoot = document.getElementById('benchmarkNoiseLevels');
+  const scenarioSelect = document.getElementById('benchmarkScenario');
+  const noiseModeSelect = document.getElementById('benchmarkNoiseMode');
+  const noiseModeHint = document.getElementById('benchmarkNoiseModeHint');
   const executionModeSelect = document.getElementById('benchmarkExecutionMode');
   const streamingChunkInput = document.getElementById('benchmarkStreamingChunkMs');
 
   let providerProfiles = [];
+  // The backend owns the real catalog. The inline copy is only a bootstrap
+  // fallback so the page still renders sensible controls before the fetch
+  // completes or if the catalog endpoint is temporarily unavailable.
+  let noiseCatalog = {
+    levels: [
+      { id: 'clean', snr_db: null, description: 'Reference baseline without synthetic corruption.' },
+      { id: 'light', snr_db: 30, description: 'Mild additive noise.' },
+      { id: 'medium', snr_db: 20, description: 'Moderate additive noise.' },
+      { id: 'heavy', snr_db: 10, description: 'Strong additive noise.' },
+      { id: 'extreme', snr_db: 0, description: 'Speech and noise at similar energy.' },
+    ],
+    modes: [
+      { id: 'white', description: 'Broadband Gaussian baseline used for additive SNR sweeps.' },
+      { id: 'pink', description: '1/f-shaped ambient-style noise.' },
+      { id: 'brown', description: 'Low-frequency-heavy rumble.' },
+      { id: 'babble', description: 'Speech-like multi-speaker interference.' },
+      { id: 'hum', description: 'Tonal hum plus harmonics and hiss.' },
+    ],
+    scenario_defaults: {
+      clean_baseline: { mode: 'white', levels: ['clean'] },
+      noise_robustness: { mode: 'white', levels: ['clean', 'light', 'medium', 'heavy'] },
+      provider_comparison: { mode: 'white', levels: ['clean'] },
+      latency_profile: { mode: 'white', levels: ['clean'] },
+    },
+  };
+
   function fmtMetric(value) {
     if (value == null || value === '') {
       return '—';
@@ -81,6 +113,33 @@ export function initBenchmarkPage(ctx) {
     return Array.from(noiseLevelsRoot.querySelectorAll('input[type="checkbox"]:checked')).map((item) => item.value);
   }
 
+  function noiseModeMeta(modeId) {
+    return (noiseCatalog.modes || []).find((item) => item.id === modeId) || null;
+  }
+
+  function scenarioNoiseDefaults() {
+    return (
+      noiseCatalog.scenario_defaults?.[scenarioSelect.value || 'clean_baseline'] ||
+      noiseCatalog.scenario_defaults?.clean_baseline ||
+      { mode: 'white', levels: ['clean'] }
+    );
+  }
+
+  function effectiveNoiseLevels() {
+    // Scenario defaults are only used when the operator has not explicitly
+    // chosen levels. This keeps "noise_robustness" opinionated without
+    // overriding user input.
+    const selected = selectedNoiseLevels();
+    if (selected.length) {
+      return selected;
+    }
+    return [...(scenarioNoiseDefaults().levels || ['clean'])];
+  }
+
+  function effectiveNoiseMode() {
+    return noiseModeSelect.value || scenarioNoiseDefaults().mode || 'white';
+  }
+
   function incompatibleStreamingProviders() {
     return selectedProviders().filter((providerProfile) => !providerRow(providerProfile)?.capabilities?.supports_streaming);
   }
@@ -97,6 +156,60 @@ export function initBenchmarkPage(ctx) {
         `;
       })
       .join('');
+  }
+
+  function renderNoiseModeOptions(selected = '') {
+    const values = (noiseCatalog.modes || []).map((item) => item.id);
+    const current = selected || noiseModeSelect.value || scenarioNoiseDefaults().mode || values[0] || 'white';
+    noiseModeSelect.innerHTML = values
+      .map((item) => `<option value="${ui.escapeHtml(item)}">${ui.escapeHtml(item)}</option>`)
+      .join('');
+    if (values.includes(current)) {
+      noiseModeSelect.value = current;
+    }
+    renderNoiseModeHint();
+  }
+
+  function renderNoiseModeHint() {
+    if (!noiseModeHint) {
+      return;
+    }
+    const mode = noiseModeMeta(effectiveNoiseMode());
+    const defaults = scenarioNoiseDefaults();
+    const recommended = (defaults.levels || []).join(', ');
+    const prefix =
+      (scenarioSelect.value || 'clean_baseline') === 'noise_robustness'
+        ? `Recommended levels: ${recommended}. `
+        : 'Clean-only preset unless you enable noisy levels. ';
+    noiseModeHint.textContent = `${prefix}${mode?.description || 'Noise mode is applied to every non-clean variant.'}`.trim();
+  }
+
+  function bindNoiseLevelListeners() {
+    noiseLevelsRoot.querySelectorAll('input').forEach((input) => {
+      input.addEventListener('change', renderReview);
+    });
+  }
+
+  function renderNoiseLevels(defaultSelection = []) {
+    noiseLevelsRoot.innerHTML = (noiseCatalog.levels || [])
+      .map((item) => {
+        const checked = defaultSelection.includes(item.id);
+        const snrLabel = item.snr_db == null ? 'clean' : `${item.snr_db} dB`;
+        return `
+          <label title="${ui.escapeHtml(item.description || '')}">
+            <input type="checkbox" value="${ui.escapeHtml(item.id)}" ${checked ? 'checked' : ''} />
+            ${ui.escapeHtml(item.id)} <span class="muted">(${ui.escapeHtml(String(snrLabel))})</span>
+          </label>
+        `;
+      })
+      .join('');
+    bindNoiseLevelListeners();
+  }
+
+  function applyScenarioNoisePreset() {
+    const defaults = scenarioNoiseDefaults();
+    renderNoiseModeOptions(defaults.mode || 'white');
+    renderNoiseLevels(defaults.levels || ['clean']);
   }
 
   function providerRow(providerProfile) {
@@ -256,6 +369,8 @@ export function initBenchmarkPage(ctx) {
   }
 
   function renderReview() {
+    // The review box is the easiest way to verify what will actually be sent to
+    // the gateway after defaults, UI selections, and advanced JSON are merged.
     let advancedSettings = {};
     let advancedSettingsError = '';
     try {
@@ -277,11 +392,11 @@ export function initBenchmarkPage(ctx) {
         providers: selectedProviders(),
         provider_overrides: providerOverrides,
         provider_overrides_error: providerOverridesError,
-        scenario: document.getElementById('benchmarkScenario').value,
+        scenario: scenarioSelect.value,
         execution_mode: executionModeSelect.value,
         noise: {
-          mode: document.getElementById('benchmarkNoiseMode').value,
-          levels: selectedNoiseLevels(),
+          mode: effectiveNoiseMode(),
+          levels: effectiveNoiseLevels(),
         },
         streaming: {
           chunk_ms: Number(streamingChunkInput.value || 500),
@@ -296,24 +411,26 @@ export function initBenchmarkPage(ctx) {
   }
 
   async function loadOptions() {
-    const [benchmarkProfiles, datasetProfiles, metricsProfiles, providerProfilesResp] = await Promise.all([
+    const [benchmarkProfiles, datasetProfiles, metricsProfiles, providerProfilesResp, fetchedNoiseCatalog] = await Promise.all([
       api.profilesByType('benchmark'),
       api.profilesByType('datasets'),
       api.profilesByType('metrics'),
       api.providersProfiles(),
+      api.noiseCatalog().catch(() => noiseCatalog),
     ]);
 
     ui.updateSelectOptions(benchmarkProfileSelect, benchmarkProfiles.profiles || [], 'default_benchmark');
     ui.updateSelectOptions(datasetProfileSelect, datasetProfiles.profiles || [], 'sample_dataset');
 
     providerProfiles = providerProfilesResp.profiles || [];
+    noiseCatalog = fetchedNoiseCatalog || noiseCatalog;
     renderChecks(
       providersChecksRoot,
       providerProfiles.map((item) => item.provider_profile),
       providerProfiles.length ? [providerProfiles[0].provider_profile] : []
     );
     renderChecks(metricsChecksRoot, metricsProfiles.profiles || [], []);
-    renderChecks(noiseLevelsRoot, ['clean', 'light', 'medium', 'heavy', 'extreme'], ['clean']);
+    applyScenarioNoisePreset();
     renderProviderTuning();
     renderReview();
 
@@ -326,9 +443,6 @@ export function initBenchmarkPage(ctx) {
     metricsChecksRoot.querySelectorAll('input').forEach((input) => {
       input.addEventListener('change', renderReview);
     });
-    noiseLevelsRoot.querySelectorAll('input').forEach((input) => {
-      input.addEventListener('change', renderReview);
-    });
   }
 
   function benchmarkSettingsPayload() {
@@ -338,8 +452,8 @@ export function initBenchmarkPage(ctx) {
       execution_mode: executionModeSelect.value || 'batch',
       noise: {
         ...(advanced.noise || {}),
-        mode: document.getElementById('benchmarkNoiseMode').value,
-        levels: selectedNoiseLevels(),
+        mode: effectiveNoiseMode(),
+        levels: effectiveNoiseLevels(),
       },
       streaming: {
         ...(advanced.streaming || {}),
@@ -368,7 +482,7 @@ export function initBenchmarkPage(ctx) {
       benchmark_profile: benchmarkProfileSelect.value,
       dataset_profile: datasetProfileSelect.value,
       providers,
-      scenario: document.getElementById('benchmarkScenario').value,
+      scenario: scenarioSelect.value,
       provider_overrides: collectProviderOverrides(),
       benchmark_settings: benchmarkSettingsPayload(),
       run_id: runIdInput,
@@ -521,8 +635,14 @@ export function initBenchmarkPage(ctx) {
 
   benchmarkProfileSelect.addEventListener('change', renderReview);
   datasetProfileSelect.addEventListener('change', renderReview);
-  document.getElementById('benchmarkScenario').addEventListener('change', renderReview);
-  document.getElementById('benchmarkNoiseMode').addEventListener('change', renderReview);
+  scenarioSelect.addEventListener('change', () => {
+    applyScenarioNoisePreset();
+    renderReview();
+  });
+  noiseModeSelect.addEventListener('change', () => {
+    renderNoiseModeHint();
+    renderReview();
+  });
   executionModeSelect.addEventListener('change', renderReview);
   streamingChunkInput.addEventListener('input', renderReview);
   document.getElementById('benchmarkSettingsEditor').addEventListener('input', renderReview);

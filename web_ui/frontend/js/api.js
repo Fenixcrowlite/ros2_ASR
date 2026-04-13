@@ -58,6 +58,7 @@ export function createApiClient() {
     runtimeLive: () => request('/api/runtime/live'),
     runtimeBackends: () => request('/api/runtime/backends'),
     runtimeSamples: () => request('/api/runtime/samples'),
+    noiseCatalog: () => request('/api/noise/catalog'),
     runtimeUploadSample: (payload) => request('/api/runtime/upload_sample', { method: 'POST', body: formBody(payload) }),
     runtimeGenerateNoise: (payload) => request('/api/runtime/generate_noise', { method: 'POST', body: jsonBody(payload) }),
     runtimeStart: (payload) => request('/api/runtime/start', { method: 'POST', body: jsonBody(payload) }),

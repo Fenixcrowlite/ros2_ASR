@@ -1,4 +1,11 @@
-"""ROS2 client facade for gateway operations."""
+"""ROS2 client facade for gateway operations.
+
+The HTTP gateway is synchronous and request/response driven, while the ROS side
+is a mix of services, actions, and topic streams. This module bridges that gap:
+
+- `GatewayRosClient` performs synchronous ROS service/action calls for FastAPI
+- `RuntimeObserver` keeps a rolling topic snapshot for browser polling
+"""
 
 from __future__ import annotations
 
@@ -404,6 +411,8 @@ class GatewayRosClient:
         self._shutdown_bridge()
 
     def _start_bridge(self) -> None:
+        # One dedicated bridge node is reused for the lifetime of the gateway.
+        # This avoids repeated client creation/teardown on every HTTP request.
         self._client_node = Node("asr_gateway_client_bridge", use_global_arguments=False)
         self._executor = SingleThreadedExecutor()
         self._executor.add_node(self._client_node)
@@ -477,6 +486,12 @@ class GatewayRosClient:
         return True
 
     def runtime_snapshot(self) -> dict[str, Any]:
+        """Return the last known topic-driven runtime snapshot.
+
+        This is intentionally separate from service-based `get_runtime_status`.
+        The service gives the orchestrator's declared state; the observer gives
+        the latest final/partial results and node/session status topics.
+        """
         return self._observer.snapshot()
 
     def record_runtime_result(self, payload: dict[str, Any]) -> None:
@@ -493,6 +508,8 @@ class GatewayRosClient:
         no_response_message: str,
         timeout_sec: float | None = None,
     ) -> GatewayResponse:
+        # All service calls are normalized through one helper so the gateway can
+        # consistently expose latency metadata and timeout behavior.
         gateway_started_ns = time.perf_counter_ns()
         client = self._service_client(service_type, service_name)
         effective_timeout = self.timeout_sec if timeout_sec is None else timeout_sec
@@ -535,6 +552,9 @@ class GatewayRosClient:
         goal_timeout_sec: float | None = None,
         result_timeout_sec: float = 180.0,
     ) -> GatewayResponse:
+        # Action calls have two waiting phases: goal acceptance and final
+        # result. The gateway records both so long benchmark/import requests are
+        # easier to debug from browser-side payloads.
         gateway_started_ns = time.perf_counter_ns()
         action = self._action_client(action_type, action_name)
         effective_goal_timeout = self.timeout_sec if goal_timeout_sec is None else goal_timeout_sec

@@ -182,10 +182,19 @@
                   <p class="helper">Generate extra WAV samples from the selected project sample for quick noise-robustness smoke tests.</p>
                   <div class="form-grid">
                     <label>
-                      SNR levels (comma separated)
-                      <input id="runtimeNoiseLevels" value="30,20,10,0" />
+                      Noise mode
+                      <select id="runtimeNoiseMode"></select>
+                    </label>
+                    <div class="stack-item">
+                      <span>Preset levels</span>
+                      <div id="runtimeNoisePresetLevels" class="check-list"></div>
+                    </div>
+                    <label>
+                      Custom SNR levels (comma separated)
+                      <input id="runtimeNoiseLevels" value="" placeholder="Optional: 25,15,5" />
                     </label>
                   </div>
+                  <p class="field-note">Preset tiers use the benchmark ladder: light=30 dB, medium=20 dB, heavy=10 dB, extreme=0 dB.</p>
                   <div class="actions-row">
                     <button class="btn-secondary" id="runtimeGenerateNoiseBtn" type="button">Generate Noise Variants</button>
                   </div>
@@ -568,8 +577,8 @@
                   <label>
                     Noise mode
                     <select id="benchmarkNoiseMode" title="Noise generation mode used by robustness scenarios.">
-                      <option value="white">white</option>
                     </select>
+                    <span id="benchmarkNoiseModeHint" class="field-note">Noise mode is ignored for clean-only runs.</span>
                   </label>
                   <label>
                     Execution mode

@@ -1,4 +1,15 @@
-"""Helpers for log discovery and filtering views."""
+"""Helpers for log discovery and filtering views.
+
+The gateway UI wants one merged "logs" view, but the underlying files come
+from several places:
+
+- managed local logs under the repository `logs/` tree
+- ROS runtime logs under `logs/runtime/ros`
+- external ROS log directories selected through `ROS_LOG_DIR`
+
+This module hides that layout and exposes a small projection layer that the
+HTTP API can query by logical component rather than by filesystem path.
+"""
 
 from __future__ import annotations
 
@@ -69,6 +80,12 @@ def _is_log_like_file(path: Path) -> bool:
 
 
 def _runtime_log_bases(logs_root: Path) -> list[Path]:
+    """Return the best runtime log roots in priority order.
+
+    We prefer explicit ROS log locations first, then fall back to local managed
+    logs. The UI should show what the active runtime is actually writing to, not
+    just whatever happens to exist under the repository.
+    """
     local_runtime_root = logs_root / "runtime"
     local_ros_log_dir = local_runtime_root / "ros"
     env_ros_log_dir = str(os.getenv("ROS_LOG_DIR", "")).strip()
@@ -150,6 +167,12 @@ def _component_bases(logs_root: Path, component: str) -> list[tuple[str, Path]]:
 
 
 def _component_files(logs_root: Path, component: str) -> list[tuple[str, Path]]:
+    """Resolve recent log files for one logical component selection.
+
+    The browser does not need every historical file. Returning the freshest few
+    files per component keeps the diagnostics view responsive even when the log
+    tree is large.
+    """
     files: list[tuple[str, Path]] = []
     seen: set[Path] = set()
     for comp, base in _component_bases(logs_root, component):
@@ -204,6 +227,11 @@ def collect_logs(
     severity: str,
     limit: int,
 ) -> list[dict[str, Any]]:
+    """Collect log lines into one GUI-friendly flat list.
+
+    Each row records both file provenance and per-line metadata so the browser
+    can filter or sort without understanding the original log layout.
+    """
     output: list[dict[str, Any]] = []
     sev = severity.lower()
     for comp, path in _component_files(logs_root, component):

@@ -21,6 +21,7 @@ Primary architecture docs:
 - `docs/architecture/system_overview.md`
 - `docs/architecture/runtime_architecture.md`
 - `docs/architecture/benchmark_architecture.md`
+- `docs/architecture/codebase_reading_guide.md`
 - `docs/architecture/implementation_report.md`
 
 ## Features

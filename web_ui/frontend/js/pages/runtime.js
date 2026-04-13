@@ -18,6 +18,8 @@ export function initRuntimePage(ctx) {
   const sampleBrowseButton = document.getElementById('runtimeSampleBrowseBtn');
   const sampleUploadInput = document.getElementById('runtimeSampleUploadInput');
   const sampleCatalogMeta = document.getElementById('runtimeSampleCatalogMeta');
+  const noiseModeSelect = document.getElementById('runtimeNoiseMode');
+  const noisePresetLevelsRoot = document.getElementById('runtimeNoisePresetLevels');
   const noiseLevelsInput = document.getElementById('runtimeNoiseLevels');
   const generateNoiseButton = document.getElementById('runtimeGenerateNoiseBtn');
   const statusRoot = document.getElementById('runtimeStatusSummary');
@@ -40,6 +42,22 @@ export function initRuntimePage(ctx) {
     upload_root: 'data/sample/uploads',
     default_sample: '',
     upload_enabled: true,
+  };
+  let noiseCatalog = {
+    levels: [
+      { id: 'clean', snr_db: null },
+      { id: 'light', snr_db: 30 },
+      { id: 'medium', snr_db: 20 },
+      { id: 'heavy', snr_db: 10 },
+      { id: 'extreme', snr_db: 0 },
+    ],
+    modes: [
+      { id: 'white' },
+      { id: 'pink' },
+      { id: 'brown' },
+      { id: 'babble' },
+      { id: 'hum' },
+    ],
   };
 
   function selectedProviderProfile() {
@@ -150,6 +168,53 @@ export function initRuntimePage(ctx) {
       .split(',')
       .map((item) => Number(item.trim()))
       .filter((item) => Number.isFinite(item));
+  }
+
+  function selectedNoisePresetLevels() {
+    return Array.from(noisePresetLevelsRoot?.querySelectorAll('input[type="checkbox"]:checked') || [])
+      .map((item) => Number(item.dataset.snr))
+      .filter((item) => Number.isFinite(item));
+  }
+
+  function effectiveNoiseLevels() {
+    const merged = [];
+    [...selectedNoisePresetLevels(), ...parseNoiseLevels()].forEach((value) => {
+      if (!merged.some((existing) => Math.abs(existing - value) < 0.0001)) {
+        merged.push(value);
+      }
+    });
+    return merged;
+  }
+
+  function renderNoiseModeOptions(selected = '') {
+    const values = (noiseCatalog.modes || []).map((item) => item.id);
+    const current = selected || noiseModeSelect.value || values[0] || 'white';
+    noiseModeSelect.innerHTML = values
+      .map((item) => `<option value="${ui.escapeHtml(item)}">${ui.escapeHtml(item)}</option>`)
+      .join('');
+    if (values.includes(current)) {
+      noiseModeSelect.value = current;
+    }
+  }
+
+  function renderNoisePresetLevels(selectedIds = ['light', 'medium', 'heavy', 'extreme']) {
+    noisePresetLevelsRoot.innerHTML = (noiseCatalog.levels || [])
+      .filter((item) => item.id !== 'clean' && item.snr_db != null)
+      .map((item) => {
+        const checked = selectedIds.includes(item.id);
+        return `
+          <label>
+            <input
+              type="checkbox"
+              value="${ui.escapeHtml(item.id)}"
+              data-snr="${ui.escapeHtml(String(item.snr_db))}"
+              ${checked ? 'checked' : ''}
+            />
+            ${ui.escapeHtml(item.id)} <span class="muted">(${ui.escapeHtml(String(item.snr_db))} dB)</span>
+          </label>
+        `;
+      })
+      .join('');
   }
 
   function setBusy(busy) {
@@ -286,12 +351,18 @@ export function initRuntimePage(ctx) {
     // ASR adapter. They are loaded from different gateway endpoints.
     const currentRuntimeProfile = runtimeProfileSelect.value;
     const currentProviderProfile = runtimeProviderSelect.value;
-    const [runtimeProfiles, providerProfilesResp] = await Promise.all([
+    const currentNoiseMode = noiseModeSelect.value;
+    const currentNoisePresetIds = Array.from(
+      noisePresetLevelsRoot?.querySelectorAll('input[type="checkbox"]:checked') || []
+    ).map((item) => item.value);
+    const [runtimeProfiles, providerProfilesResp, fetchedNoiseCatalog] = await Promise.all([
       api.profilesByType('runtime'),
       api.providersProfiles(),
+      api.noiseCatalog().catch(() => noiseCatalog),
     ]);
 
     providerProfiles = providerProfilesResp.profiles || [];
+    noiseCatalog = fetchedNoiseCatalog || noiseCatalog;
     ui.updateSelectOptions(
       runtimeProfileSelect,
       runtimeProfiles.profiles || [],
@@ -301,6 +372,10 @@ export function initRuntimePage(ctx) {
       runtimeProviderSelect,
       providerProfiles.map((item) => item.provider_profile),
       currentProviderProfile || (selectorsLoaded ? '' : 'whisper_local')
+    );
+    renderNoiseModeOptions(currentNoiseMode || 'white');
+    renderNoisePresetLevels(
+      currentNoisePresetIds.length ? currentNoisePresetIds : ['light', 'medium', 'heavy', 'extreme']
     );
     renderPresetOptions(runtimeProviderPresetSelect.value);
     selectorsLoaded = true;
@@ -499,12 +574,13 @@ export function initRuntimePage(ctx) {
   }
 
   async function generateNoiseVariants() {
-    const snrLevels = parseNoiseLevels();
+    const snrLevels = effectiveNoiseLevels();
     if (!snrLevels.length) {
-      throw new Error('Enter at least one numeric SNR level, for example: 30,20,10,0');
+      throw new Error('Select at least one preset level or enter a numeric SNR list');
     }
     const payload = await api.runtimeGenerateNoise({
       source_wav: selectedSamplePath({ required: true }),
+      noise_mode: noiseModeSelect.value || 'white',
       snr_levels: snrLevels,
     });
     sampleCatalog = payload.catalog || sampleCatalog;

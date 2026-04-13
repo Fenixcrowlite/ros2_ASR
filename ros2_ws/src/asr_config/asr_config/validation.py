@@ -119,6 +119,8 @@ def validate_runtime_payload(payload: dict[str, Any]) -> list[str]:
 
 def validate_benchmark_payload(payload: dict[str, Any]) -> list[str]:
     errors: list[str] = []
+    supported_noise_levels = {"clean", "light", "medium", "heavy", "extreme"}
+    supported_noise_modes = {"white", "pink", "brown", "babble", "hum"}
     for key in REQUIRED_BENCHMARK_KEYS:
         if key not in payload:
             errors.append(f"Missing benchmark key: {key}")
@@ -168,6 +170,41 @@ def validate_benchmark_payload(payload: dict[str, Any]) -> list[str]:
             replay_rate = float(streaming_cfg.get("replay_rate", 0.0) or 0.0)
             if replay_rate < 0.0:
                 errors.append("streaming.replay_rate must be >= 0")
+
+    noise_cfg = payload.get("noise", {})
+    if noise_cfg and not isinstance(noise_cfg, dict):
+        errors.append("noise must be an object")
+    elif isinstance(noise_cfg, dict):
+        if "mode" in noise_cfg:
+            mode = str(noise_cfg.get("mode", "") or "").strip().lower()
+            if mode and mode not in supported_noise_modes:
+                errors.append(
+                    "noise.mode must be one of: "
+                    + ", ".join(sorted(supported_noise_modes))
+                )
+        if "levels" in noise_cfg:
+            levels = noise_cfg.get("levels", [])
+            if isinstance(levels, str):
+                levels = [item.strip() for item in levels.split(",") if item.strip()]
+            if not isinstance(levels, list):
+                errors.append("noise.levels must be a list or comma-separated string")
+            else:
+                normalized_levels = [str(item or "").strip().lower() for item in levels]
+                if any(not item for item in normalized_levels):
+                    errors.append("noise.levels entries must be non-empty strings")
+                invalid_levels = sorted(
+                    {item for item in normalized_levels if item and item not in supported_noise_levels}
+                )
+                if invalid_levels:
+                    errors.append(
+                        "noise.levels contains unsupported values: "
+                        + ", ".join(invalid_levels)
+                    )
+        if "seed" in noise_cfg:
+            try:
+                int(noise_cfg.get("seed", 0) or 0)
+            except (TypeError, ValueError):
+                errors.append("noise.seed must be an integer")
 
     return errors
 

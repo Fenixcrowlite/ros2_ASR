@@ -1,4 +1,15 @@
-"""Helpers for benchmark result discovery and comparison views."""
+"""Helpers for benchmark result discovery and comparison views.
+
+The gateway should not expose raw artifact-tree knowledge to the browser.
+Instead, this module projects stored benchmark runs into GUI-facing read models:
+
+- benchmark history rows
+- one run detail view
+- run-to-run comparison payloads
+
+It also contains the recovery logic used when a run has partial artifacts or
+when old/legacy artifacts need to be presented in a modern UI.
+"""
 
 from __future__ import annotations
 
@@ -87,6 +98,13 @@ def resolved_run_state(
     summary: Mapping[str, Any] | None,
     job: Mapping[str, Any],
 ) -> str:
+    """Resolve the user-facing run state from artifacts plus live job state.
+
+    The action server is not the only source of truth. A benchmark may finish
+    successfully and still look failed from the gateway's transient job memory
+    if the HTTP request timed out or the process restarted. Stored artifacts win
+    when they prove completion.
+    """
     if _summary_artifact_path(run_dir_path).exists():
         return "completed"
     if _job_has_summary(job):
@@ -164,6 +182,13 @@ def _dataset_manifest_path(
     artifacts_root: Path,
     read_json: ReadJsonFn,
 ) -> Path | None:
+    """Best-effort resolution of the manifest behind a stored benchmark run.
+
+    Runs can reference the dataset manifest directly, through config snapshots,
+    through the dataset profile, or through registry entries. The browser only
+    needs reference transcripts, so we probe several canonical locations rather
+    than assuming one storage layout.
+    """
     project_root = artifacts_root.parent
     candidates: list[Any] = [run_manifest.get("dataset_manifest")]
 
@@ -293,6 +318,7 @@ def list_benchmark_history(
     benchmark_jobs: Mapping[str, dict[str, Any]],
     limit: int = 50,
 ) -> list[dict[str, Any]]:
+    """Build compact history rows for the Results and Benchmark pages."""
     root = artifacts_root / "benchmark_runs"
     if not root.exists():
         return []
@@ -411,6 +437,12 @@ def run_detail(
     read_json: ReadJsonFn,
     benchmark_jobs: Mapping[str, dict[str, Any]],
 ) -> dict[str, Any]:
+    """Build the detailed view model for one stored benchmark run.
+
+    The first hundred result rows are intentionally enriched on read so the GUI
+    can show reference text and quality breakdowns even when older artifacts did
+    not persist every derived field explicitly.
+    """
     run_dir_path = run_dir(artifacts_root, run_id, clean_name=clean_name)
     if not run_dir_path.exists():
         raise HTTPException(status_code=404, detail=f"Run not found: {run_id}")
@@ -496,6 +528,12 @@ def compare_runs(
     detail_loader: RunDetailLoader,
     metric_preference_func: MetricPreferenceFn = metric_preference,
 ) -> dict[str, Any]:
+    """Compare run subjects on provider-summary metrics.
+
+    Comparison operates on provider-level summary rows, not on mixed top-level
+    aggregates, because multi-provider benchmark runs intentionally suppress a
+    misleading "one blended winner" aggregate.
+    """
     if not run_ids:
         raise HTTPException(status_code=400, detail="run_ids must not be empty")
 

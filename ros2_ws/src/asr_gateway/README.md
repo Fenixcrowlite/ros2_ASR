@@ -12,6 +12,21 @@ Gateway backend between GUI and ROS2/core subsystems.
 ## Boundary rule
 GUI should use this gateway instead of direct ROS graph/internal code access.
 
+## Mental Model
+- `api.py` is the HTTP boundary and request normalizer.
+- `ros_client.py` is the ROS transport façade used by the HTTP layer.
+- `result_views.py`, `log_views.py`, `runtime_assets.py`, and `secret_state.py` are read-model helpers for the browser UI.
+
+## Read This Package In This Order
+1. `asr_gateway/api.py`
+2. `asr_gateway/ros_client.py`
+3. `asr_gateway/result_views.py`
+4. `asr_gateway/log_views.py`
+5. `asr_gateway/runtime_assets.py`
+6. `asr_gateway/secret_state.py`
+
+That order mirrors the real control flow: HTTP request -> ROS interaction -> artifact/log projection for the UI.
+
 ## API Surface (Baseline)
 - `/api/system/status`, `/api/dashboard`
 - `/api/runtime/*` (status/start/stop/reconfigure/recognize/live/backends)

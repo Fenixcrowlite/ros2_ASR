@@ -59,6 +59,8 @@ from asr_runtime_nodes.transport import decode_transport_metadata, delivery_late
 
 @dataclass(slots=True)
 class RuntimeStateSnapshot:
+    """Mutable runtime state that can be projected into status services/topics."""
+
     runtime_profile: str
     provider_profile: str
     session_id: str
@@ -85,6 +87,8 @@ class RuntimeStateSnapshot:
 
 @dataclass(slots=True)
 class ResolvedRuntimeConfiguration:
+    """Fully resolved runtime config after profile loading and overrides."""
+
     snapshot_path: str
     runtime_profile: str
     provider_profile: str
@@ -100,6 +104,8 @@ class ResolvedRuntimeConfiguration:
 
 @dataclass(slots=True)
 class ProviderStreamTraceState:
+    """State accumulated while one provider-stream session is active."""
+
     provider_metrics: dict[str, Any]
     collector: PipelineTraceCollector | None = None
     predicted_artifact_path: str = ""
@@ -137,6 +143,11 @@ class AsrOrchestratorNode(Node):
     - `runtime_profile`
     - `provider_profile`
     - `session_id`
+
+    Mental model:
+    - control plane: service handlers and runtime config loading
+    - data plane: segment/chunk subscriptions and provider invocation
+    - status plane: result/status publications and trace/resource bookkeeping
     """
 
     def __init__(self) -> None:

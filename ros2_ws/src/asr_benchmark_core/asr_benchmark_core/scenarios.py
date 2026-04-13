@@ -16,9 +16,11 @@ DEFAULT_SCENARIOS = {
         name="clean_baseline",
         description="Baseline scenario on clean audio without synthetic perturbations.",
     ),
-    "noise_robustness_placeholder": Scenario(
-        name="noise_robustness_placeholder",
-        description="Placeholder for future synthetic-noise scenario pipeline.",
+    "noise_robustness": Scenario(
+        name="noise_robustness",
+        description=(
+            "Noise-robustness sweep across clean plus synthetic additive-noise variants."
+        ),
     ),
     "provider_comparison": Scenario(
         name="provider_comparison",

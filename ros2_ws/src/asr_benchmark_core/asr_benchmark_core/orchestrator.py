@@ -1,4 +1,14 @@
-"""Benchmark orchestrator with reproducible run artifacts."""
+"""Benchmark orchestrator with reproducible run artifacts.
+
+This is the control-plane module for canonical benchmark execution. Its job is
+to turn a high-level benchmark request into a fully resolved and reproducible
+run plan:
+
+- resolve dataset/provider/metric profiles
+- derive scenario and noise variants
+- execute the provider x sample x variant matrix
+- persist manifests, metrics, and reports
+"""
 
 from __future__ import annotations
 
@@ -24,11 +34,21 @@ from asr_storage import ArtifactStore
 
 from asr_benchmark_core.executor import BatchExecutor
 from asr_benchmark_core.models import BenchmarkRunRequest, BenchmarkRunSummary
-from asr_benchmark_core.noise import apply_noise_to_wav, resolve_noise_plan
+from asr_benchmark_core.noise import (
+    apply_noise_to_wav,
+    canonicalize_scenario_name,
+    resolve_noise_plan,
+)
 
 
 @dataclass(slots=True)
 class ResolvedBenchmarkPlan:
+    """Fully expanded benchmark execution plan.
+
+    Every field here is meant to be stable enough to persist into the run
+    manifest so a completed benchmark can be understood without re-resolving
+    profiles from scratch.
+    """
     run_id: str
     dataset_id: str
     dataset_profile_ref: str
@@ -102,6 +122,8 @@ def _validate_quality_reference_samples(
 
 
 class BenchmarkOrchestrator:
+    """Own the canonical benchmark lifecycle from request to stored artifacts."""
+
     def __init__(
         self,
         *,
@@ -312,6 +334,11 @@ class BenchmarkOrchestrator:
         return provider_snapshots, provider_execution
 
     def _resolve_run_plan(self, request: BenchmarkRunRequest) -> ResolvedBenchmarkPlan:
+        """Resolve everything needed before the first provider call happens.
+
+        This separates configuration/validation failure from execution failure
+        and makes the resulting run manifest deterministic and debuggable.
+        """
         benchmark_cfg, _benchmark_profile_id = self._resolve_benchmark_profile(request)
         dataset_profile_ref, dataset_cfg, manifest_path, samples = self._resolve_dataset_plan(
             request, benchmark_cfg
@@ -327,14 +354,16 @@ class BenchmarkOrchestrator:
         )
         _validate_quality_reference_samples(samples, enabled_metrics=enabled_metrics)
 
-        scenario = str(request.scenario or "").strip() or str(
-            (benchmark_cfg.data.get("scenarios") or ["clean_baseline"])[0]
+        scenario = canonicalize_scenario_name(
+            str(request.scenario or "").strip()
+            or str((benchmark_cfg.data.get("scenarios") or ["clean_baseline"])[0])
         )
         noise_plan = resolve_noise_plan(
             scenario=scenario,
             benchmark_settings=benchmark_settings,
             profile_scenarios=[str(item) for item in benchmark_cfg.data.get("scenarios", [])],
         )
+        scenario = str(noise_plan[0].get("scenario", scenario) if noise_plan else scenario)
         provider_snapshots, provider_execution = self._resolve_provider_execution_plan(
             provider_profiles=provider_profiles,
             provider_overrides=request.provider_overrides,
@@ -406,12 +435,14 @@ class BenchmarkOrchestrator:
     ) -> str:
         if variant.get("noise_level") == "clean":
             return sample.audio_path
-        variant_name = f"{sample.sample_id}__{variant['noise_level']}.wav"
+        noise_mode = str(variant.get("noise_mode", "white") or "white")
+        variant_name = f"{sample.sample_id}__{noise_mode}__{variant['noise_level']}.wav"
         return apply_noise_to_wav(
             source_path=sample.audio_path,
             output_path=str(derived_audio_root / variant_name),
             snr_db=float(variant["snr_db"]),
             seed=int(variant["seed"]),
+            noise_mode=noise_mode,
         )
 
     def _build_execution_meta(
@@ -447,6 +478,7 @@ class BenchmarkOrchestrator:
         executor: BatchExecutor,
         run_dir: Path,
     ) -> list[dict[str, Any]]:
+        """Execute the cartesian product of providers, samples, and noise variants."""
         results: list[dict[str, Any]] = []
         session_id = f"benchmark_{plan.run_id}"
         derived_audio_root = run_dir / "derived_audio"
@@ -710,7 +742,9 @@ class BenchmarkOrchestrator:
                 f"{provider_profile}:{provider_preset}" if provider_preset else provider_profile
             )
             by_provider.setdefault(provider_key, []).append(item)
-            noise_key = str(item.get("noise_level", "clean"))
+            noise_level = str(item.get("noise_level", "clean") or "clean")
+            noise_mode = str(item.get("noise_mode", "none") or "none")
+            noise_key = noise_level if noise_mode == "none" else f"{noise_mode}:{noise_level}"
             by_noise.setdefault(noise_key, []).append(item)
 
         aggregate = summarize_result_rows(results, exclude_corrupted=True)
@@ -761,6 +795,12 @@ class BenchmarkOrchestrator:
             "providers": providers,
             "scenario": scenario,
             "execution_mode": execution_mode,
+            "noise_levels": sorted(
+                {str(item.get("noise_level", "clean") or "clean") for item in results}
+            ),
+            "noise_modes": sorted(
+                {str(item.get("noise_mode", "none") or "none") for item in results}
+            ),
             "aggregate_scope": "single_provider"
             if len(provider_summaries) <= 1
             else "provider_only",
@@ -784,6 +824,8 @@ class BenchmarkOrchestrator:
             f"- providers: `{', '.join(summary['providers'])}`",
             f"- scenario: `{summary['scenario']}`",
             f"- execution_mode: `{summary.get('execution_mode', 'batch')}`",
+            f"- noise_modes: `{', '.join(summary.get('noise_modes', []))}`",
+            f"- noise_levels: `{', '.join(summary.get('noise_levels', []))}`",
             f"- aggregate_scope: `{summary.get('aggregate_scope', 'provider_only')}`",
             f"- total_samples: `{summary['total_samples']}`",
             f"- successful_samples: `{summary['successful_samples']}`",

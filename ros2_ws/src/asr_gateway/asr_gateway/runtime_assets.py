@@ -149,13 +149,20 @@ def noise_output_target(source: Path, *, noise_root: Path) -> Path:
     return target
 
 
-def noise_output_target_for_snr(source: Path, *, snr_db: float, noise_root: Path) -> Path:
+def noise_output_target_for_snr(
+    source: Path,
+    *,
+    snr_db: float,
+    noise_mode: str,
+    noise_root: Path,
+) -> Path:
     stem = re.sub(r"[^a-zA-Z0-9._-]+", "_", source.stem).strip("._") or "runtime_sample"
+    mode_label = re.sub(r"[^a-zA-Z0-9._-]+", "_", str(noise_mode or "white")).strip("._") or "white"
     snr_label = str(float(snr_db)).replace(".", "p").replace("-", "m")
     noise_root.mkdir(parents=True, exist_ok=True)
-    target = noise_root / f"{stem}_snr{snr_label}.wav"
+    target = noise_root / f"{stem}_{mode_label}_snr{snr_label}.wav"
     counter = 1
     while target.exists():
-        target = noise_root / f"{stem}_snr{snr_label}_{counter}.wav"
+        target = noise_root / f"{stem}_{mode_label}_snr{snr_label}_{counter}.wav"
         counter += 1
     return target

@@ -5,6 +5,9 @@ providers:
   - providers/whisper_local
 scenarios:
   - clean_baseline
+  - noise_robustness
+  - provider_comparison
+  - latency_profile
 metric_profiles:
   - metrics/default_quality
   - metrics/default_timing

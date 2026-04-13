@@ -9,6 +9,10 @@ export function initResultsPage(ctx) {
 
   let recentRuns = [];
 
+  // Results page reconstructs human-readable explanations from stored
+  // artifacts. A lot of the logic here exists because older benchmark runs do
+  // not persist every derived field that the current UI wants to display.
+
   function metricText(value) {
     if (value == null || value === '') {
       return '—';
@@ -28,6 +32,8 @@ export function initResultsPage(ctx) {
   }
 
   function normalizeQualityText(text) {
+    // Match the benchmark-side normalization rules closely so browser-side
+    // WER/CER explanations stay consistent with stored metric values.
     const normalizedChars = [];
     for (const char of String(text || '').trim().toLowerCase()) {
       if (/\s/u.test(char)) {
@@ -101,6 +107,8 @@ export function initResultsPage(ctx) {
   }
 
   function getQualitySupport(row) {
+    // Prefer stored canonical quality-support payloads. Only recompute from raw
+    // text when displaying older artifacts that predate the richer schema.
     const stored = row.quality_support;
     if (stored && typeof stored === 'object') {
       const normalizedReference = String(
@@ -176,6 +184,9 @@ export function initResultsPage(ctx) {
   }
 
   function renderProviderMetricDetail(metricName, statistic = {}, metadata = {}, fallbackValue = null) {
+    // This renderer turns aggregate metric payloads back into formulas so the
+    // operator can see whether a number is a mean, a corpus rate, or a raw
+    // scalar taken from one stored statistic.
     const label = metadata.display_name || metricName;
     const aggregator = String(statistic.aggregator || metadata.summary_aggregator || '');
     const resolvedValue =
@@ -369,6 +380,9 @@ export function initResultsPage(ctx) {
           <div class="metric-details__section">
             <strong>ASR Metadata</strong>
             ${renderMetaGrid([
+              { label: 'Noise Level', value: row.noise_level || 'clean' },
+              { label: 'Noise Mode', value: row.noise_mode || 'none' },
+              { label: 'Noise SNR dB', value: metricText(row.noise_snr_db) },
               { label: 'Execution', value: row.execution_mode || 'batch' },
               { label: 'Streaming', value: row.streaming_mode || 'none' },
               { label: 'Audio Sec', value: metricText(row.audio_duration_sec) },
@@ -467,6 +481,15 @@ export function initResultsPage(ctx) {
           value: (row) => ui.escapeHtml(row.sample_id || row.audio_id || '—'),
         },
         {
+          key: 'noise',
+          label: 'Noise',
+          value: (row) => ui.escapeHtml(
+            row.noise_level === 'clean'
+              ? 'clean'
+              : `${row.noise_mode || 'noise'}:${row.noise_level || 'custom'}`
+          ),
+        },
+        {
           key: 'success',
           label: 'Success',
           value: (row) =>
@@ -529,6 +552,31 @@ export function initResultsPage(ctx) {
     ui.updateSelectOptions(runSelect, rows.map((row) => row.run_id), rows[0]?.run_id || '');
   }
 
+  function renderNoiseSummary(summary = {}) {
+    const rows = Object.entries(summary.noise_summary || {}).map(([noise, metrics]) => ({
+      noise,
+      samples: metrics.total_samples,
+      success: metrics.successful_samples,
+      wer: metrics.quality_metrics?.wer,
+      cer: metrics.quality_metrics?.cer,
+      latency: metrics.latency_metrics?.end_to_end_latency_ms,
+    }));
+    if (!rows.length) {
+      return ui.renderEmpty('No per-noise summary stored for this run.');
+    }
+    return ui.table(
+      [
+        { key: 'noise', label: 'Noise Variant', value: (row) => ui.escapeHtml(row.noise) },
+        { key: 'samples', label: 'Samples', value: (row) => fmtMetric(row.samples) },
+        { key: 'success', label: 'Success', value: (row) => fmtMetric(row.success) },
+        { key: 'wer', label: 'WER', value: (row) => fmtMetric(row.wer) },
+        { key: 'cer', label: 'CER', value: (row) => fmtMetric(row.cer) },
+        { key: 'latency', label: 'End-to-end ms', value: (row) => fmtMetric(row.latency) },
+      ],
+      rows
+    );
+  }
+
   async function loadOverview() {
     const payload = await api.resultsOverview();
     renderOverview(payload);
@@ -552,9 +600,18 @@ export function initResultsPage(ctx) {
           <p>dataset_profile: ${ui.escapeHtml(runManifest.dataset_profile || '')}</p>
           <p>scenario: ${ui.escapeHtml(runManifest.scenario || summary.scenario || '')}</p>
           <p>execution_mode: ${ui.escapeHtml(summary.execution_mode || runManifest.execution_mode || 'batch')}</p>
+          <p>noise_modes: ${ui.escapeHtml((summary.noise_modes || []).join(', ') || 'none')}</p>
+          <p>noise_levels: ${ui.escapeHtml((summary.noise_levels || []).join(', ') || 'clean')}</p>
           <p>providers: ${ui.escapeHtml((runManifest.providers || []).join(', '))}</p>
           <p>metrics_semantics: ${ui.escapeHtml(String(summary.metrics_semantics_version || 1))}${summary.legacy_metrics ? ' · Legacy semantics' : ''}</p>
           ${summary.warning_samples ? `<p>warning_samples: ${ui.escapeHtml(String(summary.warning_samples))}</p>` : ''}
+        </div>
+        <div class="stack-item">
+          <strong>Noise summary</strong>
+          <p class="helper">
+            Rows are grouped by noise variant key. Clean rows stay separate from additive corruption runs.
+          </p>
+          ${renderNoiseSummary(summary)}
         </div>
         <div class="stack-item">
           <strong>Per-provider metrics</strong>
