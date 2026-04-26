@@ -82,6 +82,7 @@ class DeterministicAzureBackend:
     def __init__(self, config: dict[str, Any]) -> None:
         self.key = config.get("speech_key", "")
         self.region = config.get("region", "")
+        self.endpoint = config.get("endpoint", "")
 
     def recognize_once(self, request: Any) -> DummyResponse:
         del request
@@ -359,3 +360,57 @@ def test_azure_provider_validation_requires_credentials(monkeypatch: pytest.Monk
     errors = provider.validate_config()
     assert any("Azure speech key is missing" in item for item in errors)
     assert any("Azure region is missing" in item for item in errors)
+
+
+def test_azure_provider_prefers_secret_values_over_profile_defaults(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import asr_provider_azure.azure_provider as azure_module
+
+    monkeypatch.setattr(azure_module, "AzureAsrBackend", DeterministicAzureBackend)
+    provider = azure_module.AzureProvider()
+    provider.initialize(
+        {"region": "eastus", "endpoint": ""},
+        {
+            "AZURE_SPEECH_KEY": "secret",
+            "AZURE_SPEECH_REGION": "westeurope",
+            "ASR_AZURE_ENDPOINT": "https://westeurope.api.cognitive.microsoft.com/",
+        },
+    )
+
+    assert provider._backend is not None
+    assert provider._backend.region == "westeurope"
+    assert provider._backend.endpoint == "https://westeurope.api.cognitive.microsoft.com/"
+
+
+def test_azure_provider_accepts_full_endpoint_url_without_region(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import asr_provider_azure.azure_provider as azure_module
+
+    monkeypatch.setattr(azure_module, "AzureAsrBackend", DeterministicAzureBackend)
+    provider = azure_module.AzureProvider()
+    provider.initialize(
+        {"region": "", "endpoint": ""},
+        {
+            "AZURE_SPEECH_KEY": "secret",
+            "ASR_AZURE_ENDPOINT": "https://example.invalid",
+        },
+    )
+
+    assert provider.validate_config() == []
+
+
+def test_azure_provider_validation_reports_missing_sdk(monkeypatch: pytest.MonkeyPatch) -> None:
+    import asr_provider_azure.azure_provider as azure_module
+
+    class MissingSdkAzureBackend(DeterministicAzureBackend):
+        def _load_sdk(self) -> bool:
+            return False
+
+    monkeypatch.setattr(azure_module, "AzureAsrBackend", MissingSdkAzureBackend)
+    provider = azure_module.AzureProvider()
+    provider.initialize({"region": "westeurope"}, {"AZURE_SPEECH_KEY": "secret"})
+
+    errors = provider.validate_config()
+    assert any("Azure speech SDK is unavailable" in item for item in errors)

@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from asr_backend_aws.backend import AwsAsrBackend, AwsStreamingSession
+from asr_provider_aws.backend import AwsAsrBackend, AwsStreamingSession
 from asr_core.models import AsrRequest, AsrResponse
 from asr_core.normalized import LatencyMetadata, NormalizedAsrResult, NormalizedWord
 from asr_provider_base.adapter import AsrProviderAdapter

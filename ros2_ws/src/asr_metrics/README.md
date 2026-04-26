@@ -48,7 +48,7 @@ runtime and benchmark traces.
 ## Consumers
 
 - `asr_benchmark_core` computes benchmark metrics and summaries here.
-- `asr_runtime_nodes` and `asr_ros` use resource samplers/collectors.
+- `asr_runtime_nodes` uses resource samplers/collectors for canonical runtime traces.
 - `asr_gateway` reads metric metadata and benchmark summaries for the UI.
 - `asr_reporting` exports the aggregated results.
 

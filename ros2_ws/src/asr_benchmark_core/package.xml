@@ -17,6 +17,7 @@
   <exec_depend>asr_provider_azure</exec_depend>
   <exec_depend>asr_provider_google</exec_depend>
   <exec_depend>asr_provider_aws</exec_depend>
+  <exec_depend>asr_provider_huggingface</exec_depend>
   <exec_depend>asr_config</exec_depend>
 
   <export>

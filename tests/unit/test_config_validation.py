@@ -116,6 +116,19 @@ def test_validate_benchmark_payload_allows_minimal_profile_with_implicit_default
     assert errors == []
 
 
+def test_validate_benchmark_payload_accepts_custom_noise_snr_values() -> None:
+    errors = validate_benchmark_payload(
+        {
+            "dataset_profile": "datasets/sample_dataset",
+            "providers": ["providers/whisper_local"],
+            "metric_profiles": ["metrics/default_quality"],
+            "noise": {"mode": "pink", "custom_snr_db": [17.5, "5"]},
+        }
+    )
+
+    assert errors == []
+
+
 def test_validate_metric_payload_rejects_unknown_metric_names() -> None:
     errors = validate_metric_payload({"metrics": ["wer", "unknown_metric"]})
 

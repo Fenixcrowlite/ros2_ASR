@@ -1,355 +1,73 @@
 flowchart LR
   classDef expectedOnly stroke-dasharray: 5 5,stroke:#666,fill:#fff8dc;
   classDef observedOnly stroke:#1e88e5,fill:#e3f2fd;
-  N_asr_server_node["/asr_server_node&lt;br/&gt;[asr_ros]"]
-  A_asr_transcribe{{"/asr/transcribe"}}
-  class A_asr_transcribe observedOnly;
-  N_asr_server_node -->|server: /asr/transcribe&lt;br/&gt;asr_interfaces/action/Transcribe| A_asr_transcribe
-  N_benchmark_manager_node["/benchmark_manager_node&lt;br/&gt;[asr_benchmark_nodes]"]
-  A_benchmark_run_experiment{{"/benchmark/run_experiment"}}
-  class A_benchmark_run_experiment observedOnly;
-  N_benchmark_manager_node -->|server: /benchmark/run_experiment&lt;br/&gt;asr_interfaces/action/RunBenchmarkExperiment| A_benchmark_run_experiment
-  A_datasets_import{{"/datasets/import"}}
-  class A_datasets_import observedOnly;
-  N_benchmark_manager_node -->|server: /datasets/import&lt;br/&gt;asr_interfaces/action/ImportDataset| A_datasets_import
-  S_asr_get_status{{"/asr/get_status"}}
-  N_asr_server_node -->|server: /asr/get_status&lt;br/&gt;asr_interfaces/srv/GetAsrStatus| S_asr_get_status
-  S_asr_recognize_once{{"/asr/recognize_once"}}
-  N_asr_server_node -->|server: /asr/recognize_once&lt;br/&gt;asr_interfaces/srv/RecognizeOnce| S_asr_recognize_once
   N_audio_input_node["/audio_input_node&lt;br/&gt;[asr_runtime_nodes]"]
+  class N_audio_input_node expectedOnly;
   S_asr_runtime_audio_reconfigure{{"/asr/runtime/audio/reconfigure"}}
-  N_audio_input_node -->|server: /asr/runtime/audio/reconfigure&lt;br/&gt;asr_interfaces/srv/ReconfigureRuntime| S_asr_runtime_audio_reconfigure
+  class S_asr_runtime_audio_reconfigure expectedOnly;
+  N_audio_input_node -.->|server: /asr/runtime/audio/reconfigure&lt;br/&gt;ReconfigureRuntime| S_asr_runtime_audio_reconfigure
   S_asr_runtime_audio_start_session{{"/asr/runtime/audio/start_session"}}
-  N_audio_input_node -->|server: /asr/runtime/audio/start_session&lt;br/&gt;asr_interfaces/srv/StartRuntimeSession| S_asr_runtime_audio_start_session
+  class S_asr_runtime_audio_start_session expectedOnly;
+  N_audio_input_node -.->|server: /asr/runtime/audio/start_session&lt;br/&gt;StartRuntimeSession| S_asr_runtime_audio_start_session
   S_asr_runtime_audio_stop_session{{"/asr/runtime/audio/stop_session"}}
-  N_audio_input_node -->|server: /asr/runtime/audio/stop_session&lt;br/&gt;asr_interfaces/srv/StopRuntimeSession| S_asr_runtime_audio_stop_session
+  class S_asr_runtime_audio_stop_session expectedOnly;
+  N_audio_input_node -.->|server: /asr/runtime/audio/stop_session&lt;br/&gt;StopRuntimeSession| S_asr_runtime_audio_stop_session
   N_asr_orchestrator_node["/asr_orchestrator_node&lt;br/&gt;[asr_runtime_nodes]"]
+  class N_asr_orchestrator_node expectedOnly;
   S_asr_runtime_get_status{{"/asr/runtime/get_status"}}
-  N_asr_orchestrator_node -->|server: /asr/runtime/get_status&lt;br/&gt;asr_interfaces/srv/GetAsrStatus| S_asr_runtime_get_status
+  class S_asr_runtime_get_status expectedOnly;
+  N_asr_orchestrator_node -.->|server: /asr/runtime/get_status&lt;br/&gt;GetAsrStatus| S_asr_runtime_get_status
   S_asr_runtime_list_backends{{"/asr/runtime/list_backends"}}
-  N_asr_orchestrator_node -->|server: /asr/runtime/list_backends&lt;br/&gt;asr_interfaces/srv/ListBackends| S_asr_runtime_list_backends
+  class S_asr_runtime_list_backends expectedOnly;
+  N_asr_orchestrator_node -.->|server: /asr/runtime/list_backends&lt;br/&gt;ListBackends| S_asr_runtime_list_backends
   N_audio_preprocess_node["/audio_preprocess_node&lt;br/&gt;[asr_runtime_nodes]"]
+  class N_audio_preprocess_node expectedOnly;
   S_asr_runtime_preprocess_reconfigure{{"/asr/runtime/preprocess/reconfigure"}}
-  N_audio_preprocess_node -->|server: /asr/runtime/preprocess/reconfigure&lt;br/&gt;asr_interfaces/srv/ReconfigureRuntime| S_asr_runtime_preprocess_reconfigure
+  class S_asr_runtime_preprocess_reconfigure expectedOnly;
+  N_audio_preprocess_node -.->|server: /asr/runtime/preprocess/reconfigure&lt;br/&gt;ReconfigureRuntime| S_asr_runtime_preprocess_reconfigure
   S_asr_runtime_recognize_once{{"/asr/runtime/recognize_once"}}
-  N_asr_orchestrator_node -->|server: /asr/runtime/recognize_once&lt;br/&gt;asr_interfaces/srv/RecognizeOnce| S_asr_runtime_recognize_once
+  class S_asr_runtime_recognize_once expectedOnly;
+  N_asr_orchestrator_node -.->|server: /asr/runtime/recognize_once&lt;br/&gt;RecognizeOnce| S_asr_runtime_recognize_once
   S_asr_runtime_reconfigure{{"/asr/runtime/reconfigure"}}
-  N_asr_orchestrator_node -->|server: /asr/runtime/reconfigure&lt;br/&gt;asr_interfaces/srv/ReconfigureRuntime| S_asr_runtime_reconfigure
+  class S_asr_runtime_reconfigure expectedOnly;
+  N_asr_orchestrator_node -.->|server: /asr/runtime/reconfigure&lt;br/&gt;ReconfigureRuntime| S_asr_runtime_reconfigure
   S_asr_runtime_start_session{{"/asr/runtime/start_session"}}
-  N_asr_orchestrator_node -->|server: /asr/runtime/start_session&lt;br/&gt;asr_interfaces/srv/StartRuntimeSession| S_asr_runtime_start_session
+  class S_asr_runtime_start_session expectedOnly;
+  N_asr_orchestrator_node -.->|server: /asr/runtime/start_session&lt;br/&gt;StartRuntimeSession| S_asr_runtime_start_session
   S_asr_runtime_stop_session{{"/asr/runtime/stop_session"}}
-  N_asr_orchestrator_node -->|server: /asr/runtime/stop_session&lt;br/&gt;asr_interfaces/srv/StopRuntimeSession| S_asr_runtime_stop_session
+  class S_asr_runtime_stop_session expectedOnly;
+  N_asr_orchestrator_node -.->|server: /asr/runtime/stop_session&lt;br/&gt;StopRuntimeSession| S_asr_runtime_stop_session
   N_vad_segmenter_node["/vad_segmenter_node&lt;br/&gt;[asr_runtime_nodes]"]
+  class N_vad_segmenter_node expectedOnly;
   S_asr_runtime_vad_reconfigure{{"/asr/runtime/vad/reconfigure"}}
-  N_vad_segmenter_node -->|server: /asr/runtime/vad/reconfigure&lt;br/&gt;asr_interfaces/srv/ReconfigureRuntime| S_asr_runtime_vad_reconfigure
-  S_asr_set_backend{{"/asr/set_backend"}}
-  N_asr_server_node -->|server: /asr/set_backend&lt;br/&gt;asr_interfaces/srv/SetAsrBackend| S_asr_set_backend
-  N_asr_gateway_runtime_observer["/asr_gateway_runtime_observer&lt;br/&gt;[unknown]"]
-  class N_asr_gateway_runtime_observer observedOnly;
-  S_asr_gateway_runtime_observer_describe_parameters{{"/asr_gateway_runtime_observer/describe_parameters"}}
-  class S_asr_gateway_runtime_observer_describe_parameters observedOnly;
-  N_asr_gateway_runtime_observer -->|server: /asr_gateway_runtime_observer/describe_parameters&lt;br/&gt;rcl_interfaces/srv/DescribeParameters| S_asr_gateway_runtime_observer_describe_parameters
-  S_asr_gateway_runtime_observer_get_parameter_types{{"/asr_gateway_runtime_observer/get_parameter_types"}}
-  class S_asr_gateway_runtime_observer_get_parameter_types observedOnly;
-  N_asr_gateway_runtime_observer -->|server: /asr_gateway_runtime_observer/get_parameter_types&lt;br/&gt;rcl_interfaces/srv/GetParameterTypes| S_asr_gateway_runtime_observer_get_parameter_types
-  S_asr_gateway_runtime_observer_get_parameters{{"/asr_gateway_runtime_observer/get_parameters"}}
-  class S_asr_gateway_runtime_observer_get_parameters observedOnly;
-  N_asr_gateway_runtime_observer -->|server: /asr_gateway_runtime_observer/get_parameters&lt;br/&gt;rcl_interfaces/srv/GetParameters| S_asr_gateway_runtime_observer_get_parameters
-  S_asr_gateway_runtime_observer_get_type_description{{"/asr_gateway_runtime_observer/get_type_description"}}
-  class S_asr_gateway_runtime_observer_get_type_description observedOnly;
-  N_asr_gateway_runtime_observer -->|server: /asr_gateway_runtime_observer/get_type_description&lt;br/&gt;type_description_interfaces/srv/GetTypeDescription| S_asr_gateway_runtime_observer_get_type_description
-  S_asr_gateway_runtime_observer_list_parameters{{"/asr_gateway_runtime_observer/list_parameters"}}
-  class S_asr_gateway_runtime_observer_list_parameters observedOnly;
-  N_asr_gateway_runtime_observer -->|server: /asr_gateway_runtime_observer/list_parameters&lt;br/&gt;rcl_interfaces/srv/ListParameters| S_asr_gateway_runtime_observer_list_parameters
-  S_asr_gateway_runtime_observer_set_parameters{{"/asr_gateway_runtime_observer/set_parameters"}}
-  class S_asr_gateway_runtime_observer_set_parameters observedOnly;
-  N_asr_gateway_runtime_observer -->|server: /asr_gateway_runtime_observer/set_parameters&lt;br/&gt;rcl_interfaces/srv/SetParameters| S_asr_gateway_runtime_observer_set_parameters
-  S_asr_gateway_runtime_observer_set_parameters_atomically{{"/asr_gateway_runtime_observer/set_parameters_atomically"}}
-  class S_asr_gateway_runtime_observer_set_parameters_atomically observedOnly;
-  N_asr_gateway_runtime_observer -->|server: /asr_gateway_runtime_observer/set_parameters_atomically&lt;br/&gt;rcl_interfaces/srv/SetParametersAtomically| S_asr_gateway_runtime_observer_set_parameters_atomically
-  S_asr_orchestrator_node_describe_parameters{{"/asr_orchestrator_node/describe_parameters"}}
-  class S_asr_orchestrator_node_describe_parameters observedOnly;
-  N_asr_orchestrator_node -->|server: /asr_orchestrator_node/describe_parameters&lt;br/&gt;rcl_interfaces/srv/DescribeParameters| S_asr_orchestrator_node_describe_parameters
-  S_asr_orchestrator_node_get_parameter_types{{"/asr_orchestrator_node/get_parameter_types"}}
-  class S_asr_orchestrator_node_get_parameter_types observedOnly;
-  N_asr_orchestrator_node -->|server: /asr_orchestrator_node/get_parameter_types&lt;br/&gt;rcl_interfaces/srv/GetParameterTypes| S_asr_orchestrator_node_get_parameter_types
-  S_asr_orchestrator_node_get_parameters{{"/asr_orchestrator_node/get_parameters"}}
-  class S_asr_orchestrator_node_get_parameters observedOnly;
-  N_asr_orchestrator_node -->|server: /asr_orchestrator_node/get_parameters&lt;br/&gt;rcl_interfaces/srv/GetParameters| S_asr_orchestrator_node_get_parameters
-  S_asr_orchestrator_node_get_type_description{{"/asr_orchestrator_node/get_type_description"}}
-  class S_asr_orchestrator_node_get_type_description observedOnly;
-  N_asr_orchestrator_node -->|server: /asr_orchestrator_node/get_type_description&lt;br/&gt;type_description_interfaces/srv/GetTypeDescription| S_asr_orchestrator_node_get_type_description
-  S_asr_orchestrator_node_list_parameters{{"/asr_orchestrator_node/list_parameters"}}
-  class S_asr_orchestrator_node_list_parameters observedOnly;
-  N_asr_orchestrator_node -->|server: /asr_orchestrator_node/list_parameters&lt;br/&gt;rcl_interfaces/srv/ListParameters| S_asr_orchestrator_node_list_parameters
-  S_asr_orchestrator_node_set_parameters{{"/asr_orchestrator_node/set_parameters"}}
-  class S_asr_orchestrator_node_set_parameters observedOnly;
-  N_asr_orchestrator_node -->|server: /asr_orchestrator_node/set_parameters&lt;br/&gt;rcl_interfaces/srv/SetParameters| S_asr_orchestrator_node_set_parameters
-  S_asr_orchestrator_node_set_parameters_atomically{{"/asr_orchestrator_node/set_parameters_atomically"}}
-  class S_asr_orchestrator_node_set_parameters_atomically observedOnly;
-  N_asr_orchestrator_node -->|server: /asr_orchestrator_node/set_parameters_atomically&lt;br/&gt;rcl_interfaces/srv/SetParametersAtomically| S_asr_orchestrator_node_set_parameters_atomically
-  S_asr_server_node_describe_parameters{{"/asr_server_node/describe_parameters"}}
-  class S_asr_server_node_describe_parameters observedOnly;
-  N_asr_server_node -->|server: /asr_server_node/describe_parameters&lt;br/&gt;rcl_interfaces/srv/DescribeParameters| S_asr_server_node_describe_parameters
-  S_asr_server_node_get_parameter_types{{"/asr_server_node/get_parameter_types"}}
-  class S_asr_server_node_get_parameter_types observedOnly;
-  N_asr_server_node -->|server: /asr_server_node/get_parameter_types&lt;br/&gt;rcl_interfaces/srv/GetParameterTypes| S_asr_server_node_get_parameter_types
-  S_asr_server_node_get_parameters{{"/asr_server_node/get_parameters"}}
-  class S_asr_server_node_get_parameters observedOnly;
-  N_asr_server_node -->|server: /asr_server_node/get_parameters&lt;br/&gt;rcl_interfaces/srv/GetParameters| S_asr_server_node_get_parameters
-  S_asr_server_node_get_type_description{{"/asr_server_node/get_type_description"}}
-  class S_asr_server_node_get_type_description observedOnly;
-  N_asr_server_node -->|server: /asr_server_node/get_type_description&lt;br/&gt;type_description_interfaces/srv/GetTypeDescription| S_asr_server_node_get_type_description
-  S_asr_server_node_list_parameters{{"/asr_server_node/list_parameters"}}
-  class S_asr_server_node_list_parameters observedOnly;
-  N_asr_server_node -->|server: /asr_server_node/list_parameters&lt;br/&gt;rcl_interfaces/srv/ListParameters| S_asr_server_node_list_parameters
-  S_asr_server_node_set_parameters{{"/asr_server_node/set_parameters"}}
-  class S_asr_server_node_set_parameters observedOnly;
-  N_asr_server_node -->|server: /asr_server_node/set_parameters&lt;br/&gt;rcl_interfaces/srv/SetParameters| S_asr_server_node_set_parameters
-  S_asr_server_node_set_parameters_atomically{{"/asr_server_node/set_parameters_atomically"}}
-  class S_asr_server_node_set_parameters_atomically observedOnly;
-  N_asr_server_node -->|server: /asr_server_node/set_parameters_atomically&lt;br/&gt;rcl_interfaces/srv/SetParametersAtomically| S_asr_server_node_set_parameters_atomically
-  N_asr_text_output_node["/asr_text_output_node&lt;br/&gt;[asr_ros]"]
-  S_asr_text_output_node_describe_parameters{{"/asr_text_output_node/describe_parameters"}}
-  class S_asr_text_output_node_describe_parameters observedOnly;
-  N_asr_text_output_node -->|server: /asr_text_output_node/describe_parameters&lt;br/&gt;rcl_interfaces/srv/DescribeParameters| S_asr_text_output_node_describe_parameters
-  S_asr_text_output_node_get_parameter_types{{"/asr_text_output_node/get_parameter_types"}}
-  class S_asr_text_output_node_get_parameter_types observedOnly;
-  N_asr_text_output_node -->|server: /asr_text_output_node/get_parameter_types&lt;br/&gt;rcl_interfaces/srv/GetParameterTypes| S_asr_text_output_node_get_parameter_types
-  S_asr_text_output_node_get_parameters{{"/asr_text_output_node/get_parameters"}}
-  class S_asr_text_output_node_get_parameters observedOnly;
-  N_asr_text_output_node -->|server: /asr_text_output_node/get_parameters&lt;br/&gt;rcl_interfaces/srv/GetParameters| S_asr_text_output_node_get_parameters
-  S_asr_text_output_node_get_type_description{{"/asr_text_output_node/get_type_description"}}
-  class S_asr_text_output_node_get_type_description observedOnly;
-  N_asr_text_output_node -->|server: /asr_text_output_node/get_type_description&lt;br/&gt;type_description_interfaces/srv/GetTypeDescription| S_asr_text_output_node_get_type_description
-  S_asr_text_output_node_list_parameters{{"/asr_text_output_node/list_parameters"}}
-  class S_asr_text_output_node_list_parameters observedOnly;
-  N_asr_text_output_node -->|server: /asr_text_output_node/list_parameters&lt;br/&gt;rcl_interfaces/srv/ListParameters| S_asr_text_output_node_list_parameters
-  S_asr_text_output_node_set_parameters{{"/asr_text_output_node/set_parameters"}}
-  class S_asr_text_output_node_set_parameters observedOnly;
-  N_asr_text_output_node -->|server: /asr_text_output_node/set_parameters&lt;br/&gt;rcl_interfaces/srv/SetParameters| S_asr_text_output_node_set_parameters
-  S_asr_text_output_node_set_parameters_atomically{{"/asr_text_output_node/set_parameters_atomically"}}
-  class S_asr_text_output_node_set_parameters_atomically observedOnly;
-  N_asr_text_output_node -->|server: /asr_text_output_node/set_parameters_atomically&lt;br/&gt;rcl_interfaces/srv/SetParametersAtomically| S_asr_text_output_node_set_parameters_atomically
-  N_audio_capture_node["/audio_capture_node&lt;br/&gt;[asr_ros]"]
-  S_audio_capture_node_describe_parameters{{"/audio_capture_node/describe_parameters"}}
-  class S_audio_capture_node_describe_parameters observedOnly;
-  N_audio_capture_node -->|server: /audio_capture_node/describe_parameters&lt;br/&gt;rcl_interfaces/srv/DescribeParameters| S_audio_capture_node_describe_parameters
-  S_audio_capture_node_get_parameter_types{{"/audio_capture_node/get_parameter_types"}}
-  class S_audio_capture_node_get_parameter_types observedOnly;
-  N_audio_capture_node -->|server: /audio_capture_node/get_parameter_types&lt;br/&gt;rcl_interfaces/srv/GetParameterTypes| S_audio_capture_node_get_parameter_types
-  S_audio_capture_node_get_parameters{{"/audio_capture_node/get_parameters"}}
-  class S_audio_capture_node_get_parameters observedOnly;
-  N_audio_capture_node -->|server: /audio_capture_node/get_parameters&lt;br/&gt;rcl_interfaces/srv/GetParameters| S_audio_capture_node_get_parameters
-  S_audio_capture_node_get_type_description{{"/audio_capture_node/get_type_description"}}
-  class S_audio_capture_node_get_type_description observedOnly;
-  N_audio_capture_node -->|server: /audio_capture_node/get_type_description&lt;br/&gt;type_description_interfaces/srv/GetTypeDescription| S_audio_capture_node_get_type_description
-  S_audio_capture_node_list_parameters{{"/audio_capture_node/list_parameters"}}
-  class S_audio_capture_node_list_parameters observedOnly;
-  N_audio_capture_node -->|server: /audio_capture_node/list_parameters&lt;br/&gt;rcl_interfaces/srv/ListParameters| S_audio_capture_node_list_parameters
-  S_audio_capture_node_set_parameters{{"/audio_capture_node/set_parameters"}}
-  class S_audio_capture_node_set_parameters observedOnly;
-  N_audio_capture_node -->|server: /audio_capture_node/set_parameters&lt;br/&gt;rcl_interfaces/srv/SetParameters| S_audio_capture_node_set_parameters
-  S_audio_capture_node_set_parameters_atomically{{"/audio_capture_node/set_parameters_atomically"}}
-  class S_audio_capture_node_set_parameters_atomically observedOnly;
-  N_audio_capture_node -->|server: /audio_capture_node/set_parameters_atomically&lt;br/&gt;rcl_interfaces/srv/SetParametersAtomically| S_audio_capture_node_set_parameters_atomically
-  S_audio_input_node_describe_parameters{{"/audio_input_node/describe_parameters"}}
-  class S_audio_input_node_describe_parameters observedOnly;
-  N_audio_input_node -->|server: /audio_input_node/describe_parameters&lt;br/&gt;rcl_interfaces/srv/DescribeParameters| S_audio_input_node_describe_parameters
-  S_audio_input_node_get_parameter_types{{"/audio_input_node/get_parameter_types"}}
-  class S_audio_input_node_get_parameter_types observedOnly;
-  N_audio_input_node -->|server: /audio_input_node/get_parameter_types&lt;br/&gt;rcl_interfaces/srv/GetParameterTypes| S_audio_input_node_get_parameter_types
-  S_audio_input_node_get_parameters{{"/audio_input_node/get_parameters"}}
-  class S_audio_input_node_get_parameters observedOnly;
-  N_audio_input_node -->|server: /audio_input_node/get_parameters&lt;br/&gt;rcl_interfaces/srv/GetParameters| S_audio_input_node_get_parameters
-  S_audio_input_node_get_type_description{{"/audio_input_node/get_type_description"}}
-  class S_audio_input_node_get_type_description observedOnly;
-  N_audio_input_node -->|server: /audio_input_node/get_type_description&lt;br/&gt;type_description_interfaces/srv/GetTypeDescription| S_audio_input_node_get_type_description
-  S_audio_input_node_list_parameters{{"/audio_input_node/list_parameters"}}
-  class S_audio_input_node_list_parameters observedOnly;
-  N_audio_input_node -->|server: /audio_input_node/list_parameters&lt;br/&gt;rcl_interfaces/srv/ListParameters| S_audio_input_node_list_parameters
-  S_audio_input_node_set_parameters{{"/audio_input_node/set_parameters"}}
-  class S_audio_input_node_set_parameters observedOnly;
-  N_audio_input_node -->|server: /audio_input_node/set_parameters&lt;br/&gt;rcl_interfaces/srv/SetParameters| S_audio_input_node_set_parameters
-  S_audio_input_node_set_parameters_atomically{{"/audio_input_node/set_parameters_atomically"}}
-  class S_audio_input_node_set_parameters_atomically observedOnly;
-  N_audio_input_node -->|server: /audio_input_node/set_parameters_atomically&lt;br/&gt;rcl_interfaces/srv/SetParametersAtomically| S_audio_input_node_set_parameters_atomically
-  S_audio_preprocess_node_describe_parameters{{"/audio_preprocess_node/describe_parameters"}}
-  class S_audio_preprocess_node_describe_parameters observedOnly;
-  N_audio_preprocess_node -->|server: /audio_preprocess_node/describe_parameters&lt;br/&gt;rcl_interfaces/srv/DescribeParameters| S_audio_preprocess_node_describe_parameters
-  S_audio_preprocess_node_get_parameter_types{{"/audio_preprocess_node/get_parameter_types"}}
-  class S_audio_preprocess_node_get_parameter_types observedOnly;
-  N_audio_preprocess_node -->|server: /audio_preprocess_node/get_parameter_types&lt;br/&gt;rcl_interfaces/srv/GetParameterTypes| S_audio_preprocess_node_get_parameter_types
-  S_audio_preprocess_node_get_parameters{{"/audio_preprocess_node/get_parameters"}}
-  class S_audio_preprocess_node_get_parameters observedOnly;
-  N_audio_preprocess_node -->|server: /audio_preprocess_node/get_parameters&lt;br/&gt;rcl_interfaces/srv/GetParameters| S_audio_preprocess_node_get_parameters
-  S_audio_preprocess_node_get_type_description{{"/audio_preprocess_node/get_type_description"}}
-  class S_audio_preprocess_node_get_type_description observedOnly;
-  N_audio_preprocess_node -->|server: /audio_preprocess_node/get_type_description&lt;br/&gt;type_description_interfaces/srv/GetTypeDescription| S_audio_preprocess_node_get_type_description
-  S_audio_preprocess_node_list_parameters{{"/audio_preprocess_node/list_parameters"}}
-  class S_audio_preprocess_node_list_parameters observedOnly;
-  N_audio_preprocess_node -->|server: /audio_preprocess_node/list_parameters&lt;br/&gt;rcl_interfaces/srv/ListParameters| S_audio_preprocess_node_list_parameters
-  S_audio_preprocess_node_set_parameters{{"/audio_preprocess_node/set_parameters"}}
-  class S_audio_preprocess_node_set_parameters observedOnly;
-  N_audio_preprocess_node -->|server: /audio_preprocess_node/set_parameters&lt;br/&gt;rcl_interfaces/srv/SetParameters| S_audio_preprocess_node_set_parameters
-  S_audio_preprocess_node_set_parameters_atomically{{"/audio_preprocess_node/set_parameters_atomically"}}
-  class S_audio_preprocess_node_set_parameters_atomically observedOnly;
-  N_audio_preprocess_node -->|server: /audio_preprocess_node/set_parameters_atomically&lt;br/&gt;rcl_interfaces/srv/SetParametersAtomically| S_audio_preprocess_node_set_parameters_atomically
+  class S_asr_runtime_vad_reconfigure expectedOnly;
+  N_vad_segmenter_node -.->|server: /asr/runtime/vad/reconfigure&lt;br/&gt;ReconfigureRuntime| S_asr_runtime_vad_reconfigure
+  N_benchmark_manager_node["/benchmark_manager_node&lt;br/&gt;[asr_benchmark_nodes]"]
+  class N_benchmark_manager_node expectedOnly;
   S_benchmark_get_status{{"/benchmark/get_status"}}
-  N_benchmark_manager_node -->|server: /benchmark/get_status&lt;br/&gt;asr_interfaces/srv/GetBenchmarkStatus| S_benchmark_get_status
-  S_benchmark_manager_node_describe_parameters{{"/benchmark_manager_node/describe_parameters"}}
-  class S_benchmark_manager_node_describe_parameters observedOnly;
-  N_benchmark_manager_node -->|server: /benchmark_manager_node/describe_parameters&lt;br/&gt;rcl_interfaces/srv/DescribeParameters| S_benchmark_manager_node_describe_parameters
-  S_benchmark_manager_node_get_parameter_types{{"/benchmark_manager_node/get_parameter_types"}}
-  class S_benchmark_manager_node_get_parameter_types observedOnly;
-  N_benchmark_manager_node -->|server: /benchmark_manager_node/get_parameter_types&lt;br/&gt;rcl_interfaces/srv/GetParameterTypes| S_benchmark_manager_node_get_parameter_types
-  S_benchmark_manager_node_get_parameters{{"/benchmark_manager_node/get_parameters"}}
-  class S_benchmark_manager_node_get_parameters observedOnly;
-  N_benchmark_manager_node -->|server: /benchmark_manager_node/get_parameters&lt;br/&gt;rcl_interfaces/srv/GetParameters| S_benchmark_manager_node_get_parameters
-  S_benchmark_manager_node_get_type_description{{"/benchmark_manager_node/get_type_description"}}
-  class S_benchmark_manager_node_get_type_description observedOnly;
-  N_benchmark_manager_node -->|server: /benchmark_manager_node/get_type_description&lt;br/&gt;type_description_interfaces/srv/GetTypeDescription| S_benchmark_manager_node_get_type_description
-  S_benchmark_manager_node_list_parameters{{"/benchmark_manager_node/list_parameters"}}
-  class S_benchmark_manager_node_list_parameters observedOnly;
-  N_benchmark_manager_node -->|server: /benchmark_manager_node/list_parameters&lt;br/&gt;rcl_interfaces/srv/ListParameters| S_benchmark_manager_node_list_parameters
-  S_benchmark_manager_node_set_parameters{{"/benchmark_manager_node/set_parameters"}}
-  class S_benchmark_manager_node_set_parameters observedOnly;
-  N_benchmark_manager_node -->|server: /benchmark_manager_node/set_parameters&lt;br/&gt;rcl_interfaces/srv/SetParameters| S_benchmark_manager_node_set_parameters
-  S_benchmark_manager_node_set_parameters_atomically{{"/benchmark_manager_node/set_parameters_atomically"}}
-  class S_benchmark_manager_node_set_parameters_atomically observedOnly;
-  N_benchmark_manager_node -->|server: /benchmark_manager_node/set_parameters_atomically&lt;br/&gt;rcl_interfaces/srv/SetParametersAtomically| S_benchmark_manager_node_set_parameters_atomically
+  class S_benchmark_get_status expectedOnly;
+  N_benchmark_manager_node -.->|server: /benchmark/get_status&lt;br/&gt;GetBenchmarkStatus| S_benchmark_get_status
   S_config_list_profiles{{"/config/list_profiles"}}
-  N_asr_orchestrator_node -->|server: /config/list_profiles&lt;br/&gt;asr_interfaces/srv/ListProfiles| S_config_list_profiles
+  class S_config_list_profiles expectedOnly;
+  N_asr_orchestrator_node -.->|server: /config/list_profiles&lt;br/&gt;ListProfiles| S_config_list_profiles
   S_config_validate{{"/config/validate"}}
-  N_asr_orchestrator_node -->|server: /config/validate&lt;br/&gt;asr_interfaces/srv/ValidateConfig| S_config_validate
+  class S_config_validate expectedOnly;
+  N_asr_orchestrator_node -.->|server: /config/validate&lt;br/&gt;ValidateConfig| S_config_validate
   S_datasets_list{{"/datasets/list"}}
-  N_benchmark_manager_node -->|server: /datasets/list&lt;br/&gt;asr_interfaces/srv/ListDatasets| S_datasets_list
+  class S_datasets_list expectedOnly;
+  N_benchmark_manager_node -.->|server: /datasets/list&lt;br/&gt;ListDatasets| S_datasets_list
   S_datasets_register{{"/datasets/register"}}
-  N_benchmark_manager_node -->|server: /datasets/register&lt;br/&gt;asr_interfaces/srv/RegisterDataset| S_datasets_register
-  N_rqt_gui_py_node_420998["/rqt_gui_py_node_420998&lt;br/&gt;[unknown]"]
-  class N_rqt_gui_py_node_420998 observedOnly;
-  S_rqt_gui_py_node_420998_describe_parameters{{"/rqt_gui_py_node_420998/describe_parameters"}}
-  class S_rqt_gui_py_node_420998_describe_parameters observedOnly;
-  N_rqt_gui_py_node_420998 -->|server: /rqt_gui_py_node_420998/describe_parameters&lt;br/&gt;rcl_interfaces/srv/DescribeParameters| S_rqt_gui_py_node_420998_describe_parameters
-  S_rqt_gui_py_node_420998_get_parameter_types{{"/rqt_gui_py_node_420998/get_parameter_types"}}
-  class S_rqt_gui_py_node_420998_get_parameter_types observedOnly;
-  N_rqt_gui_py_node_420998 -->|server: /rqt_gui_py_node_420998/get_parameter_types&lt;br/&gt;rcl_interfaces/srv/GetParameterTypes| S_rqt_gui_py_node_420998_get_parameter_types
-  S_rqt_gui_py_node_420998_get_parameters{{"/rqt_gui_py_node_420998/get_parameters"}}
-  class S_rqt_gui_py_node_420998_get_parameters observedOnly;
-  N_rqt_gui_py_node_420998 -->|server: /rqt_gui_py_node_420998/get_parameters&lt;br/&gt;rcl_interfaces/srv/GetParameters| S_rqt_gui_py_node_420998_get_parameters
-  S_rqt_gui_py_node_420998_get_type_description{{"/rqt_gui_py_node_420998/get_type_description"}}
-  class S_rqt_gui_py_node_420998_get_type_description observedOnly;
-  N_rqt_gui_py_node_420998 -->|server: /rqt_gui_py_node_420998/get_type_description&lt;br/&gt;type_description_interfaces/srv/GetTypeDescription| S_rqt_gui_py_node_420998_get_type_description
-  S_rqt_gui_py_node_420998_list_parameters{{"/rqt_gui_py_node_420998/list_parameters"}}
-  class S_rqt_gui_py_node_420998_list_parameters observedOnly;
-  N_rqt_gui_py_node_420998 -->|server: /rqt_gui_py_node_420998/list_parameters&lt;br/&gt;rcl_interfaces/srv/ListParameters| S_rqt_gui_py_node_420998_list_parameters
-  S_rqt_gui_py_node_420998_set_parameters{{"/rqt_gui_py_node_420998/set_parameters"}}
-  class S_rqt_gui_py_node_420998_set_parameters observedOnly;
-  N_rqt_gui_py_node_420998 -->|server: /rqt_gui_py_node_420998/set_parameters&lt;br/&gt;rcl_interfaces/srv/SetParameters| S_rqt_gui_py_node_420998_set_parameters
-  S_rqt_gui_py_node_420998_set_parameters_atomically{{"/rqt_gui_py_node_420998/set_parameters_atomically"}}
-  class S_rqt_gui_py_node_420998_set_parameters_atomically observedOnly;
-  N_rqt_gui_py_node_420998 -->|server: /rqt_gui_py_node_420998/set_parameters_atomically&lt;br/&gt;rcl_interfaces/srv/SetParametersAtomically| S_rqt_gui_py_node_420998_set_parameters_atomically
-  S_vad_segmenter_node_describe_parameters{{"/vad_segmenter_node/describe_parameters"}}
-  class S_vad_segmenter_node_describe_parameters observedOnly;
-  N_vad_segmenter_node -->|server: /vad_segmenter_node/describe_parameters&lt;br/&gt;rcl_interfaces/srv/DescribeParameters| S_vad_segmenter_node_describe_parameters
-  S_vad_segmenter_node_get_parameter_types{{"/vad_segmenter_node/get_parameter_types"}}
-  class S_vad_segmenter_node_get_parameter_types observedOnly;
-  N_vad_segmenter_node -->|server: /vad_segmenter_node/get_parameter_types&lt;br/&gt;rcl_interfaces/srv/GetParameterTypes| S_vad_segmenter_node_get_parameter_types
-  S_vad_segmenter_node_get_parameters{{"/vad_segmenter_node/get_parameters"}}
-  class S_vad_segmenter_node_get_parameters observedOnly;
-  N_vad_segmenter_node -->|server: /vad_segmenter_node/get_parameters&lt;br/&gt;rcl_interfaces/srv/GetParameters| S_vad_segmenter_node_get_parameters
-  S_vad_segmenter_node_get_type_description{{"/vad_segmenter_node/get_type_description"}}
-  class S_vad_segmenter_node_get_type_description observedOnly;
-  N_vad_segmenter_node -->|server: /vad_segmenter_node/get_type_description&lt;br/&gt;type_description_interfaces/srv/GetTypeDescription| S_vad_segmenter_node_get_type_description
-  S_vad_segmenter_node_list_parameters{{"/vad_segmenter_node/list_parameters"}}
-  class S_vad_segmenter_node_list_parameters observedOnly;
-  N_vad_segmenter_node -->|server: /vad_segmenter_node/list_parameters&lt;br/&gt;rcl_interfaces/srv/ListParameters| S_vad_segmenter_node_list_parameters
-  S_vad_segmenter_node_set_parameters{{"/vad_segmenter_node/set_parameters"}}
-  class S_vad_segmenter_node_set_parameters observedOnly;
-  N_vad_segmenter_node -->|server: /vad_segmenter_node/set_parameters&lt;br/&gt;rcl_interfaces/srv/SetParameters| S_vad_segmenter_node_set_parameters
-  S_vad_segmenter_node_set_parameters_atomically{{"/vad_segmenter_node/set_parameters_atomically"}}
-  class S_vad_segmenter_node_set_parameters_atomically observedOnly;
-  N_vad_segmenter_node -->|server: /vad_segmenter_node/set_parameters_atomically&lt;br/&gt;rcl_interfaces/srv/SetParametersAtomically| S_vad_segmenter_node_set_parameters_atomically
+  class S_datasets_register expectedOnly;
+  N_benchmark_manager_node -.->|server: /datasets/register&lt;br/&gt;RegisterDataset| S_datasets_register
   N_GatewayRosClient["/GatewayRosClient&lt;br/&gt;[asr_gateway]"]
   class N_GatewayRosClient expectedOnly;
   S_unknown__service__client{{"unknown::service::client"}}
   class S_unknown__service__client expectedOnly;
   S_unknown__service__client -.->|client: unknown::service::client&lt;br/&gt;service_type| N_GatewayRosClient
   S_unknown__service__client -.->|client: unknown::service::client&lt;br/&gt;service_type| N_asr_orchestrator_node
-  T_asr_audio_chunks(["/asr/audio_chunks"])
-  N_audio_capture_node -->|pub: /asr/audio_chunks&lt;br/&gt;std_msgs/msg/UInt8MultiArray| T_asr_audio_chunks
-  T_asr_audio_chunks -->|sub: /asr/audio_chunks&lt;br/&gt;std_msgs/msg/UInt8MultiArray| N_asr_server_node
-  T_asr_metrics(["/asr/metrics"])
-  N_asr_server_node -->|pub: /asr/metrics&lt;br/&gt;asr_interfaces/msg/AsrMetrics| T_asr_metrics
-  T_asr_runtime_audio_preprocessed(["/asr/runtime/audio/preprocessed"])
-  class T_asr_runtime_audio_preprocessed observedOnly;
-  N_audio_preprocess_node -->|pub: /asr/runtime/audio/preprocessed&lt;br/&gt;asr_interfaces/msg/AudioChunk| T_asr_runtime_audio_preprocessed
-  T_asr_runtime_audio_preprocessed -->|sub: /asr/runtime/audio/preprocessed&lt;br/&gt;asr_interfaces/msg/AudioChunk| N_asr_orchestrator_node
-  T_asr_runtime_audio_preprocessed -->|sub: /asr/runtime/audio/preprocessed&lt;br/&gt;asr_interfaces/msg/AudioChunk| N_vad_segmenter_node
-  T_asr_runtime_audio_raw(["/asr/runtime/audio/raw"])
-  class T_asr_runtime_audio_raw observedOnly;
-  N_audio_input_node -->|pub: /asr/runtime/audio/raw&lt;br/&gt;asr_interfaces/msg/AudioChunk| T_asr_runtime_audio_raw
-  T_asr_runtime_audio_raw -->|sub: /asr/runtime/audio/raw&lt;br/&gt;asr_interfaces/msg/AudioChunk| N_audio_preprocess_node
-  T_asr_runtime_audio_segments(["/asr/runtime/audio/segments"])
-  class T_asr_runtime_audio_segments observedOnly;
-  N_vad_segmenter_node -->|pub: /asr/runtime/audio/segments&lt;br/&gt;asr_interfaces/msg/AudioSegment| T_asr_runtime_audio_segments
-  T_asr_runtime_audio_segments -->|sub: /asr/runtime/audio/segments&lt;br/&gt;asr_interfaces/msg/AudioSegment| N_asr_orchestrator_node
-  T_asr_runtime_results_final(["/asr/runtime/results/final"])
-  class T_asr_runtime_results_final observedOnly;
-  N_asr_orchestrator_node -->|pub: /asr/runtime/results/final&lt;br/&gt;asr_interfaces/msg/AsrResult| T_asr_runtime_results_final
-  T_asr_runtime_results_final -->|sub: /asr/runtime/results/final&lt;br/&gt;asr_interfaces/msg/AsrResult| N_asr_gateway_runtime_observer
-  T_asr_runtime_results_partial(["/asr/runtime/results/partial"])
-  class T_asr_runtime_results_partial observedOnly;
-  N_asr_orchestrator_node -->|pub: /asr/runtime/results/partial&lt;br/&gt;asr_interfaces/msg/AsrResultPartial| T_asr_runtime_results_partial
-  T_asr_runtime_results_partial -->|sub: /asr/runtime/results/partial&lt;br/&gt;asr_interfaces/msg/AsrResultPartial| N_asr_gateway_runtime_observer
-  T_asr_runtime_vad_activity(["/asr/runtime/vad/activity"])
-  class T_asr_runtime_vad_activity observedOnly;
-  N_vad_segmenter_node -->|pub: /asr/runtime/vad/activity&lt;br/&gt;asr_interfaces/msg/SpeechActivity| T_asr_runtime_vad_activity
-  T_asr_status_nodes(["/asr/status/nodes"])
-  class T_asr_status_nodes observedOnly;
-  N_asr_orchestrator_node -->|pub: /asr/status/nodes&lt;br/&gt;asr_interfaces/msg/NodeStatus| T_asr_status_nodes
-  N_audio_input_node -->|pub: /asr/status/nodes&lt;br/&gt;asr_interfaces/msg/NodeStatus| T_asr_status_nodes
-  N_audio_preprocess_node -->|pub: /asr/status/nodes&lt;br/&gt;asr_interfaces/msg/NodeStatus| T_asr_status_nodes
-  N_vad_segmenter_node -->|pub: /asr/status/nodes&lt;br/&gt;asr_interfaces/msg/NodeStatus| T_asr_status_nodes
-  T_asr_status_nodes -->|sub: /asr/status/nodes&lt;br/&gt;asr_interfaces/msg/NodeStatus| N_asr_gateway_runtime_observer
-  T_asr_status_sessions(["/asr/status/sessions"])
-  class T_asr_status_sessions observedOnly;
-  N_asr_orchestrator_node -->|pub: /asr/status/sessions&lt;br/&gt;asr_interfaces/msg/SessionStatus| T_asr_status_sessions
-  T_asr_status_sessions -->|sub: /asr/status/sessions&lt;br/&gt;asr_interfaces/msg/SessionStatus| N_asr_gateway_runtime_observer
-  T_asr_text(["/asr/text"])
-  N_asr_server_node -->|pub: /asr/text&lt;br/&gt;asr_interfaces/msg/AsrResult| T_asr_text
-  T_asr_text -->|sub: /asr/text&lt;br/&gt;asr_interfaces/msg/AsrResult| N_asr_text_output_node
-  T_asr_text_plain(["/asr/text/plain"])
-  class T_asr_text_plain observedOnly;
-  N_asr_text_output_node -->|pub: /asr/text/plain&lt;br/&gt;std_msgs/msg/String| T_asr_text_plain
-  T_parameter_events(["/parameter_events"])
-  class T_parameter_events observedOnly;
-  N_asr_gateway_runtime_observer -->|pub: /parameter_events&lt;br/&gt;rcl_interfaces/msg/ParameterEvent| T_parameter_events
-  N_asr_orchestrator_node -->|pub: /parameter_events&lt;br/&gt;rcl_interfaces/msg/ParameterEvent| T_parameter_events
-  N_asr_server_node -->|pub: /parameter_events&lt;br/&gt;rcl_interfaces/msg/ParameterEvent| T_parameter_events
-  N_asr_text_output_node -->|pub: /parameter_events&lt;br/&gt;rcl_interfaces/msg/ParameterEvent| T_parameter_events
-  N_audio_capture_node -->|pub: /parameter_events&lt;br/&gt;rcl_interfaces/msg/ParameterEvent| T_parameter_events
-  N_audio_input_node -->|pub: /parameter_events&lt;br/&gt;rcl_interfaces/msg/ParameterEvent| T_parameter_events
-  N_audio_preprocess_node -->|pub: /parameter_events&lt;br/&gt;rcl_interfaces/msg/ParameterEvent| T_parameter_events
-  N_benchmark_manager_node -->|pub: /parameter_events&lt;br/&gt;rcl_interfaces/msg/ParameterEvent| T_parameter_events
-  N_rqt_gui_py_node_420998 -->|pub: /parameter_events&lt;br/&gt;rcl_interfaces/msg/ParameterEvent| T_parameter_events
-  N_vad_segmenter_node -->|pub: /parameter_events&lt;br/&gt;rcl_interfaces/msg/ParameterEvent| T_parameter_events
-  T_rosout(["/rosout"])
-  class T_rosout observedOnly;
-  N_asr_gateway_runtime_observer -->|pub: /rosout&lt;br/&gt;rcl_interfaces/msg/Log| T_rosout
-  N_asr_orchestrator_node -->|pub: /rosout&lt;br/&gt;rcl_interfaces/msg/Log| T_rosout
-  N_asr_server_node -->|pub: /rosout&lt;br/&gt;rcl_interfaces/msg/Log| T_rosout
-  N_asr_text_output_node -->|pub: /rosout&lt;br/&gt;rcl_interfaces/msg/Log| T_rosout
-  N_audio_capture_node -->|pub: /rosout&lt;br/&gt;rcl_interfaces/msg/Log| T_rosout
-  N_audio_input_node -->|pub: /rosout&lt;br/&gt;rcl_interfaces/msg/Log| T_rosout
-  N_audio_preprocess_node -->|pub: /rosout&lt;br/&gt;rcl_interfaces/msg/Log| T_rosout
-  N_benchmark_manager_node -->|pub: /rosout&lt;br/&gt;rcl_interfaces/msg/Log| T_rosout
-  N_rqt_gui_py_node_420998 -->|pub: /rosout&lt;br/&gt;rcl_interfaces/msg/Log| T_rosout
-  N_vad_segmenter_node -->|pub: /rosout&lt;br/&gt;rcl_interfaces/msg/Log| T_rosout
   T_unknown__topic__pub(["unknown::topic::pub"])
   class T_unknown__topic__pub expectedOnly;
   N_asr_orchestrator_node -.->|pub: unknown::topic::pub&lt;br/&gt;AsrResult| T_unknown__topic__pub
-  N_asr_text_output_node -.->|pub: unknown::topic::pub&lt;br/&gt;String| T_unknown__topic__pub
   N_audio_input_node -.->|pub: unknown::topic::pub&lt;br/&gt;AudioChunk| T_unknown__topic__pub
   N_audio_preprocess_node -.->|pub: unknown::topic::pub&lt;br/&gt;AudioChunk| T_unknown__topic__pub
   N_vad_segmenter_node -.->|pub: unknown::topic::pub&lt;br/&gt;SpeechActivity| T_unknown__topic__pub
@@ -359,6 +77,5 @@ flowchart LR
   class T_unknown__topic__sub expectedOnly;
   T_unknown__topic__sub -.->|sub: unknown::topic::sub&lt;br/&gt;AsrResult| N_RuntimeObserver
   T_unknown__topic__sub -.->|sub: unknown::topic::sub&lt;br/&gt;AudioSegment| N_asr_orchestrator_node
-  T_unknown__topic__sub -.->|sub: unknown::topic::sub&lt;br/&gt;AsrResult| N_asr_text_output_node
   T_unknown__topic__sub -.->|sub: unknown::topic::sub&lt;br/&gt;AudioChunk| N_audio_preprocess_node
   T_unknown__topic__sub -.->|sub: unknown::topic::sub&lt;br/&gt;AudioChunk| N_vad_segmenter_node

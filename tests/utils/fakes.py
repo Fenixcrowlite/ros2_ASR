@@ -656,6 +656,54 @@ class FakeGatewayRosClient:
                     "mean_metrics": {"wer": 0.0, "cer": 0.0, "total_latency_ms": 15.0},
                 }
             },
+            "provider_noise_summaries": [
+                {
+                    **provider_summary,
+                    "noise_key": "clean",
+                    "noise_mode": "none",
+                    "noise_level": "clean",
+                }
+                for provider_summary in provider_summaries
+            ],
+            "provider_tradeoff_snapshot": [
+                {
+                    "provider_key": provider_summary["provider_key"],
+                    "provider_profile": provider_summary["provider_profile"],
+                    "provider_id": provider_summary["provider_id"],
+                    "provider_preset": provider_summary["provider_preset"],
+                    "wer": 0.0,
+                    "cer": 0.0,
+                    "sample_accuracy": 1.0,
+                    "end_to_end_latency_ms": 15.0,
+                    "end_to_end_rtf": 0.25,
+                    "estimated_cost_usd": 0.0,
+                    "success_rate": 1.0,
+                    "total_samples": 1,
+                    "warning_samples": 0,
+                }
+                for provider_summary in provider_summaries
+            ],
+            "sample_error_summary": {
+                "total_rows": 1,
+                "failed_rows": 0,
+                "noisy_rows": 0,
+                "clean_rows": 1,
+                "high_wer_rows": 0,
+                "high_cer_rows": 0,
+                "exact_match_rows": 1,
+                "top_error_codes": [],
+            },
+            "available_analysis_sections": {
+                "provider_comparison": True,
+                "noise_robustness": False,
+                "sample_explorer": True,
+                "latency_breakdown": True,
+                "reliability": True,
+                "cost": True,
+                "streaming": execution_mode == "streaming",
+                "resource": False,
+                "diagnostics": True,
+            },
             "providers_summary": {},
         }
         summary["providers_summary"] = {

@@ -153,6 +153,35 @@ def _normalize_noise_levels(raw_levels: Any) -> list[str]:
     return normalized
 
 
+def _normalize_custom_snr_levels(raw_snr_values: Any) -> list[float]:
+    explicit_values = raw_snr_values
+    if isinstance(explicit_values, str):
+        explicit_values = [item.strip() for item in explicit_values.split(",") if item.strip()]
+    elif isinstance(explicit_values, (tuple, set)):
+        explicit_values = list(explicit_values)
+    if not isinstance(explicit_values, list):
+        explicit_values = []
+
+    normalized: list[float] = []
+    for item in explicit_values:
+        try:
+            value = float(item)
+        except (TypeError, ValueError) as exc:
+            raise ValueError("noise.custom_snr_db entries must be numeric") from exc
+        if not math.isfinite(value):
+            raise ValueError("noise.custom_snr_db entries must be finite")
+        if value < -5.0 or value > 60.0:
+            raise ValueError("noise.custom_snr_db entries must be between -5 and 60 dB")
+        if not any(abs(existing - value) < 0.0001 for existing in normalized):
+            normalized.append(value)
+    return normalized
+
+
+def _custom_noise_level_id(snr_db: float) -> str:
+    label = f"{float(snr_db):g}".replace("-", "m").replace(".", "p")
+    return f"custom_{label}db"
+
+
 def resolve_noise_plan(
     *,
     scenario: str,
@@ -174,10 +203,11 @@ def resolve_noise_plan(
                 break
 
     selected_levels = _normalize_noise_levels(noise_cfg.get("levels", []))
+    selected_custom_snr = _normalize_custom_snr_levels(noise_cfg.get("custom_snr_db", []))
     scenario_defaults = SCENARIO_NOISE_DEFAULTS.get(
         scenario_name, SCENARIO_NOISE_DEFAULTS["clean_baseline"]
     )
-    if not selected_levels:
+    if not selected_levels and not selected_custom_snr:
         selected_levels = list(scenario_defaults.get("levels", ["clean"]))
 
     default_mode = str(scenario_defaults.get("mode", "white") or "white")
@@ -192,6 +222,7 @@ def resolve_noise_plan(
 
     seed = int(noise_cfg.get("seed", 1337) or 1337)
     plans: list[dict[str, Any]] = []
+    planned_noisy_snr: list[float] = []
     for level in selected_levels:
         snr_db = NOISE_LEVELS_DB.get(level)
         plans.append(
@@ -201,8 +232,25 @@ def resolve_noise_plan(
                 "noise_level": level,
                 "snr_db": snr_db,
                 "seed": seed,
+                "noise_origin": "preset",
             }
         )
+        if snr_db is not None:
+            planned_noisy_snr.append(float(snr_db))
+    for snr_db in selected_custom_snr:
+        if any(abs(existing - snr_db) < 0.0001 for existing in planned_noisy_snr):
+            continue
+        plans.append(
+            {
+                "scenario": scenario_name,
+                "noise_mode": mode,
+                "noise_level": _custom_noise_level_id(snr_db),
+                "snr_db": float(snr_db),
+                "seed": seed,
+                "noise_origin": "custom",
+            }
+        )
+        planned_noisy_snr.append(float(snr_db))
     return plans
 
 

@@ -35,7 +35,7 @@ def test_runtime_scripts_target_current_launch_stack() -> None:
     open_live = Path("scripts/open_live_test_terminals.sh").read_text(encoding="utf-8")
 
     assert "ros2 launch asr_launch runtime_minimal.launch.py" in run_demo
-    assert "--packages-skip asr_ros asr_benchmark" in run_demo
+    assert "--packages-skip asr_ros asr_benchmark" not in run_demo
     assert "ros2 launch asr_launch runtime_streaming.launch.py" in open_live
     assert "/asr/runtime/start_session" in open_live
     assert "/asr/runtime/results/final" in open_live

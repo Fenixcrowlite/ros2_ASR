@@ -148,6 +148,44 @@ def test_env_secret_ref_can_use_local_env_injection_file(tmp_path: Path, monkeyp
     assert endpoint_source == "local_env_file"
 
 
+def test_azure_env_secret_ref_allows_endpoint_url_without_region(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    project_root = tmp_path / "project"
+    refs_dir = project_root / "secrets" / "refs"
+    refs_dir.mkdir(parents=True)
+    ref_path = refs_dir / "azure.yaml"
+    _write_yaml(
+        ref_path,
+        {
+            "ref_id": "secrets/azure",
+            "provider": "azure",
+            "kind": "env",
+            "required": ["AZURE_SPEECH_KEY"],
+            "optional": ["AZURE_SPEECH_REGION", "ASR_AZURE_ENDPOINT"],
+        },
+    )
+    monkeypatch.delenv("AZURE_SPEECH_KEY", raising=False)
+    monkeypatch.delenv("AZURE_SPEECH_REGION", raising=False)
+    monkeypatch.delenv("ASR_AZURE_ENDPOINT", raising=False)
+
+    write_local_env_values(
+        {
+            "AZURE_SPEECH_KEY": "azure-secret",
+            "ASR_AZURE_ENDPOINT": "https://example.invalid",
+        },
+        source_path=str(ref_path),
+    )
+
+    ref = load_secret_ref(str(ref_path))
+    resolved = resolve_secret_ref(ref)
+
+    assert resolved["AZURE_SPEECH_KEY"] == "azure-secret"
+    assert resolved["ASR_AZURE_ENDPOINT"] == "https://example.invalid"
+    assert "AZURE_SPEECH_REGION" not in resolved
+
+
 def test_mask_secret_values_never_returns_full_plaintext() -> None:
     masked = mask_secret_values(
         {

@@ -86,15 +86,21 @@ function googleRuntimeReadyDescription(auth) {
 function azureRuntimeReadyDescription(auth) {
   const status = String(auth.status || '').trim();
   if (status === 'ready') {
+    if (String(auth.endpoint_mode || '') === 'url' && !String(auth.region || '').trim()) {
+      return 'Azure credentials are available through a full endpoint URL, so a separate region is not required.';
+    }
     return 'Azure credentials are available for provider validation and runtime session startup.';
   }
   if (status === 'missing_region') {
-    return 'Azure still needs a speech region before the provider can start.';
+    if (String(auth.endpoint_mode || '') === 'endpoint_id') {
+      return 'Azure custom endpoint IDs still need a speech region before the provider can start.';
+    }
+    return 'Azure still needs a speech region unless you provide a full Azure Speech endpoint URL.';
   }
   if (status === 'missing_speech_key') {
     return 'Azure still needs a speech key before the provider can start.';
   }
-  return 'Azure still needs a speech key and a region before the provider can start.';
+  return 'Azure still needs a speech key and either a region or a full Azure Speech endpoint URL before the provider can start.';
 }
 
 function renderAwsSsoFlag(ui, auth) {

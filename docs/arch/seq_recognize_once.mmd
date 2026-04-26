@@ -5,5 +5,5 @@ sequenceDiagram
   participant MetricsTopic as "/asr/metrics"
   Client->>Server: /asr/recognize_once request (asr_interfaces/srv/RecognizeOnce)
   Server-->>Client: RecognizeOnce response
-  Server-)TextTopic: publish AsrResult
-  Server-)MetricsTopic: publish AsrMetrics
+  Note over Server,TextTopic: /asr/text publish not observed
+  Note over Server,MetricsTopic: /asr/metrics publish not observed

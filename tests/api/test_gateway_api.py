@@ -7,6 +7,7 @@ import wave
 from io import BytesIO
 from pathlib import Path
 
+import pytest
 from tests.utils.asgi_client import SyncAsgiClient
 from tests.utils.fakes import FakeGatewayRosClient, FakeProviderAdapter, build_stub_provider_manager
 from tests.utils.project import clone_project_layout, seed_benchmark_run, seed_logs
@@ -186,6 +187,7 @@ def test_runtime_noise_generation_and_preflight(
     assert "microphone" in preflight_payload["checks"]
     assert "ros" in preflight_payload["checks"]
     assert "runtime_google_cloud_speech" in preflight_payload["checks"]["ros"]
+    assert "runtime_azure_speech" in preflight_payload["checks"]["ros"]
 
     noise = client.post(
         "/api/runtime/generate_noise",
@@ -204,6 +206,65 @@ def test_runtime_noise_generation_and_preflight(
         item["path"] == noise_payload["generated"][0]["path"]
         for item in noise_payload["catalog"]["samples"]
     )
+
+
+def test_benchmark_preview_audio_supports_clean_and_noise_variants(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    clean = client.get(
+        "/api/benchmark/preview_audio",
+        params={
+            "dataset_profile": "sample_dataset",
+            "sample_id": "sample_vosk_numbers",
+            "start_sec": 0.0,
+            "duration_sec": 0.2,
+            "noise_level": "clean",
+        },
+    )
+    assert clean.status_code == 200
+    assert clean.headers["content-type"].startswith("audio/wav")
+    assert "content-disposition" not in {key.lower(): value for key, value in clean.headers.items()}
+    with wave.open(BytesIO(clean.content), "rb") as wav_file:
+        duration_sec = wav_file.getnframes() / float(wav_file.getframerate())
+    assert duration_sec == pytest.approx(0.2, abs=0.03)
+
+    noisy = client.get(
+        "/api/benchmark/preview_audio",
+        params={
+            "dataset_profile": "sample_dataset",
+            "sample_id": "sample_vosk_numbers",
+            "start_sec": 0.0,
+            "duration_sec": 0.2,
+            "noise_level": "light",
+            "noise_mode": "pink",
+        },
+    )
+    assert noisy.status_code == 200
+    assert noisy.headers["content-type"].startswith("audio/wav")
+    assert noisy.headers["x-asr-benchmark-preview-noise-level"] == "light"
+    assert noisy.headers["x-asr-benchmark-preview-noise-mode"] == "pink"
+    assert noisy.content != clean.content
+
+    custom = client.get(
+        "/api/benchmark/preview_audio",
+        params={
+            "dataset_profile": "sample_dataset",
+            "sample_id": "sample_vosk_numbers",
+            "start_sec": 0.0,
+            "duration_sec": 0.2,
+            "noise_level": "custom",
+            "noise_mode": "pink",
+            "snr_db": 17.5,
+        },
+    )
+    assert custom.status_code == 200
+    assert custom.headers["content-type"].startswith("audio/wav")
+    assert custom.headers["x-asr-benchmark-preview-noise-level"] == "custom"
+    assert custom.headers["x-asr-benchmark-preview-noise-mode"] == "pink"
+    assert custom.headers["x-asr-benchmark-preview-snr-db"] == "17.5"
+    assert custom.content != clean.content
 
 
 def test_runtime_api_rejects_double_start(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
@@ -348,7 +409,7 @@ def test_benchmark_history_status_compare_and_export(
             "benchmark_settings": {
                 "execution_mode": "streaming",
                 "streaming": {"chunk_ms": 250},
-                "noise": {"mode": "white", "levels": ["clean", "light"]},
+                "noise": {"mode": "white", "levels": ["clean", "light"], "custom_snr_db": [17.5, 5]},
             },
             "run_id": "bench_live_run",
         },
@@ -356,17 +417,21 @@ def test_benchmark_history_status_compare_and_export(
     assert run.status_code == 200
 
     deadline = time.time() + 5.0
+    status_payload = {}
     while time.time() < deadline:
         status = client.get("/api/benchmark/status/bench_live_run")
-        if status.status_code == 200 and status.json()["state"] == "completed":
+        status_payload = status.json() if status.status_code == 200 else {}
+        if status.status_code == 200 and status_payload.get("state") == "completed" and status_payload.get("result", {}).get("summary", {}).get("provider_summaries"):
             break
         time.sleep(0.05)
     else:
         raise AssertionError("benchmark run did not complete in time")
 
-    status_payload = status.json()
     assert "provider_summaries" in status_payload["result"]["summary"]
     assert status_payload["result"]["summary"]["provider_summaries"]
+    assert "provider_noise_summaries" in status_payload["result"]["summary"]
+    assert "sample_error_summary" in status_payload["result"]["summary"]
+    assert "available_analysis_sections" in status_payload["result"]["summary"]
 
     history = client.get("/api/benchmark/history").json()
     live_row = next(row for row in history["runs"] if row["run_id"] == "bench_live_run")
@@ -377,12 +442,19 @@ def test_benchmark_history_status_compare_and_export(
     assert "success_rate" in live_row["reliability_metrics"]
     assert "estimated_cost_usd" in live_row["cost_metrics"]
     assert live_row["provider_summaries"]
+    run_manifest = json.loads(
+        (project_root / "artifacts" / "benchmark_runs" / "bench_live_run" / "manifest" / "run_manifest.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert run_manifest["benchmark_settings"]["noise"]["custom_snr_db"] == [17.5, 5.0]
 
     compare = client.post(
         "/api/results/compare", json={"run_ids": ["bench_seed_a", "bench_seed_b"]}
     )
     assert compare.status_code == 200
     assert compare.json()["table"]
+    assert compare.json()["chart_series"]
 
     export = client.post(
         "/api/results/export",
@@ -396,6 +468,58 @@ def test_benchmark_history_status_compare_and_export(
     outputs = export.json()["outputs"]
     assert (project_root / "artifacts" / "exports" / "compare_demo").exists()
     assert outputs["json"].endswith("comparison.json")
+
+
+def test_results_row_audio_replay_supports_clean_and_noise_preview(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    detail = client.get("/api/results/runs/bench_seed_a")
+    assert detail.status_code == 200
+    detail_payload = detail.json()
+    assert "analysis" in detail_payload
+    assert detail_payload["analysis"]["provider_rankings"]
+    assert "section_availability" in detail_payload["analysis"]
+    row = detail.json()["results_head"][0]
+    assert row["row_index"] == 0
+    assert row["replay"]["has_clean_audio"] is True
+
+    rows = client.get(
+        "/api/results/runs/bench_seed_a/rows",
+        params={"page": 1, "page_size": 10, "provider": "providers/whisper_local", "sort": "wer"},
+    )
+    assert rows.status_code == 200
+    rows_payload = rows.json()
+    assert rows_payload["total"] == 1
+    assert rows_payload["items"][0]["provider_profile"] == "providers/whisper_local"
+    assert "clean" in rows_payload["available_filters"]["noise"]
+
+    clean = client.get(
+        "/api/results/runs/bench_seed_a/rows/0/audio",
+        params={"source": "clean", "start_sec": 0.0, "duration_sec": 0.2},
+    )
+    assert clean.status_code == 200
+    assert clean.headers["content-type"].startswith("audio/wav")
+    assert "content-disposition" not in {key.lower(): value for key, value in clean.headers.items()}
+    with wave.open(BytesIO(clean.content), "rb") as wav_file:
+        duration_sec = wav_file.getnframes() / float(wav_file.getframerate())
+    assert duration_sec == pytest.approx(0.2, abs=0.03)
+
+    noisy = client.get(
+        "/api/results/runs/bench_seed_a/rows/0/audio",
+        params={
+            "source": "clean",
+            "start_sec": 0.0,
+            "duration_sec": 0.2,
+            "noise_mode": "pink",
+            "snr_db": 15.0,
+        },
+    )
+    assert noisy.status_code == 200
+    assert noisy.headers["content-type"].startswith("audio/wav")
+    assert noisy.headers["x-asr-replay-noise-mode"] == "pink"
+    assert noisy.content != clean.content
 
 
 def test_benchmark_run_rejects_empty_normalized_references(
@@ -606,6 +730,40 @@ def test_azure_env_save_updates_secret_validation_and_local_env(
     )
     assert clear.status_code == 200
     assert clear.json()["validation"]["valid"] is False
+
+
+def test_azure_env_save_accepts_full_endpoint_url_without_region(
+    repo_root: Path, tmp_path: Path, monkeypatch
+) -> None:
+    _gateway_api, _fake_ros, client, project_root = _make_client(repo_root, tmp_path, monkeypatch)
+
+    save = client.post(
+        "/api/secrets/azure_env",
+        json={
+            "ref_name": "azure_speech_key",
+            "speech_key": "azure-test-key",
+            "clear_region": True,
+            "endpoint": "https://example.invalid",
+        },
+    )
+    assert save.status_code == 200
+    payload = save.json()
+    assert payload["validation"]["valid"] is True
+    assert payload["validation"]["auth"]["runtime_ready"] is True
+    assert payload["validation"]["auth"]["status"] == "ready"
+    assert payload["validation"]["auth"]["endpoint_mode"] == "url"
+    assert payload["validation"]["auth"]["region"] == ""
+
+    env_file = project_root / "secrets" / "local" / "runtime.env"
+    env_text = env_file.read_text(encoding="utf-8")
+    assert "AZURE_SPEECH_KEY=azure-test-key" in env_text
+    assert "ASR_AZURE_ENDPOINT=https://example.invalid" in env_text
+    assert "AZURE_SPEECH_REGION=" not in env_text
+
+    status = client.get("/api/secrets/azure_env")
+    assert status.status_code == 200
+    assert status.json()["auth"]["runtime_ready"] is True
+    assert status.json()["auth"]["endpoint_mode"] == "url"
 
 
 def test_google_service_account_upload_and_clear(

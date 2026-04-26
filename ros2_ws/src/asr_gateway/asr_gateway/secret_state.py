@@ -7,7 +7,12 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
-from asr_backend_aws.backend import AwsAsrBackend
+from asr_provider_aws.backend import AwsAsrBackend
+
+
+def _is_azure_endpoint_url(value: str) -> bool:
+    text = str(value or "").strip().lower()
+    return text.startswith(("https://", "http://", "wss://"))
 
 
 def normalize_ref_name(
@@ -66,24 +71,36 @@ def azure_secret_status(
     endpoint_mode = "none"
     if endpoint_text:
         endpoint_mode = (
-            "url"
-            if endpoint_text.startswith(("https://", "http://", "wss://"))
-            else "endpoint_id"
+            "url" if _is_azure_endpoint_url(endpoint_text) else "endpoint_id"
         )
-    if key_present and region_present:
+    endpoint_url_present = endpoint_mode == "url"
+    region_required = not endpoint_url_present
+    target_ready = bool(region_present or endpoint_url_present)
+    if key_present and target_ready:
         status = "ready"
-        message = "Azure Speech credentials are ready for provider validation and runtime use."
+        message = (
+            "Azure Speech credentials are ready for provider validation and runtime use."
+            if region_present
+            else "Azure Speech credentials are ready via full endpoint URL."
+        )
     elif key_present:
         status = "missing_region"
-        message = "Azure needs AZURE_SPEECH_REGION."
-    elif region_present:
+        message = (
+            "Azure custom endpoint IDs still need AZURE_SPEECH_REGION."
+            if endpoint_mode == "endpoint_id"
+            else "Azure needs AZURE_SPEECH_REGION unless ASR_AZURE_ENDPOINT is a full endpoint URL."
+        )
+    elif target_ready or endpoint_mode == "endpoint_id":
         status = "missing_speech_key"
         message = "Azure needs AZURE_SPEECH_KEY."
     else:
         status = "missing_credentials"
-        message = "Azure needs AZURE_SPEECH_KEY and AZURE_SPEECH_REGION."
+        message = (
+            "Azure needs AZURE_SPEECH_KEY and AZURE_SPEECH_REGION, "
+            "or AZURE_SPEECH_KEY plus a full ASR_AZURE_ENDPOINT URL."
+        )
     return {
-        "runtime_ready": bool(key_present and region_present),
+        "runtime_ready": bool(key_present and target_ready),
         "status": status,
         "local_env_file": str(local_env_path),
         "local_env_file_exists": local_env_path.exists(),
@@ -95,6 +112,8 @@ def azure_secret_status(
         "endpoint": endpoint_value,
         "endpoint_source": endpoint_source or "missing",
         "endpoint_mode": endpoint_mode,
+        "region_required": region_required,
+        "target_ready": target_ready,
         "message": message,
     }
 
@@ -323,6 +342,15 @@ def validate_secret_file(
         )
     if ref.provider == "azure" and ref.kind == "env":
         detail["auth"] = azure_status_factory(ref.source_path)
+        azure_status = detail["auth"]
+        if not bool(azure_status.get("speech_key_present")):
+            issue = "required env missing: AZURE_SPEECH_KEY"
+            if issue not in issues:
+                issues.append(issue)
+        if not bool(azure_status.get("target_ready")):
+            issue = "required env missing: AZURE_SPEECH_REGION"
+            if issue not in issues:
+                issues.append(issue)
     if ref.provider == "google" and ref.kind == "file":
         detail["auth"] = google_status_factory(
             ref.source_path,

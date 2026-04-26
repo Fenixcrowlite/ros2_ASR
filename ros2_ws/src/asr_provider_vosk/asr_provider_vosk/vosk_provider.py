@@ -7,7 +7,7 @@ import time
 from pathlib import Path
 from typing import Any
 
-from asr_backend_vosk.backend import VoskAsrBackend
+from asr_provider_vosk.backend import VoskAsrBackend
 from asr_core.models import AsrRequest
 from asr_core.normalized import LatencyMetadata, NormalizedAsrResult, NormalizedWord
 from asr_provider_base import normalize_backend_response

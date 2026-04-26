@@ -18,3 +18,7 @@ Use:
 ```bash
 make arch
 ```
+
+If a managed runtime stack from this workspace is already running, `make arch` will refuse
+to mix live nodes with a new capture. In that case, stop the running stack and rerun
+`make arch`, or use `make arch-static` when you only need the canonical source graph.

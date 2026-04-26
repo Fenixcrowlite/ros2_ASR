@@ -3,7 +3,6 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
-CANONICAL_SKIP_PACKAGES=(--packages-skip asr_ros asr_benchmark)
 
 # Build workspace and run benchmark runner once.
 source "$ROOT_DIR/scripts/source_runtime_env.sh" --with-ros
@@ -40,13 +39,11 @@ if [ -n "$COLCON_PYTHONPATH" ]; then
   COLCON_PYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" \
     PYTHONPATH="$COLCON_PYTHONPATH" \
     bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon --log-base ros2_ws/log build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --symlink-install \
-      "${CANONICAL_SKIP_PACKAGES[@]}" \
       --cmake-args -DPYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" -DPython3_EXECUTABLE="$COLCON_PYTHON_BIN"
 else
   COLCON_PYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" \
     PYTHONPATH="" \
     bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon --log-base ros2_ws/log build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --symlink-install \
-      "${CANONICAL_SKIP_PACKAGES[@]}" \
       --cmake-args -DPYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" -DPython3_EXECUTABLE="$COLCON_PYTHON_BIN"
 fi
 if [ -n "${ORIGINAL_PYTHONPATH}" ]; then

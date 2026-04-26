@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import math
 from typing import Any
 
 from asr_metrics.definitions import validate_metric_names
@@ -207,6 +208,24 @@ def validate_benchmark_payload(payload: dict[str, Any]) -> list[str]:
                 int(noise_cfg.get("seed", 0) or 0)
             except (TypeError, ValueError):
                 errors.append("noise.seed must be an integer")
+        if "custom_snr_db" in noise_cfg:
+            custom_snr_db = noise_cfg.get("custom_snr_db", [])
+            if isinstance(custom_snr_db, str):
+                custom_snr_db = [item.strip() for item in custom_snr_db.split(",") if item.strip()]
+            if not isinstance(custom_snr_db, list):
+                errors.append("noise.custom_snr_db must be a list or comma-separated string")
+            else:
+                for item in custom_snr_db:
+                    try:
+                        value = float(item)
+                    except (TypeError, ValueError):
+                        errors.append("noise.custom_snr_db entries must be numeric")
+                        continue
+                    if not math.isfinite(value):
+                        errors.append("noise.custom_snr_db entries must be finite")
+                        continue
+                    if value < -5.0 or value > 60.0:
+                        errors.append("noise.custom_snr_db entries must be between -5 and 60 dB")
 
     return errors
 

@@ -51,17 +51,6 @@
   ],
   "edges": [
     {
-      "direction": "internal",
-      "evidence": [
-        "static_ast"
-      ],
-      "kind": "timer",
-      "name": "timer:0.5",
-      "node": "/asr_benchmark_node",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark/asr_benchmark/benchmark_node.py",
-      "type": "timer"
-    },
-    {
       "direction": "server",
       "evidence": [
         "static_ast"
@@ -115,127 +104,6 @@
       "node": "/GatewayRosClient",
       "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_gateway/asr_gateway/ros_client.py",
       "type": "service_type"
-    },
-    {
-      "direction": "pub",
-      "evidence": [
-        "static_ast"
-      ],
-      "kind": "topic",
-      "name": "/asr/text",
-      "node": "/asr_server_node",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_server_node.py",
-      "type": "AsrResult"
-    },
-    {
-      "direction": "pub",
-      "evidence": [
-        "static_ast"
-      ],
-      "kind": "topic",
-      "name": "/asr/metrics",
-      "node": "/asr_server_node",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_server_node.py",
-      "type": "AsrMetrics"
-    },
-    {
-      "direction": "server",
-      "evidence": [
-        "static_ast"
-      ],
-      "kind": "service",
-      "name": "/asr/recognize_once",
-      "node": "/asr_server_node",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_server_node.py",
-      "type": "RecognizeOnce"
-    },
-    {
-      "direction": "server",
-      "evidence": [
-        "static_ast"
-      ],
-      "kind": "service",
-      "name": "/asr/set_backend",
-      "node": "/asr_server_node",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_server_node.py",
-      "type": "SetAsrBackend"
-    },
-    {
-      "direction": "server",
-      "evidence": [
-        "static_ast"
-      ],
-      "kind": "service",
-      "name": "/asr/get_status",
-      "node": "/asr_server_node",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_server_node.py",
-      "type": "GetAsrStatus"
-    },
-    {
-      "direction": "sub",
-      "evidence": [
-        "static_ast"
-      ],
-      "kind": "topic",
-      "name": "/asr/audio_chunks",
-      "node": "/asr_server_node",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_server_node.py",
-      "type": "UInt8MultiArray"
-    },
-    {
-      "direction": "internal",
-      "evidence": [
-        "static_ast"
-      ],
-      "kind": "timer",
-      "name": "timer:0.2",
-      "node": "/asr_server_node",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_server_node.py",
-      "type": "timer"
-    },
-    {
-      "direction": "pub",
-      "evidence": [
-        "static_ast"
-      ],
-      "kind": "topic",
-      "name": "unknown::topic::pub",
-      "node": "/asr_text_output_node",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_text_output_node.py",
-      "type": "String"
-    },
-    {
-      "direction": "sub",
-      "evidence": [
-        "static_ast"
-      ],
-      "kind": "topic",
-      "name": "unknown::topic::sub",
-      "node": "/asr_text_output_node",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_text_output_node.py",
-      "type": "AsrResult"
-    },
-    {
-      "direction": "pub",
-      "evidence": [
-        "static_ast"
-      ],
-      "kind": "topic",
-      "name": "/asr/audio_chunks",
-      "node": "/audio_capture_node",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/audio_capture_node.py",
-      "type": "UInt8MultiArray"
-    },
-    {
-      "direction": "internal",
-      "evidence": [
-        "static_ast"
-      ],
-      "kind": "timer",
-      "name": "timer:1.0",
-      "node": "/audio_capture_node",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/audio_capture_node.py",
-      "type": "timer"
     },
     {
       "direction": "pub",
@@ -527,31 +395,6 @@
   "launches": [
     {
       "declared_args": [
-        "config",
-        "dataset"
-      ],
-      "evidence": [
-        "static_launch"
-      ],
-      "file": "benchmark.launch.py",
-      "nodes": [
-        {
-          "executable": "asr_benchmark_node",
-          "name": "asr_benchmark_node",
-          "namespace": "/",
-          "package": "asr_benchmark",
-          "parameters": [
-            "config",
-            "dataset"
-          ],
-          "remappings": []
-        }
-      ],
-      "package": "asr_benchmark",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark/launch/benchmark.launch.py"
-    },
-    {
-      "declared_args": [
         "artifacts_root",
         "configs_root"
       ],
@@ -684,7 +527,6 @@
     },
     {
       "declared_args": [
-        "namespace",
         "provider_profile",
         "runtime_profile"
       ],
@@ -699,9 +541,7 @@
           "namespace": "/",
           "package": "asr_runtime_nodes",
           "parameters": [
-            "chunk_ms",
-            "file_path",
-            "input_mode"
+            "runtime_profile"
           ],
           "remappings": []
         },
@@ -710,7 +550,9 @@
           "name": "audio_preprocess_node",
           "namespace": "/",
           "package": "asr_runtime_nodes",
-          "parameters": [],
+          "parameters": [
+            "runtime_profile"
+          ],
           "remappings": []
         },
         {
@@ -718,7 +560,9 @@
           "name": "vad_segmenter_node",
           "namespace": "/",
           "package": "asr_runtime_nodes",
-          "parameters": [],
+          "parameters": [
+            "runtime_profile"
+          ],
           "remappings": []
         },
         {
@@ -794,130 +638,15 @@
       ],
       "package": "asr_launch",
       "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/runtime_streaming.launch.py"
-    },
-    {
-      "declared_args": [
-        "config",
-        "dataset"
-      ],
-      "evidence": [
-        "static_launch"
-      ],
-      "file": "benchmark.launch.py",
-      "nodes": [
-        {
-          "executable": "asr_benchmark_node",
-          "name": "asr_benchmark_node",
-          "namespace": "/",
-          "package": "asr_benchmark",
-          "parameters": [
-            "config",
-            "dataset"
-          ],
-          "remappings": []
-        }
-      ],
-      "package": "asr_ros",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/benchmark.launch.py"
-    },
-    {
-      "declared_args": [
-        "chunk_ms",
-        "config",
-        "continuous",
-        "device",
-        "input_mode",
-        "live_flush_timeout_sec",
-        "live_stream_enabled",
-        "mic_capture_sec",
-        "sample_rate",
-        "text_output_enabled",
-        "wav_path"
-      ],
-      "evidence": [
-        "static_launch"
-      ],
-      "file": "bringup.launch.py",
-      "nodes": [
-        {
-          "executable": "asr_server_node",
-          "name": "asr_server_node",
-          "namespace": "/",
-          "package": "asr_ros",
-          "parameters": [
-            "config",
-            "live_flush_timeout_sec",
-            "live_stream_enabled",
-            "sample_rate"
-          ],
-          "remappings": []
-        },
-        {
-          "executable": "audio_capture_node",
-          "name": "audio_capture_node",
-          "namespace": "/",
-          "package": "asr_ros",
-          "parameters": [
-            "chunk_ms",
-            "continuous",
-            "device",
-            "input_mode",
-            "mic_capture_sec",
-            "sample_rate",
-            "wav_path"
-          ],
-          "remappings": []
-        },
-        {
-          "executable": "asr_text_output_node",
-          "name": "asr_text_output_node",
-          "namespace": "/",
-          "package": "asr_ros",
-          "parameters": [],
-          "remappings": []
-        }
-      ],
-      "package": "asr_ros",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/bringup.launch.py"
-    },
-    {
-      "declared_args": [
-        "config"
-      ],
-      "evidence": [
-        "static_launch"
-      ],
-      "file": "demo.launch.py",
-      "nodes": [],
-      "package": "asr_ros",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/demo.launch.py"
     }
   ],
   "meta": {
-    "generated_at": "2026-03-26T14:22:32.188560+00:00",
+    "generated_at": "2026-04-13T13:09:00.200293+00:00",
     "schema_version": 1,
     "source": "static",
     "workspace": "/home/fenix/Desktop/ros2ws/ros2_ws"
   },
   "nodes": [
-    {
-      "evidence": [
-        "static_ast",
-        "static_launch"
-      ],
-      "executable": "asr_benchmark_node",
-      "id": "/asr_benchmark_node",
-      "launch_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark/launch/benchmark.launch.py",
-      "name": "asr_benchmark_node",
-      "namespace": "/",
-      "package": "asr_benchmark",
-      "parameters": [
-        "config",
-        "dataset"
-      ],
-      "remappings": [],
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark/asr_benchmark/benchmark_node.py"
-    },
     {
       "evidence": [
         "static_ast",
@@ -949,7 +678,6 @@
       "package": "asr_runtime_nodes",
       "parameters": [
         "chunk_ms",
-        "file_path",
         "input_mode",
         "mic_capture_sec",
         "runtime_profile"
@@ -1028,64 +756,6 @@
     },
     {
       "evidence": [
-        "static_ast",
-        "static_launch"
-      ],
-      "executable": "asr_server_node",
-      "id": "/asr_server_node",
-      "launch_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/bringup.launch.py",
-      "name": "asr_server_node",
-      "namespace": "/",
-      "package": "asr_ros",
-      "parameters": [
-        "config",
-        "live_flush_timeout_sec",
-        "live_stream_enabled",
-        "sample_rate"
-      ],
-      "remappings": [],
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_server_node.py"
-    },
-    {
-      "evidence": [
-        "static_ast",
-        "static_launch"
-      ],
-      "executable": "audio_capture_node",
-      "id": "/audio_capture_node",
-      "launch_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/bringup.launch.py",
-      "name": "audio_capture_node",
-      "namespace": "/",
-      "package": "asr_ros",
-      "parameters": [
-        "chunk_ms",
-        "continuous",
-        "device",
-        "input_mode",
-        "mic_capture_sec",
-        "sample_rate",
-        "wav_path"
-      ],
-      "remappings": [],
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/audio_capture_node.py"
-    },
-    {
-      "evidence": [
-        "static_ast",
-        "static_launch"
-      ],
-      "executable": "asr_text_output_node",
-      "id": "/asr_text_output_node",
-      "launch_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/launch/bringup.launch.py",
-      "name": "asr_text_output_node",
-      "namespace": "/",
-      "package": "asr_ros",
-      "parameters": [],
-      "remappings": [],
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros/asr_ros/asr_text_output_node.py"
-    },
-    {
-      "evidence": [
         "static_ast"
       ],
       "executable": "unknown",
@@ -1111,111 +781,6 @@
     {
       "dependencies": [
         "ament_python",
-        "asr_core"
-      ],
-      "entry_points": [],
-      "evidence": [
-        "static_package"
-      ],
-      "interfaces": [],
-      "launch_files": [],
-      "name": "asr_backend_aws",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_backend_aws"
-    },
-    {
-      "dependencies": [
-        "ament_python",
-        "asr_core"
-      ],
-      "entry_points": [],
-      "evidence": [
-        "static_package"
-      ],
-      "interfaces": [],
-      "launch_files": [],
-      "name": "asr_backend_azure",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_backend_azure"
-    },
-    {
-      "dependencies": [
-        "ament_python",
-        "asr_core"
-      ],
-      "entry_points": [],
-      "evidence": [
-        "static_package"
-      ],
-      "interfaces": [],
-      "launch_files": [],
-      "name": "asr_backend_google",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_backend_google"
-    },
-    {
-      "dependencies": [
-        "ament_python",
-        "asr_core"
-      ],
-      "entry_points": [],
-      "evidence": [
-        "static_package"
-      ],
-      "interfaces": [],
-      "launch_files": [],
-      "name": "asr_backend_mock",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_backend_mock"
-    },
-    {
-      "dependencies": [
-        "ament_python",
-        "asr_core"
-      ],
-      "entry_points": [],
-      "evidence": [
-        "static_package"
-      ],
-      "interfaces": [],
-      "launch_files": [],
-      "name": "asr_backend_vosk",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_backend_vosk"
-    },
-    {
-      "dependencies": [
-        "ament_python",
-        "asr_core"
-      ],
-      "entry_points": [],
-      "evidence": [
-        "static_package"
-      ],
-      "interfaces": [],
-      "launch_files": [],
-      "name": "asr_backend_whisper",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_backend_whisper"
-    },
-    {
-      "dependencies": [
-        "ament_python",
-        "asr_core",
-        "asr_metrics",
-        "rclpy"
-      ],
-      "entry_points": [
-        "asr_benchmark_node = asr_benchmark.benchmark_node:main",
-        "asr_benchmark_runner = asr_benchmark.runner:main"
-      ],
-      "evidence": [
-        "static_package"
-      ],
-      "interfaces": [],
-      "launch_files": [
-        "benchmark.launch.py"
-      ],
-      "name": "asr_benchmark",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark"
-    },
-    {
-      "dependencies": [
-        "ament_python",
         "asr_config",
         "asr_core",
         "asr_datasets",
@@ -1224,6 +789,7 @@
         "asr_provider_azure",
         "asr_provider_base",
         "asr_provider_google",
+        "asr_provider_huggingface",
         "asr_provider_vosk",
         "asr_provider_whisper",
         "asr_storage"
@@ -1261,7 +827,9 @@
     {
       "dependencies": [
         "ament_python",
-        "asr_core"
+        "asr_core",
+        "asr_metrics",
+        "python3-yaml"
       ],
       "entry_points": [],
       "evidence": [
@@ -1304,13 +872,24 @@
     {
       "dependencies": [
         "ament_python",
+        "asr_benchmark_core",
         "asr_config",
         "asr_core",
         "asr_datasets",
         "asr_interfaces",
+        "asr_metrics",
+        "asr_provider_aws",
         "asr_provider_base",
+        "asr_provider_huggingface",
         "asr_reporting",
         "asr_storage",
+        "python3-fastapi",
+        "python3-pydantic",
+        "python3-python-multipart",
+        "python3-sounddevice",
+        "python3-soundfile",
+        "python3-uvicorn",
+        "python3-yaml",
         "rclpy"
       ],
       "entry_points": [
@@ -1635,6 +1214,7 @@
             "bool streaming_supported",
             "string streaming_mode",
             "bool cloud_credentials_available",
+            "bool provider_runtime_ready",
             "string status_message",
             "string session_id",
             "string session_state",
@@ -1978,7 +1558,10 @@
     {
       "dependencies": [
         "ament_python",
-        "asr_core"
+        "asr_core",
+        "python3-matplotlib",
+        "python3-psutil",
+        "python3-yaml"
       ],
       "entry_points": [],
       "evidence": [
@@ -1992,7 +1575,6 @@
     {
       "dependencies": [
         "ament_python",
-        "asr_backend_aws",
         "asr_core",
         "asr_provider_base"
       ],
@@ -2008,7 +1590,6 @@
     {
       "dependencies": [
         "ament_python",
-        "asr_backend_azure",
         "asr_core",
         "asr_provider_base"
       ],
@@ -2025,7 +1606,8 @@
       "dependencies": [
         "ament_python",
         "asr_config",
-        "asr_core"
+        "asr_core",
+        "python3-yaml"
       ],
       "entry_points": [],
       "evidence": [
@@ -2039,7 +1621,6 @@
     {
       "dependencies": [
         "ament_python",
-        "asr_backend_google",
         "asr_core",
         "asr_provider_base"
       ],
@@ -2055,7 +1636,25 @@
     {
       "dependencies": [
         "ament_python",
-        "asr_backend_vosk",
+        "asr_core",
+        "asr_provider_base",
+        "python3-numpy",
+        "python3-requests",
+        "python3-torch",
+        "python3-transformers"
+      ],
+      "entry_points": [],
+      "evidence": [
+        "static_package"
+      ],
+      "interfaces": [],
+      "launch_files": [],
+      "name": "asr_provider_huggingface",
+      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_provider_huggingface"
+    },
+    {
+      "dependencies": [
+        "ament_python",
         "asr_core",
         "asr_provider_base"
       ],
@@ -2071,7 +1670,6 @@
     {
       "dependencies": [
         "ament_python",
-        "asr_backend_whisper",
         "asr_core",
         "asr_provider_base"
       ],
@@ -2102,45 +1700,21 @@
     {
       "dependencies": [
         "ament_python",
-        "asr_core",
-        "asr_interfaces",
-        "asr_metrics",
-        "rclpy",
-        "std_msgs"
-      ],
-      "entry_points": [
-        "asr_server_node = asr_ros.asr_server_node:main",
-        "asr_text_output_node = asr_ros.asr_text_output_node:main",
-        "audio_capture_node = asr_ros.audio_capture_node:main"
-      ],
-      "evidence": [
-        "static_package"
-      ],
-      "interfaces": [],
-      "launch_files": [
-        "benchmark.launch.py",
-        "bringup.launch.py",
-        "demo.launch.py"
-      ],
-      "name": "asr_ros",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_ros"
-    },
-    {
-      "dependencies": [
-        "ament_python",
         "asr_config",
         "asr_core",
         "asr_interfaces",
+        "asr_metrics",
         "asr_provider_aws",
         "asr_provider_azure",
         "asr_provider_base",
         "asr_provider_google",
+        "asr_provider_huggingface",
         "asr_provider_vosk",
         "asr_provider_whisper",
         "asr_storage",
         "builtin_interfaces",
-        "rclpy",
-        "std_msgs"
+        "python3-sounddevice",
+        "rclpy"
       ],
       "entry_points": [
         "asr_orchestrator_node = asr_runtime_nodes.asr_orchestrator_node:main",
@@ -2296,27 +1870,6 @@
       ],
       "name": "unknown",
       "type": "service_type"
-    },
-    {
-      "evidence": [
-        "static_ast"
-      ],
-      "name": "/asr/recognize_once",
-      "type": "RecognizeOnce"
-    },
-    {
-      "evidence": [
-        "static_ast"
-      ],
-      "name": "/asr/set_backend",
-      "type": "SetAsrBackend"
-    },
-    {
-      "evidence": [
-        "static_ast"
-      ],
-      "name": "/asr/get_status",
-      "type": "GetAsrStatus"
     },
     {
       "evidence": [
@@ -2538,27 +2091,6 @@
       ],
       "name": "unknown",
       "type": "AsrResult"
-    },
-    {
-      "evidence": [
-        "static_ast"
-      ],
-      "name": "/asr/text",
-      "type": "AsrResult"
-    },
-    {
-      "evidence": [
-        "static_ast"
-      ],
-      "name": "/asr/metrics",
-      "type": "AsrMetrics"
-    },
-    {
-      "evidence": [
-        "static_ast"
-      ],
-      "name": "/asr/audio_chunks",
-      "type": "UInt8MultiArray"
     }
   ]
 }

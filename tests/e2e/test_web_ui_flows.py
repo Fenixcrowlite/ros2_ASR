@@ -176,9 +176,11 @@ def test_benchmark_to_results_and_diagnostics_flow(live_gateway: str, browser_pa
     page.wait_for_timeout(800)
     assert "bench" in page.locator("#benchmarkActiveRun").inner_text().lower()
 
-    page.click("text=Open Results")
+    page.click('#benchmarkHistoryTable button[data-action="open_results"]')
     page.wait_for_timeout(500)
-    assert "Run Detail" in page.locator("#results").inner_text()
+    results_text = page.locator("#results").inner_text()
+    assert "Run Overview" in results_text
+    assert "Sample Explorer" in results_text
 
     page.click('button[data-page="logs"]')
     page.wait_for_timeout(500)
@@ -189,6 +191,40 @@ def test_benchmark_to_results_and_diagnostics_flow(live_gateway: str, browser_pa
     logs_text = page.locator("#logsViewer").inner_text().lower()
     assert "sample error" in logs_text
     assert "runtime.log" in page.locator("#logsMeta").inner_text().lower()
+
+
+def test_benchmark_audio_preview_loads_in_gui(live_gateway: str, browser_page) -> None:
+    page = browser_page
+    page.goto(live_gateway, wait_until="domcontentloaded")
+    page.click('button[data-page="benchmark"]')
+    page.wait_for_selector("#benchmarkAudioPreview")
+
+    page.click('[data-benchmark-preview-load]')
+    page.wait_for_timeout(800)
+
+    preview_text = page.locator("#benchmarkAudioPreview").inner_text().lower()
+    assert "preview ready" in preview_text
+    audio_src = page.locator(".benchmark-preview-player").evaluate("el => el.currentSrc || el.src || ''")
+    assert audio_src.startswith("blob:")
+
+
+def test_benchmark_audio_preview_supports_custom_snr_in_gui(live_gateway: str, browser_page) -> None:
+    page = browser_page
+    page.goto(live_gateway, wait_until="domcontentloaded")
+    page.click('button[data-page="benchmark"]')
+    page.wait_for_selector("#benchmarkAudioPreview")
+
+    page.fill("#benchmarkCustomNoiseSnr", "17.5")
+    page.wait_for_timeout(200)
+    page.select_option("[data-benchmark-preview-level]", "custom")
+    page.fill("[data-benchmark-preview-snr]", "17.5")
+    page.click("[data-benchmark-preview-load]")
+    page.wait_for_timeout(800)
+
+    preview_text = page.locator("#benchmarkAudioPreview").inner_text().lower()
+    assert "preview ready: custom 17.5 db via" in preview_text
+    audio_src = page.locator(".benchmark-preview-player").evaluate("el => el.currentSrc || el.src || ''")
+    assert audio_src.startswith("blob:")
 
 
 def test_benchmark_invalid_streaming_combo_surfaces_error_in_gui(

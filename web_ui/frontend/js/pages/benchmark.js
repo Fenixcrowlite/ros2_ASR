@@ -49,8 +49,11 @@ export function initBenchmarkPage(ctx) {
   const historyRoot = document.getElementById('benchmarkHistoryTable');
   const activeRunRoot = document.getElementById('benchmarkActiveRun');
   const reviewRoot = document.getElementById('benchmarkReview');
+  const researchSummaryRoot = document.getElementById('benchmarkResearchSummary');
   const qualityResourceRoot = document.getElementById('benchmarkQualityResourceView');
+  const audioPreviewRoot = document.getElementById('benchmarkAudioPreview');
   const noiseLevelsRoot = document.getElementById('benchmarkNoiseLevels');
+  const customNoiseSNRInput = document.getElementById('benchmarkCustomNoiseSnr');
   const scenarioSelect = document.getElementById('benchmarkScenario');
   const noiseModeSelect = document.getElementById('benchmarkNoiseMode');
   const noiseModeHint = document.getElementById('benchmarkNoiseModeHint');
@@ -58,6 +61,13 @@ export function initBenchmarkPage(ctx) {
   const streamingChunkInput = document.getElementById('benchmarkStreamingChunkMs');
 
   let providerProfiles = [];
+  let datasetPreviewState = {
+    datasetProfile: '',
+    datasetId: '',
+    sampleCount: 0,
+    samples: [],
+    error: '',
+  };
   // The backend owns the real catalog. The inline copy is only a bootstrap
   // fallback so the page still renders sensible controls before the fetch
   // completes or if the catalog endpoint is temporarily unavailable.
@@ -114,8 +124,34 @@ export function initBenchmarkPage(ctx) {
     return Array.from(noiseLevelsRoot.querySelectorAll('input[type="checkbox"]:checked')).map((item) => item.value);
   }
 
+  function parseCustomNoiseSNRLevels() {
+    const merged = [];
+    String(customNoiseSNRInput?.value || '')
+      .split(',')
+      .map((item) => Number(item.trim()))
+      .filter((item) => Number.isFinite(item))
+      .forEach((value) => {
+        if (!merged.some((existing) => Math.abs(existing - value) < 0.0001)) {
+          merged.push(value);
+        }
+      });
+    return merged;
+  }
+
+  function formatSnrDb(value) {
+    const numeric = Number(value);
+    if (!Number.isFinite(numeric)) {
+      return 'n/a';
+    }
+    return Number.isInteger(numeric) ? String(numeric) : numeric.toFixed(1).replace(/\.0$/, '');
+  }
+
   function noiseModeMeta(modeId) {
     return (noiseCatalog.modes || []).find((item) => item.id === modeId) || null;
+  }
+
+  function noiseLevelMeta(levelId) {
+    return (noiseCatalog.levels || []).find((item) => item.id === levelId) || null;
   }
 
   function scenarioNoiseDefaults() {
@@ -134,11 +170,93 @@ export function initBenchmarkPage(ctx) {
     if (selected.length) {
       return selected;
     }
+    if (parseCustomNoiseSNRLevels().length) {
+      return [];
+    }
     return [...(scenarioNoiseDefaults().levels || ['clean'])];
   }
 
   function effectiveNoiseMode() {
     return noiseModeSelect.value || scenarioNoiseDefaults().mode || 'white';
+  }
+
+  function previewNoiseLevels() {
+    const ordered = [];
+    const add = (value) => {
+      const normalized = String(value || '').trim().toLowerCase();
+      if (!normalized || ordered.includes(normalized)) {
+        return;
+      }
+      ordered.push(normalized);
+    };
+    add('clean');
+    effectiveNoiseLevels().forEach(add);
+    return ordered.filter((level) => level === 'clean' || noiseLevelMeta(level));
+  }
+
+  function previewDefaultDuration(sample = {}) {
+    const value = Number(sample.duration_sec);
+    if (!Number.isFinite(value) || value <= 0) {
+      return '5.0';
+    }
+    return Math.max(0.5, Math.min(value, 5.0)).toFixed(1);
+  }
+
+  function previewSeed() {
+    try {
+      const advanced = safeJson(document.getElementById('benchmarkSettingsEditor').value);
+      const seed = Number(advanced?.noise?.seed);
+      return Number.isInteger(seed) ? seed : 1337;
+    } catch (_error) {
+      return 1337;
+    }
+  }
+
+  async function loadAudioBlobIntoPlayer(player, url, { statusNode, loadingText, readyText }) {
+    if (!player) {
+      return;
+    }
+    if (statusNode) {
+      statusNode.textContent = loadingText;
+    }
+    const previousUrl = player.dataset.objectUrl || '';
+    if (previousUrl) {
+      URL.revokeObjectURL(previousUrl);
+      delete player.dataset.objectUrl;
+    }
+
+    try {
+      const response = await fetch(url, { cache: 'no-store' });
+      if (!response.ok) {
+        let detail = `${response.status} ${response.statusText}`;
+        try {
+          const payload = await response.json();
+          detail = payload?.detail || payload?.message || detail;
+        } catch (_error) {
+          // leave fallback text
+        }
+        if (response.status === 404 && String(detail).trim() === 'Not Found') {
+          detail =
+            'Preview endpoint is unavailable in the running gateway. Restart the web UI/gateway to load the latest API.';
+        }
+        throw new Error(detail);
+      }
+
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      player.dataset.objectUrl = objectUrl;
+      player.src = objectUrl;
+      player.load();
+      if (statusNode) {
+        statusNode.textContent = readyText;
+      }
+    } catch (error) {
+      player.removeAttribute('src');
+      player.load();
+      if (statusNode) {
+        statusNode.textContent = error.message;
+      }
+    }
   }
 
   function incompatibleStreamingProviders() {
@@ -187,7 +305,10 @@ export function initBenchmarkPage(ctx) {
 
   function bindNoiseLevelListeners() {
     noiseLevelsRoot.querySelectorAll('input').forEach((input) => {
-      input.addEventListener('change', renderReview);
+      input.addEventListener('change', () => {
+        renderBenchmarkAudioPreview();
+        renderReview();
+      });
     });
   }
 
@@ -369,6 +490,66 @@ export function initBenchmarkPage(ctx) {
       .join('');
   }
 
+  function experimentVariantsCount() {
+    return Math.max(1, effectiveNoiseLevels().length + parseCustomNoiseSNRLevels().length);
+  }
+
+  function reviewWarnings() {
+    const warnings = [];
+    if (!selectedProviders().length) {
+      warnings.push('Select at least one provider profile before running benchmark.');
+    }
+    if ((executionModeSelect.value || 'batch') === 'streaming') {
+      const incompatible = incompatibleStreamingProviders();
+      if (incompatible.length) {
+        warnings.push(`Streaming benchmark mode requires streaming-capable providers: ${incompatible.join(', ')}`);
+      }
+    }
+    if ((scenarioSelect.value || 'clean_baseline') === 'noise_robustness' && experimentVariantsCount() <= 1) {
+      warnings.push('Noise robustness scenario is selected, but only one effective noise variant is configured.');
+    }
+    if (datasetPreviewState.error) {
+      warnings.push(`Dataset preview failed: ${datasetPreviewState.error}`);
+    }
+    return warnings;
+  }
+
+  function renderResearchSummary(summary = null) {
+    if (!researchSummaryRoot) {
+      return;
+    }
+    researchSummaryRoot.innerHTML = ui.statCards([
+      {
+        label: 'Dataset Samples',
+        value: String(summary?.total_samples ?? datasetPreviewState.sampleCount ?? 0),
+        badge: datasetProfileSelect.value || 'none',
+        tone: datasetProfileSelect.value ? 'ok' : 'warning',
+        hint: 'Samples in scope for this draft or latest result',
+      },
+      {
+        label: 'Providers',
+        value: String(summary?.provider_summaries?.length || selectedProviders().length),
+        badge: scenarioSelect.value || 'clean_baseline',
+        tone: selectedProviders().length ? 'ok' : 'warning',
+        hint: 'Primary provider comparison axis',
+      },
+      {
+        label: 'Noise Variants',
+        value: String(summary?.noise_levels?.length || experimentVariantsCount()),
+        badge: effectiveNoiseMode(),
+        tone: experimentVariantsCount() > 1 ? 'info' : 'warning',
+        hint: 'Distinct clean/noise variants in the current design',
+      },
+      {
+        label: 'Metric Profiles',
+        value: String(selectedMetricProfiles().length),
+        badge: executionModeSelect.value || 'batch',
+        tone: selectedMetricProfiles().length ? 'ok' : 'warning',
+        hint: 'Metrics and execution mode driving the run',
+      },
+    ]);
+  }
+
   function renderReview() {
     // The review box is the easiest way to verify what will actually be sent to
     // the gateway after defaults, UI selections, and advanced JSON are merged.
@@ -386,29 +567,319 @@ export function initBenchmarkPage(ctx) {
     } catch (error) {
       providerOverridesError = error.message;
     }
-    reviewRoot.textContent = JSON.stringify(
-      {
-        benchmark_profile: benchmarkProfileSelect.value,
-        dataset_profile: datasetProfileSelect.value,
-        providers: selectedProviders(),
-        provider_overrides: providerOverrides,
-        provider_overrides_error: providerOverridesError,
-        scenario: scenarioSelect.value,
-        execution_mode: executionModeSelect.value,
-        noise: {
-          mode: effectiveNoiseMode(),
-          levels: effectiveNoiseLevels(),
+    const warnings = reviewWarnings();
+    const providers = selectedProviders();
+    const effectiveLevels = effectiveNoiseLevels();
+    const customLevels = parseCustomNoiseSNRLevels();
+    const datasetSamples = datasetPreviewState.sampleCount || 0;
+    const matrixSize = datasetSamples * Math.max(1, providers.length) * Math.max(1, experimentVariantsCount());
+    renderResearchSummary();
+    reviewRoot.innerHTML = `
+      ${ui.statCards([
+        {
+          label: 'Scenario',
+          value: scenarioSelect.value || 'clean_baseline',
+          badge: executionModeSelect.value || 'batch',
+          tone: 'info',
+          hint: 'Experiment posture',
         },
-        streaming: {
-          chunk_ms: Number(streamingChunkInput.value || 500),
+        {
+          label: 'Comparison Axes',
+          value: `${providers.length || 0} provider(s) x ${experimentVariantsCount()} variant(s)`,
+          badge: `${selectedMetricProfiles().length} metric profile(s)`,
+          tone: providers.length ? 'ok' : 'warning',
+          hint: 'Provider/noise span of the current draft',
         },
-        metric_profiles: selectedMetricProfiles(),
-        benchmark_settings: advancedSettings,
-        benchmark_settings_error: advancedSettingsError,
-      },
-      null,
-      2
+        {
+          label: 'Estimated Matrix',
+          value: String(matrixSize || 0),
+          badge: benchmarkProfileSelect.value || 'default_benchmark',
+          tone: matrixSize ? 'ok' : 'warning',
+          hint: 'Sample x provider x variant combinations',
+        },
+      ])}
+      <div class="stack-item">
+        <strong>Resolved comparison design</strong>
+        <p>providers=${ui.escapeHtml(providers.join(', ') || 'none')}</p>
+        <p>noise=${ui.escapeHtml(`${effectiveNoiseMode()} :: ${effectiveLevels.join(', ') || 'clean'}${customLevels.length ? ` + custom(${customLevels.join(', ')})` : ''}`)}</p>
+        <p>metrics=${ui.escapeHtml(selectedMetricProfiles().join(', ') || 'benchmark defaults')}</p>
+      </div>
+      ${
+        warnings.length
+          ? `
+            <div class="stack-item">
+              <strong>Warnings</strong>
+              ${warnings.map((warning) => `<p>${ui.escapeHtml(warning)}</p>`).join('')}
+            </div>
+          `
+          : `
+            <div class="stack-item">
+              <strong>Validation signal</strong>
+              <p>No blocking warnings detected for the current benchmark draft.</p>
+            </div>
+          `
+      }
+      ${
+        advancedSettingsError || providerOverridesError
+          ? `
+            <div class="stack-item">
+              <strong>Draft errors</strong>
+              ${advancedSettingsError ? `<p>${ui.escapeHtml(advancedSettingsError)}</p>` : ''}
+              ${providerOverridesError ? `<p>${ui.escapeHtml(providerOverridesError)}</p>` : ''}
+            </div>
+          `
+          : ''
+      }
+      <div class="stack-item">
+        <strong>Resolved request preview</strong>
+        <pre class="metric-details__code">${ui.escapeHtml(
+          JSON.stringify(
+            {
+              benchmark_profile: benchmarkProfileSelect.value,
+              dataset_profile: datasetProfileSelect.value,
+              providers,
+              provider_overrides: providerOverrides,
+              provider_overrides_error: providerOverridesError,
+              scenario: scenarioSelect.value,
+              execution_mode: executionModeSelect.value,
+              noise: {
+                mode: effectiveNoiseMode(),
+                levels: effectiveLevels,
+                custom_snr_db: customLevels,
+              },
+              streaming: {
+                chunk_ms: Number(streamingChunkInput.value || 500),
+              },
+              metric_profiles: selectedMetricProfiles(),
+              benchmark_settings: advancedSettings,
+              benchmark_settings_error: advancedSettingsError,
+            },
+            null,
+            2
+          )
+        )}</pre>
+      </div>
+    `;
+  }
+
+  function renderBenchmarkAudioPreview() {
+    if (!audioPreviewRoot) {
+      return;
+    }
+    if (!datasetProfileSelect.value) {
+      audioPreviewRoot.innerHTML = ui.renderEmpty('Select a dataset profile to audition benchmark samples.');
+      return;
+    }
+    if (datasetPreviewState.error) {
+      audioPreviewRoot.innerHTML = ui.renderEmpty(`Failed to load dataset preview: ${datasetPreviewState.error}`);
+      return;
+    }
+    if (!datasetPreviewState.samples.length) {
+      audioPreviewRoot.innerHTML = ui.renderEmpty('No dataset preview samples available. Builder preview currently uses the first 25 manifest rows.');
+      return;
+    }
+
+    const currentSampleId = audioPreviewRoot.querySelector('[data-benchmark-preview-sample]')?.value || '';
+    const currentNoiseLevel = audioPreviewRoot.querySelector('[data-benchmark-preview-level]')?.value || '';
+    const currentStartSec = audioPreviewRoot.querySelector('[data-benchmark-preview-start]')?.value || '0.0';
+    const currentDurationSec = audioPreviewRoot.querySelector('[data-benchmark-preview-duration]')?.value || '';
+    const currentCustomSnr = audioPreviewRoot.querySelector('[data-benchmark-preview-snr]')?.value || '';
+    const sample =
+      datasetPreviewState.samples.find((item) => item.sample_id === currentSampleId) ||
+      datasetPreviewState.samples[0];
+    const previewLevels = previewNoiseLevels();
+    const configuredCustomSnr = parseCustomNoiseSNRLevels();
+    const previewVariants = [...previewLevels, 'custom'].filter(
+      (level, index, values) => level && values.indexOf(level) === index
     );
+    const fallbackLevel = configuredCustomSnr.length ? 'custom' : previewLevels[0] || 'clean';
+    const selectedLevel =
+      previewVariants.find((level) => level === currentNoiseLevel) ||
+      fallbackLevel ||
+      'clean';
+    const durationValue = currentDurationSec || previewDefaultDuration(sample);
+    const levelMeta = noiseLevelMeta(selectedLevel);
+    const mode = selectedLevel === 'clean' ? 'none' : effectiveNoiseMode();
+    const customSnrValue =
+      currentCustomSnr ||
+      (configuredCustomSnr.length ? formatSnrDb(configuredCustomSnr[0]) : '15');
+    const customSnrNumber = Number(customSnrValue);
+    const previewLabel =
+      selectedLevel === 'clean'
+        ? 'clean source'
+        : selectedLevel === 'custom'
+          ? `custom ${Number.isFinite(customSnrNumber) ? `${formatSnrDb(customSnrNumber)} dB` : 'SNR'} via ${mode} noise`
+          : `${selectedLevel} via ${mode} noise${levelMeta?.snr_db == null ? '' : ` (${levelMeta.snr_db} dB)`}`;
+
+    audioPreviewRoot.innerHTML = `
+      <div class="stack-item benchmark-preview-card">
+        <strong>Audition Dataset Sample</strong>
+        <p class="helper">
+          Listen to the clean source or a noise-augmented preview before you launch the benchmark.
+          Preview uses the current scenario noise mode and the selected preview level.
+        </p>
+        <div class="benchmark-preview-grid">
+          <label>
+            Sample
+            <select data-benchmark-preview-sample>
+              ${datasetPreviewState.samples
+                .map(
+                  (item) => `
+                    <option value="${ui.escapeHtml(item.sample_id)}"${item.sample_id === sample.sample_id ? ' selected' : ''}>
+                      ${ui.escapeHtml(item.sample_id)}
+                    </option>
+                  `
+                )
+                .join('')}
+            </select>
+          </label>
+          <label>
+            Preview level
+            <select data-benchmark-preview-level>
+              ${previewLevels
+                .map((level) => {
+                  const meta = noiseLevelMeta(level);
+                  const label =
+                    level === 'clean'
+                      ? 'clean'
+                      : `${level}${meta?.snr_db == null ? '' : ` (${meta.snr_db} dB)`}`;
+                  return `<option value="${ui.escapeHtml(level)}"${level === selectedLevel ? ' selected' : ''}>${ui.escapeHtml(label)}</option>`;
+                })
+                .concat(
+                  `<option value="custom"${selectedLevel === 'custom' ? ' selected' : ''}>custom (manual SNR)</option>`
+                )
+                .join('')}
+            </select>
+          </label>
+          <label>
+            Start sec
+            <input data-benchmark-preview-start type="number" min="0" step="0.1" value="${ui.escapeHtml(currentStartSec)}" />
+          </label>
+          <label>
+            Duration sec
+            <input data-benchmark-preview-duration type="number" min="0.1" max="120" step="0.1" value="${ui.escapeHtml(durationValue)}" />
+          </label>
+          <label>
+            Manual SNR dB
+            <input
+              data-benchmark-preview-snr
+              type="number"
+              min="-5"
+              max="60"
+              step="0.1"
+              value="${ui.escapeHtml(customSnrValue)}"
+              ${selectedLevel === 'custom' ? '' : 'disabled'}
+            />
+            <span class="field-note">Used only when preview level is <code>custom</code>.</span>
+          </label>
+        </div>
+        <div class="benchmark-preview-meta">
+          <div class="stack-item compact">
+            <strong>${ui.escapeHtml(sample.sample_id || 'sample')}</strong>
+            <p>${ui.escapeHtml(sample.transcript || '')}</p>
+            <p class="muted">language=${ui.escapeHtml(sample.language || 'n/a')} split=${ui.escapeHtml(sample.split || 'n/a')} duration=${ui.escapeHtml(String(sample.duration_sec ?? 'n/a'))}s</p>
+          </div>
+          <div class="stack-item compact">
+            <strong>Active Preview Variant</strong>
+            <p>${ui.escapeHtml(previewLabel)}</p>
+            <p class="muted">dataset_profile=${ui.escapeHtml(datasetProfileSelect.value)} sample_count=${ui.escapeHtml(String(datasetPreviewState.sampleCount || datasetPreviewState.samples.length))}</p>
+          </div>
+        </div>
+        <div class="actions-row">
+          <button type="button" class="btn-secondary" data-benchmark-preview-load>Load Preview</button>
+        </div>
+        <audio class="benchmark-preview-player" controls preload="none"></audio>
+        <p class="helper benchmark-preview-status">Preview is generated on demand from the selected sample.</p>
+      </div>
+    `;
+
+    audioPreviewRoot.querySelector('[data-benchmark-preview-sample]')?.addEventListener('change', () => {
+      renderBenchmarkAudioPreview();
+    });
+    audioPreviewRoot.querySelector('[data-benchmark-preview-level]')?.addEventListener('change', () => {
+      renderBenchmarkAudioPreview();
+    });
+
+    audioPreviewRoot.querySelector('[data-benchmark-preview-load]')?.addEventListener('click', () => {
+      const sampleId = audioPreviewRoot.querySelector('[data-benchmark-preview-sample]')?.value || sample.sample_id;
+      const noiseLevel = audioPreviewRoot.querySelector('[data-benchmark-preview-level]')?.value || 'clean';
+      const startSec = audioPreviewRoot.querySelector('[data-benchmark-preview-start]')?.value || '0.0';
+      const durationSec = audioPreviewRoot.querySelector('[data-benchmark-preview-duration]')?.value || previewDefaultDuration(sample);
+      const customSnr = Number(audioPreviewRoot.querySelector('[data-benchmark-preview-snr]')?.value || '');
+      const player = audioPreviewRoot.querySelector('.benchmark-preview-player');
+      const status = audioPreviewRoot.querySelector('.benchmark-preview-status');
+      if (!player || !status) {
+        return;
+      }
+      if (noiseLevel === 'custom' && !Number.isFinite(customSnr)) {
+        status.textContent = 'Enter a numeric SNR dB for custom preview.';
+        return;
+      }
+      void loadAudioBlobIntoPlayer(
+        player,
+        api.benchmarkPreviewAudioUrl({
+          dataset_profile: datasetProfileSelect.value,
+          sample_id: sampleId,
+          start_sec: startSec,
+          duration_sec: durationSec,
+          noise_level: noiseLevel,
+          noise_mode: noiseLevel === 'clean' ? null : effectiveNoiseMode(),
+          snr_db: noiseLevel === 'custom' ? customSnr : null,
+          seed: previewSeed(),
+        }),
+        {
+          statusNode: status,
+          loadingText: 'Loading benchmark preview clip...',
+          readyText:
+            noiseLevel === 'clean'
+              ? 'Preview ready: clean source'
+              : noiseLevel === 'custom'
+                ? `Preview ready: custom ${formatSnrDb(customSnr)} dB via ${effectiveNoiseMode()}`
+                : `Preview ready: ${noiseLevel} via ${effectiveNoiseMode()}`,
+        }
+      );
+    });
+  }
+
+  async function loadDatasetPreview() {
+    if (!audioPreviewRoot) {
+      return;
+    }
+    const datasetProfile = datasetProfileSelect.value || '';
+    if (!datasetProfile) {
+      datasetPreviewState = {
+        datasetProfile: '',
+        datasetId: '',
+        sampleCount: 0,
+        samples: [],
+        error: '',
+      };
+      renderBenchmarkAudioPreview();
+      return;
+    }
+
+    audioPreviewRoot.innerHTML = ui.renderEmpty('Loading dataset sample preview...');
+    try {
+      const profile = await api.profileDetail('datasets', datasetProfile);
+      const datasetId = profile?.payload?.dataset_id || datasetProfile;
+      const detail = await api.datasetDetail(datasetId);
+      datasetPreviewState = {
+        datasetProfile,
+        datasetId,
+        sampleCount: Number(detail.sample_count || 0),
+        samples: Array.isArray(detail.preview) ? detail.preview : [],
+        error: '',
+      };
+    } catch (error) {
+      datasetPreviewState = {
+        datasetProfile,
+        datasetId: '',
+        sampleCount: 0,
+        samples: [],
+        error: error.message,
+      };
+    }
+    renderBenchmarkAudioPreview();
   }
 
   async function loadOptions() {
@@ -433,6 +904,8 @@ export function initBenchmarkPage(ctx) {
     renderChecks(metricsChecksRoot, metricsProfiles.profiles || [], []);
     applyScenarioNoisePreset();
     renderProviderTuning();
+    await loadDatasetPreview();
+    renderResearchSummary();
     renderReview();
 
     providersChecksRoot.querySelectorAll('input').forEach((input) => {
@@ -455,6 +928,7 @@ export function initBenchmarkPage(ctx) {
         ...(advanced.noise || {}),
         mode: effectiveNoiseMode(),
         levels: effectiveNoiseLevels(),
+        custom_snr_db: parseCustomNoiseSNRLevels(),
       },
       streaming: {
         ...(advanced.streaming || {}),
@@ -498,6 +972,7 @@ export function initBenchmarkPage(ctx) {
     const runId = state.benchmark.activeRunId;
     if (!runId) {
       activeRunRoot.innerHTML = ui.renderEmpty('No active benchmark run. Build a run and start execution.');
+      renderResearchSummary();
       ui.patchPulse('benchmarkPulse', 'Benchmark: idle', 'idle');
       return;
     }
@@ -526,6 +1001,7 @@ export function initBenchmarkPage(ctx) {
         await refreshHistory();
         if (summary.provider_summaries) {
           renderQualityResourceView(summary);
+          renderResearchSummary(summary);
         }
       }
     } catch (error) {
@@ -579,7 +1055,8 @@ export function initBenchmarkPage(ctx) {
       [
         { id: 'status', label: 'Status', rowKey: (row) => row.run_id },
         { id: 'open_results', label: 'Open Results', rowKey: (row) => row.run_id },
-      ]
+      ],
+      { className: 'table--compact', stickyFirstColumn: true }
     );
 
     historyRoot.querySelectorAll('button[data-action]').forEach((button) => {
@@ -596,6 +1073,7 @@ export function initBenchmarkPage(ctx) {
         }
         if (action === 'open_results') {
           document.getElementById('resultsRunSelect').value = runId;
+          state.results.selectedRunId = runId;
           navigate('results');
         }
       });
@@ -616,10 +1094,11 @@ export function initBenchmarkPage(ctx) {
       });
       await loadOptions();
       datasetProfileSelect.value = (payload.dataset_profile || '').replace(/^datasets\//, '');
+      await loadDatasetPreview();
       renderReview();
       ui.toast(`Uploaded dataset ready: ${payload.dataset_profile}`, 'success');
     } catch (error) {
-      reviewRoot.textContent = error.message;
+      reviewRoot.innerHTML = `<div class="stack-item"><strong>Upload failed</strong><p>${ui.escapeHtml(error.message)}</p></div>`;
       ui.toast(`Dataset upload failed: ${error.message}`, 'error', 4500);
     }
   });
@@ -635,13 +1114,22 @@ export function initBenchmarkPage(ctx) {
   });
 
   benchmarkProfileSelect.addEventListener('change', renderReview);
-  datasetProfileSelect.addEventListener('change', renderReview);
+  datasetProfileSelect.addEventListener('change', async () => {
+    await loadDatasetPreview();
+    renderReview();
+  });
   scenarioSelect.addEventListener('change', () => {
     applyScenarioNoisePreset();
+    renderBenchmarkAudioPreview();
     renderReview();
   });
   noiseModeSelect.addEventListener('change', () => {
     renderNoiseModeHint();
+    renderBenchmarkAudioPreview();
+    renderReview();
+  });
+  customNoiseSNRInput?.addEventListener('input', () => {
+    renderBenchmarkAudioPreview();
     renderReview();
   });
   executionModeSelect.addEventListener('change', renderReview);

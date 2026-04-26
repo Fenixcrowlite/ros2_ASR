@@ -90,7 +90,13 @@ from asr_gateway.result_views import (
 from asr_gateway.result_views import (
     run_dir as run_dir_helper,
 )
+from asr_gateway.result_views import (
+    run_rows_page as run_rows_page_helper,
+)
 from asr_gateway.ros_client import GatewayRosClient
+from asr_gateway.runtime_assets import (
+    extract_wav_segment as extract_wav_segment_helper,
+)
 from asr_gateway.runtime_assets import (
     list_runtime_samples as list_runtime_samples_helper,
 )
@@ -295,6 +301,8 @@ DATASET_REGISTRY_PATH = PROJECT_ROOT / "datasets" / "registry" / "datasets.json"
 RUNTIME_SAMPLES_ROOT = PROJECT_ROOT / "data" / "sample"
 RUNTIME_SAMPLE_UPLOADS_ROOT = RUNTIME_SAMPLES_ROOT / "uploads"
 RUNTIME_NOISE_ROOT = RUNTIME_SAMPLES_ROOT / "generated_noise"
+BENCHMARK_PREVIEW_ROOT = ARTIFACTS_ROOT / "temp" / "benchmark_previews"
+RESULT_REPLAY_ROOT = ARTIFACTS_ROOT / "temp" / "result_replays"
 RUNTIME_SAMPLE_SUFFIXES = {".wav", ".wave"}
 
 # Lightweight in-memory state for recent UI history. Durable outputs still live
@@ -700,6 +708,21 @@ def _wav_metadata_from_file(path: Path) -> dict[str, Any]:
     return wav_metadata_from_file_helper(path)
 
 
+def _extract_wav_segment(
+    source: Path,
+    *,
+    output_path: Path,
+    start_sec: float = 0.0,
+    duration_sec: float | None = None,
+) -> dict[str, Any]:
+    return extract_wav_segment_helper(
+        source,
+        output_path=output_path,
+        start_sec=start_sec,
+        duration_sec=duration_sec,
+    )
+
+
 def _list_runtime_samples() -> dict[str, Any]:
     return list_runtime_samples_helper(
         samples_root=RUNTIME_SAMPLES_ROOT,
@@ -881,6 +904,9 @@ def _run_preflight_checks() -> dict[str, Any]:
     runtime_whisper_ok, runtime_whisper_message = _module_ok_via_python(
         runtime_python, "faster_whisper"
     )
+    runtime_azure_ok, runtime_azure_message = _module_ok_via_python(
+        runtime_python, "azure.cognitiveservices.speech"
+    )
     runtime_google_ok, runtime_google_message = _module_ok_via_python(
         runtime_python, "google.cloud.speech"
     )
@@ -925,6 +951,10 @@ def _run_preflight_checks() -> dict[str, Any]:
             "runtime_faster_whisper": {
                 "ok": runtime_whisper_ok,
                 "message": runtime_whisper_message,
+            },
+            "runtime_azure_speech": {
+                "ok": runtime_azure_ok,
+                "message": runtime_azure_message,
             },
             "runtime_google_cloud_speech": {
                 "ok": runtime_google_ok,
@@ -1004,8 +1034,12 @@ def _normalize_runtime_status_payload(
     )
     is_completed, completion_message = _audio_input_completion(snapshot, session_id)
     if is_completed and audio_source == "file":
+        normalized["file_input_completed"] = True
         normalized["session_state"] = "completed"
-        normalized["status_message"] = completion_message or "completed source=file"
+        normalized["input_state"] = "completed"
+        normalized["input_status_message"] = completion_message or "completed source=file"
+    else:
+        normalized["file_input_completed"] = False
     return normalized
 
 
@@ -1033,12 +1067,16 @@ def _normalize_runtime_session_snapshot(
         return normalized
 
     if active_session_id:
+        active_session["file_input_completed"] = True
         active_session["state"] = "completed"
-        active_session["status_message"] = completion_message or "completed source=file"
+        active_session["input_state"] = "completed"
+        active_session["input_status_message"] = completion_message or "completed source=file"
         for item in session_statuses:
             if str(item.get("session_id", "") or "") == active_session_id:
+                item["file_input_completed"] = True
                 item["state"] = "completed"
-                item["status_message"] = completion_message or "completed source=file"
+                item["input_state"] = "completed"
+                item["input_status_message"] = completion_message or "completed source=file"
     return normalized
 
 
@@ -1969,11 +2007,18 @@ def _preflight_benchmark_request(req: BenchmarkRunRequest) -> dict[str, Any]:
     noise_levels = [
         str(item.get("noise_level", "") or "").strip()
         for item in noise_plan
-        if str(item.get("noise_level", "") or "").strip()
+        if str(item.get("noise_origin", "preset") or "preset") != "custom"
+        and str(item.get("noise_level", "") or "").strip()
+    ]
+    custom_snr_values = [
+        float(item.get("snr_db"))
+        for item in noise_plan
+        if str(item.get("noise_origin", "preset") or "preset") == "custom"
+        and item.get("snr_db") is not None
     ]
     merged_noise_cfg = dict(merged_settings.get("noise", {}))
-    if noise_levels:
-        merged_noise_cfg["levels"] = noise_levels
+    merged_noise_cfg["levels"] = noise_levels
+    merged_noise_cfg["custom_snr_db"] = custom_snr_values
     resolved_seed = (
         noise_plan[0].get("seed", merged_noise_cfg.get("seed", 1337))
         if noise_plan
@@ -2199,6 +2244,36 @@ def _run_detail(run_id: str) -> dict[str, Any]:
     )
 
 
+def _run_rows_page(
+    run_id: str,
+    *,
+    page: int,
+    page_size: int,
+    provider: str = "",
+    preset: str = "",
+    noise: str = "",
+    success: str = "",
+    search: str = "",
+    sort: str = "sample_id",
+    direction: str = "asc",
+) -> dict[str, Any]:
+    return run_rows_page_helper(
+        run_id,
+        artifacts_root=ARTIFACTS_ROOT,
+        clean_name=_clean_name,
+        read_json=_read_json,
+        page=page,
+        page_size=page_size,
+        provider=provider,
+        preset=preset,
+        noise=noise,
+        success=success,
+        search=search,
+        sort=sort,
+        direction=direction,
+    )
+
+
 def _metric_preference(metric_name: str) -> str:
     return metric_preference_helper(metric_name)
 
@@ -2210,6 +2285,158 @@ def _compare_runs(run_ids: list[str], metrics: list[str]) -> dict[str, Any]:
         detail_loader=_run_detail,
         metric_preference_func=_metric_preference,
     )
+
+
+def _benchmark_noise_level_snr_db(noise_level: str) -> float | None:
+    normalized = str(noise_level or "clean").strip().lower() or "clean"
+    for item in benchmark_noise_catalog().get("levels", []):
+        if str(item.get("id", "") or "").strip().lower() == normalized:
+            snr_db = item.get("snr_db")
+            return None if snr_db is None else float(snr_db)
+    raise HTTPException(status_code=400, detail=f"Unsupported benchmark noise_level: {noise_level}")
+
+
+def _normalize_benchmark_preview_noise_level(noise_level: str) -> str:
+    normalized = str(noise_level or "clean").strip().lower() or "clean"
+    if normalized == "custom":
+        return normalized
+    if normalized == "clean":
+        return normalized
+    _benchmark_noise_level_snr_db(normalized)
+    return normalized
+
+
+def _resolve_benchmark_preview_snr_db(noise_level: str, snr_db: float | None) -> float | None:
+    normalized = _normalize_benchmark_preview_noise_level(noise_level)
+    if normalized == "clean":
+        return None
+    if snr_db is not None:
+        return float(snr_db)
+    if normalized == "custom":
+        raise HTTPException(status_code=400, detail="snr_db is required when noise_level=custom")
+    resolved = _benchmark_noise_level_snr_db(normalized)
+    return None if resolved is None else float(resolved)
+
+
+def _benchmark_dataset_samples(dataset_profile: str) -> tuple[str, Path, list[Any]]:
+    normalized_profile = _normalize_dataset_profile(dataset_profile)
+    dataset_profile_id = normalized_profile.split("/", 1)[1]
+    try:
+        dataset_cfg = resolve_profile(
+            profile_type="datasets",
+            profile_id=dataset_profile_id,
+            configs_root=str(CONFIGS_ROOT),
+        )
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    raw_manifest_path = str(dataset_cfg.data.get("manifest_path", "") or "").strip()
+    if not raw_manifest_path:
+        raise HTTPException(status_code=400, detail="Dataset profile is missing manifest_path")
+    manifest_path = Path(raw_manifest_path)
+    if not manifest_path.is_absolute():
+        manifest_path = (PROJECT_ROOT / manifest_path).resolve()
+    if not manifest_path.exists():
+        raise HTTPException(status_code=404, detail=f"Dataset manifest not found: {manifest_path}")
+    try:
+        samples = load_manifest(str(manifest_path))
+    except Exception as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    return normalized_profile, manifest_path, samples
+
+
+def _benchmark_dataset_sample(dataset_profile: str, sample_id: str) -> tuple[str, Path, Any]:
+    normalized_profile, manifest_path, samples = _benchmark_dataset_samples(dataset_profile)
+    wanted_sample_id = str(sample_id or "").strip()
+    if not wanted_sample_id:
+        raise HTTPException(status_code=400, detail="sample_id is required")
+    sample = next(
+        (item for item in samples if str(getattr(item, "sample_id", "") or "") == wanted_sample_id),
+        None,
+    )
+    if sample is None:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Dataset sample not found: {wanted_sample_id}",
+        )
+    return normalized_profile, manifest_path, sample
+
+
+def _result_replay_label(value: object, *, fallback: str) -> str:
+    label = re.sub(r"[^a-zA-Z0-9._-]+", "_", str(value or fallback)).strip("._")
+    return label or fallback
+
+
+def _normalize_result_replay_source(source: str) -> str:
+    normalized = str(source or "evaluated").strip().lower() or "evaluated"
+    if normalized not in {"evaluated", "clean"}:
+        raise HTTPException(
+            status_code=400,
+            detail="Replay source must be one of: evaluated, clean",
+        )
+    return normalized
+
+
+def _normalize_result_replay_noise_mode(noise_mode: str) -> str:
+    normalized = str(noise_mode or "").strip().lower()
+    if not normalized or normalized == "none":
+        return "none"
+    supported = {
+        str(item.get("id", "")).strip().lower()
+        for item in benchmark_noise_catalog().get("modes", [])
+        if str(item.get("id", "")).strip()
+    }
+    if normalized not in supported:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unsupported replay noise_mode: {normalized}",
+        )
+    return normalized
+
+
+def _result_replay_row(run_id: str, row_index: int) -> dict[str, Any]:
+    detail = _run_detail(run_id)
+    rows = detail.get("results_head", [])
+    if not isinstance(rows, list) or row_index < 0 or row_index >= len(rows):
+        raise HTTPException(
+            status_code=404,
+            detail=f"Result row not found for run `{run_id}` at index `{row_index}`",
+        )
+    row = rows[row_index]
+    if not isinstance(row, dict):
+        raise HTTPException(
+            status_code=404,
+            detail=f"Result row not found for run `{run_id}` at index `{row_index}`",
+        )
+    return row
+
+
+def _result_replay_source_path(row: dict[str, Any], *, source: str) -> Path:
+    candidates: list[str] = []
+    if source == "clean":
+        candidates = [
+            str(row.get("source_audio_path", "") or ""),
+            str(row.get("input_audio_path", "") or ""),
+        ]
+    else:
+        candidates = [
+            str(row.get("input_audio_path", "") or ""),
+            str(row.get("source_audio_path", "") or ""),
+        ]
+
+    for raw in candidates:
+        value = raw.strip()
+        if not value:
+            continue
+        path = Path(value).expanduser()
+        resolved = path.resolve() if path.is_absolute() else (PROJECT_ROOT / value).resolve()
+        if not resolved.exists():
+            continue
+        if resolved.suffix.lower() not in RUNTIME_SAMPLE_SUFFIXES:
+            raise HTTPException(status_code=400, detail=f"Replay source is not a WAV file: {resolved}")
+        return resolved
+
+    raise HTTPException(status_code=404, detail=f"Replay source audio is unavailable: {source}")
 
 
 def _tail_lines(path: Path, limit: int) -> list[str]:
@@ -3654,6 +3881,81 @@ def benchmark_history(limit: int = Query(default=30, ge=1, le=200)) -> dict[str,
     return {"runs": _list_benchmark_history(limit=limit)}
 
 
+@app.get("/api/benchmark/preview_audio")
+def benchmark_preview_audio(
+    dataset_profile: str,
+    sample_id: str,
+    start_sec: float = Query(default=0.0, ge=0.0),
+    duration_sec: float = Query(default=5.0, gt=0.0, le=120.0),
+    noise_level: str = Query(default="clean"),
+    noise_mode: str = Query(default="white"),
+    snr_db: float | None = Query(default=None, ge=-5.0, le=60.0),
+    seed: int = Query(default=1337),
+) -> FileResponse:
+    normalized_profile, _manifest_path, sample = _benchmark_dataset_sample(
+        dataset_profile,
+        sample_id,
+    )
+    source_path = Path(str(getattr(sample, "audio_path", "") or "")).expanduser().resolve()
+    if not source_path.exists():
+        raise HTTPException(status_code=404, detail=f"Dataset audio not found: {source_path}")
+    if source_path.suffix.lower() not in RUNTIME_SAMPLE_SUFFIXES:
+        raise HTTPException(status_code=400, detail=f"Dataset audio is not a WAV file: {source_path}")
+
+    normalized_noise_level = _normalize_benchmark_preview_noise_level(noise_level)
+    base_label = _result_replay_label(
+        f"{sample_id}_{normalized_noise_level}_{start_sec:.2f}s_{duration_sec:.2f}s",
+        fallback=_result_replay_label(sample_id, fallback="sample"),
+    )
+    preview_root = (
+        BENCHMARK_PREVIEW_ROOT
+        / normalized_profile.split("/", 1)[1]
+        / _result_replay_label(sample_id, fallback="sample")
+    )
+    clip_path = preview_root / f"{base_label}_clean.wav"
+    try:
+        _extract_wav_segment(
+            source_path,
+            output_path=clip_path,
+            start_sec=float(start_sec),
+            duration_sec=float(duration_sec),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    response_path = clip_path
+    normalized_noise_mode = "none"
+    resolved_snr_db = _resolve_benchmark_preview_snr_db(normalized_noise_level, snr_db)
+    if normalized_noise_level != "clean":
+        normalized_noise_mode = _normalize_result_replay_noise_mode(noise_mode)
+        if normalized_noise_mode == "none":
+            normalized_noise_mode = "white"
+        snr_label = _result_replay_label(f"{float(resolved_snr_db if resolved_snr_db is not None else 20.0):g}db", fallback="snr")
+        response_path = preview_root / f"{base_label}_{normalized_noise_mode}_{snr_label}.wav"
+        try:
+            apply_noise_to_wav(
+                source_path=str(clip_path),
+                output_path=str(response_path),
+                snr_db=float(resolved_snr_db if resolved_snr_db is not None else 20.0),
+                seed=int(seed),
+                noise_mode=normalized_noise_mode,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    headers = _no_cache_headers()
+    headers["X-ASR-Benchmark-Preview-Sample"] = str(getattr(sample, "sample_id", "") or "")
+    headers["X-ASR-Benchmark-Preview-Noise-Level"] = normalized_noise_level
+    headers["X-ASR-Benchmark-Preview-Noise-Mode"] = normalized_noise_mode
+    if resolved_snr_db is not None:
+        headers["X-ASR-Benchmark-Preview-SNR-DB"] = str(resolved_snr_db)
+    return FileResponse(
+        response_path,
+        media_type="audio/wav",
+        headers=headers,
+    )
+
+
 # --- Result browsing/export endpoints ---
 @app.get("/api/results/overview")
 def results_overview() -> dict[str, Any]:
@@ -3670,6 +3972,105 @@ def results_overview() -> dict[str, Any]:
 @app.get("/api/results/runs/{run_id}")
 def results_run_detail(run_id: str) -> dict[str, Any]:
     return _run_detail(run_id)
+
+
+@app.get("/api/results/runs/{run_id}/rows")
+def results_run_rows(
+    run_id: str,
+    page: int = Query(default=1, ge=1),
+    page_size: int = Query(default=25, ge=1, le=500),
+    provider: str = Query(default=""),
+    preset: str = Query(default=""),
+    noise: str = Query(default=""),
+    success: str = Query(default=""),
+    search: str = Query(default=""),
+    sort: str = Query(default="sample_id"),
+    direction: str = Query(default="asc"),
+) -> dict[str, Any]:
+    return _run_rows_page(
+        run_id,
+        page=page,
+        page_size=page_size,
+        provider=provider,
+        preset=preset,
+        noise=noise,
+        success=success,
+        search=search,
+        sort=sort,
+        direction=direction,
+    )
+
+
+@app.get("/api/results/runs/{run_id}/rows/{row_index}/audio")
+def results_run_row_audio(
+    run_id: str,
+    row_index: int,
+    source: str = Query(default="evaluated"),
+    start_sec: float = Query(default=0.0, ge=0.0),
+    duration_sec: float = Query(default=5.0, gt=0.0, le=120.0),
+    noise_mode: str = Query(default="none"),
+    snr_db: float | None = Query(default=None, ge=-5.0, le=60.0),
+    seed: int = Query(default=1337),
+) -> FileResponse:
+    rid = _clean_name(run_id, "run_id")
+    if row_index < 0:
+        raise HTTPException(status_code=400, detail="row_index must be >= 0")
+
+    row = _result_replay_row(rid, row_index)
+    replay_source = _normalize_result_replay_source(source)
+    replay_noise_mode = _normalize_result_replay_noise_mode(noise_mode)
+    source_path = _result_replay_source_path(row, source=replay_source)
+
+    base_label = _result_replay_label(
+        f"row{row_index}_{replay_source}_{start_sec:.2f}s_{duration_sec:.2f}s",
+        fallback=f"row{row_index}",
+    )
+    preview_root = RESULT_REPLAY_ROOT / rid
+    clip_path = preview_root / f"{base_label}.wav"
+    try:
+        _extract_wav_segment(
+            source_path,
+            output_path=clip_path,
+            start_sec=float(start_sec),
+            duration_sec=float(duration_sec),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    response_path = clip_path
+    resolved_snr_db = snr_db
+    if replay_noise_mode != "none":
+        resolved_snr_db = (
+            float(snr_db)
+            if snr_db is not None
+            else float(row.get("noise_snr_db", 20.0) or 20.0)
+        )
+        noise_label = _result_replay_label(
+            f"{base_label}_{replay_noise_mode}_snr{resolved_snr_db}",
+            fallback=f"{base_label}_{replay_noise_mode}",
+        )
+        response_path = preview_root / f"{noise_label}.wav"
+        try:
+            apply_noise_to_wav(
+                source_path=str(clip_path),
+                output_path=str(response_path),
+                snr_db=float(resolved_snr_db),
+                seed=int(seed),
+                noise_mode=replay_noise_mode,
+            )
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    headers = _no_cache_headers()
+    headers["X-ASR-Replay-Source"] = replay_source
+    headers["X-ASR-Replay-Noise-Mode"] = replay_noise_mode
+    if resolved_snr_db is not None:
+        headers["X-ASR-Replay-SNR-DB"] = str(resolved_snr_db)
+    return FileResponse(
+        response_path,
+        media_type="audio/wav",
+        headers=headers,
+    )
 
 
 @app.post("/api/results/compare")

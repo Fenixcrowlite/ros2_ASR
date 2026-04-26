@@ -5,7 +5,7 @@ from __future__ import annotations
 import wave
 from typing import Any
 
-from asr_backend_whisper.backend import WhisperAsrBackend
+from asr_provider_whisper.backend import WhisperAsrBackend
 from asr_core.audio import pcm_rms
 from asr_core.models import AsrRequest
 from asr_core.normalized import NormalizedAsrResult

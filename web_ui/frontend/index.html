@@ -28,37 +28,49 @@
 
       <div class="layout">
         <aside class="sidebar" id="mainNav">
-          <button data-page="dashboard" class="active">Dashboard</button>
-          <button data-page="runtime">Runtime</button>
-          <button data-page="providers">Providers</button>
-          <button data-page="profiles">Profiles</button>
-          <button data-page="datasets">Datasets</button>
-          <button data-page="benchmark">Benchmark</button>
-          <button data-page="results">Results</button>
-          <button data-page="logs">Logs & Diagnostics</button>
-          <button data-page="secrets">Secrets</button>
+          <div class="nav-group">
+            <div class="nav-group__label">Research</div>
+            <button data-page="dashboard" class="active">Dashboard</button>
+            <button data-page="benchmark">Benchmark</button>
+            <button data-page="results">Results</button>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group__label">Execution</div>
+            <button data-page="runtime">Runtime</button>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group__label">Configuration</div>
+            <button data-page="providers">Providers</button>
+            <button data-page="profiles">Profiles</button>
+            <button data-page="datasets">Datasets</button>
+            <button data-page="secrets">Secrets</button>
+          </div>
+          <div class="nav-group">
+            <div class="nav-group__label">Diagnostics</div>
+            <button data-page="logs">Logs & Diagnostics</button>
+          </div>
         </aside>
 
         <main class="content">
           <section id="dashboard" class="page visible">
             <div class="page-head">
               <h2>Dashboard</h2>
-              <p>What is happening now and what to do next.</p>
+              <p>Research-first system readiness, latest experiment signal, and next actions.</p>
             </div>
             <details class="guide-card">
               <summary>Quick guide and legend</summary>
               <div class="guide-grid">
                 <div class="guide-item">
-                  <strong>Quick Actions</strong>
-                  <p>Use these for the shortest demo path when runtime, benchmark, or credential setup is already prepared.</p>
+                  <strong>Readiness Strip</strong>
+                  <p>Start here to see whether the stack is actually ready for runtime and benchmark work.</p>
                 </div>
                 <div class="guide-item">
-                  <strong>Alerts and warnings</strong>
-                  <p>Start here when the system looks idle but expected work is not happening.</p>
+                  <strong>Latest Benchmark Snapshot</strong>
+                  <p>Use this block to understand the newest completed experiment before opening the full Results workspace.</p>
                 </div>
                 <div class="guide-item">
-                  <strong>Cloud readiness</strong>
-                  <p>A provider can be installed but still unusable because credentials, files, or tokens are missing.</p>
+                  <strong>Leaderboard and What Changed</strong>
+                  <p>These panels translate raw run history into research-oriented signals: best provider, deltas, and useful next steps.</p>
                 </div>
               </div>
               <div class="inline-legend">
@@ -68,11 +80,31 @@
                 <span class="badge badge-error">Blocked</span>
               </div>
             </details>
-            <div class="cards-grid" id="dashboardCards"></div>
+            <div id="dashboardCards"></div>
             <div class="panel">
               <h3>Quick Actions</h3>
-              <p class="helper">Fast path for demo/operator workflow.</p>
+              <p class="helper">Fast path into runtime, benchmark, dataset import, and credential repair workflows.</p>
               <div class="actions-row" id="dashboardQuickActions"></div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Latest Benchmark Snapshot</h3>
+                <div id="dashboardLatestRun" class="stack-list"></div>
+              </div>
+              <div class="panel">
+                <h3>Provider Leaderboard</h3>
+                <div id="dashboardLeaderboard" class="stack-list"></div>
+              </div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>What Changed</h3>
+                <div id="dashboardWhatChanged" class="stack-list"></div>
+              </div>
+              <div class="panel">
+                <h3>Next Actions</h3>
+                <div id="dashboardNextActions" class="stack-list"></div>
+              </div>
             </div>
             <div class="two-col">
               <div class="panel">
@@ -84,11 +116,11 @@
                 <div id="dashboardRuntimeOutput" class="stack-list"></div>
               </div>
             </div>
-              <div class="panel">
-                <h3>Cloud Credential Readiness</h3>
-                <p class="helper">Shows whether Google, Azure, AWS, and hosted Hugging Face inference are actually ready for runtime and benchmark use right now.</p>
-                <div id="dashboardCloudHealth" class="stack-list"></div>
-              </div>
+            <div class="panel">
+              <h3>Cloud Credential Readiness</h3>
+              <p class="helper">Shows whether Google, Azure, AWS, and hosted Hugging Face inference are actually ready for runtime and benchmark use right now.</p>
+              <div id="dashboardCloudHealth" class="stack-list"></div>
+            </div>
           </section>
 
           <section id="runtime" class="page">
@@ -515,7 +547,7 @@
           <section id="benchmark" class="page">
             <div class="page-head">
               <h2>Benchmark</h2>
-              <p>Build and run reproducible experiments with explicit validation and progress.</p>
+              <p>Build research-grade experiments with explicit comparison axes, warnings, and reproducible run intent.</p>
             </div>
             <details class="guide-card">
               <summary>Benchmark help and scenario legend</summary>
@@ -534,8 +566,10 @@
                 </div>
               </div>
             </details>
+            <div id="benchmarkResearchSummary"></div>
             <div class="panel">
               <h3>Run Builder</h3>
+              <p class="helper">Move left to right: dataset, providers, scenario and noise, metrics, then review the experiment matrix before launch.</p>
               <div class="steps-grid">
                 <div class="step">
                   <h4>Step 1: Dataset</h4>
@@ -593,6 +627,15 @@
                     <input id="benchmarkStreamingChunkMs" type="number" min="100" step="50" value="500" />
                   </label>
                   <div id="benchmarkNoiseLevels" class="check-list"></div>
+                  <label>
+                    Custom SNR dB (comma separated)
+                    <input id="benchmarkCustomNoiseSnr" placeholder="Optional: 25,15,5" />
+                    <span class="field-note">Adds explicit noisy variants to the benchmark run. Clear preset levels if you want custom-only SNR sweeps.</span>
+                  </label>
+                </div>
+                <div class="step benchmark-preview-step">
+                  <h4>Step 3b: Audio Preview</h4>
+                  <div id="benchmarkAudioPreview" class="stack-list"></div>
                 </div>
                 <div class="step">
                   <h4>Step 4: Metrics</h4>
@@ -617,7 +660,7 @@
                   <button id="benchmarkRunBtn" class="btn-primary" title="Start benchmark with the reviewed dataset, providers, scenario, and metrics.">Run Benchmark</button>
                 </div>
               </div>
-              <div id="benchmarkReview" class="feedback"></div>
+              <div id="benchmarkReview" class="stack-list research-review"></div>
             </div>
             <div class="two-col">
               <div class="panel">
@@ -634,48 +677,75 @@
           <section id="results" class="page">
             <div class="page-head">
               <h2>Results</h2>
-              <p>Inspect run summaries, compare experiments, and export reproducible artifacts.</p>
+              <p>Research workspace for provider comparison, charted tradeoffs, and sample-level error analysis.</p>
             </div>
             <details class="guide-card">
               <summary>Results help</summary>
               <div class="guide-grid">
                 <div class="guide-item">
-                  <strong>Run detail</strong>
-                  <p>Load one run when you want exact parameters, metrics, and exported artifacts.</p>
+                  <strong>Run Overview + Inspector</strong>
+                  <p>Use these together: overview shows the experiment shape, inspector explains the currently selected provider or sample.</p>
                 </div>
                 <div class="guide-item">
-                  <strong>Comparison</strong>
-                  <p>Use comma-separated run IDs to compare multiple experiments side by side.</p>
+                  <strong>Chart Deck + Explorer</strong>
+                  <p>Charts surface the main signal first; the sample explorer lets you drill into failure modes without reading raw JSON dumps.</p>
                 </div>
               </div>
             </details>
             <div class="panel">
-              <h3>Overview</h3>
-              <div id="resultsOverview" class="cards-grid"></div>
-            </div>
-            <div class="two-col">
-              <div class="panel">
-                <h3>Run Detail</h3>
+              <h3>Research Workspace</h3>
+              <div class="toolbar results-toolbar">
                 <label>
                   Run ID
                   <select id="resultsRunSelect"></select>
                 </label>
-                <div class="actions-row">
-                  <button id="resultsLoadRunBtn" class="btn-secondary">Load Run</button>
-                </div>
+                <button id="resultsLoadRunBtn" class="btn-secondary">Load Run</button>
+              </div>
+              <div id="resultsOverview"></div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Run Overview</h3>
                 <div id="resultsRunDetail" class="stack-list"></div>
               </div>
               <div class="panel">
-                <h3>Comparison</h3>
+                <h3>Inspector</h3>
+                <div id="resultsInspector" class="stack-list"></div>
+              </div>
+            </div>
+            <div class="panel">
+              <h3>Chart Deck</h3>
+              <div id="resultsChartDeck" class="stack-list"></div>
+            </div>
+            <div class="panel">
+              <h3>Provider Comparison Table</h3>
+              <div id="resultsProviderTable"></div>
+            </div>
+            <div class="panel">
+              <h3>Sample Explorer</h3>
+              <div id="resultsSampleFilters" class="form-grid"></div>
+              <div id="resultsSampleBucketCards" class="cards-grid"></div>
+              <div id="resultsSampleTable"></div>
+              <div id="resultsSamplePager" class="actions-row"></div>
+            </div>
+            <div class="two-col">
+              <div class="panel">
+                <h3>Cross-Run Comparison</h3>
                 <label>
                   Run IDs (comma separated)
                   <input id="resultsCompareRuns" placeholder="bench_... , bench_..." />
                 </label>
+                <label>
+                  Metric
+                  <select id="resultsComparisonMetric"></select>
+                </label>
                 <div class="actions-row">
                   <button id="resultsCompareBtn" class="btn-primary">Compare</button>
                 </div>
+                <div id="resultsComparisonChart"></div>
                 <div id="resultsComparisonTable"></div>
-                <hr />
+              </div>
+              <div class="panel">
                 <h3>Export Comparison</h3>
                 <label>
                   Export name

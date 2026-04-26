@@ -12,11 +12,15 @@ open_browser=1
 host_override=""
 port_override=""
 action="start"
+runtime_profile="${ASR_RUNTIME_PROFILE:-default_runtime}"
+provider_profile="${ASR_PROVIDER_PROFILE:-providers/whisper_local}"
+configs_root="${ASR_CONFIGS_ROOT:-configs}"
+artifacts_root="${ASR_ARTIFACTS_ROOT:-artifacts}"
 
 usage() {
   cat <<'EOF'
 Usage:
-  bash scripts/run_web_ui.sh [--mode local|lan] [--stack full|runtime] [--host HOST] [--port PORT] [--no-open]
+  bash scripts/run_web_ui.sh [--mode local|lan] [--stack full|runtime] [--host HOST] [--port PORT] [--runtime-profile ID] [--provider-profile ID] [--configs-root PATH] [--artifacts-root PATH] [--no-open]
   bash scripts/run_web_ui.sh --stop [--port PORT]
 
 Defaults:
@@ -24,6 +28,8 @@ Defaults:
   mode=lan   -> host=0.0.0.0, port=8088
   stack=full -> asr_launch/full_stack_dev.launch.py
   stack=runtime -> asr_launch/gateway_with_runtime.launch.py
+  runtime_profile=default_runtime
+  provider_profile=providers/whisper_local
 EOF
 }
 
@@ -43,6 +49,22 @@ while [[ $# -gt 0 ]]; do
       ;;
     --port)
       port_override="${2:-}"
+      shift 2
+      ;;
+    --runtime-profile)
+      runtime_profile="${2:-}"
+      shift 2
+      ;;
+    --provider-profile)
+      provider_profile="${2:-}"
+      shift 2
+      ;;
+    --configs-root)
+      configs_root="${2:-}"
+      shift 2
+      ;;
+    --artifacts-root)
+      artifacts_root="${2:-}"
       shift 2
       ;;
     --no-open)
@@ -73,6 +95,16 @@ fi
 
 if [[ "$stack" != "full" && "$stack" != "runtime" ]]; then
   echo "Invalid stack: $stack (expected full or runtime)" >&2
+  exit 1
+fi
+
+if [[ -z "$runtime_profile" ]]; then
+  echo "Invalid runtime_profile: must not be empty" >&2
+  exit 1
+fi
+
+if [[ -z "$provider_profile" ]]; then
+  echo "Invalid provider_profile: must not be empty" >&2
   exit 1
 fi
 
@@ -232,6 +264,12 @@ stop_existing_stack_on_port
 echo "Starting new web UI stack"
 echo "Launch: asr_launch/${LAUNCH_FILE}"
 echo "Gateway: ${GATEWAY_HOST}:${GATEWAY_PORT}"
+echo "Runtime profile: ${runtime_profile}"
+echo "Provider profile: ${provider_profile}"
+if [[ "$stack" == "full" ]]; then
+  echo "Configs root: ${configs_root}"
+  echo "Artifacts root: ${artifacts_root}"
+fi
 echo "Open: ${URL}"
 
 if [[ "$GATEWAY_HOST" == "0.0.0.0" ]]; then
@@ -250,6 +288,18 @@ if [[ "$open_browser" == "1" ]]; then
 fi
 
 export ASR_PROJECT_ROOT="$ROOT_DIR"
-ros2 launch asr_launch "$LAUNCH_FILE" \
-  gateway_host:="$GATEWAY_HOST" \
-  gateway_port:="$GATEWAY_PORT"
+if [[ "$stack" == "full" ]]; then
+  ros2 launch asr_launch "$LAUNCH_FILE" \
+    runtime_profile:="$runtime_profile" \
+    provider_profile:="$provider_profile" \
+    gateway_host:="$GATEWAY_HOST" \
+    gateway_port:="$GATEWAY_PORT" \
+    configs_root:="$configs_root" \
+    artifacts_root:="$artifacts_root"
+else
+  ros2 launch asr_launch "$LAUNCH_FILE" \
+    runtime_profile:="$runtime_profile" \
+    provider_profile:="$provider_profile" \
+    gateway_host:="$GATEWAY_HOST" \
+    gateway_port:="$GATEWAY_PORT"
+fi

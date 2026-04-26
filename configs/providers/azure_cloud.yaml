@@ -3,14 +3,14 @@ inherits: []
 provider_id: azure
 adapter: asr_provider_azure.azure_provider.AzureProvider
 settings:
-  region: eastus
+  region: ""
   endpoint: ""
 ui:
   default_model_preset: standard
   model_presets:
     standard:
       label: Standard
-      description: Native Azure Speech baseline with resource key and region.
+      description: Native Azure Speech baseline with resource key, region, and optional endpoint override.
       quality_tier: high
       resource_tier: high
       estimated_cost_tier: high

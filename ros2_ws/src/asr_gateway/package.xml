@@ -10,11 +10,12 @@
   <exec_depend>rclpy</exec_depend>
   <exec_depend>asr_interfaces</exec_depend>
   <exec_depend>asr_benchmark_core</exec_depend>
-  <exec_depend>asr_backend_aws</exec_depend>
+  <exec_depend>asr_provider_aws</exec_depend>
   <exec_depend>asr_config</exec_depend>
   <exec_depend>asr_core</exec_depend>
   <exec_depend>asr_metrics</exec_depend>
   <exec_depend>asr_provider_base</exec_depend>
+  <exec_depend>asr_provider_huggingface</exec_depend>
   <exec_depend>asr_datasets</exec_depend>
   <exec_depend>asr_reporting</exec_depend>
   <exec_depend>asr_storage</exec_depend>

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import pytest
 from asr_gateway.runtime_assets import (
+    extract_wav_segment,
     list_runtime_samples,
     resolve_runtime_sample_path,
     runtime_upload_target,
@@ -95,3 +96,34 @@ def test_resolve_runtime_sample_path_rejects_escape(tmp_path: Path) -> None:
 def test_wav_metadata_from_bytes_rejects_invalid_payload() -> None:
     with pytest.raises(ValueError, match="not a valid WAV file"):
         wav_metadata_from_bytes(b"bad-wav")
+
+
+def test_extract_wav_segment_writes_requested_clip(sample_wav: str, tmp_path: Path) -> None:
+    source = Path(sample_wav)
+    output = tmp_path / "clip.wav"
+
+    metadata = extract_wav_segment(
+        source,
+        output_path=output,
+        start_sec=0.1,
+        duration_sec=0.2,
+    )
+
+    assert output.exists()
+    clipped = wav_metadata_from_bytes(output.read_bytes())
+    assert clipped["duration_sec"] == pytest.approx(0.2, abs=0.03)
+    assert metadata["start_sec"] == pytest.approx(0.1)
+    assert metadata["duration_sec"] == pytest.approx(clipped["duration_sec"], abs=0.03)
+
+
+def test_extract_wav_segment_rejects_start_beyond_end(sample_wav: str, tmp_path: Path) -> None:
+    source = Path(sample_wav)
+    output = tmp_path / "invalid_clip.wav"
+
+    with pytest.raises(ValueError, match="start_sec exceeds source duration"):
+        extract_wav_segment(
+            source,
+            output_path=output,
+            start_sec=99.0,
+            duration_sec=0.2,
+        )

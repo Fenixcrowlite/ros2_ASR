@@ -1,29 +1,17 @@
 # asr_provider_aws
 
-Modern AWS Transcribe adapter package for the provider-based runtime and
-benchmark stack.
+Canonical AWS Transcribe provider for the runtime, benchmark, and gateway stacks.
 
-## Purpose
+## Contents
 
-This package exposes AWS as an `asr_provider_base.AsrProviderAdapter`
-implementation so it can participate in:
+- `asr_provider_aws/aws_provider.py`: adapter entrypoint used by `ProviderManager`
+- `asr_provider_aws/backend.py`: provider-owned AWS implementation details and streaming session helpers
 
-- `asr_runtime_nodes` live inference
-- `asr_benchmark_core` benchmark execution
-- `asr_gateway` provider validation and catalog flows
+## Scope
 
-## Main Contents
+- profile-driven initialization
+- config validation
+- one-shot recognition
+- native streaming
 
-- `asr_provider_aws/aws_provider.py`: `AwsProvider`, the modern adapter.
-
-## Relationship To Legacy Code
-
-`asr_provider_aws` is the package new code should target.
-It wraps or reuses behavior from the legacy package `asr_backend_aws`, but
-presents the normalized provider contract expected by the new architecture.
-
-## Boundary
-
-- No ROS node logic.
-- No benchmark scheduling.
-- No gateway routing.
+No ROS node logic, benchmark orchestration, or HTTP routing lives here.

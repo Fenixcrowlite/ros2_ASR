@@ -26,7 +26,6 @@ esac
 
 _root_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 _preferred_install_prefix=""
-_include_legacy_pythonpath="${ASR_INCLUDE_LEGACY_PYTHONPATH:-0}"
 
 export ASR_PROJECT_ROOT="${ASR_PROJECT_ROOT:-$_root_dir}"
 export ASR_RUNTIME_LOG_DIR="${ASR_RUNTIME_LOG_DIR:-$_root_dir/logs/runtime}"
@@ -107,10 +106,6 @@ fi
 if [ "$_with_ros" -eq 0 ]; then
   while IFS= read -r _pkg_dir; do
     [ -n "$_pkg_dir" ] || continue
-    _pkg_name="$(basename "$_pkg_dir")"
-    if [ "$_include_legacy_pythonpath" != "1" ] && [[ "$_pkg_name" =~ ^(asr_ros|asr_benchmark)$ ]]; then
-      continue
-    fi
     export PYTHONPATH="$(_prepend_unique_path "$_pkg_dir" "${PYTHONPATH:-}")"
   done < <(find "$_root_dir/ros2_ws/src" -mindepth 1 -maxdepth 1 -type d 2>/dev/null)
 fi

@@ -10,11 +10,7 @@ from pathlib import Path
 
 def _pythonpath(repo_root: Path) -> str:
     src_root = repo_root / "ros2_ws" / "src"
-    parts = [str(repo_root)] + [
-        str(path)
-        for path in src_root.iterdir()
-        if path.is_dir() and path.name not in {"asr_ros", "asr_benchmark"}
-    ]
+    parts = [str(repo_root)] + [str(path) for path in src_root.iterdir() if path.is_dir()]
     return os.pathsep.join(parts)
 
 

@@ -64,7 +64,10 @@ def test_frontend_shell_and_assets_are_served(repo_root: Path, tmp_path: Path, m
         assert "Transcribe Whole File" in index.text
         assert 'id="benchmarkExecutionMode"' in index.text
         assert 'id="benchmarkStreamingChunkMs"' in index.text
+        assert 'id="benchmarkResearchSummary"' in index.text
         assert 'id="dashboardCloudHealth"' in index.text
+        assert 'id="dashboardLatestRun"' in index.text
+        assert 'id="dashboardLeaderboard"' in index.text
         assert 'class="guide-card"' in index.text
         assert 'id="commonLanguageOptions"' in index.text
         assert 'id="providerProfileOptions"' in index.text
@@ -90,6 +93,13 @@ def test_frontend_shell_and_assets_are_served(repo_root: Path, tmp_path: Path, m
         assert 'id="hfImportProviderProfile"' in index.text
         assert 'id="hfImportModelRef"' in index.text
         assert 'id="hfImportBtn"' in index.text
+        assert 'id="resultsChartDeck"' in index.text
+        assert 'id="resultsInspector"' in index.text
+        assert 'id="resultsProviderTable"' in index.text
+        assert 'id="resultsSampleFilters"' in index.text
+        assert 'id="resultsSampleTable"' in index.text
+        assert 'id="resultsComparisonMetric"' in index.text
+        assert 'id="resultsComparisonChart"' in index.text
         assert "/ui/styles.css" in index.text
         assert "/ui/js/app.js" in index.text
         assert index.headers["cache-control"].startswith("no-store")
@@ -100,9 +110,9 @@ def test_frontend_shell_and_assets_are_served(repo_root: Path, tmp_path: Path, m
         assert action_runner.status_code == 200
         assert action_runner.headers["cache-control"].startswith("no-store")
         assert results_page_script.status_code == 200
-        assert "Exact Match Rate" in results_page_script.text
-        assert "referenceHasContent && normalizedReference === normalizedHypothesis" in results_page_script.text
-        assert "referenceWords.length || hypothesisWords.length" not in results_page_script.text
-        assert "referenceChars.length || hypothesisChars.length" not in results_page_script.text
+        assert "provider_rankings" in results_page_script.text
+        assert "resultsRunRows" in results_page_script.text
+        assert "renderSampleInspector" in results_page_script.text
+        assert "result-replay__range-panel" in results_page_script.text
         assert benchmark_page_script.status_code == 200
-        assert "Exact Match Rate" in benchmark_page_script.text
+        assert "Resolved comparison design" in benchmark_page_script.text

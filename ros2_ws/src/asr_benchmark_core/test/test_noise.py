@@ -61,6 +61,27 @@ class NoiseCatalogTest(unittest.TestCase):
         self.assertEqual(plan[0]["noise_level"], "light")
         self.assertEqual(plan[0]["noise_mode"], "babble")
 
+    def test_resolve_noise_plan_supports_custom_snr_db_variants(self) -> None:
+        plan = resolve_noise_plan(
+            scenario="noise_robustness",
+            benchmark_settings={
+                "noise": {
+                    "mode": "pink",
+                    "levels": ["clean", "light"],
+                    "custom_snr_db": [17.5, 5.0],
+                }
+            },
+        )
+        self.assertEqual(
+            [item["noise_level"] for item in plan],
+            ["clean", "light", "custom_17p5db", "custom_5db"],
+        )
+        self.assertEqual(
+            [item["noise_origin"] for item in plan],
+            ["preset", "preset", "custom", "custom"],
+        )
+        self.assertEqual([item["snr_db"] for item in plan], [None, 30.0, 17.5, 5.0])
+
 
 class NoiseApplyTest(unittest.TestCase):
     def test_apply_noise_to_wav_supports_multiple_modes(self) -> None:

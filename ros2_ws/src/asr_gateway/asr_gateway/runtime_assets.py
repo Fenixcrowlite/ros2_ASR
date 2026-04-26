@@ -36,6 +36,62 @@ def wav_metadata_from_file(path: Path) -> dict[str, Any]:
     return wav_metadata_from_bytes(path.read_bytes())
 
 
+def extract_wav_segment(
+    source: Path,
+    *,
+    output_path: Path,
+    start_sec: float = 0.0,
+    duration_sec: float | None = None,
+) -> dict[str, Any]:
+    if start_sec < 0.0:
+        raise ValueError("start_sec must be >= 0")
+    if duration_sec is not None and duration_sec <= 0.0:
+        raise ValueError("duration_sec must be > 0 when provided")
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with wave.open(str(source), "rb") as reader:
+        frame_rate = int(reader.getframerate() or 0)
+        frame_count = int(reader.getnframes() or 0)
+        source_duration_sec = frame_count / float(frame_rate) if frame_rate > 0 else 0.0
+        if frame_rate <= 0:
+            raise ValueError(f"WAV file has invalid frame rate: {source}")
+        if start_sec > source_duration_sec:
+            raise ValueError(
+                f"start_sec exceeds source duration ({source_duration_sec:.3f}s): {start_sec:.3f}s"
+            )
+
+        start_frame = min(int(start_sec * frame_rate), frame_count)
+        if duration_sec is None:
+            frames_to_copy = max(frame_count - start_frame, 0)
+        else:
+            frames_to_copy = min(
+                max(int(duration_sec * frame_rate), 1),
+                max(frame_count - start_frame, 0),
+            )
+
+        with wave.open(str(output_path), "wb") as writer:
+            writer.setparams(reader.getparams())
+            if start_frame > 0:
+                reader.setpos(start_frame)
+            remaining = frames_to_copy
+            chunk_frames = max(frame_rate, 1)
+            while remaining > 0:
+                chunk = reader.readframes(min(chunk_frames, remaining))
+                if not chunk:
+                    break
+                writer.writeframes(chunk)
+                bytes_per_frame = max(reader.getnchannels() * reader.getsampwidth(), 1)
+                remaining -= len(chunk) // bytes_per_frame
+
+    clip_duration_sec = frames_to_copy / float(frame_rate) if frame_rate > 0 else 0.0
+    return {
+        "start_sec": float(start_sec),
+        "duration_sec": float(clip_duration_sec),
+        "source_duration_sec": float(source_duration_sec),
+        "output_path": str(output_path),
+    }
+
+
 def list_runtime_samples(
     *,
     samples_root: Path,

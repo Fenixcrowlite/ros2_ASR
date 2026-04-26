@@ -46,6 +46,17 @@ function formBody(entries) {
   return form;
 }
 
+function buildPathWithQuery(path, params = {}) {
+  const search = new URLSearchParams();
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value == null || value === '') {
+      return;
+    }
+    search.set(key, String(value));
+  });
+  return search.size ? `${path}?${search.toString()}` : path;
+}
+
 export function createApiClient() {
   return {
     // Dashboard/system overview
@@ -97,10 +108,15 @@ export function createApiClient() {
     benchmarkRun: (payload) => request('/api/benchmark/run', { method: 'POST', body: jsonBody(payload) }),
     benchmarkStatus: (runId) => request(`/api/benchmark/status/${encodeURIComponent(runId)}`),
     benchmarkHistory: (limit = 30) => request(`/api/benchmark/history?limit=${limit}`),
+    benchmarkPreviewAudioUrl: (params = {}) => buildPathWithQuery('/api/benchmark/preview_audio', params),
 
     // Result browsing/comparison/export
     resultsOverview: () => request('/api/results/overview'),
     resultsRunDetail: (runId) => request(`/api/results/runs/${encodeURIComponent(runId)}`),
+    resultsRunRows: (runId, params = {}) =>
+      request(buildPathWithQuery(`/api/results/runs/${encodeURIComponent(runId)}/rows`, params)),
+    resultsReplayAudioUrl: (runId, rowIndex, params = {}) =>
+      buildPathWithQuery(`/api/results/runs/${encodeURIComponent(runId)}/rows/${encodeURIComponent(rowIndex)}/audio`, params),
     resultsCompare: (payload) => request('/api/results/compare', { method: 'POST', body: jsonBody(payload) }),
     resultsExport: (payload) => request('/api/results/export', { method: 'POST', body: jsonBody(payload) }),
 

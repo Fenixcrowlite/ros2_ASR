@@ -2,57 +2,20 @@ flowchart TB
   classDef expectedOnly stroke-dasharray: 5 5,stroke:#666,fill:#fff8dc;
   classDef observedOnly stroke:#1e88e5,fill:#e3f2fd;
   ROOT(["ASR Architecture"])
-  P_asr_benchmark["package: asr_benchmark"]
-  ROOT --> P_asr_benchmark
-  N_asr_benchmark_node["node: /asr_benchmark_node / state=expected_only"]
-  P_asr_benchmark --> N_asr_benchmark_node
-  class N_asr_benchmark_node expectedOnly;
-  M_asr_benchmark_node_timer_internal_timer_0_5["timer internal: timer:0.5 / timer / state=expected_only"]
-  N_asr_benchmark_node --> M_asr_benchmark_node_timer_internal_timer_0_5
-  class M_asr_benchmark_node_timer_internal_timer_0_5 expectedOnly;
   P_asr_benchmark_nodes["package: asr_benchmark_nodes"]
   ROOT --> P_asr_benchmark_nodes
-  N_benchmark_manager_node["node: /benchmark_manager_node / state=both"]
+  N_benchmark_manager_node["node: /benchmark_manager_node / state=expected_only"]
   P_asr_benchmark_nodes --> N_benchmark_manager_node
-  M_benchmark_manager_node_action_server__benchmark_run_experiment["action server: /benchmark/run_experiment / asr_interfaces/action/RunBenchmarkExperiment / state=observed_only"]
-  N_benchmark_manager_node --> M_benchmark_manager_node_action_server__benchmark_run_experiment
-  class M_benchmark_manager_node_action_server__benchmark_run_experiment observedOnly;
-  M_benchmark_manager_node_action_server__datasets_import["action server: /datasets/import / asr_interfaces/action/ImportDataset / state=observed_only"]
-  N_benchmark_manager_node --> M_benchmark_manager_node_action_server__datasets_import
-  class M_benchmark_manager_node_action_server__datasets_import observedOnly;
-  M_benchmark_manager_node_service_server__benchmark_get_status["service server: /benchmark/get_status / asr_interfaces/srv/GetBenchmarkStatus / state=both"]
+  class N_benchmark_manager_node expectedOnly;
+  M_benchmark_manager_node_service_server__benchmark_get_status["service server: /benchmark/get_status / GetBenchmarkStatus / state=expected_only"]
   N_benchmark_manager_node --> M_benchmark_manager_node_service_server__benchmark_get_status
-  M_benchmark_manager_node_service_server__benchmark_manager_node_describe_parameters["service server: /benchmark_manager_node/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]
-  N_benchmark_manager_node --> M_benchmark_manager_node_service_server__benchmark_manager_node_describe_parameters
-  class M_benchmark_manager_node_service_server__benchmark_manager_node_describe_parameters observedOnly;
-  M_benchmark_manager_node_service_server__benchmark_manager_node_get_parameter_types["service server: /benchmark_manager_node/get_parameter_types / rcl_interfaces/srv/GetParameterTypes / state=observed_only"]
-  N_benchmark_manager_node --> M_benchmark_manager_node_service_server__benchmark_manager_node_get_parameter_types
-  class M_benchmark_manager_node_service_server__benchmark_manager_node_get_parameter_types observedOnly;
-  M_benchmark_manager_node_service_server__benchmark_manager_node_get_parameters["service server: /benchmark_manager_node/get_parameters / rcl_interfaces/srv/GetParameters / state=observed_only"]
-  N_benchmark_manager_node --> M_benchmark_manager_node_service_server__benchmark_manager_node_get_parameters
-  class M_benchmark_manager_node_service_server__benchmark_manager_node_get_parameters observedOnly;
-  M_benchmark_manager_node_service_server__benchmark_manager_node_get_type_description["service server: /benchmark_manager_node/get_type_description / type_description_interfaces/srv/GetTypeDescription / state=observed_only"]
-  N_benchmark_manager_node --> M_benchmark_manager_node_service_server__benchmark_manager_node_get_type_description
-  class M_benchmark_manager_node_service_server__benchmark_manager_node_get_type_description observedOnly;
-  M_benchmark_manager_node_service_server__benchmark_manager_node_list_parameters["service server: /benchmark_manager_node/list_parameters / rcl_interfaces/srv/ListParameters / state=observed_only"]
-  N_benchmark_manager_node --> M_benchmark_manager_node_service_server__benchmark_manager_node_list_parameters
-  class M_benchmark_manager_node_service_server__benchmark_manager_node_list_parameters observedOnly;
-  M_benchmark_manager_node_service_server__benchmark_manager_node_set_parameters["service server: /benchmark_manager_node/set_parameters / rcl_interfaces/srv/SetParameters / state=observed_only"]
-  N_benchmark_manager_node --> M_benchmark_manager_node_service_server__benchmark_manager_node_set_parameters
-  class M_benchmark_manager_node_service_server__benchmark_manager_node_set_parameters observedOnly;
-  M_benchmark_manager_node_service_server__benchmark_manager_node_set_parameters_atomically["service server: /benchmark_manager_node/set_parameters_atomically / rcl_interfaces/srv/SetParametersAtomically / state=observed_only"]
-  N_benchmark_manager_node --> M_benchmark_manager_node_service_server__benchmark_manager_node_set_parameters_atomically
-  class M_benchmark_manager_node_service_server__benchmark_manager_node_set_parameters_atomically observedOnly;
-  M_benchmark_manager_node_service_server__datasets_list["service server: /datasets/list / asr_interfaces/srv/ListDatasets / state=both"]
+  class M_benchmark_manager_node_service_server__benchmark_get_status expectedOnly;
+  M_benchmark_manager_node_service_server__datasets_list["service server: /datasets/list / ListDatasets / state=expected_only"]
   N_benchmark_manager_node --> M_benchmark_manager_node_service_server__datasets_list
-  M_benchmark_manager_node_service_server__datasets_register["service server: /datasets/register / asr_interfaces/srv/RegisterDataset / state=both"]
+  class M_benchmark_manager_node_service_server__datasets_list expectedOnly;
+  M_benchmark_manager_node_service_server__datasets_register["service server: /datasets/register / RegisterDataset / state=expected_only"]
   N_benchmark_manager_node --> M_benchmark_manager_node_service_server__datasets_register
-  M_benchmark_manager_node_topic_pub__parameter_events["topic pub: /parameter_events / rcl_interfaces/msg/ParameterEvent / state=observed_only"]
-  N_benchmark_manager_node --> M_benchmark_manager_node_topic_pub__parameter_events
-  class M_benchmark_manager_node_topic_pub__parameter_events observedOnly;
-  M_benchmark_manager_node_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
-  N_benchmark_manager_node --> M_benchmark_manager_node_topic_pub__rosout
-  class M_benchmark_manager_node_topic_pub__rosout observedOnly;
+  class M_benchmark_manager_node_service_server__datasets_register expectedOnly;
   P_asr_gateway["package: asr_gateway"]
   ROOT --> P_asr_gateway
   N_GatewayRosClient["node: /GatewayRosClient / state=expected_only"]
@@ -70,429 +33,95 @@ flowchart TB
   N_asr_gateway_server["node: /asr_gateway_server / state=expected_only"]
   P_asr_gateway --> N_asr_gateway_server
   class N_asr_gateway_server expectedOnly;
-  P_asr_ros["package: asr_ros"]
-  ROOT --> P_asr_ros
-  N_asr_server_node["node: /asr_server_node / state=both"]
-  P_asr_ros --> N_asr_server_node
-  M_asr_server_node_action_server__asr_transcribe["action server: /asr/transcribe / asr_interfaces/action/Transcribe / state=observed_only"]
-  N_asr_server_node --> M_asr_server_node_action_server__asr_transcribe
-  class M_asr_server_node_action_server__asr_transcribe observedOnly;
-  M_asr_server_node_service_server__asr_get_status["service server: /asr/get_status / asr_interfaces/srv/GetAsrStatus / state=both"]
-  N_asr_server_node --> M_asr_server_node_service_server__asr_get_status
-  M_asr_server_node_service_server__asr_recognize_once["service server: /asr/recognize_once / asr_interfaces/srv/RecognizeOnce / state=both"]
-  N_asr_server_node --> M_asr_server_node_service_server__asr_recognize_once
-  M_asr_server_node_service_server__asr_set_backend["service server: /asr/set_backend / asr_interfaces/srv/SetAsrBackend / state=both"]
-  N_asr_server_node --> M_asr_server_node_service_server__asr_set_backend
-  M_asr_server_node_service_server__asr_server_node_describe_parameters["service server: /asr_server_node/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]
-  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_describe_parameters
-  class M_asr_server_node_service_server__asr_server_node_describe_parameters observedOnly;
-  M_asr_server_node_service_server__asr_server_node_get_parameter_types["service server: /asr_server_node/get_parameter_types / rcl_interfaces/srv/GetParameterTypes / state=observed_only"]
-  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_get_parameter_types
-  class M_asr_server_node_service_server__asr_server_node_get_parameter_types observedOnly;
-  M_asr_server_node_service_server__asr_server_node_get_parameters["service server: /asr_server_node/get_parameters / rcl_interfaces/srv/GetParameters / state=observed_only"]
-  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_get_parameters
-  class M_asr_server_node_service_server__asr_server_node_get_parameters observedOnly;
-  M_asr_server_node_service_server__asr_server_node_get_type_description["service server: /asr_server_node/get_type_description / type_description_interfaces/srv/GetTypeDescription / state=observed_only"]
-  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_get_type_description
-  class M_asr_server_node_service_server__asr_server_node_get_type_description observedOnly;
-  M_asr_server_node_service_server__asr_server_node_list_parameters["service server: /asr_server_node/list_parameters / rcl_interfaces/srv/ListParameters / state=observed_only"]
-  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_list_parameters
-  class M_asr_server_node_service_server__asr_server_node_list_parameters observedOnly;
-  M_asr_server_node_service_server__asr_server_node_set_parameters["service server: /asr_server_node/set_parameters / rcl_interfaces/srv/SetParameters / state=observed_only"]
-  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_set_parameters
-  class M_asr_server_node_service_server__asr_server_node_set_parameters observedOnly;
-  M_asr_server_node_service_server__asr_server_node_set_parameters_atomically["service server: /asr_server_node/set_parameters_atomically / rcl_interfaces/srv/SetParametersAtomically / state=observed_only"]
-  N_asr_server_node --> M_asr_server_node_service_server__asr_server_node_set_parameters_atomically
-  class M_asr_server_node_service_server__asr_server_node_set_parameters_atomically observedOnly;
-  M_asr_server_node_timer_internal_timer_0_2["timer internal: timer:0.2 / timer / state=expected_only"]
-  N_asr_server_node --> M_asr_server_node_timer_internal_timer_0_2
-  class M_asr_server_node_timer_internal_timer_0_2 expectedOnly;
-  M_asr_server_node_topic_sub__asr_audio_chunks["topic sub: /asr/audio_chunks / std_msgs/msg/UInt8MultiArray / state=both"]
-  N_asr_server_node --> M_asr_server_node_topic_sub__asr_audio_chunks
-  M_asr_server_node_topic_pub__asr_metrics["topic pub: /asr/metrics / asr_interfaces/msg/AsrMetrics / state=both"]
-  N_asr_server_node --> M_asr_server_node_topic_pub__asr_metrics
-  M_asr_server_node_topic_pub__asr_text["topic pub: /asr/text / asr_interfaces/msg/AsrResult / state=both"]
-  N_asr_server_node --> M_asr_server_node_topic_pub__asr_text
-  M_asr_server_node_topic_pub__parameter_events["topic pub: /parameter_events / rcl_interfaces/msg/ParameterEvent / state=observed_only"]
-  N_asr_server_node --> M_asr_server_node_topic_pub__parameter_events
-  class M_asr_server_node_topic_pub__parameter_events observedOnly;
-  M_asr_server_node_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
-  N_asr_server_node --> M_asr_server_node_topic_pub__rosout
-  class M_asr_server_node_topic_pub__rosout observedOnly;
-  N_asr_text_output_node["node: /asr_text_output_node / state=both"]
-  P_asr_ros --> N_asr_text_output_node
-  M_asr_text_output_node_service_server__asr_text_output_node_describe_parameters["service server: /asr_text_output_node/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]
-  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_describe_parameters
-  class M_asr_text_output_node_service_server__asr_text_output_node_describe_parameters observedOnly;
-  M_asr_text_output_node_service_server__asr_text_output_node_get_parameter_types["service server: /asr_text_output_node/get_parameter_types / rcl_interfaces/srv/GetParameterTypes / state=observed_only"]
-  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_get_parameter_types
-  class M_asr_text_output_node_service_server__asr_text_output_node_get_parameter_types observedOnly;
-  M_asr_text_output_node_service_server__asr_text_output_node_get_parameters["service server: /asr_text_output_node/get_parameters / rcl_interfaces/srv/GetParameters / state=observed_only"]
-  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_get_parameters
-  class M_asr_text_output_node_service_server__asr_text_output_node_get_parameters observedOnly;
-  M_asr_text_output_node_service_server__asr_text_output_node_get_type_description["service server: /asr_text_output_node/get_type_description / type_description_interfaces/srv/GetTypeDescription / state=observed_only"]
-  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_get_type_description
-  class M_asr_text_output_node_service_server__asr_text_output_node_get_type_description observedOnly;
-  M_asr_text_output_node_service_server__asr_text_output_node_list_parameters["service server: /asr_text_output_node/list_parameters / rcl_interfaces/srv/ListParameters / state=observed_only"]
-  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_list_parameters
-  class M_asr_text_output_node_service_server__asr_text_output_node_list_parameters observedOnly;
-  M_asr_text_output_node_service_server__asr_text_output_node_set_parameters["service server: /asr_text_output_node/set_parameters / rcl_interfaces/srv/SetParameters / state=observed_only"]
-  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_set_parameters
-  class M_asr_text_output_node_service_server__asr_text_output_node_set_parameters observedOnly;
-  M_asr_text_output_node_service_server__asr_text_output_node_set_parameters_atomically["service server: /asr_text_output_node/set_parameters_atomically / rcl_interfaces/srv/SetParametersAtomically / state=observed_only"]
-  N_asr_text_output_node --> M_asr_text_output_node_service_server__asr_text_output_node_set_parameters_atomically
-  class M_asr_text_output_node_service_server__asr_text_output_node_set_parameters_atomically observedOnly;
-  M_asr_text_output_node_topic_sub__asr_text["topic sub: /asr/text / asr_interfaces/msg/AsrResult / state=observed_only"]
-  N_asr_text_output_node --> M_asr_text_output_node_topic_sub__asr_text
-  class M_asr_text_output_node_topic_sub__asr_text observedOnly;
-  M_asr_text_output_node_topic_pub__asr_text_plain["topic pub: /asr/text/plain / std_msgs/msg/String / state=observed_only"]
-  N_asr_text_output_node --> M_asr_text_output_node_topic_pub__asr_text_plain
-  class M_asr_text_output_node_topic_pub__asr_text_plain observedOnly;
-  M_asr_text_output_node_topic_pub__parameter_events["topic pub: /parameter_events / rcl_interfaces/msg/ParameterEvent / state=observed_only"]
-  N_asr_text_output_node --> M_asr_text_output_node_topic_pub__parameter_events
-  class M_asr_text_output_node_topic_pub__parameter_events observedOnly;
-  M_asr_text_output_node_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
-  N_asr_text_output_node --> M_asr_text_output_node_topic_pub__rosout
-  class M_asr_text_output_node_topic_pub__rosout observedOnly;
-  M_asr_text_output_node_topic_pub_unknown__topic__pub["topic pub: unknown::topic::pub / String / state=expected_only"]
-  N_asr_text_output_node --> M_asr_text_output_node_topic_pub_unknown__topic__pub
-  class M_asr_text_output_node_topic_pub_unknown__topic__pub expectedOnly;
-  M_asr_text_output_node_topic_sub_unknown__topic__sub["topic sub: unknown::topic::sub / AsrResult / state=expected_only"]
-  N_asr_text_output_node --> M_asr_text_output_node_topic_sub_unknown__topic__sub
-  class M_asr_text_output_node_topic_sub_unknown__topic__sub expectedOnly;
-  N_audio_capture_node["node: /audio_capture_node / state=both"]
-  P_asr_ros --> N_audio_capture_node
-  M_audio_capture_node_service_server__audio_capture_node_describe_parameters["service server: /audio_capture_node/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]
-  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_describe_parameters
-  class M_audio_capture_node_service_server__audio_capture_node_describe_parameters observedOnly;
-  M_audio_capture_node_service_server__audio_capture_node_get_parameter_types["service server: /audio_capture_node/get_parameter_types / rcl_interfaces/srv/GetParameterTypes / state=observed_only"]
-  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_get_parameter_types
-  class M_audio_capture_node_service_server__audio_capture_node_get_parameter_types observedOnly;
-  M_audio_capture_node_service_server__audio_capture_node_get_parameters["service server: /audio_capture_node/get_parameters / rcl_interfaces/srv/GetParameters / state=observed_only"]
-  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_get_parameters
-  class M_audio_capture_node_service_server__audio_capture_node_get_parameters observedOnly;
-  M_audio_capture_node_service_server__audio_capture_node_get_type_description["service server: /audio_capture_node/get_type_description / type_description_interfaces/srv/GetTypeDescription / state=observed_only"]
-  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_get_type_description
-  class M_audio_capture_node_service_server__audio_capture_node_get_type_description observedOnly;
-  M_audio_capture_node_service_server__audio_capture_node_list_parameters["service server: /audio_capture_node/list_parameters / rcl_interfaces/srv/ListParameters / state=observed_only"]
-  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_list_parameters
-  class M_audio_capture_node_service_server__audio_capture_node_list_parameters observedOnly;
-  M_audio_capture_node_service_server__audio_capture_node_set_parameters["service server: /audio_capture_node/set_parameters / rcl_interfaces/srv/SetParameters / state=observed_only"]
-  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_set_parameters
-  class M_audio_capture_node_service_server__audio_capture_node_set_parameters observedOnly;
-  M_audio_capture_node_service_server__audio_capture_node_set_parameters_atomically["service server: /audio_capture_node/set_parameters_atomically / rcl_interfaces/srv/SetParametersAtomically / state=observed_only"]
-  N_audio_capture_node --> M_audio_capture_node_service_server__audio_capture_node_set_parameters_atomically
-  class M_audio_capture_node_service_server__audio_capture_node_set_parameters_atomically observedOnly;
-  M_audio_capture_node_timer_internal_timer_1_0["timer internal: timer:1.0 / timer / state=expected_only"]
-  N_audio_capture_node --> M_audio_capture_node_timer_internal_timer_1_0
-  class M_audio_capture_node_timer_internal_timer_1_0 expectedOnly;
-  M_audio_capture_node_topic_pub__asr_audio_chunks["topic pub: /asr/audio_chunks / std_msgs/msg/UInt8MultiArray / state=both"]
-  N_audio_capture_node --> M_audio_capture_node_topic_pub__asr_audio_chunks
-  M_audio_capture_node_topic_pub__parameter_events["topic pub: /parameter_events / rcl_interfaces/msg/ParameterEvent / state=observed_only"]
-  N_audio_capture_node --> M_audio_capture_node_topic_pub__parameter_events
-  class M_audio_capture_node_topic_pub__parameter_events observedOnly;
-  M_audio_capture_node_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
-  N_audio_capture_node --> M_audio_capture_node_topic_pub__rosout
-  class M_audio_capture_node_topic_pub__rosout observedOnly;
   P_asr_runtime_nodes["package: asr_runtime_nodes"]
   ROOT --> P_asr_runtime_nodes
-  N_asr_orchestrator_node["node: /asr_orchestrator_node / state=both"]
+  N_asr_orchestrator_node["node: /asr_orchestrator_node / state=expected_only"]
   P_asr_runtime_nodes --> N_asr_orchestrator_node
-  M_asr_orchestrator_node_service_server__asr_runtime_get_status["service server: /asr/runtime/get_status / asr_interfaces/srv/GetAsrStatus / state=both"]
+  class N_asr_orchestrator_node expectedOnly;
+  M_asr_orchestrator_node_service_server__asr_runtime_get_status["service server: /asr/runtime/get_status / GetAsrStatus / state=expected_only"]
   N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__asr_runtime_get_status
-  M_asr_orchestrator_node_service_server__asr_runtime_list_backends["service server: /asr/runtime/list_backends / asr_interfaces/srv/ListBackends / state=both"]
+  class M_asr_orchestrator_node_service_server__asr_runtime_get_status expectedOnly;
+  M_asr_orchestrator_node_service_server__asr_runtime_list_backends["service server: /asr/runtime/list_backends / ListBackends / state=expected_only"]
   N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__asr_runtime_list_backends
-  M_asr_orchestrator_node_service_server__asr_runtime_recognize_once["service server: /asr/runtime/recognize_once / asr_interfaces/srv/RecognizeOnce / state=both"]
+  class M_asr_orchestrator_node_service_server__asr_runtime_list_backends expectedOnly;
+  M_asr_orchestrator_node_service_server__asr_runtime_recognize_once["service server: /asr/runtime/recognize_once / RecognizeOnce / state=expected_only"]
   N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__asr_runtime_recognize_once
-  M_asr_orchestrator_node_service_server__asr_runtime_reconfigure["service server: /asr/runtime/reconfigure / asr_interfaces/srv/ReconfigureRuntime / state=both"]
+  class M_asr_orchestrator_node_service_server__asr_runtime_recognize_once expectedOnly;
+  M_asr_orchestrator_node_service_server__asr_runtime_reconfigure["service server: /asr/runtime/reconfigure / ReconfigureRuntime / state=expected_only"]
   N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__asr_runtime_reconfigure
-  M_asr_orchestrator_node_service_server__asr_runtime_start_session["service server: /asr/runtime/start_session / asr_interfaces/srv/StartRuntimeSession / state=both"]
+  class M_asr_orchestrator_node_service_server__asr_runtime_reconfigure expectedOnly;
+  M_asr_orchestrator_node_service_server__asr_runtime_start_session["service server: /asr/runtime/start_session / StartRuntimeSession / state=expected_only"]
   N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__asr_runtime_start_session
-  M_asr_orchestrator_node_service_server__asr_runtime_stop_session["service server: /asr/runtime/stop_session / asr_interfaces/srv/StopRuntimeSession / state=both"]
+  class M_asr_orchestrator_node_service_server__asr_runtime_start_session expectedOnly;
+  M_asr_orchestrator_node_service_server__asr_runtime_stop_session["service server: /asr/runtime/stop_session / StopRuntimeSession / state=expected_only"]
   N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__asr_runtime_stop_session
-  M_asr_orchestrator_node_service_server__asr_orchestrator_node_describe_parameters["service server: /asr_orchestrator_node/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__asr_orchestrator_node_describe_parameters
-  class M_asr_orchestrator_node_service_server__asr_orchestrator_node_describe_parameters observedOnly;
-  M_asr_orchestrator_node_service_server__asr_orchestrator_node_get_parameter_types["service server: /asr_orchestrator_node/get_parameter_types / rcl_interfaces/srv/GetParameterTypes / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__asr_orchestrator_node_get_parameter_types
-  class M_asr_orchestrator_node_service_server__asr_orchestrator_node_get_parameter_types observedOnly;
-  M_asr_orchestrator_node_service_server__asr_orchestrator_node_get_parameters["service server: /asr_orchestrator_node/get_parameters / rcl_interfaces/srv/GetParameters / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__asr_orchestrator_node_get_parameters
-  class M_asr_orchestrator_node_service_server__asr_orchestrator_node_get_parameters observedOnly;
-  M_asr_orchestrator_node_service_server__asr_orchestrator_node_get_type_description["service server: /asr_orchestrator_node/get_type_description / type_description_interfaces/srv/GetTypeDescription / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__asr_orchestrator_node_get_type_description
-  class M_asr_orchestrator_node_service_server__asr_orchestrator_node_get_type_description observedOnly;
-  M_asr_orchestrator_node_service_server__asr_orchestrator_node_list_parameters["service server: /asr_orchestrator_node/list_parameters / rcl_interfaces/srv/ListParameters / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__asr_orchestrator_node_list_parameters
-  class M_asr_orchestrator_node_service_server__asr_orchestrator_node_list_parameters observedOnly;
-  M_asr_orchestrator_node_service_server__asr_orchestrator_node_set_parameters["service server: /asr_orchestrator_node/set_parameters / rcl_interfaces/srv/SetParameters / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__asr_orchestrator_node_set_parameters
-  class M_asr_orchestrator_node_service_server__asr_orchestrator_node_set_parameters observedOnly;
-  M_asr_orchestrator_node_service_server__asr_orchestrator_node_set_parameters_atomically["service server: /asr_orchestrator_node/set_parameters_atomically / rcl_interfaces/srv/SetParametersAtomically / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__asr_orchestrator_node_set_parameters_atomically
-  class M_asr_orchestrator_node_service_server__asr_orchestrator_node_set_parameters_atomically observedOnly;
-  M_asr_orchestrator_node_service_server__config_list_profiles["service server: /config/list_profiles / asr_interfaces/srv/ListProfiles / state=both"]
+  class M_asr_orchestrator_node_service_server__asr_runtime_stop_session expectedOnly;
+  M_asr_orchestrator_node_service_server__config_list_profiles["service server: /config/list_profiles / ListProfiles / state=expected_only"]
   N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__config_list_profiles
-  M_asr_orchestrator_node_service_server__config_validate["service server: /config/validate / asr_interfaces/srv/ValidateConfig / state=both"]
+  class M_asr_orchestrator_node_service_server__config_list_profiles expectedOnly;
+  M_asr_orchestrator_node_service_server__config_validate["service server: /config/validate / ValidateConfig / state=expected_only"]
   N_asr_orchestrator_node --> M_asr_orchestrator_node_service_server__config_validate
+  class M_asr_orchestrator_node_service_server__config_validate expectedOnly;
   M_asr_orchestrator_node_service_client_unknown__service__client["service client: unknown::service::client / service_type / state=expected_only"]
   N_asr_orchestrator_node --> M_asr_orchestrator_node_service_client_unknown__service__client
   class M_asr_orchestrator_node_service_client_unknown__service__client expectedOnly;
   M_asr_orchestrator_node_timer_internal_timer_1_0["timer internal: timer:1.0 / timer / state=expected_only"]
   N_asr_orchestrator_node --> M_asr_orchestrator_node_timer_internal_timer_1_0
   class M_asr_orchestrator_node_timer_internal_timer_1_0 expectedOnly;
-  M_asr_orchestrator_node_topic_sub__asr_runtime_audio_preprocessed["topic sub: /asr/runtime/audio/preprocessed / asr_interfaces/msg/AudioChunk / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_topic_sub__asr_runtime_audio_preprocessed
-  class M_asr_orchestrator_node_topic_sub__asr_runtime_audio_preprocessed observedOnly;
-  M_asr_orchestrator_node_topic_sub__asr_runtime_audio_segments["topic sub: /asr/runtime/audio/segments / asr_interfaces/msg/AudioSegment / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_topic_sub__asr_runtime_audio_segments
-  class M_asr_orchestrator_node_topic_sub__asr_runtime_audio_segments observedOnly;
-  M_asr_orchestrator_node_topic_pub__asr_runtime_results_final["topic pub: /asr/runtime/results/final / asr_interfaces/msg/AsrResult / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_topic_pub__asr_runtime_results_final
-  class M_asr_orchestrator_node_topic_pub__asr_runtime_results_final observedOnly;
-  M_asr_orchestrator_node_topic_pub__asr_runtime_results_partial["topic pub: /asr/runtime/results/partial / asr_interfaces/msg/AsrResultPartial / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_topic_pub__asr_runtime_results_partial
-  class M_asr_orchestrator_node_topic_pub__asr_runtime_results_partial observedOnly;
-  M_asr_orchestrator_node_topic_pub__asr_status_nodes["topic pub: /asr/status/nodes / asr_interfaces/msg/NodeStatus / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_topic_pub__asr_status_nodes
-  class M_asr_orchestrator_node_topic_pub__asr_status_nodes observedOnly;
-  M_asr_orchestrator_node_topic_pub__asr_status_sessions["topic pub: /asr/status/sessions / asr_interfaces/msg/SessionStatus / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_topic_pub__asr_status_sessions
-  class M_asr_orchestrator_node_topic_pub__asr_status_sessions observedOnly;
-  M_asr_orchestrator_node_topic_pub__parameter_events["topic pub: /parameter_events / rcl_interfaces/msg/ParameterEvent / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_topic_pub__parameter_events
-  class M_asr_orchestrator_node_topic_pub__parameter_events observedOnly;
-  M_asr_orchestrator_node_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
-  N_asr_orchestrator_node --> M_asr_orchestrator_node_topic_pub__rosout
-  class M_asr_orchestrator_node_topic_pub__rosout observedOnly;
   M_asr_orchestrator_node_topic_pub_unknown__topic__pub["topic pub: unknown::topic::pub / AsrResult / state=expected_only"]
   N_asr_orchestrator_node --> M_asr_orchestrator_node_topic_pub_unknown__topic__pub
   class M_asr_orchestrator_node_topic_pub_unknown__topic__pub expectedOnly;
   M_asr_orchestrator_node_topic_sub_unknown__topic__sub["topic sub: unknown::topic::sub / AudioSegment / state=expected_only"]
   N_asr_orchestrator_node --> M_asr_orchestrator_node_topic_sub_unknown__topic__sub
   class M_asr_orchestrator_node_topic_sub_unknown__topic__sub expectedOnly;
-  N_audio_input_node["node: /audio_input_node / state=both"]
+  N_audio_input_node["node: /audio_input_node / state=expected_only"]
   P_asr_runtime_nodes --> N_audio_input_node
-  M_audio_input_node_service_server__asr_runtime_audio_reconfigure["service server: /asr/runtime/audio/reconfigure / asr_interfaces/srv/ReconfigureRuntime / state=both"]
+  class N_audio_input_node expectedOnly;
+  M_audio_input_node_service_server__asr_runtime_audio_reconfigure["service server: /asr/runtime/audio/reconfigure / ReconfigureRuntime / state=expected_only"]
   N_audio_input_node --> M_audio_input_node_service_server__asr_runtime_audio_reconfigure
-  M_audio_input_node_service_server__asr_runtime_audio_start_session["service server: /asr/runtime/audio/start_session / asr_interfaces/srv/StartRuntimeSession / state=both"]
+  class M_audio_input_node_service_server__asr_runtime_audio_reconfigure expectedOnly;
+  M_audio_input_node_service_server__asr_runtime_audio_start_session["service server: /asr/runtime/audio/start_session / StartRuntimeSession / state=expected_only"]
   N_audio_input_node --> M_audio_input_node_service_server__asr_runtime_audio_start_session
-  M_audio_input_node_service_server__asr_runtime_audio_stop_session["service server: /asr/runtime/audio/stop_session / asr_interfaces/srv/StopRuntimeSession / state=both"]
+  class M_audio_input_node_service_server__asr_runtime_audio_start_session expectedOnly;
+  M_audio_input_node_service_server__asr_runtime_audio_stop_session["service server: /asr/runtime/audio/stop_session / StopRuntimeSession / state=expected_only"]
   N_audio_input_node --> M_audio_input_node_service_server__asr_runtime_audio_stop_session
-  M_audio_input_node_service_server__audio_input_node_describe_parameters["service server: /audio_input_node/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]
-  N_audio_input_node --> M_audio_input_node_service_server__audio_input_node_describe_parameters
-  class M_audio_input_node_service_server__audio_input_node_describe_parameters observedOnly;
-  M_audio_input_node_service_server__audio_input_node_get_parameter_types["service server: /audio_input_node/get_parameter_types / rcl_interfaces/srv/GetParameterTypes / state=observed_only"]
-  N_audio_input_node --> M_audio_input_node_service_server__audio_input_node_get_parameter_types
-  class M_audio_input_node_service_server__audio_input_node_get_parameter_types observedOnly;
-  M_audio_input_node_service_server__audio_input_node_get_parameters["service server: /audio_input_node/get_parameters / rcl_interfaces/srv/GetParameters / state=observed_only"]
-  N_audio_input_node --> M_audio_input_node_service_server__audio_input_node_get_parameters
-  class M_audio_input_node_service_server__audio_input_node_get_parameters observedOnly;
-  M_audio_input_node_service_server__audio_input_node_get_type_description["service server: /audio_input_node/get_type_description / type_description_interfaces/srv/GetTypeDescription / state=observed_only"]
-  N_audio_input_node --> M_audio_input_node_service_server__audio_input_node_get_type_description
-  class M_audio_input_node_service_server__audio_input_node_get_type_description observedOnly;
-  M_audio_input_node_service_server__audio_input_node_list_parameters["service server: /audio_input_node/list_parameters / rcl_interfaces/srv/ListParameters / state=observed_only"]
-  N_audio_input_node --> M_audio_input_node_service_server__audio_input_node_list_parameters
-  class M_audio_input_node_service_server__audio_input_node_list_parameters observedOnly;
-  M_audio_input_node_service_server__audio_input_node_set_parameters["service server: /audio_input_node/set_parameters / rcl_interfaces/srv/SetParameters / state=observed_only"]
-  N_audio_input_node --> M_audio_input_node_service_server__audio_input_node_set_parameters
-  class M_audio_input_node_service_server__audio_input_node_set_parameters observedOnly;
-  M_audio_input_node_service_server__audio_input_node_set_parameters_atomically["service server: /audio_input_node/set_parameters_atomically / rcl_interfaces/srv/SetParametersAtomically / state=observed_only"]
-  N_audio_input_node --> M_audio_input_node_service_server__audio_input_node_set_parameters_atomically
-  class M_audio_input_node_service_server__audio_input_node_set_parameters_atomically observedOnly;
+  class M_audio_input_node_service_server__asr_runtime_audio_stop_session expectedOnly;
   M_audio_input_node_timer_internal_timer_0_5["timer internal: timer:0.5 / timer / state=expected_only"]
   N_audio_input_node --> M_audio_input_node_timer_internal_timer_0_5
   class M_audio_input_node_timer_internal_timer_0_5 expectedOnly;
   M_audio_input_node_timer_internal_timer_1_0["timer internal: timer:1.0 / timer / state=expected_only"]
   N_audio_input_node --> M_audio_input_node_timer_internal_timer_1_0
   class M_audio_input_node_timer_internal_timer_1_0 expectedOnly;
-  M_audio_input_node_topic_pub__asr_runtime_audio_raw["topic pub: /asr/runtime/audio/raw / asr_interfaces/msg/AudioChunk / state=observed_only"]
-  N_audio_input_node --> M_audio_input_node_topic_pub__asr_runtime_audio_raw
-  class M_audio_input_node_topic_pub__asr_runtime_audio_raw observedOnly;
-  M_audio_input_node_topic_pub__asr_status_nodes["topic pub: /asr/status/nodes / asr_interfaces/msg/NodeStatus / state=observed_only"]
-  N_audio_input_node --> M_audio_input_node_topic_pub__asr_status_nodes
-  class M_audio_input_node_topic_pub__asr_status_nodes observedOnly;
-  M_audio_input_node_topic_pub__parameter_events["topic pub: /parameter_events / rcl_interfaces/msg/ParameterEvent / state=observed_only"]
-  N_audio_input_node --> M_audio_input_node_topic_pub__parameter_events
-  class M_audio_input_node_topic_pub__parameter_events observedOnly;
-  M_audio_input_node_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
-  N_audio_input_node --> M_audio_input_node_topic_pub__rosout
-  class M_audio_input_node_topic_pub__rosout observedOnly;
   M_audio_input_node_topic_pub_unknown__topic__pub["topic pub: unknown::topic::pub / AudioChunk / state=expected_only"]
   N_audio_input_node --> M_audio_input_node_topic_pub_unknown__topic__pub
   class M_audio_input_node_topic_pub_unknown__topic__pub expectedOnly;
-  N_audio_preprocess_node["node: /audio_preprocess_node / state=both"]
+  N_audio_preprocess_node["node: /audio_preprocess_node / state=expected_only"]
   P_asr_runtime_nodes --> N_audio_preprocess_node
-  M_audio_preprocess_node_service_server__asr_runtime_preprocess_reconfigure["service server: /asr/runtime/preprocess/reconfigure / asr_interfaces/srv/ReconfigureRuntime / state=both"]
+  class N_audio_preprocess_node expectedOnly;
+  M_audio_preprocess_node_service_server__asr_runtime_preprocess_reconfigure["service server: /asr/runtime/preprocess/reconfigure / ReconfigureRuntime / state=expected_only"]
   N_audio_preprocess_node --> M_audio_preprocess_node_service_server__asr_runtime_preprocess_reconfigure
-  M_audio_preprocess_node_service_server__audio_preprocess_node_describe_parameters["service server: /audio_preprocess_node/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]
-  N_audio_preprocess_node --> M_audio_preprocess_node_service_server__audio_preprocess_node_describe_parameters
-  class M_audio_preprocess_node_service_server__audio_preprocess_node_describe_parameters observedOnly;
-  M_audio_preprocess_node_service_server__audio_preprocess_node_get_parameter_types["service server: /audio_preprocess_node/get_parameter_types / rcl_interfaces/srv/GetParameterTypes / state=observed_only"]
-  N_audio_preprocess_node --> M_audio_preprocess_node_service_server__audio_preprocess_node_get_parameter_types
-  class M_audio_preprocess_node_service_server__audio_preprocess_node_get_parameter_types observedOnly;
-  M_audio_preprocess_node_service_server__audio_preprocess_node_get_parameters["service server: /audio_preprocess_node/get_parameters / rcl_interfaces/srv/GetParameters / state=observed_only"]
-  N_audio_preprocess_node --> M_audio_preprocess_node_service_server__audio_preprocess_node_get_parameters
-  class M_audio_preprocess_node_service_server__audio_preprocess_node_get_parameters observedOnly;
-  M_audio_preprocess_node_service_server__audio_preprocess_node_get_type_description["service server: /audio_preprocess_node/get_type_description / type_description_interfaces/srv/GetTypeDescription / state=observed_only"]
-  N_audio_preprocess_node --> M_audio_preprocess_node_service_server__audio_preprocess_node_get_type_description
-  class M_audio_preprocess_node_service_server__audio_preprocess_node_get_type_description observedOnly;
-  M_audio_preprocess_node_service_server__audio_preprocess_node_list_parameters["service server: /audio_preprocess_node/list_parameters / rcl_interfaces/srv/ListParameters / state=observed_only"]
-  N_audio_preprocess_node --> M_audio_preprocess_node_service_server__audio_preprocess_node_list_parameters
-  class M_audio_preprocess_node_service_server__audio_preprocess_node_list_parameters observedOnly;
-  M_audio_preprocess_node_service_server__audio_preprocess_node_set_parameters["service server: /audio_preprocess_node/set_parameters / rcl_interfaces/srv/SetParameters / state=observed_only"]
-  N_audio_preprocess_node --> M_audio_preprocess_node_service_server__audio_preprocess_node_set_parameters
-  class M_audio_preprocess_node_service_server__audio_preprocess_node_set_parameters observedOnly;
-  M_audio_preprocess_node_service_server__audio_preprocess_node_set_parameters_atomically["service server: /audio_preprocess_node/set_parameters_atomically / rcl_interfaces/srv/SetParametersAtomically / state=observed_only"]
-  N_audio_preprocess_node --> M_audio_preprocess_node_service_server__audio_preprocess_node_set_parameters_atomically
-  class M_audio_preprocess_node_service_server__audio_preprocess_node_set_parameters_atomically observedOnly;
+  class M_audio_preprocess_node_service_server__asr_runtime_preprocess_reconfigure expectedOnly;
   M_audio_preprocess_node_timer_internal_timer_1_0["timer internal: timer:1.0 / timer / state=expected_only"]
   N_audio_preprocess_node --> M_audio_preprocess_node_timer_internal_timer_1_0
   class M_audio_preprocess_node_timer_internal_timer_1_0 expectedOnly;
-  M_audio_preprocess_node_topic_pub__asr_runtime_audio_preprocessed["topic pub: /asr/runtime/audio/preprocessed / asr_interfaces/msg/AudioChunk / state=observed_only"]
-  N_audio_preprocess_node --> M_audio_preprocess_node_topic_pub__asr_runtime_audio_preprocessed
-  class M_audio_preprocess_node_topic_pub__asr_runtime_audio_preprocessed observedOnly;
-  M_audio_preprocess_node_topic_sub__asr_runtime_audio_raw["topic sub: /asr/runtime/audio/raw / asr_interfaces/msg/AudioChunk / state=observed_only"]
-  N_audio_preprocess_node --> M_audio_preprocess_node_topic_sub__asr_runtime_audio_raw
-  class M_audio_preprocess_node_topic_sub__asr_runtime_audio_raw observedOnly;
-  M_audio_preprocess_node_topic_pub__asr_status_nodes["topic pub: /asr/status/nodes / asr_interfaces/msg/NodeStatus / state=observed_only"]
-  N_audio_preprocess_node --> M_audio_preprocess_node_topic_pub__asr_status_nodes
-  class M_audio_preprocess_node_topic_pub__asr_status_nodes observedOnly;
-  M_audio_preprocess_node_topic_pub__parameter_events["topic pub: /parameter_events / rcl_interfaces/msg/ParameterEvent / state=observed_only"]
-  N_audio_preprocess_node --> M_audio_preprocess_node_topic_pub__parameter_events
-  class M_audio_preprocess_node_topic_pub__parameter_events observedOnly;
-  M_audio_preprocess_node_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
-  N_audio_preprocess_node --> M_audio_preprocess_node_topic_pub__rosout
-  class M_audio_preprocess_node_topic_pub__rosout observedOnly;
   M_audio_preprocess_node_topic_pub_unknown__topic__pub["topic pub: unknown::topic::pub / AudioChunk / state=expected_only"]
   N_audio_preprocess_node --> M_audio_preprocess_node_topic_pub_unknown__topic__pub
   class M_audio_preprocess_node_topic_pub_unknown__topic__pub expectedOnly;
   M_audio_preprocess_node_topic_sub_unknown__topic__sub["topic sub: unknown::topic::sub / AudioChunk / state=expected_only"]
   N_audio_preprocess_node --> M_audio_preprocess_node_topic_sub_unknown__topic__sub
   class M_audio_preprocess_node_topic_sub_unknown__topic__sub expectedOnly;
-  N_vad_segmenter_node["node: /vad_segmenter_node / state=both"]
+  N_vad_segmenter_node["node: /vad_segmenter_node / state=expected_only"]
   P_asr_runtime_nodes --> N_vad_segmenter_node
-  M_vad_segmenter_node_service_server__asr_runtime_vad_reconfigure["service server: /asr/runtime/vad/reconfigure / asr_interfaces/srv/ReconfigureRuntime / state=both"]
+  class N_vad_segmenter_node expectedOnly;
+  M_vad_segmenter_node_service_server__asr_runtime_vad_reconfigure["service server: /asr/runtime/vad/reconfigure / ReconfigureRuntime / state=expected_only"]
   N_vad_segmenter_node --> M_vad_segmenter_node_service_server__asr_runtime_vad_reconfigure
-  M_vad_segmenter_node_service_server__vad_segmenter_node_describe_parameters["service server: /vad_segmenter_node/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]
-  N_vad_segmenter_node --> M_vad_segmenter_node_service_server__vad_segmenter_node_describe_parameters
-  class M_vad_segmenter_node_service_server__vad_segmenter_node_describe_parameters observedOnly;
-  M_vad_segmenter_node_service_server__vad_segmenter_node_get_parameter_types["service server: /vad_segmenter_node/get_parameter_types / rcl_interfaces/srv/GetParameterTypes / state=observed_only"]
-  N_vad_segmenter_node --> M_vad_segmenter_node_service_server__vad_segmenter_node_get_parameter_types
-  class M_vad_segmenter_node_service_server__vad_segmenter_node_get_parameter_types observedOnly;
-  M_vad_segmenter_node_service_server__vad_segmenter_node_get_parameters["service server: /vad_segmenter_node/get_parameters / rcl_interfaces/srv/GetParameters / state=observed_only"]
-  N_vad_segmenter_node --> M_vad_segmenter_node_service_server__vad_segmenter_node_get_parameters
-  class M_vad_segmenter_node_service_server__vad_segmenter_node_get_parameters observedOnly;
-  M_vad_segmenter_node_service_server__vad_segmenter_node_get_type_description["service server: /vad_segmenter_node/get_type_description / type_description_interfaces/srv/GetTypeDescription / state=observed_only"]
-  N_vad_segmenter_node --> M_vad_segmenter_node_service_server__vad_segmenter_node_get_type_description
-  class M_vad_segmenter_node_service_server__vad_segmenter_node_get_type_description observedOnly;
-  M_vad_segmenter_node_service_server__vad_segmenter_node_list_parameters["service server: /vad_segmenter_node/list_parameters / rcl_interfaces/srv/ListParameters / state=observed_only"]
-  N_vad_segmenter_node --> M_vad_segmenter_node_service_server__vad_segmenter_node_list_parameters
-  class M_vad_segmenter_node_service_server__vad_segmenter_node_list_parameters observedOnly;
-  M_vad_segmenter_node_service_server__vad_segmenter_node_set_parameters["service server: /vad_segmenter_node/set_parameters / rcl_interfaces/srv/SetParameters / state=observed_only"]
-  N_vad_segmenter_node --> M_vad_segmenter_node_service_server__vad_segmenter_node_set_parameters
-  class M_vad_segmenter_node_service_server__vad_segmenter_node_set_parameters observedOnly;
-  M_vad_segmenter_node_service_server__vad_segmenter_node_set_parameters_atomically["service server: /vad_segmenter_node/set_parameters_atomically / rcl_interfaces/srv/SetParametersAtomically / state=observed_only"]
-  N_vad_segmenter_node --> M_vad_segmenter_node_service_server__vad_segmenter_node_set_parameters_atomically
-  class M_vad_segmenter_node_service_server__vad_segmenter_node_set_parameters_atomically observedOnly;
+  class M_vad_segmenter_node_service_server__asr_runtime_vad_reconfigure expectedOnly;
   M_vad_segmenter_node_timer_internal_timer_1_0["timer internal: timer:1.0 / timer / state=expected_only"]
   N_vad_segmenter_node --> M_vad_segmenter_node_timer_internal_timer_1_0
   class M_vad_segmenter_node_timer_internal_timer_1_0 expectedOnly;
-  M_vad_segmenter_node_topic_sub__asr_runtime_audio_preprocessed["topic sub: /asr/runtime/audio/preprocessed / asr_interfaces/msg/AudioChunk / state=observed_only"]
-  N_vad_segmenter_node --> M_vad_segmenter_node_topic_sub__asr_runtime_audio_preprocessed
-  class M_vad_segmenter_node_topic_sub__asr_runtime_audio_preprocessed observedOnly;
-  M_vad_segmenter_node_topic_pub__asr_runtime_audio_segments["topic pub: /asr/runtime/audio/segments / asr_interfaces/msg/AudioSegment / state=observed_only"]
-  N_vad_segmenter_node --> M_vad_segmenter_node_topic_pub__asr_runtime_audio_segments
-  class M_vad_segmenter_node_topic_pub__asr_runtime_audio_segments observedOnly;
-  M_vad_segmenter_node_topic_pub__asr_runtime_vad_activity["topic pub: /asr/runtime/vad/activity / asr_interfaces/msg/SpeechActivity / state=observed_only"]
-  N_vad_segmenter_node --> M_vad_segmenter_node_topic_pub__asr_runtime_vad_activity
-  class M_vad_segmenter_node_topic_pub__asr_runtime_vad_activity observedOnly;
-  M_vad_segmenter_node_topic_pub__asr_status_nodes["topic pub: /asr/status/nodes / asr_interfaces/msg/NodeStatus / state=observed_only"]
-  N_vad_segmenter_node --> M_vad_segmenter_node_topic_pub__asr_status_nodes
-  class M_vad_segmenter_node_topic_pub__asr_status_nodes observedOnly;
-  M_vad_segmenter_node_topic_pub__parameter_events["topic pub: /parameter_events / rcl_interfaces/msg/ParameterEvent / state=observed_only"]
-  N_vad_segmenter_node --> M_vad_segmenter_node_topic_pub__parameter_events
-  class M_vad_segmenter_node_topic_pub__parameter_events observedOnly;
-  M_vad_segmenter_node_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
-  N_vad_segmenter_node --> M_vad_segmenter_node_topic_pub__rosout
-  class M_vad_segmenter_node_topic_pub__rosout observedOnly;
   M_vad_segmenter_node_topic_pub_unknown__topic__pub["topic pub: unknown::topic::pub / SpeechActivity / state=expected_only"]
   N_vad_segmenter_node --> M_vad_segmenter_node_topic_pub_unknown__topic__pub
   class M_vad_segmenter_node_topic_pub_unknown__topic__pub expectedOnly;
   M_vad_segmenter_node_topic_sub_unknown__topic__sub["topic sub: unknown::topic::sub / AudioChunk / state=expected_only"]
   N_vad_segmenter_node --> M_vad_segmenter_node_topic_sub_unknown__topic__sub
   class M_vad_segmenter_node_topic_sub_unknown__topic__sub expectedOnly;
-  P_unknown["package: unknown"]
-  ROOT --> P_unknown
-  N_asr_gateway_runtime_observer["node: /asr_gateway_runtime_observer / state=observed_only"]
-  P_unknown --> N_asr_gateway_runtime_observer
-  class N_asr_gateway_runtime_observer observedOnly;
-  M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_describe_parameters["service server: /asr_gateway_runtime_observer/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]
-  N_asr_gateway_runtime_observer --> M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_describe_parameters
-  class M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_describe_parameters observedOnly;
-  M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_get_parameter_types["service server: /asr_gateway_runtime_observer/get_parameter_types / rcl_interfaces/srv/GetParameterTypes / state=observed_only"]
-  N_asr_gateway_runtime_observer --> M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_get_parameter_types
-  class M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_get_parameter_types observedOnly;
-  M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_get_parameters["service server: /asr_gateway_runtime_observer/get_parameters / rcl_interfaces/srv/GetParameters / state=observed_only"]
-  N_asr_gateway_runtime_observer --> M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_get_parameters
-  class M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_get_parameters observedOnly;
-  M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_get_type_description["service server: /asr_gateway_runtime_observer/get_type_description / type_description_interfaces/srv/GetTypeDescription / state=observed_only"]
-  N_asr_gateway_runtime_observer --> M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_get_type_description
-  class M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_get_type_description observedOnly;
-  M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_list_parameters["service server: /asr_gateway_runtime_observer/list_parameters / rcl_interfaces/srv/ListParameters / state=observed_only"]
-  N_asr_gateway_runtime_observer --> M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_list_parameters
-  class M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_list_parameters observedOnly;
-  M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_set_parameters["service server: /asr_gateway_runtime_observer/set_parameters / rcl_interfaces/srv/SetParameters / state=observed_only"]
-  N_asr_gateway_runtime_observer --> M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_set_parameters
-  class M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_set_parameters observedOnly;
-  M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_set_parameters_atomically["service server: /asr_gateway_runtime_observer/set_parameters_atomically / rcl_interfaces/srv/SetParametersAtomically / state=observed_only"]
-  N_asr_gateway_runtime_observer --> M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_set_parameters_atomically
-  class M_asr_gateway_runtime_observer_service_server__asr_gateway_runtime_observer_set_parameters_atomically observedOnly;
-  M_asr_gateway_runtime_observer_topic_sub__asr_runtime_results_final["topic sub: /asr/runtime/results/final / asr_interfaces/msg/AsrResult / state=observed_only"]
-  N_asr_gateway_runtime_observer --> M_asr_gateway_runtime_observer_topic_sub__asr_runtime_results_final
-  class M_asr_gateway_runtime_observer_topic_sub__asr_runtime_results_final observedOnly;
-  M_asr_gateway_runtime_observer_topic_sub__asr_runtime_results_partial["topic sub: /asr/runtime/results/partial / asr_interfaces/msg/AsrResultPartial / state=observed_only"]
-  N_asr_gateway_runtime_observer --> M_asr_gateway_runtime_observer_topic_sub__asr_runtime_results_partial
-  class M_asr_gateway_runtime_observer_topic_sub__asr_runtime_results_partial observedOnly;
-  M_asr_gateway_runtime_observer_topic_sub__asr_status_nodes["topic sub: /asr/status/nodes / asr_interfaces/msg/NodeStatus / state=observed_only"]
-  N_asr_gateway_runtime_observer --> M_asr_gateway_runtime_observer_topic_sub__asr_status_nodes
-  class M_asr_gateway_runtime_observer_topic_sub__asr_status_nodes observedOnly;
-  M_asr_gateway_runtime_observer_topic_sub__asr_status_sessions["topic sub: /asr/status/sessions / asr_interfaces/msg/SessionStatus / state=observed_only"]
-  N_asr_gateway_runtime_observer --> M_asr_gateway_runtime_observer_topic_sub__asr_status_sessions
-  class M_asr_gateway_runtime_observer_topic_sub__asr_status_sessions observedOnly;
-  M_asr_gateway_runtime_observer_topic_pub__parameter_events["topic pub: /parameter_events / rcl_interfaces/msg/ParameterEvent / state=observed_only"]
-  N_asr_gateway_runtime_observer --> M_asr_gateway_runtime_observer_topic_pub__parameter_events
-  class M_asr_gateway_runtime_observer_topic_pub__parameter_events observedOnly;
-  M_asr_gateway_runtime_observer_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
-  N_asr_gateway_runtime_observer --> M_asr_gateway_runtime_observer_topic_pub__rosout
-  class M_asr_gateway_runtime_observer_topic_pub__rosout observedOnly;
-  N_rqt_gui_py_node_420998["node: /rqt_gui_py_node_420998 / state=observed_only"]
-  P_unknown --> N_rqt_gui_py_node_420998
-  class N_rqt_gui_py_node_420998 observedOnly;
-  M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_describe_parameters["service server: /rqt_gui_py_node_420998/describe_parameters / rcl_interfaces/srv/DescribeParameters / state=observed_only"]
-  N_rqt_gui_py_node_420998 --> M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_describe_parameters
-  class M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_describe_parameters observedOnly;
-  M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_get_parameter_types["service server: /rqt_gui_py_node_420998/get_parameter_types / rcl_interfaces/srv/GetParameterTypes / state=observed_only"]
-  N_rqt_gui_py_node_420998 --> M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_get_parameter_types
-  class M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_get_parameter_types observedOnly;
-  M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_get_parameters["service server: /rqt_gui_py_node_420998/get_parameters / rcl_interfaces/srv/GetParameters / state=observed_only"]
-  N_rqt_gui_py_node_420998 --> M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_get_parameters
-  class M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_get_parameters observedOnly;
-  M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_get_type_description["service server: /rqt_gui_py_node_420998/get_type_description / type_description_interfaces/srv/GetTypeDescription / state=observed_only"]
-  N_rqt_gui_py_node_420998 --> M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_get_type_description
-  class M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_get_type_description observedOnly;
-  M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_list_parameters["service server: /rqt_gui_py_node_420998/list_parameters / rcl_interfaces/srv/ListParameters / state=observed_only"]
-  N_rqt_gui_py_node_420998 --> M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_list_parameters
-  class M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_list_parameters observedOnly;
-  M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_set_parameters["service server: /rqt_gui_py_node_420998/set_parameters / rcl_interfaces/srv/SetParameters / state=observed_only"]
-  N_rqt_gui_py_node_420998 --> M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_set_parameters
-  class M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_set_parameters observedOnly;
-  M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_set_parameters_atomically["service server: /rqt_gui_py_node_420998/set_parameters_atomically / rcl_interfaces/srv/SetParametersAtomically / state=observed_only"]
-  N_rqt_gui_py_node_420998 --> M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_set_parameters_atomically
-  class M_rqt_gui_py_node_420998_service_server__rqt_gui_py_node_420998_set_parameters_atomically observedOnly;
-  M_rqt_gui_py_node_420998_topic_pub__parameter_events["topic pub: /parameter_events / rcl_interfaces/msg/ParameterEvent / state=observed_only"]
-  N_rqt_gui_py_node_420998 --> M_rqt_gui_py_node_420998_topic_pub__parameter_events
-  class M_rqt_gui_py_node_420998_topic_pub__parameter_events observedOnly;
-  M_rqt_gui_py_node_420998_topic_pub__rosout["topic pub: /rosout / rcl_interfaces/msg/Log / state=observed_only"]
-  N_rqt_gui_py_node_420998 --> M_rqt_gui_py_node_420998_topic_pub__rosout
-  class M_rqt_gui_py_node_420998_topic_pub__rosout observedOnly;

@@ -15,6 +15,7 @@ from __future__ import annotations
 import csv
 import json
 import platform
+from collections import Counter, defaultdict
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
@@ -94,6 +95,178 @@ def _as_bool(value: Any, *, default: bool) -> bool:
 
 def _quality_metrics_enabled(enabled_metrics: list[str] | tuple[str, ...] | set[str]) -> bool:
     return any(metric_name in {"wer", "cer", "sample_accuracy"} for metric_name in enabled_metrics)
+
+
+def _coerce_float(value: Any) -> float | None:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _normalize_noise_key(noise_mode: Any, noise_level: Any) -> str:
+    normalized_level = str(noise_level or "clean").strip().lower() or "clean"
+    normalized_mode = str(noise_mode or "none").strip().lower() or "none"
+    if normalized_level == "clean" or normalized_mode == "none":
+        return "clean"
+    return f"{normalized_mode}:{normalized_level}"
+
+
+def _provider_key_from_result(result: dict[str, Any]) -> str:
+    provider_profile = str(result.get("provider_profile", "") or "").strip()
+    provider_preset = str(result.get("provider_preset", "") or "").strip()
+    provider_id = str(result.get("provider_id", "") or "").strip()
+    base = provider_profile or provider_id or "unknown"
+    return f"{base}:{provider_preset}" if provider_preset else base
+
+
+def _metric_from_summary(payload: dict[str, Any], metric_name: str) -> float | None:
+    for section_name in (
+        "quality_metrics",
+        "latency_metrics",
+        "reliability_metrics",
+        "cost_metrics",
+        "cost_totals",
+        "streaming_metrics",
+        "resource_metrics",
+        "diagnostic_metrics",
+        "mean_metrics",
+    ):
+        section = payload.get(section_name, {})
+        if not isinstance(section, dict):
+            continue
+        value = _coerce_float(section.get(metric_name))
+        if value is not None:
+            return value
+
+    statistic = payload.get("metric_statistics", {}).get(metric_name, {})
+    if isinstance(statistic, dict):
+        for key in ("value", "mean", "sum", "max"):
+            value = _coerce_float(statistic.get(key))
+            if value is not None:
+                return value
+    return None
+
+
+def _provider_noise_summaries(results: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    provider_meta: dict[str, dict[str, str]] = {}
+    for item in results:
+        provider_key = _provider_key_from_result(item)
+        noise_key = _normalize_noise_key(item.get("noise_mode"), item.get("noise_level"))
+        grouped[(provider_key, noise_key)].append(item)
+        provider_meta.setdefault(
+            provider_key,
+            {
+                "provider_key": provider_key,
+                "provider_profile": str(item.get("provider_profile", "") or ""),
+                "provider_id": str(item.get("provider_id", "") or ""),
+                "provider_preset": str(item.get("provider_preset", "") or ""),
+                "provider_label": str(item.get("provider_label", "") or ""),
+            },
+        )
+
+    payload: list[dict[str, Any]] = []
+    for (provider_key, noise_key), rows in sorted(grouped.items()):
+        first = rows[0] if rows else {}
+        payload.append(
+            {
+                **provider_meta.get(provider_key, {}),
+                "noise_key": noise_key,
+                "noise_mode": str(first.get("noise_mode", "none") or "none"),
+                "noise_level": str(first.get("noise_level", "clean") or "clean"),
+                **summarize_result_rows(rows, exclude_corrupted=True),
+            }
+        )
+    return payload
+
+
+def _provider_tradeoff_snapshot(provider_summaries: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    snapshot: list[dict[str, Any]] = []
+    for provider_summary in provider_summaries:
+        snapshot.append(
+            {
+                "provider_key": str(provider_summary.get("provider_key", "") or ""),
+                "provider_profile": str(provider_summary.get("provider_profile", "") or ""),
+                "provider_id": str(provider_summary.get("provider_id", "") or ""),
+                "provider_preset": str(provider_summary.get("provider_preset", "") or ""),
+                "wer": _metric_from_summary(provider_summary, "wer"),
+                "cer": _metric_from_summary(provider_summary, "cer"),
+                "sample_accuracy": _metric_from_summary(provider_summary, "sample_accuracy"),
+                "end_to_end_latency_ms": _metric_from_summary(provider_summary, "end_to_end_latency_ms")
+                or _metric_from_summary(provider_summary, "time_to_final_result_ms")
+                or _metric_from_summary(provider_summary, "total_latency_ms")
+                or _metric_from_summary(provider_summary, "per_utterance_latency_ms"),
+                "end_to_end_rtf": _metric_from_summary(provider_summary, "end_to_end_rtf")
+                or _metric_from_summary(provider_summary, "real_time_factor")
+                or _metric_from_summary(provider_summary, "provider_compute_rtf"),
+                "estimated_cost_usd": _metric_from_summary(provider_summary, "estimated_cost_usd"),
+                "success_rate": _metric_from_summary(provider_summary, "success_rate"),
+                "total_samples": int(provider_summary.get("total_samples", 0) or 0),
+                "warning_samples": int(provider_summary.get("warning_samples", 0) or 0),
+            }
+        )
+    snapshot.sort(
+        key=lambda item: (
+            float(item.get("wer")) if item.get("wer") is not None else float("inf"),
+            float(item.get("end_to_end_latency_ms"))
+            if item.get("end_to_end_latency_ms") is not None
+            else float("inf"),
+            float(item.get("estimated_cost_usd"))
+            if item.get("estimated_cost_usd") is not None
+            else float("inf"),
+        )
+    )
+    return snapshot
+
+
+def _sample_error_summary(results: list[dict[str, Any]]) -> dict[str, Any]:
+    total_rows = len(results)
+    failed_rows = sum(1 for item in results if not bool(item.get("success")))
+    noisy_rows = sum(
+        1 for item in results if _normalize_noise_key(item.get("noise_mode"), item.get("noise_level")) != "clean"
+    )
+    high_wer_rows = sum(1 for item in results if (_coerce_float(item.get("metrics", {}).get("wer")) or 0.0) >= 0.25)
+    high_cer_rows = sum(1 for item in results if (_coerce_float(item.get("metrics", {}).get("cer")) or 0.0) >= 0.15)
+    exact_match_rows = sum(
+        1 for item in results if (_coerce_float(item.get("metrics", {}).get("sample_accuracy")) or 0.0) >= 1.0
+    )
+    error_codes = Counter(
+        str(item.get("error_code", "") or "").strip()
+        for item in results
+        if str(item.get("error_code", "") or "").strip()
+    )
+    return {
+        "total_rows": total_rows,
+        "failed_rows": failed_rows,
+        "noisy_rows": noisy_rows,
+        "clean_rows": total_rows - noisy_rows,
+        "high_wer_rows": high_wer_rows,
+        "high_cer_rows": high_cer_rows,
+        "exact_match_rows": exact_match_rows,
+        "top_error_codes": [
+            {"error_code": code, "count": count}
+            for code, count in error_codes.most_common(6)
+        ],
+    }
+
+
+def _available_analysis_sections(
+    provider_summaries: list[dict[str, Any]],
+    provider_noise_summaries: list[dict[str, Any]],
+    sample_error_summary: dict[str, Any],
+) -> dict[str, bool]:
+    return {
+        "provider_comparison": bool(provider_summaries),
+        "noise_robustness": len({item.get("noise_key", "") for item in provider_noise_summaries}) > 1,
+        "sample_explorer": bool(sample_error_summary.get("total_rows", 0)),
+        "latency_breakdown": bool(provider_summaries),
+        "reliability": any(bool(item.get("reliability_metrics")) for item in provider_summaries),
+        "cost": any(bool(item.get("cost_metrics")) for item in provider_summaries),
+        "streaming": any(bool(item.get("streaming_metrics")) for item in provider_summaries),
+        "resource": any(bool(item.get("resource_metrics")) for item in provider_summaries),
+        "diagnostics": bool(sample_error_summary),
+    }
 
 
 def _validate_quality_reference_samples(
@@ -787,6 +960,9 @@ class BenchmarkOrchestrator:
                 "resource_metrics": {},
                 "diagnostic_metrics": {},
             }
+        provider_noise_summaries = _provider_noise_summaries(results)
+        provider_tradeoff_snapshot = _provider_tradeoff_snapshot(provider_summaries)
+        sample_error_summary = _sample_error_summary(results)
 
         summary = {
             "run_id": run_id,
@@ -811,6 +987,14 @@ class BenchmarkOrchestrator:
                 key: summarize_result_rows(value, exclude_corrupted=True)
                 for key, value in sorted(by_noise.items())
             },
+            "provider_noise_summaries": provider_noise_summaries,
+            "provider_tradeoff_snapshot": provider_tradeoff_snapshot,
+            "sample_error_summary": sample_error_summary,
+            "available_analysis_sections": _available_analysis_sections(
+                provider_summaries,
+                provider_noise_summaries,
+                sample_error_summary,
+            ),
         }
         return summary
 

@@ -118,6 +118,32 @@ def test_azure_secret_status_reports_runtime_ready(tmp_path: Path) -> None:
     assert status["endpoint_mode"] == "url"
 
 
+def test_azure_secret_status_allows_endpoint_url_without_region(tmp_path: Path) -> None:
+    env_file = tmp_path / "runtime.env"
+    env_file.write_text(
+        "AZURE_SPEECH_KEY=test\nASR_AZURE_ENDPOINT=https://example.invalid\n",
+        encoding="utf-8",
+    )
+
+    values = {
+        "AZURE_SPEECH_KEY": ("test", "local_env_file"),
+        "AZURE_SPEECH_REGION": ("", ""),
+        "ASR_AZURE_ENDPOINT": ("https://example.invalid", "local_env_file"),
+    }
+
+    status = azure_secret_status(
+        "secrets/refs/azure.yaml",
+        resolve_env_value=lambda key, _source: values.get(key, ("", "")),
+        local_env_file_path=lambda _source: env_file,
+    )
+
+    assert status["runtime_ready"] is True
+    assert status["status"] == "ready"
+    assert status["endpoint_mode"] == "url"
+    assert status["region_required"] is False
+    assert status["target_ready"] is True
+
+
 def test_azure_secret_status_reports_missing_region(tmp_path: Path) -> None:
     env_file = tmp_path / "runtime.env"
     env_file.write_text("AZURE_SPEECH_KEY=test\n", encoding="utf-8")

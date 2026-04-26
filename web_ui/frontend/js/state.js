@@ -17,6 +17,20 @@ export const state = {
   },
   results: {
     lastComparison: null,
+    selectedRunId: '',
+    lastDetail: null,
+    selectedInspector: null,
+    explorer: {
+      page: 1,
+      page_size: 25,
+      provider: '',
+      preset: '',
+      noise: '',
+      success: '',
+      search: '',
+      sort: 'sample_id',
+      direction: 'asc',
+    },
   },
 };
 

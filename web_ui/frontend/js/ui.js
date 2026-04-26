@@ -62,17 +62,69 @@ function toCode(value) {
   return `<code>${escapeHtml(value)}</code>`;
 }
 
-function table(columns, rows, actions = null) {
+function formatNumber(value, digits = 3) {
+  if (value == null || value === '') {
+    return '—';
+  }
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return String(value);
+  }
+  if (Number.isInteger(numeric)) {
+    return String(numeric);
+  }
+  return numeric.toFixed(digits);
+}
+
+function badge(text, tone = '') {
+  return `<span class="${statusBadgeClass(tone || text)}">${escapeHtml(text)}</span>`;
+}
+
+function statCards(cards) {
+  return `
+    <div class="cards-grid">
+      ${(cards || [])
+        .map(
+          (card) => `
+            <div class="panel stat-card ${escapeHtml(card.tone || '')}">
+              <div class="stat-card__meta">
+                <span class="stat-card__label">${escapeHtml(card.label || '')}</span>
+                ${card.badge ? badge(card.badge, card.tone || card.badge) : ''}
+              </div>
+              <div class="stat-card__value">${escapeHtml(card.value || '—')}</div>
+              ${card.hint ? `<p class="helper">${escapeHtml(card.hint)}</p>` : ''}
+            </div>
+          `
+        )
+        .join('')}
+    </div>
+  `;
+}
+
+function table(columns, rows, actions = null, options = {}) {
+  if (!rows?.length) {
+    return renderEmpty(options.emptyMessage || 'No rows to display.');
+  }
   const headers = columns
     .map((col) => `<th>${escapeHtml(col.label)}</th>`)
     .join('');
 
   const body = rows
     .map((row) => {
+      const rowAttrs = typeof options.rowAttributes === 'function' ? options.rowAttributes(row) : {};
+      const rowAttrText = Object.entries(rowAttrs || {})
+        .map(([key, value]) => `${escapeHtml(key)}="${escapeHtml(value)}"`)
+        .join(' ');
       const cols = columns
-        .map((col) => {
+        .map((col, index) => {
           const raw = typeof col.value === 'function' ? col.value(row) : row[col.key];
-          return `<td>${raw ?? '—'}</td>`;
+          const tdClass = [
+            index === 0 && options.stickyFirstColumn ? 'table__cell--sticky' : '',
+            typeof col.className === 'function' ? col.className(row) : col.className || '',
+          ]
+            .filter(Boolean)
+            .join(' ');
+          return `<td class="${escapeHtml(tdClass)}">${raw ?? '—'}</td>`;
         })
         .join('');
 
@@ -87,14 +139,17 @@ function table(columns, rows, actions = null) {
             .join(' ')}</td>`
         : '';
 
-      return `<tr>${cols}${actionCell}</tr>`;
+      return `<tr ${rowAttrText}>${cols}${actionCell}</tr>`;
     })
     .join('');
 
-  const actionHead = actions ? '<th>Actions</th>' : '';
+  const actionHead = actions ? `<th>${escapeHtml(options.actionsHeaderLabel || 'Actions')}</th>` : '';
+  const tableClass = ['table', options.className || '', options.stickyFirstColumn ? 'table--sticky-first' : '']
+    .filter(Boolean)
+    .join(' ');
   return `
     <div class="table-wrap">
-      <table class="table">
+      <table class="${escapeHtml(tableClass)}">
         <thead><tr>${headers}${actionHead}</tr></thead>
         <tbody>${body}</tbody>
       </table>
@@ -192,9 +247,12 @@ export {
   renderKeyValueList,
   setFeedback,
   statusBadgeClass,
+  statCards,
   table,
   toast,
   toCode,
   updateSelectOptions,
   renderMetricBars,
+  formatNumber,
+  badge,
 };

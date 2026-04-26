@@ -1,32 +1,15 @@
 # asr_provider_google
 
-Modern Google Speech adapter package for the provider-based runtime and
-benchmark stack.
+Canonical Google Speech provider for the runtime, benchmark, and gateway stacks.
 
-## Purpose
+## Contents
 
-This package exposes Google Cloud Speech through the normalized provider
-adapter API used by runtime orchestration and benchmark execution.
+- `asr_provider_google/google_provider.py`: adapter entrypoint used by `ProviderManager`
+- `asr_provider_google/backend.py`: provider-owned Google implementation and streaming helpers
 
-## Main Contents
+## Scope
 
-- `asr_provider_google/google_provider.py`: `GoogleProvider`, the concrete
-  adapter implementation.
-
-## Relationship To Legacy Code
-
-Use this package for new runtime/benchmark work.
-The compatibility layer kept for older code is `asr_backend_google`.
-
-## Typical Flow
-
-1. `ProviderManager` resolves a provider profile.
-2. `GoogleProvider` is instantiated and validated.
-3. Runtime or benchmark code calls `recognize_once()` or streaming helpers.
-4. The adapter returns a normalized provider result.
-
-## Boundary
-
-- No ROS node behavior.
-- No UI logic.
-- No benchmark planning.
+- profile-driven initialization
+- credential/file validation
+- one-shot recognition
+- native streaming

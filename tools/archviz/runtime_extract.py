@@ -74,8 +74,9 @@ def _build_full_profile(ws: str) -> list[LaunchEntry]:
     launches = discover_launches(ws)
 
     preferred: list[tuple[str, str]] = [
-        ("asr_ros", "demo.launch.py"),
-        ("asr_ros", "bringup.launch.py"),
+        ("asr_launch", "gateway_with_runtime.launch.py"),
+        ("asr_launch", "runtime_minimal.launch.py"),
+        ("asr_launch", "benchmark_single_provider.launch.py"),
     ]
     preferred_keys = set(preferred)
 

@@ -7,7 +7,6 @@ cd "$ROOT_DIR"
 RUNTIME_PROFILE="${ASR_RUNTIME_PROFILE:-default_runtime}"
 PROVIDER_PROFILE="${ASR_PROVIDER_PROFILE:-providers/whisper_local}"
 SKIP_BUILD="${ASR_SKIP_BUILD:-0}"
-CANONICAL_SKIP_PACKAGES=(--packages-skip asr_ros asr_benchmark)
 
 find_conflicting_managed_processes() {
   ps -eo pid=,comm=,args= \
@@ -69,13 +68,11 @@ else
     COLCON_PYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" \
       PYTHONPATH="$COLCON_PYTHONPATH" \
       bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon --log-base ros2_ws/log build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --symlink-install \
-        "${CANONICAL_SKIP_PACKAGES[@]}" \
         --cmake-args -DPYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" -DPython3_EXECUTABLE="$COLCON_PYTHON_BIN"
   else
     COLCON_PYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" \
       PYTHONPATH="" \
       bash "$ROOT_DIR/scripts/with_colcon_lock.sh" colcon --log-base ros2_ws/log build --base-paths ros2_ws/src --build-base ros2_ws/build --install-base ros2_ws/install --symlink-install \
-        "${CANONICAL_SKIP_PACKAGES[@]}" \
         --cmake-args -DPYTHON_EXECUTABLE="$COLCON_PYTHON_BIN" -DPython3_EXECUTABLE="$COLCON_PYTHON_BIN"
   fi
 fi

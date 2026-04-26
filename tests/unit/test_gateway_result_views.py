@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 
 import pytest
-from asr_gateway.result_views import compare_runs, list_benchmark_history, run_detail
+from asr_gateway.result_views import compare_runs, list_benchmark_history, run_detail, run_rows_page
 from fastapi import HTTPException
 
 from tests.utils.project import seed_benchmark_run
@@ -110,6 +110,9 @@ def test_run_detail_tolerates_non_list_results_payload(tmp_path: Path) -> None:
     assert payload["results_head"] == []
     assert payload["results_count"] == 0
     assert "provider_summaries" in payload["summary"]
+    assert "analysis" in payload
+    assert "provider_rankings" in payload["analysis"]
+    assert "sample_error_buckets" in payload["analysis"]
 
 
 def test_run_detail_prefers_completed_artifacts_over_failed_job_state(tmp_path: Path) -> None:
@@ -192,6 +195,9 @@ def test_run_detail_hydrates_quality_details_from_dataset_manifest(tmp_path: Pat
     assert row["reference_text"] == "Hello, world!"
     assert row["normalized_reference_text"] == "hello world"
     assert row["normalized_hypothesis_text"] == "hello world"
+    assert row["source_audio_path"].endswith("data/sample/detail.wav")
+    assert row["row_index"] == 0
+    assert row["replay"]["has_clean_audio"] is True
     assert row["quality_support"]["word_edits"] == 0
     assert row["quality_support"]["reference_word_count"] == 2
 
@@ -261,7 +267,33 @@ def test_run_detail_resolves_dataset_manifest_from_dataset_profile(tmp_path: Pat
     row = payload["results_head"][0]
     assert row["reference_text"] == "Numbers 123"
     assert row["normalized_reference_text"] == "numbers 123"
+    assert row["source_audio_path"].endswith("data/sample/profile.wav")
+    assert row["row_index"] == 0
     assert row["quality_support"]["wer"] == 0.0
+
+
+def test_run_rows_page_returns_paginated_filters_and_items(tmp_path: Path) -> None:
+    artifacts_root = tmp_path / "artifacts"
+    seed_benchmark_run(tmp_path, "bench_rows", wer=0.2, cer=0.1)
+
+    payload = run_rows_page(
+        "bench_rows",
+        artifacts_root=artifacts_root,
+        clean_name=_clean_name,
+        read_json=_read_json,
+        page=1,
+        page_size=10,
+        provider="providers/whisper_local",
+        sort="wer",
+        direction="desc",
+    )
+
+    assert payload["run_id"] == "bench_rows"
+    assert payload["total"] == 1
+    assert payload["items"][0]["provider_profile"] == "providers/whisper_local"
+    assert payload["items"][0]["row_index"] == 0
+    assert "providers/whisper_local" in payload["available_filters"]["providers"]
+    assert "clean" in payload["available_filters"]["noise"]
 
 
 def test_list_benchmark_history_preserves_sample_accuracy_independent_of_wer_cer(
@@ -323,3 +355,5 @@ def test_compare_runs_flattens_provider_summaries() -> None:
     assert len(payload["subjects"]) == 4
     assert payload["table"][0]["metric"] == "wer"
     assert payload["table"][0]["best_run"].startswith("run_a::providers/run_a_beta")
+    assert payload["chart_series"][0]["metric"] == "wer"
+    assert payload["chart_series"][0]["points"][0]["rank"] == 1

@@ -1,33 +1,17 @@
 # Test Execution Strategy
 
-## Fast Baseline
-- Command:
-  - `pytest -m "not cloud and not ros and not e2e and not slow and not legacy" -q`
-- Intended for:
-  - local development
-  - CI on push / pull request
-- Includes:
-  - unit
-  - component
-  - contract
-  - api
-  - gui shell
-  - integration CLI
-  - regression
+## Primary Validation
 
-## Extended Local / Pre-Release
-- Command:
-  - `pytest -m "e2e or ros or cloud" -q`
-- Intended for:
-  - manual validation before demos
-  - dedicated validation environments
+- `make test-unit`
+- `make test-ros`
+- `make test-colcon`
 
-## Legacy Coverage
-- Command:
-  - `pytest -m legacy -q`
-- Purpose:
-  - keep historical paths observable without blocking the new baseline
+## Scope
 
-## CI Policy
-- Primary CI job now excludes `legacy`, `e2e`, `slow`, `cloud`, and `ros`.
-- Browser, ROS, and live-cloud suites should run in extended environments where dependencies and credentials are controlled.
+- Primary suites cover the canonical packages in `ros2_ws/src` plus gateway/UI and top-level scripts still used in production flows.
+- Archived assets under `legacy/` are intentionally excluded from the default test matrix.
+
+## Benchmark/Report Checks
+
+- `make bench`
+- `make report`

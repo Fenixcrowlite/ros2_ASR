@@ -3,10 +3,11 @@
     "smoke": {
       "launches": [
         {
-          "package": "asr_ros",
-          "file": "demo.launch.py",
+          "package": "asr_launch",
+          "file": "runtime_minimal.launch.py",
           "args": {
-            "input_mode": "file"
+            "runtime_profile": "default_runtime",
+            "provider_profile": "providers/whisper_local"
           }
         }
       ]

@@ -15,6 +15,11 @@ from asr_config.models import SecretRef
 ENV_KEY_RE = re.compile(r"^[A-Z_][A-Z0-9_]*$")
 
 
+def _is_azure_endpoint_url(value: str) -> bool:
+    text = str(value or "").strip().lower()
+    return text.startswith(("https://", "http://", "wss://"))
+
+
 def _load_yaml(path: Path) -> dict[str, Any]:
     if not path.exists():
         raise FileNotFoundError(f"Secret ref file not found: {path}")
@@ -165,7 +170,23 @@ def resolve_secret_ref(ref: SecretRef) -> dict[str, str]:
             raise FileNotFoundError(f"Secret file does not exist: {file_path}")
 
     if ref.kind in {"env", "file"}:
+        azure_endpoint_value = ""
+        azure_endpoint_url = False
+        if ref.provider == "azure" and ref.kind == "env":
+            azure_endpoint_value, _ = resolve_env_value("ASR_AZURE_ENDPOINT", ref.source_path)
+            azure_endpoint_url = _is_azure_endpoint_url(azure_endpoint_value)
+
         for key in ref.required:
+            if (
+                ref.provider == "azure"
+                and ref.kind == "env"
+                and key == "AZURE_SPEECH_REGION"
+                and azure_endpoint_url
+            ):
+                value, _ = resolve_env_value(key, ref.source_path)
+                if value:
+                    result[key] = value
+                continue
             value, _ = resolve_env_value(key, ref.source_path)
             if not value:
                 raise ValueError(f"Required secret env is missing: {key}")
