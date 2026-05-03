@@ -45,6 +45,10 @@ def _looks_like_schema_first_summary(payload: object) -> bool:
     return isinstance(payload, dict) and "manifest" in payload and "models" in payload
 
 
+def _looks_like_thesis_final_manifest(payload: object) -> bool:
+    return isinstance(payload, dict) and "tables" in payload and "final_report" in payload
+
+
 def _format_provider_header(provider_summary: dict[str, object]) -> str:
     provider_profile = str(provider_summary.get("provider_profile", "") or "")
     provider_preset = str(provider_summary.get("provider_preset", "") or "")
@@ -245,6 +249,51 @@ def _build_schema_first_report(summary_payload: dict[str, object]) -> list[str]:
     return lines
 
 
+def _build_thesis_final_report(manifest_payload: dict[str, object], input_path: Path) -> list[str]:
+    tables_payload = manifest_payload.get("tables", {})
+    tables = tables_payload if isinstance(tables_payload, dict) else {}
+    output_root = input_path.parent
+    existing_report = Path(str(manifest_payload.get("final_report", "") or ""))
+    if existing_report and not existing_report.is_absolute():
+        existing_report = output_root / existing_report.name
+    if existing_report.exists():
+        return existing_report.read_text(encoding="utf-8").splitlines()
+
+    lines: list[str] = []
+    lines.append("# Final Thesis ASR Benchmark Report")
+    lines.append("")
+    lines.append("## Artifact Manifest")
+    lines.append("")
+    lines.append(f"Created: {manifest_payload.get('created_at', '')}")
+    lines.append(f"Run count: {manifest_payload.get('run_count', '')}")
+    lines.append(f"Primary run count: {manifest_payload.get('primary_run_count', '')}")
+    lines.append(f"Summary rows: {manifest_payload.get('summary_row_count', '')}")
+    lines.append(f"Primary summary rows: {manifest_payload.get('primary_summary_row_count', '')}")
+    lines.append(f"Primary utterance rows: {manifest_payload.get('primary_utterance_row_count', '')}")
+    lines.append("")
+    lines.append("## Tables")
+    lines.append("")
+    for table_name, table_path in sorted(tables.items()):
+        path = Path(str(table_path))
+        if not path.is_absolute():
+            path = output_root / path.name
+        row_count = 0
+        if path.exists():
+            with path.open("r", encoding="utf-8") as handle:
+                row_count = max(0, sum(1 for _ in handle) - 1)
+        lines.append(f"- `{table_name}`: {row_count} rows")
+    lines.append("")
+    lines.append("## Methodology")
+    lines.append("")
+    lines.append("Mock and fake providers are excluded from final thesis tables.")
+    lines.append("RTF in this thesis means end-to-end real-time factor unless explicitly stated otherwise.")
+    lines.append("")
+    lines.append("## Limitations")
+    lines.append("")
+    lines.append("The results are indicative unless the selected runs contain a sufficiently large sample set.")
+    return lines
+
+
 def main() -> None:
     """Parse args and write aggregated benchmark report markdown."""
     parser = argparse.ArgumentParser(description="Generate benchmark markdown report")
@@ -265,10 +314,12 @@ def main() -> None:
         lines = _build_canonical_summary_report(raw_payload)
     elif _looks_like_schema_first_summary(raw_payload):
         lines = _build_schema_first_report(raw_payload)
+    elif _looks_like_thesis_final_manifest(raw_payload):
+        lines = _build_thesis_final_report(raw_payload, input_path)
     else:
         raise SystemExit(
             "Unsupported benchmark JSON schema. Expected legacy flat record list "
-            "or canonical/schema-first benchmark summary object."
+            "or canonical/schema-first/final thesis benchmark summary object."
         )
 
     lines.append("")

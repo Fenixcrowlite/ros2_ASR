@@ -1,0 +1,4 @@
+provider,model,embedded_score,batch_score,analytics_score,dialog_score,best_use_case,final_recommendation
+huggingface_local,balanced,68.11272574,70.94667026,80.66007117,65.49246126,analytics,best suited for offline analysis in this result set
+vosk_local,en_small,58.43814106,60.3614512,35.63982109,47.56531533,batch,best suited for batch throughput in this result set
+whisper_local,light,77.55073928,77.42918671,61.89037695,67.0541147,embedded,best suited for local/embedded ROS2 use in this result set

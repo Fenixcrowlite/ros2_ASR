@@ -21,6 +21,9 @@ for file in "${TRACKED_FILES[@]}"; do
   [[ "$file" == dist/* ]] && continue
   [[ -f "$file" ]] || continue
 
+  if [[ "$file" == ".env" || "$file" =~ \.env$ ]]; then
+    FINDINGS+=("tracked env file path: $file")
+  fi
   if [[ "$file" =~ \.(pem|p12|key)$ ]]; then
     FINDINGS+=("tracked key-like file path: $file")
   fi

@@ -1,19 +1,1712 @@
 {
-  "meta": {
-    "source": "runtime",
-    "workspace": "ros2_ws",
-    "generated_at": "2026-04-13T13:10:00Z",
-    "schema_version": 1
-  },
-  "packages": [],
-  "launches": [],
-  "nodes": [],
-  "topics": [],
-  "services": [],
-  "actions": [],
-  "edges": [],
-  "runtime_errors": [
-    "Runtime architecture capture was skipped on 2026-04-13 because another managed ASR stack from this workspace was already running. Stop the live stack and rerun `make arch` to refresh the runtime snapshot."
+  "actions": [
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/benchmark/run_experiment",
+      "type": "asr_interfaces/action/RunBenchmarkExperiment"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/datasets/import",
+      "type": "asr_interfaces/action/ImportDataset"
+    }
   ],
-  "snapshots": []
+  "edges": [
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/parameter_events",
+      "node": "/asr_gateway_client_bridge",
+      "type": "rcl_interfaces/msg/ParameterEvent"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/rosout",
+      "node": "/asr_gateway_client_bridge",
+      "type": "rcl_interfaces/msg/Log"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_client_bridge/describe_parameters",
+      "node": "/asr_gateway_client_bridge",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_client_bridge/get_parameter_types",
+      "node": "/asr_gateway_client_bridge",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_client_bridge/get_parameters",
+      "node": "/asr_gateway_client_bridge",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_client_bridge/get_type_description",
+      "node": "/asr_gateway_client_bridge",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_client_bridge/list_parameters",
+      "node": "/asr_gateway_client_bridge",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_client_bridge/set_parameters",
+      "node": "/asr_gateway_client_bridge",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_client_bridge/set_parameters_atomically",
+      "node": "/asr_gateway_client_bridge",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/parameter_events",
+      "node": "/asr_gateway_runtime_observer",
+      "type": "rcl_interfaces/msg/ParameterEvent"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/rosout",
+      "node": "/asr_gateway_runtime_observer",
+      "type": "rcl_interfaces/msg/Log"
+    },
+    {
+      "direction": "sub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/runtime/results/final",
+      "node": "/asr_gateway_runtime_observer",
+      "type": "asr_interfaces/msg/AsrResult"
+    },
+    {
+      "direction": "sub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/runtime/results/partial",
+      "node": "/asr_gateway_runtime_observer",
+      "type": "asr_interfaces/msg/AsrResultPartial"
+    },
+    {
+      "direction": "sub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/status/nodes",
+      "node": "/asr_gateway_runtime_observer",
+      "type": "asr_interfaces/msg/NodeStatus"
+    },
+    {
+      "direction": "sub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/status/sessions",
+      "node": "/asr_gateway_runtime_observer",
+      "type": "asr_interfaces/msg/SessionStatus"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_runtime_observer/describe_parameters",
+      "node": "/asr_gateway_runtime_observer",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_runtime_observer/get_parameter_types",
+      "node": "/asr_gateway_runtime_observer",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_runtime_observer/get_parameters",
+      "node": "/asr_gateway_runtime_observer",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_runtime_observer/get_type_description",
+      "node": "/asr_gateway_runtime_observer",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_runtime_observer/list_parameters",
+      "node": "/asr_gateway_runtime_observer",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_runtime_observer/set_parameters",
+      "node": "/asr_gateway_runtime_observer",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_gateway_runtime_observer/set_parameters_atomically",
+      "node": "/asr_gateway_runtime_observer",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/runtime/results/final",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/msg/AsrResult"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/runtime/results/partial",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/msg/AsrResultPartial"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/status/nodes",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/msg/NodeStatus"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/status/sessions",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/msg/SessionStatus"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/parameter_events",
+      "node": "/asr_orchestrator_node",
+      "type": "rcl_interfaces/msg/ParameterEvent"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/rosout",
+      "node": "/asr_orchestrator_node",
+      "type": "rcl_interfaces/msg/Log"
+    },
+    {
+      "direction": "sub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/runtime/audio/preprocessed",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/msg/AudioChunk"
+    },
+    {
+      "direction": "sub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/runtime/audio/segments",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/msg/AudioSegment"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/runtime/get_status",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/srv/GetAsrStatus"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/runtime/list_backends",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/srv/ListBackends"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/runtime/recognize_once",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/srv/RecognizeOnce"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/runtime/reconfigure",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/srv/ReconfigureRuntime"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/runtime/start_session",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/srv/StartRuntimeSession"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/runtime/stop_session",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/srv/StopRuntimeSession"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_orchestrator_node/describe_parameters",
+      "node": "/asr_orchestrator_node",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_orchestrator_node/get_parameter_types",
+      "node": "/asr_orchestrator_node",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_orchestrator_node/get_parameters",
+      "node": "/asr_orchestrator_node",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_orchestrator_node/get_type_description",
+      "node": "/asr_orchestrator_node",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_orchestrator_node/list_parameters",
+      "node": "/asr_orchestrator_node",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_orchestrator_node/set_parameters",
+      "node": "/asr_orchestrator_node",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr_orchestrator_node/set_parameters_atomically",
+      "node": "/asr_orchestrator_node",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/config/list_profiles",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/srv/ListProfiles"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/config/validate",
+      "node": "/asr_orchestrator_node",
+      "type": "asr_interfaces/srv/ValidateConfig"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/runtime/audio/raw",
+      "node": "/audio_input_node",
+      "type": "asr_interfaces/msg/AudioChunk"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/status/nodes",
+      "node": "/audio_input_node",
+      "type": "asr_interfaces/msg/NodeStatus"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/parameter_events",
+      "node": "/audio_input_node",
+      "type": "rcl_interfaces/msg/ParameterEvent"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/rosout",
+      "node": "/audio_input_node",
+      "type": "rcl_interfaces/msg/Log"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/runtime/audio/reconfigure",
+      "node": "/audio_input_node",
+      "type": "asr_interfaces/srv/ReconfigureRuntime"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/runtime/audio/start_session",
+      "node": "/audio_input_node",
+      "type": "asr_interfaces/srv/StartRuntimeSession"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/runtime/audio/stop_session",
+      "node": "/audio_input_node",
+      "type": "asr_interfaces/srv/StopRuntimeSession"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_input_node/describe_parameters",
+      "node": "/audio_input_node",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_input_node/get_parameter_types",
+      "node": "/audio_input_node",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_input_node/get_parameters",
+      "node": "/audio_input_node",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_input_node/get_type_description",
+      "node": "/audio_input_node",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_input_node/list_parameters",
+      "node": "/audio_input_node",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_input_node/set_parameters",
+      "node": "/audio_input_node",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_input_node/set_parameters_atomically",
+      "node": "/audio_input_node",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/runtime/audio/preprocessed",
+      "node": "/audio_preprocess_node",
+      "type": "asr_interfaces/msg/AudioChunk"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/status/nodes",
+      "node": "/audio_preprocess_node",
+      "type": "asr_interfaces/msg/NodeStatus"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/parameter_events",
+      "node": "/audio_preprocess_node",
+      "type": "rcl_interfaces/msg/ParameterEvent"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/rosout",
+      "node": "/audio_preprocess_node",
+      "type": "rcl_interfaces/msg/Log"
+    },
+    {
+      "direction": "sub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/runtime/audio/raw",
+      "node": "/audio_preprocess_node",
+      "type": "asr_interfaces/msg/AudioChunk"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/runtime/preprocess/reconfigure",
+      "node": "/audio_preprocess_node",
+      "type": "asr_interfaces/srv/ReconfigureRuntime"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_preprocess_node/describe_parameters",
+      "node": "/audio_preprocess_node",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_preprocess_node/get_parameter_types",
+      "node": "/audio_preprocess_node",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_preprocess_node/get_parameters",
+      "node": "/audio_preprocess_node",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_preprocess_node/get_type_description",
+      "node": "/audio_preprocess_node",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_preprocess_node/list_parameters",
+      "node": "/audio_preprocess_node",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_preprocess_node/set_parameters",
+      "node": "/audio_preprocess_node",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/audio_preprocess_node/set_parameters_atomically",
+      "node": "/audio_preprocess_node",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/runtime/audio/segments",
+      "node": "/vad_segmenter_node",
+      "type": "asr_interfaces/msg/AudioSegment"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/runtime/vad/activity",
+      "node": "/vad_segmenter_node",
+      "type": "asr_interfaces/msg/SpeechActivity"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/status/nodes",
+      "node": "/vad_segmenter_node",
+      "type": "asr_interfaces/msg/NodeStatus"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/parameter_events",
+      "node": "/vad_segmenter_node",
+      "type": "rcl_interfaces/msg/ParameterEvent"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/rosout",
+      "node": "/vad_segmenter_node",
+      "type": "rcl_interfaces/msg/Log"
+    },
+    {
+      "direction": "sub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/asr/runtime/audio/preprocessed",
+      "node": "/vad_segmenter_node",
+      "type": "asr_interfaces/msg/AudioChunk"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/asr/runtime/vad/reconfigure",
+      "node": "/vad_segmenter_node",
+      "type": "asr_interfaces/srv/ReconfigureRuntime"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/vad_segmenter_node/describe_parameters",
+      "node": "/vad_segmenter_node",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/vad_segmenter_node/get_parameter_types",
+      "node": "/vad_segmenter_node",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/vad_segmenter_node/get_parameters",
+      "node": "/vad_segmenter_node",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/vad_segmenter_node/get_type_description",
+      "node": "/vad_segmenter_node",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/vad_segmenter_node/list_parameters",
+      "node": "/vad_segmenter_node",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/vad_segmenter_node/set_parameters",
+      "node": "/vad_segmenter_node",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/vad_segmenter_node/set_parameters_atomically",
+      "node": "/vad_segmenter_node",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/parameter_events",
+      "node": "/benchmark_manager_node",
+      "type": "rcl_interfaces/msg/ParameterEvent"
+    },
+    {
+      "direction": "pub",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "topic",
+      "name": "/rosout",
+      "node": "/benchmark_manager_node",
+      "type": "rcl_interfaces/msg/Log"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/benchmark/get_status",
+      "node": "/benchmark_manager_node",
+      "type": "asr_interfaces/srv/GetBenchmarkStatus"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/benchmark_manager_node/describe_parameters",
+      "node": "/benchmark_manager_node",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/benchmark_manager_node/get_parameter_types",
+      "node": "/benchmark_manager_node",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/benchmark_manager_node/get_parameters",
+      "node": "/benchmark_manager_node",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/benchmark_manager_node/get_type_description",
+      "node": "/benchmark_manager_node",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/benchmark_manager_node/list_parameters",
+      "node": "/benchmark_manager_node",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/benchmark_manager_node/set_parameters",
+      "node": "/benchmark_manager_node",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/benchmark_manager_node/set_parameters_atomically",
+      "node": "/benchmark_manager_node",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/datasets/list",
+      "node": "/benchmark_manager_node",
+      "type": "asr_interfaces/srv/ListDatasets"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "service",
+      "name": "/datasets/register",
+      "node": "/benchmark_manager_node",
+      "type": "asr_interfaces/srv/RegisterDataset"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "action",
+      "name": "/benchmark/run_experiment",
+      "node": "/benchmark_manager_node",
+      "type": "asr_interfaces/action/RunBenchmarkExperiment"
+    },
+    {
+      "direction": "server",
+      "evidence": [
+        "runtime_cli"
+      ],
+      "kind": "action",
+      "name": "/datasets/import",
+      "node": "/benchmark_manager_node",
+      "type": "asr_interfaces/action/ImportDataset"
+    }
+  ],
+  "launches": [],
+  "meta": {
+    "generated_at": "2026-05-03T18:16:19.593442+00:00",
+    "schema_version": 1,
+    "source": "runtime",
+    "workspace": "/home/fenix/Desktop/ros2ws/ros2_ws"
+  },
+  "nodes": [
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": "unknown",
+      "id": "/asr_gateway_client_bridge",
+      "name": "asr_gateway_client_bridge",
+      "namespace": "/",
+      "package": "unknown"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": "unknown",
+      "id": "/asr_gateway_runtime_observer",
+      "name": "asr_gateway_runtime_observer",
+      "namespace": "/",
+      "package": "unknown"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": "unknown",
+      "id": "/asr_orchestrator_node",
+      "name": "asr_orchestrator_node",
+      "namespace": "/",
+      "package": "unknown"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": "unknown",
+      "id": "/audio_input_node",
+      "name": "audio_input_node",
+      "namespace": "/",
+      "package": "unknown"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": "unknown",
+      "id": "/audio_preprocess_node",
+      "name": "audio_preprocess_node",
+      "namespace": "/",
+      "package": "unknown"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": "unknown",
+      "id": "/vad_segmenter_node",
+      "name": "vad_segmenter_node",
+      "namespace": "/",
+      "package": "unknown"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "executable": "unknown",
+      "id": "/benchmark_manager_node",
+      "name": "benchmark_manager_node",
+      "namespace": "/",
+      "package": "unknown"
+    }
+  ],
+  "packages": [],
+  "runtime_errors": [],
+  "services": [
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_client_bridge/describe_parameters",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_client_bridge/get_parameter_types",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_client_bridge/get_parameters",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_client_bridge/get_type_description",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_client_bridge/list_parameters",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_client_bridge/set_parameters",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_client_bridge/set_parameters_atomically",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_runtime_observer/describe_parameters",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_runtime_observer/get_parameter_types",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_runtime_observer/get_parameters",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_runtime_observer/get_type_description",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_runtime_observer/list_parameters",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_runtime_observer/set_parameters",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_gateway_runtime_observer/set_parameters_atomically",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/get_status",
+      "type": "asr_interfaces/srv/GetAsrStatus"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/list_backends",
+      "type": "asr_interfaces/srv/ListBackends"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/recognize_once",
+      "type": "asr_interfaces/srv/RecognizeOnce"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/reconfigure",
+      "type": "asr_interfaces/srv/ReconfigureRuntime"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/start_session",
+      "type": "asr_interfaces/srv/StartRuntimeSession"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/stop_session",
+      "type": "asr_interfaces/srv/StopRuntimeSession"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_orchestrator_node/describe_parameters",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_orchestrator_node/get_parameter_types",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_orchestrator_node/get_parameters",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_orchestrator_node/get_type_description",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_orchestrator_node/list_parameters",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_orchestrator_node/set_parameters",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr_orchestrator_node/set_parameters_atomically",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/config/list_profiles",
+      "type": "asr_interfaces/srv/ListProfiles"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/config/validate",
+      "type": "asr_interfaces/srv/ValidateConfig"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/audio/reconfigure",
+      "type": "asr_interfaces/srv/ReconfigureRuntime"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/audio/start_session",
+      "type": "asr_interfaces/srv/StartRuntimeSession"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/audio/stop_session",
+      "type": "asr_interfaces/srv/StopRuntimeSession"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_input_node/describe_parameters",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_input_node/get_parameter_types",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_input_node/get_parameters",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_input_node/get_type_description",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_input_node/list_parameters",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_input_node/set_parameters",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_input_node/set_parameters_atomically",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/preprocess/reconfigure",
+      "type": "asr_interfaces/srv/ReconfigureRuntime"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_preprocess_node/describe_parameters",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_preprocess_node/get_parameter_types",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_preprocess_node/get_parameters",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_preprocess_node/get_type_description",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_preprocess_node/list_parameters",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_preprocess_node/set_parameters",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/audio_preprocess_node/set_parameters_atomically",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/vad/reconfigure",
+      "type": "asr_interfaces/srv/ReconfigureRuntime"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/vad_segmenter_node/describe_parameters",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/vad_segmenter_node/get_parameter_types",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/vad_segmenter_node/get_parameters",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/vad_segmenter_node/get_type_description",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/vad_segmenter_node/list_parameters",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/vad_segmenter_node/set_parameters",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/vad_segmenter_node/set_parameters_atomically",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/benchmark/get_status",
+      "type": "asr_interfaces/srv/GetBenchmarkStatus"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/benchmark_manager_node/describe_parameters",
+      "type": "rcl_interfaces/srv/DescribeParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/benchmark_manager_node/get_parameter_types",
+      "type": "rcl_interfaces/srv/GetParameterTypes"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/benchmark_manager_node/get_parameters",
+      "type": "rcl_interfaces/srv/GetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/benchmark_manager_node/get_type_description",
+      "type": "type_description_interfaces/srv/GetTypeDescription"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/benchmark_manager_node/list_parameters",
+      "type": "rcl_interfaces/srv/ListParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/benchmark_manager_node/set_parameters",
+      "type": "rcl_interfaces/srv/SetParameters"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/benchmark_manager_node/set_parameters_atomically",
+      "type": "rcl_interfaces/srv/SetParametersAtomically"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/datasets/list",
+      "type": "asr_interfaces/srv/ListDatasets"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/datasets/register",
+      "type": "asr_interfaces/srv/RegisterDataset"
+    }
+  ],
+  "snapshots": [
+    {
+      "duration_sec": 28.766,
+      "errors": [],
+      "launch": {
+        "args": {},
+        "command": "ros2 launch asr_launch gateway_with_runtime.launch.py",
+        "file": "gateway_with_runtime.launch.py",
+        "package": "asr_launch",
+        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py"
+      },
+      "stderr_tail": "",
+      "stdout_tail": "g signal 'SIGINT' to process[asr_orchestrator_node-4]\n[INFO] [vad_segmenter_node-3]: sending signal 'SIGINT' to process[vad_segmenter_node-3]\n[INFO] [audio_preprocess_node-2]: sending signal 'SIGINT' to process[audio_preprocess_node-2]\n[INFO] [audio_input_node-1]: sending signal 'SIGINT' to process[audio_input_node-1]\n[asr_gateway_server-5] gateway ROS bridge executor stopped unexpectedly: \n[asr_gateway_server-5] INFO:     Shutting down\n[asr_gateway_server-5] INFO:     Waiting for application shutdown.\n[asr_gateway_server-5] INFO:     Application shutdown complete.\n[asr_gateway_server-5] INFO:     Finished server process [62842]\n[INFO] [vad_segmenter_node-3]: process has finished cleanly [pid 62840]\n[INFO] [audio_preprocess_node-2]: process has finished cleanly [pid 62839]\n[INFO] [asr_orchestrator_node-4]: process has finished cleanly [pid 62841]\n[INFO] [audio_input_node-1]: process has finished cleanly [pid 62838]\n[INFO] [asr_gateway_server-5]: process has finished cleanly [pid 62842]"
+    },
+    {
+      "duration_sec": 27.242,
+      "errors": [],
+      "launch": {
+        "args": {},
+        "command": "ros2 launch asr_launch runtime_minimal.launch.py",
+        "file": "runtime_minimal.launch.py",
+        "package": "asr_launch",
+        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/runtime_minimal.launch.py"
+      },
+      "stderr_tail": "",
+      "stdout_tail": "_node-3]: process started with pid [63329]\n[INFO] [asr_orchestrator_node-4]: process started with pid [63330]\n[audio_input_node-1] [INFO] [1777832209.372772334] [audio_input_node]: Audio input configured: profile=default_runtime source=file file=data/sample/vosk_test.wav mic_device=default\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [asr_orchestrator_node-4]: sending signal 'SIGINT' to process[asr_orchestrator_node-4]\n[INFO] [vad_segmenter_node-3]: sending signal 'SIGINT' to process[vad_segmenter_node-3]\n[INFO] [audio_preprocess_node-2]: sending signal 'SIGINT' to process[audio_preprocess_node-2]\n[INFO] [audio_input_node-1]: sending signal 'SIGINT' to process[audio_input_node-1]\n[INFO] [vad_segmenter_node-3]: process has finished cleanly [pid 63329]\n[INFO] [audio_preprocess_node-2]: process has finished cleanly [pid 63328]\n[INFO] [audio_input_node-1]: process has finished cleanly [pid 63327]\n[INFO] [asr_orchestrator_node-4]: process has finished cleanly [pid 63330]"
+    },
+    {
+      "duration_sec": 22.83,
+      "errors": [],
+      "launch": {
+        "args": {},
+        "command": "ros2 launch asr_launch benchmark_single_provider.launch.py",
+        "file": "benchmark_single_provider.launch.py",
+        "package": "asr_launch",
+        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/benchmark_single_provider.launch.py"
+      },
+      "stderr_tail": "",
+      "stdout_tail": "[INFO] [launch]: All log files can be found below /home/fenix/.ros/log/2026-05-03-20-17-16-115252-fenixmachine-63889\n[INFO] [launch]: Default logging verbosity is set to INFO\n[INFO] [benchmark_manager_node-1]: process started with pid [63900]\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [benchmark_manager_node-1]: sending signal 'SIGINT' to process[benchmark_manager_node-1]\n[INFO] [benchmark_manager_node-1]: process has finished cleanly [pid 63900]"
+    },
+    {
+      "duration_sec": 22.8,
+      "errors": [],
+      "launch": {
+        "args": {},
+        "command": "ros2 launch asr_launch benchmark_matrix.launch.py",
+        "file": "benchmark_matrix.launch.py",
+        "package": "asr_launch",
+        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/benchmark_matrix.launch.py"
+      },
+      "stderr_tail": "",
+      "stdout_tail": "[INFO] [launch]: All log files can be found below /home/fenix/.ros/log/2026-05-03-20-17-38-951825-fenixmachine-64156\n[INFO] [launch]: Default logging verbosity is set to INFO\n[INFO] [benchmark_manager_node-1]: process started with pid [64160]\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [benchmark_manager_node-1]: sending signal 'SIGINT' to process[benchmark_manager_node-1]\n[INFO] [benchmark_manager_node-1]: process has finished cleanly [pid 64160]"
+    },
+    {
+      "duration_sec": 28.609,
+      "errors": [],
+      "launch": {
+        "args": {},
+        "command": "ros2 launch asr_launch full_stack_dev.launch.py",
+        "file": "full_stack_dev.launch.py",
+        "package": "asr_launch",
+        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/full_stack_dev.launch.py"
+      },
+      "stderr_tail": "",
+      "stdout_tail": "node-3]: sending signal 'SIGINT' to process[vad_segmenter_node-3]\n[INFO] [audio_preprocess_node-2]: sending signal 'SIGINT' to process[audio_preprocess_node-2]\n[INFO] [audio_input_node-1]: sending signal 'SIGINT' to process[audio_input_node-1]\n[asr_gateway_server-5] gateway ROS bridge executor stopped unexpectedly: \n[asr_gateway_server-5] INFO:     Shutting down\n[asr_gateway_server-5] INFO:     Waiting for application shutdown.\n[asr_gateway_server-5] INFO:     Application shutdown complete.\n[asr_gateway_server-5] INFO:     Finished server process [64427]\n[INFO] [benchmark_manager_node-6]: process has finished cleanly [pid 64428]\n[INFO] [vad_segmenter_node-3]: process has finished cleanly [pid 64425]\n[INFO] [audio_input_node-1]: process has finished cleanly [pid 64423]\n[INFO] [audio_preprocess_node-2]: process has finished cleanly [pid 64424]\n[INFO] [asr_orchestrator_node-4]: process has finished cleanly [pid 64426]\n[INFO] [asr_gateway_server-5]: process has finished cleanly [pid 64427]"
+    },
+    {
+      "duration_sec": 27.411,
+      "errors": [],
+      "launch": {
+        "args": {
+          "input_mode": "file"
+        },
+        "command": "ros2 launch asr_launch runtime_streaming.launch.py input_mode:=file",
+        "file": "runtime_streaming.launch.py",
+        "package": "asr_launch",
+        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/runtime_streaming.launch.py"
+      },
+      "stderr_tail": "",
+      "stdout_tail": "_node-3]: process started with pid [65000]\n[INFO] [asr_orchestrator_node-4]: process started with pid [65001]\n[audio_input_node-1] [INFO] [1777832310.899418637] [audio_input_node]: Audio input configured: profile=default_runtime source=file file=data/sample/vosk_test.wav mic_device=default\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [asr_orchestrator_node-4]: sending signal 'SIGINT' to process[asr_orchestrator_node-4]\n[INFO] [vad_segmenter_node-3]: sending signal 'SIGINT' to process[vad_segmenter_node-3]\n[INFO] [audio_preprocess_node-2]: sending signal 'SIGINT' to process[audio_preprocess_node-2]\n[INFO] [audio_input_node-1]: sending signal 'SIGINT' to process[audio_input_node-1]\n[INFO] [audio_input_node-1]: process has finished cleanly [pid 64998]\n[INFO] [asr_orchestrator_node-4]: process has finished cleanly [pid 65001]\n[INFO] [vad_segmenter_node-3]: process has finished cleanly [pid 65000]\n[INFO] [audio_preprocess_node-2]: process has finished cleanly [pid 64999]"
+    }
+  ],
+  "topics": [
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/parameter_events",
+      "type": "rcl_interfaces/msg/ParameterEvent"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/rosout",
+      "type": "rcl_interfaces/msg/Log"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/results/final",
+      "type": "asr_interfaces/msg/AsrResult"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/results/partial",
+      "type": "asr_interfaces/msg/AsrResultPartial"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/status/nodes",
+      "type": "asr_interfaces/msg/NodeStatus"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/status/sessions",
+      "type": "asr_interfaces/msg/SessionStatus"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/audio/preprocessed",
+      "type": "asr_interfaces/msg/AudioChunk"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/audio/segments",
+      "type": "asr_interfaces/msg/AudioSegment"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/audio/raw",
+      "type": "asr_interfaces/msg/AudioChunk"
+    },
+    {
+      "evidence": [
+        "runtime_cli"
+      ],
+      "name": "/asr/runtime/vad/activity",
+      "type": "asr_interfaces/msg/SpeechActivity"
+    }
+  ]
 }

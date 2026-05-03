@@ -1,0 +1,4 @@
+provider,model,local_or_cloud,cost_per_audio_hour_usd,offline_capable,internet_required,credentials_required,ros2_suitability,cocohrip_suitability
+whisper_local,light,local,,true,false,false,high,high for offline/local baseline
+huggingface_local,balanced,local,,true,model download only,false,medium-high,good when model cache and hardware are available
+vosk_local,en_small,local,,true,false,false,high,high for embedded/offline commands

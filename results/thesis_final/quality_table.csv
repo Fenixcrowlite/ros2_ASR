@@ -1,0 +1,4 @@
+provider,model,dataset,language,samples,wer,cer,ser,ci_95_low,ci_95_high,normalization_profile
+whisper_local,light,librispeech_test_clean_subset,en-US,10,0.1490196078,0.1066079295,1,0.06106060606,0.2689981361,normalized-v1
+huggingface_local,balanced,librispeech_test_clean_subset,en-US,10,0.03921568627,0.03348017621,0.6,0.02702702703,0.04864864865,normalized-v1
+vosk_local,en_small,librispeech_test_clean_subset,en-US,10,0.2784313725,0.2352422907,1,0.07998275862,0.6001538462,normalized-v1

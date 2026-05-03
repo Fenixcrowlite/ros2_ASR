@@ -1,0 +1,31 @@
+profile_id: benchmark/thesis_cloud_matrix
+inherits:
+  - default_benchmark
+dataset_profile: datasets/librispeech_test_clean_subset
+providers:
+  - providers/azure_cloud
+  - providers/google_cloud
+  - providers/aws_cloud
+  - providers/huggingface_api
+scenarios:
+  - noise_robustness
+metric_profiles:
+  - metrics/default_quality
+  - metrics/default_timing
+execution_mode: batch
+batch:
+  max_samples: 20
+  timeout_sec: 300
+streaming:
+  chunk_ms: 500
+  replay_rate: 1.0
+noise:
+  mode: white
+  levels:
+    - clean
+  custom_snr_db:
+    - 20
+    - 10
+    - 5
+    - 0
+  seed: 1337

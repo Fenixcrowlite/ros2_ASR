@@ -2,7 +2,7 @@
   "datasets": [
     {
       "dataset_id": "fleurs_en_us_test_subset",
-      "manifest_ref": "/home/fenix/Desktop/ros2ws/datasets/manifests/fleurs_en_us_test_subset.jsonl",
+      "manifest_ref": "datasets/manifests/fleurs_en_us_test_subset.jsonl",
       "sample_count": 2,
       "metadata": {
         "source": "external_download",
@@ -15,7 +15,7 @@
     },
     {
       "dataset_id": "fleurs_fr_fr_test_subset",
-      "manifest_ref": "/home/fenix/Desktop/ros2ws/datasets/manifests/fleurs_fr_fr_test_subset.jsonl",
+      "manifest_ref": "datasets/manifests/fleurs_fr_fr_test_subset.jsonl",
       "sample_count": 2,
       "metadata": {
         "source": "external_download",
@@ -28,7 +28,7 @@
     },
     {
       "dataset_id": "fleurs_ja_jp_test_subset",
-      "manifest_ref": "/home/fenix/Desktop/ros2ws/datasets/manifests/fleurs_ja_jp_test_subset.jsonl",
+      "manifest_ref": "datasets/manifests/fleurs_ja_jp_test_subset.jsonl",
       "sample_count": 2,
       "metadata": {
         "source": "external_download",
@@ -41,7 +41,7 @@
     },
     {
       "dataset_id": "fleurs_sk_sk_test_subset",
-      "manifest_ref": "/home/fenix/Desktop/ros2ws/datasets/manifests/fleurs_sk_sk_test_subset.jsonl",
+      "manifest_ref": "datasets/manifests/fleurs_sk_sk_test_subset.jsonl",
       "sample_count": 2,
       "metadata": {
         "source": "external_download",
@@ -54,7 +54,7 @@
     },
     {
       "dataset_id": "librispeech_test_clean_subset",
-      "manifest_ref": "/home/fenix/Desktop/ros2ws/datasets/manifests/librispeech_test_clean_subset.jsonl",
+      "manifest_ref": "datasets/manifests/librispeech_test_clean_subset.jsonl",
       "sample_count": 2,
       "metadata": {
         "source": "external_download",
@@ -67,7 +67,7 @@
     },
     {
       "dataset_id": "librispeech_test_other_subset",
-      "manifest_ref": "/home/fenix/Desktop/ros2ws/datasets/manifests/librispeech_test_other_subset.jsonl",
+      "manifest_ref": "datasets/manifests/librispeech_test_other_subset.jsonl",
       "sample_count": 2,
       "metadata": {
         "source": "external_download",
@@ -80,7 +80,7 @@
     },
     {
       "dataset_id": "mini_librispeech_dev_clean_2_subset",
-      "manifest_ref": "/home/fenix/Desktop/ros2ws/datasets/manifests/mini_librispeech_dev_clean_2_subset.jsonl",
+      "manifest_ref": "datasets/manifests/mini_librispeech_dev_clean_2_subset.jsonl",
       "sample_count": 2,
       "metadata": {
         "source": "external_download",
@@ -93,7 +93,7 @@
     },
     {
       "dataset_id": "mls_german_test_subset",
-      "manifest_ref": "/home/fenix/Desktop/ros2ws/datasets/manifests/mls_german_test_subset.jsonl",
+      "manifest_ref": "datasets/manifests/mls_german_test_subset.jsonl",
       "sample_count": 2,
       "metadata": {
         "source": "external_download",
@@ -106,7 +106,7 @@
     },
     {
       "dataset_id": "mls_spanish_test_subset",
-      "manifest_ref": "/home/fenix/Desktop/ros2ws/datasets/manifests/mls_spanish_test_subset.jsonl",
+      "manifest_ref": "datasets/manifests/mls_spanish_test_subset.jsonl",
       "sample_count": 2,
       "metadata": {
         "source": "external_download",
@@ -119,7 +119,7 @@
     },
     {
       "dataset_id": "voxpopuli_de_test_subset",
-      "manifest_ref": "/home/fenix/Desktop/ros2ws/datasets/manifests/voxpopuli_de_test_subset.jsonl",
+      "manifest_ref": "datasets/manifests/voxpopuli_de_test_subset.jsonl",
       "sample_count": 2,
       "metadata": {
         "source": "external_download",
@@ -132,7 +132,7 @@
     },
     {
       "dataset_id": "voxpopuli_en_test_subset",
-      "manifest_ref": "/home/fenix/Desktop/ros2ws/datasets/manifests/voxpopuli_en_test_subset.jsonl",
+      "manifest_ref": "datasets/manifests/voxpopuli_en_test_subset.jsonl",
       "sample_count": 2,
       "metadata": {
         "source": "external_download",
@@ -145,7 +145,7 @@
     },
     {
       "dataset_id": "voxpopuli_es_test_subset",
-      "manifest_ref": "/home/fenix/Desktop/ros2ws/datasets/manifests/voxpopuli_es_test_subset.jsonl",
+      "manifest_ref": "datasets/manifests/voxpopuli_es_test_subset.jsonl",
       "sample_count": 2,
       "metadata": {
         "source": "external_download",

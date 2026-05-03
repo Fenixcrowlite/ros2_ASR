@@ -34,3 +34,18 @@
 - Reports should read canonical summary artifacts, not archived legacy schemas as the primary source.
 - Thesis exports are derived artifacts; they must not replace canonical `artifacts/benchmark_runs/<run_id>/` files.
 - Missing energy, accent, OOV, and calibration inputs stay empty or are marked unavailable; they are not fabricated.
+
+## Metric Semantics
+
+RTF in this thesis means end-to-end real-time factor unless explicitly stated
+otherwise.
+
+| Metric | Formula | Purpose |
+|---|---|---|
+| `provider_compute_rtf` | provider compute latency / audio duration | Model/provider compute speed |
+| `end_to_end_rtf` | full request latency / audio duration | ROS2/operator-facing performance |
+| `real_time_factor` | deprecated compatibility alias | Legacy exports only |
+
+For bachelor thesis tables, `end_to_end_rtf` is the primary RTF. Batch runs do
+not report first-token latency (`ftl_ms`); that field is only valid for
+streaming runs with true partial-result timing.

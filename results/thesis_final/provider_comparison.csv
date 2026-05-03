@@ -1,0 +1,8 @@
+provider,type,local_or_cloud,model,license,languages,ros2_integration,streaming_support,offline_capable,key_required,estimated_cost_model,notes
+whisper_local,Non-commercial/open-source,local,tiny/base/small,MIT,multilingual,implemented,partial/no native provider stream,true,false,hardware cost,Primary local open-source baseline.
+vosk_local,Non-commercial/open-source,local,vosk-small-en/sk/model-dependent,Apache 2.0,model-dependent,implemented,yes,true,false,free/hardware cost,Low-resource offline baseline.
+huggingface_local,Mixed/open-source,local,openai/whisper-small or configured model,model-dependent,model-dependent,implemented,provider stream unsupported,true,false,hardware cost,Flexible local model-hub adapter.
+huggingface_api,Mixed/API,cloud,openai/whisper-large-v3 or endpoint model,model-dependent,model-dependent,implemented,no/native depends on endpoint,false,true,API/endpoint,Cloud model-hub baseline.
+azure_cloud,Commercial,cloud,standard,commercial,broad,implemented,yes,false,true,per audio hour,Commercial cloud baseline.
+google_cloud,Commercial,cloud,default/latest_short/latest_long,commercial,broad,implemented,yes,false,true,per audio time,Commercial cloud baseline.
+aws_cloud,Commercial,cloud,standard,commercial,broad,implemented,yes,false,true,per audio time plus S3 dependency,Commercial cloud baseline.

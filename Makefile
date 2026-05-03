@@ -36,7 +36,7 @@ LINT_RUFF_PATHS := \
 	ros2_ws/src/asr_provider_base
 LINT_MYPY_PATHS := $(LINT_RUFF_PATHS)
 
-.PHONY: help setup setup-vosk build test test-unit test-ros test-colcon run bench bench-suite collect-metrics report web-gui web-gui-lan web-gui-stop up up-runtime up-lan down hf-smoke-local hf-smoke-api bench-hf rqt arch-static arch-runtime arch arch-diff lint lint-ruff lint-mypy security-scan format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
+.PHONY: help setup setup-vosk build test test-unit test-ros test-colcon run bench bench-suite collect-metrics validate-datasets report web-gui web-gui-lan web-gui-stop up up-runtime up-lan down hf-smoke-local hf-smoke-api bench-hf rqt arch-static arch-runtime arch arch-diff lint lint-ruff lint-mypy security-scan format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
 
 help:
 	@printf '%s\n' \
@@ -90,6 +90,9 @@ bench-suite:
 
 collect-metrics:
 	bash -lc 'source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(PY_PATH) $(PY) scripts/collect_metrics.py --scenario $(SCENARIO) --normalization-profile $(NORMALIZATION_PROFILE)'
+
+validate-datasets:
+	python3 scripts/validate_dataset_assets.py --registry datasets/registry/datasets.json --root .
 
 up: build
 	ASR_RUNTIME_PROFILE=$(RUNTIME_PROFILE) ASR_PROVIDER_PROFILE=$(PROVIDER_PROFILE) bash scripts/run_web_ui.sh --mode $(GATEWAY_MODE) --stack $(GATEWAY_STACK) --port $(GATEWAY_PORT)

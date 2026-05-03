@@ -5,7 +5,7 @@ adapter: asr_provider_google.google_provider.GoogleProvider
 settings:
   model: default
   region: global
-  project_id: strong-minutia-419022
+  project_id: "${GOOGLE_CLOUD_PROJECT}"
 ui:
   default_model_preset: balanced
   model_presets:

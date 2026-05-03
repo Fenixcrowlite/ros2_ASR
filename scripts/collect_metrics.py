@@ -91,6 +91,7 @@ UTTERANCE_FIELDS = [
     "noise_profile",
     "backend",
     "model",
+    "execution_mode",
     "ref_text",
     "hyp_text",
     "wer",
@@ -102,6 +103,8 @@ UTTERANCE_FIELDS = [
     "ref_chars",
     "ftl_ms",
     "final_latency_ms",
+    "provider_compute_rtf",
+    "end_to_end_rtf",
     "rtf",
     "duration_sec",
     "cpu_pct_mean",
@@ -115,6 +118,7 @@ UTTERANCE_FIELDS = [
     "ece_bin",
     "correct",
     "oov_tokens",
+    "oov_available",
     "oov_rate",
     "cost_usd",
     "model_size_mb",
@@ -127,6 +131,7 @@ SUMMARY_FIELDS = [
     "scenario",
     "backend",
     "model",
+    "execution_mode",
     "dataset",
     "language",
     "num_utterances",
@@ -139,6 +144,9 @@ SUMMARY_FIELDS = [
     "final_latency_ms_p95",
     "rtf_mean",
     "rtf_p95",
+    "end_to_end_rtf_mean",
+    "end_to_end_rtf_p95",
+    "provider_compute_rtf_mean",
     "throughput_audio_sec_per_sec",
     "cpu_pct_mean",
     "cpu_pct_p95",
@@ -147,9 +155,16 @@ SUMMARY_FIELDS = [
     "energy_j_per_audio_min",
     "ece",
     "brier",
+    "confidence_available",
+    "calibration_valid",
+    "calibration_reason",
+    "calibration_diagnostic_only",
     "noise_deg_pp",
     "accent_gap_pp",
+    "oov_available",
     "oov_rate",
+    "noise_metrics_available",
+    "energy_available",
     "model_size_mb",
     "cost_per_audio_hour_usd",
     "scenario_score",
@@ -500,6 +515,25 @@ def _confidence_available(row: dict[str, Any], confidence: float | None) -> bool
     return confidence is not None
 
 
+def _execution_mode(row: dict[str, Any], *, default: str = "batch") -> str:
+    value = str(row.get("execution_mode", "") or "").strip().lower()
+    if value in {"batch", "streaming"}:
+        return value
+    return default
+
+
+def _first_token_latency_ms(row: dict[str, Any], execution_mode: str) -> float | None:
+    if execution_mode != "streaming":
+        return None
+    return _metric(row, "time_to_first_result_ms", "first_partial_latency_ms")
+
+
+def _rtf_from_latency(latency_ms: float | None, duration_sec: float | None) -> float | None:
+    if latency_ms is None or duration_sec is None or duration_sec <= 0.0:
+        return None
+    return (latency_ms / 1000.0) / duration_sec
+
+
 def _normalize_rows(
     *,
     loaded: LoadedPayload,
@@ -522,11 +556,23 @@ def _normalize_rows(
                 else bool(support.get("exact_match", False))
             )
             oov_tokens, ref_tokens = _oov_counts(reference_text, vocabulary)
+            execution_mode = _execution_mode(row)
+            final_latency_ms = _as_float(row.get("final_latency_ms"))
+            duration_sec = _as_float(row.get("duration_sec"))
+            provider_compute_rtf = _as_float(row.get("provider_compute_rtf"))
+            end_to_end_rtf = _as_float(row.get("end_to_end_rtf"))
+            if end_to_end_rtf is None:
+                end_to_end_rtf = _as_float(row.get("rtf"))
+            if end_to_end_rtf is None:
+                end_to_end_rtf = _rtf_from_latency(final_latency_ms, duration_sec)
+            ftl_ms = _as_float(row.get("ftl_ms")) if execution_mode == "streaming" else None
+            oov_available = bool(vocabulary) and ref_tokens > 0
             output_rows.append(
                 {
                     **{field: row.get(field, "") for field in UTTERANCE_FIELDS},
                     "run_id": row.get("run_id") or run_id,
                     "dataset": row.get("dataset") or dataset_id,
+                    "execution_mode": execution_mode,
                     "wer": _as_float(row.get("wer")) if _as_float(row.get("wer")) is not None else support["wer"],
                     "cer": _as_float(row.get("cer")) if _as_float(row.get("cer")) is not None else support["cer"],
                     "ser": _as_float(row.get("ser")) if _as_float(row.get("ser")) is not None else (0.0 if correct else 1.0),
@@ -534,11 +580,17 @@ def _normalize_rows(
                     "ref_words": int(support["reference_word_count"]),
                     "char_edits": int(support["char_edits"]),
                     "ref_chars": int(support["reference_char_count"]),
+                    "ftl_ms": ftl_ms,
+                    "final_latency_ms": final_latency_ms,
+                    "provider_compute_rtf": provider_compute_rtf,
+                    "end_to_end_rtf": end_to_end_rtf,
+                    "rtf": end_to_end_rtf if end_to_end_rtf is not None else provider_compute_rtf,
                     "confidence_mean": confidence,
                     "confidence_available": row.get("confidence_available") or (confidence is not None),
                     "correct": correct,
                     "oov_tokens": oov_tokens,
-                    "oov_rate": (oov_tokens / ref_tokens) if ref_tokens > 0 and vocabulary else None,
+                    "oov_available": oov_available,
+                    "oov_rate": (oov_tokens / ref_tokens) if oov_available else None,
                     "source_schema": "schema",
                 }
             )
@@ -551,6 +603,24 @@ def _normalize_rows(
         correct = bool(support.get("exact_match", False))
         duration_sec = _metric(row, "audio_duration_sec", "measured_audio_duration_sec", "duration_sec") or 0.0
         oov_tokens, ref_tokens = _oov_counts(reference_text, vocabulary)
+        execution_mode = _execution_mode(row)
+        ftl_ms = _first_token_latency_ms(row, execution_mode)
+        final_latency_ms = _metric(row, "time_to_final_result_ms", "end_to_end_latency_ms", "total_latency_ms", "latency_ms")
+        provider_compute_rtf = _metric(row, "provider_compute_rtf")
+        if provider_compute_rtf is None:
+            provider_compute_rtf = _rtf_from_latency(
+                _metric(row, "provider_compute_latency_ms", "inference_ms"),
+                duration_sec,
+            )
+        end_to_end_rtf = _metric(row, "end_to_end_rtf")
+        if end_to_end_rtf is None:
+            end_to_end_rtf = _rtf_from_latency(final_latency_ms, duration_sec)
+        rtf_alias = end_to_end_rtf
+        if rtf_alias is None:
+            rtf_alias = provider_compute_rtf
+        if rtf_alias is None:
+            rtf_alias = _metric(row, "real_time_factor", "rtf")
+        oov_available = bool(vocabulary) and ref_tokens > 0
         ece_bin = None
         if confidence is not None:
             ece_bin = min(int(max(0.0, min(1.0, confidence)) * 10.0), 9)
@@ -567,6 +637,7 @@ def _normalize_rows(
                 "noise_profile": _noise_profile(row),
                 "backend": _provider_label(row),
                 "model": _model_label(row),
+                "execution_mode": execution_mode,
                 "ref_text": reference_text,
                 "hyp_text": hypothesis_text,
                 "wer": _metric(row, "wer") if _metric(row, "wer") is not None else support["wer"],
@@ -576,9 +647,11 @@ def _normalize_rows(
                 "ref_words": int(support.get("reference_word_count", 0) or 0),
                 "char_edits": int(support.get("char_edits", 0) or 0),
                 "ref_chars": int(support.get("reference_char_count", 0) or 0),
-                "ftl_ms": _metric(row, "time_to_first_result_ms", "first_partial_latency_ms", "latency_ms"),
-                "final_latency_ms": _metric(row, "time_to_final_result_ms", "end_to_end_latency_ms", "total_latency_ms", "latency_ms"),
-                "rtf": _metric(row, "end_to_end_rtf", "provider_compute_rtf", "real_time_factor", "rtf"),
+                "ftl_ms": ftl_ms,
+                "final_latency_ms": final_latency_ms,
+                "provider_compute_rtf": provider_compute_rtf,
+                "end_to_end_rtf": end_to_end_rtf,
+                "rtf": rtf_alias,
                 "duration_sec": duration_sec,
                 "cpu_pct_mean": _metric(row, "cpu_percent_mean", "cpu_percent"),
                 "cpu_pct_peak": _metric(row, "cpu_percent_peak", "cpu_percent"),
@@ -591,7 +664,8 @@ def _normalize_rows(
                 "ece_bin": ece_bin,
                 "correct": correct,
                 "oov_tokens": oov_tokens,
-                "oov_rate": (oov_tokens / ref_tokens) if ref_tokens > 0 and vocabulary else None,
+                "oov_available": oov_available,
+                "oov_rate": (oov_tokens / ref_tokens) if oov_available else None,
                 "cost_usd": _metric(row, "estimated_cost_usd", "cost_estimate"),
                 "model_size_mb": _metric(row, "model_size_mb"),
                 "trace_artifact_ref": str(row.get("trace_artifact_ref", "") or ""),
@@ -627,14 +701,16 @@ def _max_optional(values: list[float | None]) -> float | None:
     return max(usable) if usable else None
 
 
-def _calibration(rows: list[dict[str, Any]], bins: int = 10) -> tuple[float | None, float | None]:
+def _calibration(
+    rows: list[dict[str, Any]], bins: int = 10
+) -> tuple[float | None, float | None, int]:
     pairs = [
         (float(row["confidence_mean"]), 1.0 if _as_bool(row.get("correct")) else 0.0)
         for row in rows
         if _as_float(row.get("confidence_mean")) is not None and _as_bool(row.get("confidence_available"))
     ]
     if not pairs:
-        return None, None
+        return None, None, 0
     bucketed: list[list[tuple[float, float]]] = [[] for _ in range(bins)]
     for confidence, correct in pairs:
         index = min(int(max(0.0, min(1.0, confidence)) * bins), bins - 1)
@@ -648,7 +724,7 @@ def _calibration(rows: list[dict[str, Any]], bins: int = 10) -> tuple[float | No
         avg_acc = mean(correct for _, correct in bucket)
         ece += (len(bucket) / total) * abs(avg_acc - avg_conf)
     brier = mean((confidence - correct) ** 2 for confidence, correct in pairs)
-    return ece, brier
+    return ece, brier, len(pairs)
 
 
 def _noise_degradation_pp(rows: list[dict[str, Any]]) -> float | None:
@@ -755,16 +831,28 @@ def _build_summary_rows(
     run_id: str,
     scenario: str,
 ) -> list[dict[str, Any]]:
-    grouped: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    grouped: dict[tuple[str, str, str], list[dict[str, Any]]] = defaultdict(list)
     for row in rows:
-        grouped[(str(row.get("backend", "") or "unknown"), str(row.get("model", "") or ""))].append(row)
+        grouped[
+            (
+                str(row.get("backend", "") or "unknown"),
+                str(row.get("model", "") or ""),
+                str(row.get("execution_mode", "") or "batch"),
+            )
+        ].append(row)
 
     summaries: list[dict[str, Any]] = []
-    for (backend, model), group_rows in sorted(grouped.items()):
+    for (backend, model, execution_mode), group_rows in sorted(grouped.items()):
         durations = [_as_float(row.get("duration_sec")) or 0.0 for row in group_rows]
         final_latencies = [_as_float(row.get("final_latency_ms")) for row in group_rows]
         ftl_latencies = [_as_float(row.get("ftl_ms")) for row in group_rows]
-        rtfs = [_as_float(row.get("rtf")) for row in group_rows]
+        end_to_end_rtfs = [
+            _as_float(row.get("end_to_end_rtf"))
+            if _as_float(row.get("end_to_end_rtf")) is not None
+            else _as_float(row.get("rtf"))
+            for row in group_rows
+        ]
+        provider_compute_rtfs = [_as_float(row.get("provider_compute_rtf")) for row in group_rows]
         cpu_values = [_as_float(row.get("cpu_pct_mean")) for row in group_rows]
         ram_peaks = [_as_float(row.get("ram_mb_peak")) for row in group_rows]
         gpu_peaks = [_as_float(row.get("gpu_mem_mb_peak")) for row in group_rows]
@@ -777,16 +865,28 @@ def _build_summary_rows(
         energy_present = any(value is not None for value in energy_values)
         total_cost = sum(value for value in cost_values if value is not None)
         cost_present = any(value is not None for value in cost_values)
-        ece, brier = _calibration(group_rows)
+        ece, brier, confidence_count = _calibration(group_rows)
+        confidence_available = confidence_count > 0
+        calibration_valid = confidence_count >= 30
+        calibration_reason = (
+            ""
+            if calibration_valid
+            else "requires at least 30 confidence-bearing samples"
+            if confidence_available
+            else "confidence unavailable"
+        )
         ci_low, ci_high = _bootstrap_wer_ci(group_rows)
         oov_tokens = sum(int(row.get("oov_tokens") or 0) for row in group_rows)
         ref_words = sum(int(row.get("ref_words") or 0) for row in group_rows)
+        oov_available = any(_as_bool(row.get("oov_available")) for row in group_rows)
+        noise_deg_pp = _noise_degradation_pp(group_rows)
 
         summary = {
             "run_id": run_id,
             "scenario": scenario,
             "backend": backend,
             "model": model,
+            "execution_mode": execution_mode,
             "dataset": str(group_rows[0].get("dataset", "") or ""),
             "language": ",".join(sorted({str(row.get("language", "") or "") for row in group_rows if str(row.get("language", "") or "")})),
             "num_utterances": len(group_rows),
@@ -797,8 +897,11 @@ def _build_summary_rows(
             "ftl_ms_p95": _percentile([value for value in ftl_latencies if value is not None], 0.95),
             "final_latency_ms_p50": _percentile([value for value in final_latencies if value is not None], 0.50),
             "final_latency_ms_p95": _percentile([value for value in final_latencies if value is not None], 0.95),
-            "rtf_mean": _mean_optional(rtfs),
-            "rtf_p95": _percentile([value for value in rtfs if value is not None], 0.95),
+            "rtf_mean": _mean_optional(end_to_end_rtfs),
+            "rtf_p95": _percentile([value for value in end_to_end_rtfs if value is not None], 0.95),
+            "end_to_end_rtf_mean": _mean_optional(end_to_end_rtfs),
+            "end_to_end_rtf_p95": _percentile([value for value in end_to_end_rtfs if value is not None], 0.95),
+            "provider_compute_rtf_mean": _mean_optional(provider_compute_rtfs),
             "throughput_audio_sec_per_sec": (total_audio_sec / total_latency_sec) if total_latency_sec > 0.0 else None,
             "cpu_pct_mean": _mean_optional(cpu_values),
             "cpu_pct_p95": _percentile([value for value in cpu_values if value is not None], 0.95),
@@ -807,9 +910,16 @@ def _build_summary_rows(
             "energy_j_per_audio_min": (total_energy / (total_audio_sec / 60.0)) if energy_present and total_audio_sec > 0.0 else None,
             "ece": ece,
             "brier": brier,
-            "noise_deg_pp": _noise_degradation_pp(group_rows),
+            "confidence_available": confidence_available,
+            "calibration_valid": calibration_valid,
+            "calibration_reason": calibration_reason,
+            "calibration_diagnostic_only": confidence_available and not calibration_valid,
+            "noise_deg_pp": noise_deg_pp,
             "accent_gap_pp": _accent_gap_pp(group_rows),
-            "oov_rate": (oov_tokens / ref_words) if ref_words > 0 and oov_tokens > 0 else None,
+            "oov_available": oov_available,
+            "oov_rate": (oov_tokens / ref_words) if ref_words > 0 and oov_available else None,
+            "noise_metrics_available": noise_deg_pp is not None,
+            "energy_available": energy_present,
             "model_size_mb": _max_optional(model_sizes),
             "cost_per_audio_hour_usd": (total_cost / (total_audio_sec / 3600.0)) if cost_present and total_audio_sec > 0.0 else None,
             "ci_95_low": ci_low,

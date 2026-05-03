@@ -11,6 +11,10 @@ This execution used the existing canonical benchmark pipeline as the source of t
 
 Derived thesis-ready artifacts were generated under `results/runs/<run_id>/`.
 
+RTF in this thesis means end-to-end real-time factor unless explicitly stated
+otherwise. `provider_compute_rtf` is a secondary provider/model speed metric,
+and `real_time_factor` is retained only as a deprecated compatibility alias.
+
 ## Test Gate
 
 Passed before benchmark execution:
