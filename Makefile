@@ -6,6 +6,8 @@ ROS_SETUP := /opt/ros/jazzy/setup.bash
 RUNTIME_PROFILE ?= default_runtime
 PROVIDER_PROFILE ?= providers/whisper_local
 BENCHMARK_PROFILE ?= default_benchmark
+SCENARIO ?= embedded
+NORMALIZATION_PROFILE ?= normalized-v1
 GATEWAY_MODE ?= local
 GATEWAY_STACK ?= full
 GATEWAY_PORT ?= 8088
@@ -34,7 +36,7 @@ LINT_RUFF_PATHS := \
 	ros2_ws/src/asr_provider_base
 LINT_MYPY_PATHS := $(LINT_RUFF_PATHS)
 
-.PHONY: help setup setup-vosk build test test-unit test-ros test-colcon run bench report web-gui web-gui-lan web-gui-stop up up-runtime up-lan down hf-smoke-local hf-smoke-api bench-hf rqt arch-static arch-runtime arch arch-diff lint lint-ruff lint-mypy security-scan format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
+.PHONY: help setup setup-vosk build test test-unit test-ros test-colcon run bench bench-suite collect-metrics report web-gui web-gui-lan web-gui-stop up up-runtime up-lan down hf-smoke-local hf-smoke-api bench-hf rqt arch-static arch-runtime arch arch-diff lint lint-ruff lint-mypy security-scan format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
 
 help:
 	@printf '%s\n' \
@@ -43,6 +45,8 @@ help:
 		'  make up-lan            Build and start the full web UI stack on 0.0.0.0:8088' \
 		'  make up-runtime        Build and start the minimal ROS2 runtime stack' \
 		'  make down              Stop the managed web UI stack on $$GATEWAY_PORT (default 8088)' \
+		'  make bench-suite       Run benchmark core and export schema-first thesis metrics' \
+		'  make collect-metrics   Export schema-first thesis metrics from latest results' \
 		'  make hf-smoke-local    Run direct Hugging Face local provider smoke test' \
 		'  make hf-smoke-api      Run direct Hugging Face API provider smoke test' \
 		'  make bench-hf          Run the Hugging Face provider benchmark matrix' \
@@ -51,6 +55,7 @@ help:
 		'Common variables:' \
 		'  GATEWAY_MODE=local|lan GATEWAY_STACK=full|runtime GATEWAY_PORT=8088' \
 		'  RUNTIME_PROFILE=default_runtime PROVIDER_PROFILE=providers/whisper_local' \
+		'  BENCHMARK_PROFILE=default_benchmark SCENARIO=embedded NORMALIZATION_PROFILE=normalized-v1' \
 		'  HF_LOCAL_RUNTIME_PROFILE=huggingface_local_runtime HF_API_RUNTIME_PROFILE=huggingface_api_runtime' \
 		'  HF_SMOKE_ARGS="--reference-text \"hello world\""'
 
@@ -79,6 +84,12 @@ run:
 
 bench:
 	bash scripts/run_benchmarks.sh
+
+bench-suite:
+	bash scripts/run_benchmark_suite.sh --scenario $(SCENARIO) --normalization-profile $(NORMALIZATION_PROFILE)
+
+collect-metrics:
+	bash -lc 'source $(VENV)/bin/activate && PYTHONPATH=$$PYTHONPATH:$(PY_PATH) $(PY) scripts/collect_metrics.py --scenario $(SCENARIO) --normalization-profile $(NORMALIZATION_PROFILE)'
 
 up: build
 	ASR_RUNTIME_PROFILE=$(RUNTIME_PROFILE) ASR_PROVIDER_PROFILE=$(PROVIDER_PROFILE) bash scripts/run_web_ui.sh --mode $(GATEWAY_MODE) --stack $(GATEWAY_STACK) --port $(GATEWAY_PORT)

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 import os
 import shutil
@@ -211,6 +212,223 @@ def test_generate_report_cli_bootstraps_repo_imports(repo_root: Path, tmp_path: 
     assert result.returncode == 0
     assert output_md.exists()
     assert "# ASR Benchmark Report" in output_md.read_text(encoding="utf-8")
+
+
+def test_collect_metrics_cli_reads_canonical_artifacts(repo_root: Path, tmp_path: Path) -> None:
+    run_id = "bench_schema_cli"
+    summary_json = tmp_path / "latest_benchmark_summary.json"
+    results_json = tmp_path / "canonical_results.json"
+    summary_json.write_text(
+        json.dumps(
+            {
+                "run_id": run_id,
+                "benchmark_profile": "benchmark/fixture",
+                "dataset_id": "fixture_dataset",
+                "providers": ["providers/fake_a", "providers/fake_b"],
+                "provider_summaries": [],
+            },
+            ensure_ascii=True,
+        ),
+        encoding="utf-8",
+    )
+    results_json.write_text(
+        json.dumps(
+            [
+                {
+                    "run_id": run_id,
+                    "provider_profile": "providers/fake_a",
+                    "provider_id": "fake",
+                    "provider_preset": "small",
+                    "sample_id": "clean_a",
+                    "success": True,
+                    "text": "hello world",
+                    "reference_text": "hello world",
+                    "metrics": {
+                        "time_to_first_result_ms": 120.0,
+                        "time_to_final_result_ms": 240.0,
+                        "end_to_end_rtf": 0.30,
+                        "audio_duration_sec": 1.0,
+                        "cpu_percent_mean": 20.0,
+                        "memory_mb_peak": 300.0,
+                        "confidence": 0.9,
+                    },
+                    "noise_level": "clean",
+                    "noise_mode": "none",
+                    "execution_mode": "batch",
+                    "normalized_result": {"language": "en-US", "confidence_available": True},
+                },
+                {
+                    "run_id": run_id,
+                    "provider_profile": "providers/fake_a",
+                    "provider_id": "fake",
+                    "provider_preset": "small",
+                    "sample_id": "noisy_a",
+                    "success": True,
+                    "text": "hello noise",
+                    "reference_text": "hello world",
+                    "metrics": {
+                        "time_to_first_result_ms": 140.0,
+                        "time_to_final_result_ms": 260.0,
+                        "end_to_end_rtf": 0.35,
+                        "audio_duration_sec": 1.0,
+                        "cpu_percent_mean": 22.0,
+                        "memory_mb_peak": 320.0,
+                        "confidence": 0.6,
+                    },
+                    "noise_level": "snr_10",
+                    "noise_mode": "synthetic",
+                    "noise_snr_db": 10,
+                    "execution_mode": "batch",
+                    "normalized_result": {"language": "en-US", "confidence_available": True},
+                },
+                {
+                    "run_id": run_id,
+                    "provider_profile": "providers/fake_b",
+                    "provider_id": "fake",
+                    "provider_preset": "large",
+                    "sample_id": "clean_b",
+                    "success": True,
+                    "text": "hello brave world",
+                    "reference_text": "hello world",
+                    "metrics": {
+                        "time_to_first_result_ms": 220.0,
+                        "time_to_final_result_ms": 520.0,
+                        "end_to_end_rtf": 0.55,
+                        "audio_duration_sec": 1.0,
+                        "cpu_percent_mean": 40.0,
+                        "memory_mb_peak": 900.0,
+                        "confidence": 0.7,
+                    },
+                    "noise_level": "clean",
+                    "noise_mode": "none",
+                    "execution_mode": "batch",
+                    "normalized_result": {"language": "en-US", "confidence_available": True},
+                },
+            ],
+            ensure_ascii=True,
+        ),
+        encoding="utf-8",
+    )
+    results_dir = tmp_path / "results"
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "collect_metrics.py"),
+            "--input",
+            str(summary_json),
+            "--results-json",
+            str(results_json),
+            "--results-dir",
+            str(results_dir),
+            "--scenario",
+            "dialog",
+        ],
+        cwd=tmp_path,
+        env={k: v for k, v in os.environ.items() if k != "PYTHONPATH"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    payload = json.loads(result.stdout)
+    run_dir = Path(payload["run_dir"])
+    assert (run_dir / "manifest.json").exists()
+    assert (run_dir / "utterance_metrics.csv").exists()
+    assert (run_dir / "summary.csv").exists()
+    assert (run_dir / "summary.json").exists()
+    assert (run_dir / "plots" / "pareto_wer_latency.png").exists()
+    rows = list(csv.DictReader((run_dir / "summary.csv").open(encoding="utf-8")))
+    assert {row["backend"] for row in rows} == {"providers/fake_a:small", "providers/fake_b:large"}
+    assert rows[0]["scenario_score"]
+
+    report_md = tmp_path / "schema_report.md"
+    report_result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "generate_report.py"),
+            "--input",
+            str(run_dir / "summary.json"),
+            "--output",
+            str(report_md),
+        ],
+        cwd=tmp_path,
+        env={k: v for k, v in os.environ.items() if k != "PYTHONPATH"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert report_result.returncode == 0, report_result.stderr
+    assert "# ASR Thesis Benchmark Report" in report_md.read_text(encoding="utf-8")
+
+
+def test_collect_metrics_cli_reads_legacy_results(repo_root: Path, tmp_path: Path) -> None:
+    legacy_json = tmp_path / "benchmark_results.json"
+    legacy_json.write_text(
+        json.dumps(
+            [
+                {
+                    "request_id": "req_legacy",
+                    "wav_path": "data/sample/vosk_test.wav",
+                    "audio_id": "sample_legacy",
+                    "backend": "mock",
+                    "scenario": "clean_baseline",
+                    "snr_db": None,
+                    "language": "en-US",
+                    "duration_sec": 1.0,
+                    "text": "hello world",
+                    "transcript_ref": "hello world",
+                    "transcript_hyp": "hello world",
+                    "wer": 0.0,
+                    "cer": 0.0,
+                    "latency_ms": 100.0,
+                    "preprocess_ms": 1.0,
+                    "inference_ms": 98.0,
+                    "postprocess_ms": 1.0,
+                    "rtf": 0.1,
+                    "cpu_percent": 10.0,
+                    "ram_mb": 120.0,
+                    "gpu_util_percent": 0.0,
+                    "gpu_mem_mb": 0.0,
+                    "success": True,
+                    "error_code": "",
+                    "error_message": "",
+                    "cost_estimate": 0.0,
+                    "audio_duration_sec": 1.0,
+                }
+            ],
+            ensure_ascii=True,
+        ),
+        encoding="utf-8",
+    )
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "collect_metrics.py"),
+            "--input",
+            str(legacy_json),
+            "--results-dir",
+            str(tmp_path / "results"),
+            "--run-id",
+            "legacy_schema_cli",
+            "--scenario",
+            "embedded",
+            "--no-plots",
+        ],
+        cwd=tmp_path,
+        env={k: v for k, v in os.environ.items() if k != "PYTHONPATH"},
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    run_dir = tmp_path / "results" / "runs" / "legacy_schema_cli"
+    utterances = list(csv.DictReader((run_dir / "utterance_metrics.csv").open(encoding="utf-8")))
+    assert utterances[0]["source_schema"] == "legacy"
+    assert (run_dir / "summary.json").exists()
 
 
 def test_generate_report_cli_uses_corpus_wer_and_input_plot_directory(

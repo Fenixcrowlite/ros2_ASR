@@ -1,0 +1,85 @@
+{
+  "manifest": {
+    "run_id": "bench_20260427T141029Z_d6c1b1da",
+    "created_at": "2026-04-27T14:10:32.865360+00:00",
+    "scenario": "batch",
+    "normalization_profile": "normalized-v1",
+    "repo": {
+      "name": "ros2_ASR",
+      "commit_sha": "505e77a7ff83d71cc595ce4f249239aba1ccf7d7",
+      "branch": "main"
+    },
+    "environment": {
+      "os": "Linux-6.17.0-22-generic-x86_64-with-glibc2.39",
+      "ros_distro": "jazzy",
+      "python": "3.12.3",
+      "cpu": "x86_64",
+      "ram_gb": 15.44,
+      "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU, 590.48.01"
+    },
+    "dataset": {
+      "name": "sample_dataset",
+      "normalization_profile": "normalized-v1",
+      "num_utterances": 1
+    },
+    "metrics": {
+      "best_backend": "providers/whisper_local:light",
+      "best_model": "light",
+      "best_scenario_score": 83.32660647738163,
+      "best_wer": 0.0,
+      "providers": 1
+    },
+    "source": {
+      "kind": "canonical",
+      "input_path": "/home/fenix/Desktop/ros2ws/results/latest_benchmark_summary.json",
+      "summary_json": "/home/fenix/Desktop/ros2ws/results/latest_benchmark_summary.json",
+      "results_json": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260427T141029Z_d6c1b1da/metrics/results.json"
+    },
+    "artifacts": {
+      "manifest": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141029Z_d6c1b1da/manifest.json",
+      "utterance_csv": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141029Z_d6c1b1da/utterance_metrics.csv",
+      "summary_csv": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141029Z_d6c1b1da/summary.csv",
+      "summary_json": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141029Z_d6c1b1da/summary.json",
+      "report_md": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141029Z_d6c1b1da/report.md",
+      "plots_dir": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141029Z_d6c1b1da/plots"
+    }
+  },
+  "models": [
+    {
+      "run_id": "bench_20260427T141029Z_d6c1b1da",
+      "scenario": "batch",
+      "backend": "providers/whisper_local:light",
+      "model": "light",
+      "dataset": "sample_dataset",
+      "language": "en-US",
+      "num_utterances": 1,
+      "wer": 0.0,
+      "cer": 0.0,
+      "ser": 0.0,
+      "ftl_ms_p50": 2666.4197959999,
+      "ftl_ms_p95": 2666.4197959999,
+      "final_latency_ms_p50": 2666.4197959999,
+      "final_latency_ms_p95": 2666.4197959999,
+      "rtf_mean": 0.3209460515165985,
+      "rtf_p95": 0.3209460515165985,
+      "throughput_audio_sec_per_sec": 3.115788448789446,
+      "cpu_pct_mean": 16.425,
+      "cpu_pct_p95": 16.425,
+      "ram_mb_peak": 902.3046875,
+      "gpu_mem_mb_peak": 705.0,
+      "energy_j_per_audio_min": null,
+      "ece": 0.3361334688702805,
+      "brier": 0.11298570889476783,
+      "noise_deg_pp": null,
+      "accent_gap_pp": null,
+      "oov_rate": null,
+      "model_size_mb": null,
+      "cost_per_audio_hour_usd": 0.0,
+      "ci_95_low": 0.0,
+      "ci_95_high": 0.0,
+      "scenario_score": 83.32660647738163,
+      "admissibility_flags": "",
+      "admissible": true
+    }
+  ]
+}

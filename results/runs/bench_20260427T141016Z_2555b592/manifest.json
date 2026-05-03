@@ -1,0 +1,45 @@
+{
+  "run_id": "bench_20260427T141016Z_2555b592",
+  "created_at": "2026-04-27T14:10:24.193409+00:00",
+  "scenario": "embedded",
+  "normalization_profile": "normalized-v1",
+  "repo": {
+    "name": "ros2_ASR",
+    "commit_sha": "505e77a7ff83d71cc595ce4f249239aba1ccf7d7",
+    "branch": "main"
+  },
+  "environment": {
+    "os": "Linux-6.17.0-22-generic-x86_64-with-glibc2.39",
+    "ros_distro": "jazzy",
+    "python": "3.12.3",
+    "cpu": "x86_64",
+    "ram_gb": 15.44,
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU, 590.48.01"
+  },
+  "dataset": {
+    "name": "sample_dataset",
+    "normalization_profile": "normalized-v1",
+    "num_utterances": 1
+  },
+  "metrics": {
+    "best_backend": "providers/whisper_local:light",
+    "best_model": "light",
+    "best_scenario_score": 69.80604681009324,
+    "best_wer": 0.0,
+    "providers": 1
+  },
+  "source": {
+    "kind": "canonical",
+    "input_path": "/home/fenix/Desktop/ros2ws/results/latest_benchmark_summary.json",
+    "summary_json": "/home/fenix/Desktop/ros2ws/results/latest_benchmark_summary.json",
+    "results_json": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260427T141016Z_2555b592/metrics/results.json"
+  },
+  "artifacts": {
+    "manifest": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141016Z_2555b592/manifest.json",
+    "utterance_csv": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141016Z_2555b592/utterance_metrics.csv",
+    "summary_csv": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141016Z_2555b592/summary.csv",
+    "summary_json": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141016Z_2555b592/summary.json",
+    "report_md": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141016Z_2555b592/report.md",
+    "plots_dir": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141016Z_2555b592/plots"
+  }
+}

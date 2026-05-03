@@ -41,6 +41,10 @@ def _looks_like_canonical_summary(payload: object) -> bool:
     return isinstance(payload, dict) and "provider_summaries" in payload and "run_id" in payload
 
 
+def _looks_like_schema_first_summary(payload: object) -> bool:
+    return isinstance(payload, dict) and "manifest" in payload and "models" in payload
+
+
 def _format_provider_header(provider_summary: dict[str, object]) -> str:
     provider_profile = str(provider_summary.get("provider_profile", "") or "")
     provider_preset = str(provider_summary.get("provider_preset", "") or "")
@@ -198,6 +202,49 @@ def _build_canonical_summary_report(summary_payload: dict[str, object]) -> list[
     return lines
 
 
+def _build_schema_first_report(summary_payload: dict[str, object]) -> list[str]:
+    manifest_payload = summary_payload.get("manifest", {})
+    manifest = manifest_payload if isinstance(manifest_payload, dict) else {}
+    models_payload = summary_payload.get("models", [])
+    models = models_payload if isinstance(models_payload, list) else []
+
+    lines: list[str] = []
+    lines.append("# ASR Thesis Benchmark Report")
+    lines.append("")
+    lines.append(f"Run ID: {manifest.get('run_id', '')}")
+    lines.append(f"Scenario: {manifest.get('scenario', '')}")
+    lines.append(f"Normalization Profile: {manifest.get('normalization_profile', '')}")
+    lines.append("")
+    lines.append("## Model Ranking")
+    lines.append("")
+    lines.append(
+        "| Backend | Model | WER | CER | Final Latency p95 (ms) | "
+        "RTF Mean | Scenario Score | Admissible | Flags |"
+    )
+    lines.append("|---|---|---:|---:|---:|---:|---:|---|---|")
+    for item in models:
+        if not isinstance(item, dict):
+            continue
+        lines.append(
+            "| "
+            + " | ".join(
+                [
+                    str(item.get("backend", "")),
+                    str(item.get("model", "")),
+                    f"{float(item.get('wer', 0.0) or 0.0):.3f}",
+                    f"{float(item.get('cer', 0.0) or 0.0):.3f}",
+                    f"{float(item.get('final_latency_ms_p95', 0.0) or 0.0):.1f}",
+                    f"{float(item.get('rtf_mean', 0.0) or 0.0):.3f}",
+                    f"{float(item.get('scenario_score', 0.0) or 0.0):.1f}",
+                    "yes" if bool(item.get("admissible", False)) else "no",
+                    str(item.get("admissibility_flags", "")),
+                ]
+            )
+            + " |"
+        )
+    return lines
+
+
 def main() -> None:
     """Parse args and write aggregated benchmark report markdown."""
     parser = argparse.ArgumentParser(description="Generate benchmark markdown report")
@@ -216,10 +263,12 @@ def main() -> None:
         lines = _build_legacy_report(raw_payload, input_path)
     elif _looks_like_canonical_summary(raw_payload):
         lines = _build_canonical_summary_report(raw_payload)
+    elif _looks_like_schema_first_summary(raw_payload):
+        lines = _build_schema_first_report(raw_payload)
     else:
         raise SystemExit(
             "Unsupported benchmark JSON schema. Expected legacy flat record list "
-            "or canonical benchmark summary object."
+            "or canonical/schema-first benchmark summary object."
         )
 
     lines.append("")
@@ -230,6 +279,13 @@ def main() -> None:
         "wer_cer_by_backend.png",
         "latency_by_backend.png",
         "rtf_by_backend.png",
+        "pareto_wer_latency.png",
+        "pareto_wer_energy.png",
+        "latency_boxplot.png",
+        "robustness_wer_by_snr.png",
+        "accent_disparity.png",
+        "calibration_reliability.png",
+        "scenario_score.png",
     ]:
         plot_path = plots_root / plot_name
         if plot_path.exists():
