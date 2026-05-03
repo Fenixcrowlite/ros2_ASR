@@ -1,0 +1,87 @@
+{
+  "request_id": "req_f6d95a69bf484c63b00c91aa929b1347",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "Conquered, returned to its place amidst the tents.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.78,
+  "utterance_end_sec": 3.3,
+  "audio_duration_sec": 3.505,
+  "words": [
+    {
+      "word": "Conquered,",
+      "start_sec": 0.78,
+      "end_sec": 1.24,
+      "confidence": 0.4746881028016408,
+      "confidence_available": true
+    },
+    {
+      "word": "returned",
+      "start_sec": 1.34,
+      "end_sec": 1.68,
+      "confidence": 0.7921919226646423,
+      "confidence_available": true
+    },
+    {
+      "word": "to",
+      "start_sec": 1.68,
+      "end_sec": 1.86,
+      "confidence": 0.9893993139266968,
+      "confidence_available": true
+    },
+    {
+      "word": "its",
+      "start_sec": 1.86,
+      "end_sec": 2.02,
+      "confidence": 0.997940719127655,
+      "confidence_available": true
+    },
+    {
+      "word": "place",
+      "start_sec": 2.02,
+      "end_sec": 2.3,
+      "confidence": 0.999031662940979,
+      "confidence_available": true
+    },
+    {
+      "word": "amidst",
+      "start_sec": 2.3,
+      "end_sec": 2.88,
+      "confidence": 0.9634527266025543,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 2.88,
+      "end_sec": 2.96,
+      "confidence": 0.9294930696487427,
+      "confidence_available": true
+    },
+    {
+      "word": "tents.",
+      "start_sec": 2.96,
+      "end_sec": 3.3,
+      "confidence": 0.8666192889213562,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.8793626168259867,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 451.11183100107155,
+    "preprocess_ms": 0.009207000402966514,
+    "inference_ms": 451.0203400004684,
+    "postprocess_ms": 0.08228400020016124,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

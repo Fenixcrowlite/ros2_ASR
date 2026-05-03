@@ -1,0 +1,200 @@
+{
+  "run_id": "thesis_local_20260503T184131Z",
+  "created_at": "2026-05-03T18:44:54.282240+00:00",
+  "started_at": "2026-05-03T18:41:32.419602+00:00",
+  "completed_at": "2026-05-03T18:44:54.282219+00:00",
+  "benchmark_profile": "benchmark/thesis_local_matrix",
+  "dataset_profile": "datasets/librispeech_test_clean_subset",
+  "providers": [
+    "providers/whisper_local",
+    "providers/vosk_local",
+    "providers/huggingface_local"
+  ],
+  "metric_profiles": [
+    "metrics/default_quality",
+    "metrics/default_timing"
+  ],
+  "enabled_metrics": [
+    "cer",
+    "estimated_cost_usd",
+    "failure_rate",
+    "finalization_latency_ms",
+    "first_partial_latency_ms",
+    "partial_count",
+    "per_utterance_latency_ms",
+    "real_time_factor",
+    "sample_accuracy",
+    "success_rate",
+    "total_latency_ms",
+    "wer"
+  ],
+  "scenario": "noise_robustness",
+  "benchmark_settings": {
+    "execution_mode": "batch",
+    "save_raw_outputs": true,
+    "save_normalized_outputs": true,
+    "batch": {
+      "max_samples": 20,
+      "timeout_sec": 240
+    },
+    "noise": {
+      "mode": "white",
+      "levels": [
+        "clean"
+      ],
+      "custom_snr_db": [
+        20,
+        10,
+        5,
+        0
+      ],
+      "seed": 1337
+    },
+    "streaming": {
+      "chunk_ms": 500,
+      "replay_rate": 1.0
+    }
+  },
+  "noise_plan": [
+    {
+      "scenario": "noise_robustness",
+      "noise_mode": "none",
+      "noise_level": "clean",
+      "snr_db": null,
+      "seed": 1337,
+      "noise_origin": "preset"
+    },
+    {
+      "scenario": "noise_robustness",
+      "noise_mode": "white",
+      "noise_level": "custom_20db",
+      "snr_db": 20.0,
+      "seed": 1337,
+      "noise_origin": "custom"
+    },
+    {
+      "scenario": "noise_robustness",
+      "noise_mode": "white",
+      "noise_level": "custom_10db",
+      "snr_db": 10.0,
+      "seed": 1337,
+      "noise_origin": "custom"
+    },
+    {
+      "scenario": "noise_robustness",
+      "noise_mode": "white",
+      "noise_level": "custom_5db",
+      "snr_db": 5.0,
+      "seed": 1337,
+      "noise_origin": "custom"
+    },
+    {
+      "scenario": "noise_robustness",
+      "noise_mode": "white",
+      "noise_level": "custom_0db",
+      "snr_db": 0.0,
+      "seed": 1337,
+      "noise_origin": "custom"
+    }
+  ],
+  "provider_execution": {
+    "providers/whisper_local": {
+      "preset_id": "light",
+      "preset": {
+        "preset_id": "light",
+        "label": "Light",
+        "description": "Fastest local preset for CPU demos and low resource use.",
+        "quality_tier": "medium",
+        "resource_tier": "low",
+        "estimated_cost_tier": "local",
+        "estimated_cost_usd_per_min": 0.0,
+        "settings": {
+          "model_size": "tiny",
+          "device": "cpu",
+          "compute_type": "int8"
+        },
+        "tags": []
+      },
+      "settings": {
+        "model_size": "tiny",
+        "device": "cpu",
+        "compute_type": "int8",
+        "condition_on_previous_text": false,
+        "no_speech_threshold": 0.6,
+        "temperature": 0.0,
+        "empty_transcript_rms_threshold": 100
+      }
+    },
+    "providers/vosk_local": {
+      "preset_id": "en_small",
+      "preset": {
+        "preset_id": "en_small",
+        "label": "English Small",
+        "description": "Small English Vosk model for low-resource local runtime and benchmark smoke tests.",
+        "quality_tier": "medium",
+        "resource_tier": "low",
+        "estimated_cost_tier": "local",
+        "estimated_cost_usd_per_min": 0.0,
+        "settings": {
+          "model_path": "models/vosk/vosk-model-small-en-us-0.15"
+        },
+        "tags": [
+          "en",
+          "small",
+          "streaming"
+        ]
+      },
+      "settings": {
+        "model_path": "models/vosk/vosk-model-small-en-us-0.15"
+      }
+    },
+    "providers/huggingface_local": {
+      "preset_id": "balanced",
+      "preset": {
+        "preset_id": "balanced",
+        "label": "Balanced",
+        "description": "Default local Hugging Face runtime for interactive transcription.",
+        "quality_tier": "high",
+        "resource_tier": "medium",
+        "estimated_cost_tier": "local",
+        "estimated_cost_usd_per_min": 0.0,
+        "settings": {
+          "model_id": "openai/whisper-small",
+          "device": "auto",
+          "torch_dtype": "auto"
+        },
+        "tags": []
+      },
+      "settings": {
+        "model_id": "openai/whisper-small",
+        "device": "auto",
+        "torch_dtype": "auto",
+        "return_timestamps": "word",
+        "chunk_length_s": 20.0,
+        "batch_size": 1,
+        "trust_remote_code": false,
+        "task": "transcribe",
+        "generate_kwargs": {}
+      }
+    }
+  },
+  "config_snapshots": {
+    "benchmark": "configs/resolved/benchmark__thesis_local_matrix.json",
+    "dataset": "configs/resolved/datasets__librispeech_test_clean_subset.json",
+    "providers": {
+      "providers/whisper_local": "configs/resolved/providers__whisper_local.json",
+      "providers/vosk_local": "configs/resolved/providers__vosk_local.json",
+      "providers/huggingface_local": "configs/resolved/providers__huggingface_local.json"
+    },
+    "metrics": {
+      "metrics/default_quality": "configs/resolved/metrics__default_quality.json",
+      "metrics/default_timing": "configs/resolved/metrics__default_timing.json"
+    }
+  },
+  "environment": {
+    "python": "3.12.3",
+    "platform": "Linux-6.17.0-22-generic-x86_64-with-glibc2.39"
+  },
+  "dataset_manifest": "datasets/manifests/librispeech_test_clean_subset.jsonl",
+  "sample_count": 10
+}

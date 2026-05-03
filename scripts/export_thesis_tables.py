@@ -14,6 +14,22 @@ from pathlib import Path
 from statistics import mean
 from typing import Any
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+
+def _repo_relative_path(value: str | Path) -> str:
+    text = str(value)
+    if not text:
+        return ""
+    path = Path(text).expanduser()
+    if not path.is_absolute():
+        return text
+    try:
+        return str(path.resolve().relative_to(PROJECT_ROOT.resolve()))
+    except ValueError:
+        return text
+
+
 PROVIDER_CATALOG: dict[str, dict[str, Any]] = {
     "whisper_local": {
         "provider": "whisper_local",
@@ -164,6 +180,21 @@ TABLE_FIELDS: dict[str, list[str]] = {
         "key_required",
         "estimated_cost_model",
         "notes",
+        "implementation_status",
+        "smoke_tested",
+        "benchmarked",
+        "skip_reason",
+    ],
+    "provider_smoke_tests.csv": [
+        "provider",
+        "model_or_preset",
+        "available",
+        "success",
+        "latency_ms",
+        "end_to_end_rtf",
+        "text_preview",
+        "error_type",
+        "error_message_sanitized",
     ],
     "quality_table.csv": [
         "provider",
@@ -338,8 +369,24 @@ def _discover_runs(input_root: Path, *, include_all_runs: bool = False) -> list[
             or run["run_dir"].name.startswith("thesis_")
         ]
         if thesis_runs:
+            timestamps = {
+                _thesis_timestamp(run)
+                for run in thesis_runs
+                if _thesis_timestamp(run)
+            }
+            if timestamps:
+                latest = max(timestamps)
+                return [run for run in thesis_runs if _thesis_timestamp(run) == latest]
             return thesis_runs
     return runs
+
+
+def _thesis_timestamp(run: dict[str, Any]) -> str:
+    run_id = str(run["manifest"].get("run_id", run["run_dir"].name) or "")
+    parts = run_id.split("_")
+    if len(parts) >= 3 and parts[0] == "thesis":
+        return parts[2]
+    return ""
 
 
 def _primary_runs(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -384,30 +431,88 @@ def _selected_utterance_rows(runs: list[dict[str, Any]]) -> list[dict[str, Any]]
     return rows
 
 
-def _provider_comparison_rows(summary_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    tested = {str(row.get("provider", "") or "") for row in summary_rows}
+def _provider_comparison_rows(
+    summary_rows: list[dict[str, Any]],
+    smoke_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    benchmarked = {str(row.get("provider", "") or "") for row in summary_rows}
+    smoked = {str(row.get("provider", "") or "") for row in smoke_rows}
+    smoke_by_provider = {str(row.get("provider", "") or ""): row for row in smoke_rows}
+    tested = benchmarked
     providers = [provider for provider in PROVIDER_CATALOG if provider in tested]
     providers.extend(provider for provider in PROVIDER_CATALOG if provider not in tested)
-    return [{field: PROVIDER_CATALOG[provider].get(field, "") for field in TABLE_FIELDS["provider_comparison.csv"]} for provider in providers]
+    rows: list[dict[str, Any]] = []
+    for provider in providers:
+        meta = PROVIDER_CATALOG[provider]
+        smoke = smoke_by_provider.get(provider, {})
+        skip_reason = ""
+        if provider not in benchmarked:
+            skip_reason = str(smoke.get("error_type") or "no benchmark artifact")
+        rows.append(
+            {
+                **{field: meta.get(field, "") for field in TABLE_FIELDS["provider_comparison.csv"]},
+                "implementation_status": "implemented",
+                "smoke_tested": provider in smoked,
+                "benchmarked": provider in benchmarked,
+                "skip_reason": skip_reason,
+            }
+        )
+    return rows
 
 
-def _quality_rows(summary_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    return [
-        {
-            "provider": row.get("provider", ""),
-            "model": row.get("model", ""),
-            "dataset": row.get("dataset", ""),
-            "language": row.get("language", ""),
-            "samples": row.get("num_utterances", ""),
-            "wer": row.get("wer", ""),
-            "cer": row.get("cer", ""),
-            "ser": row.get("ser", ""),
-            "ci_95_low": row.get("ci_95_low", ""),
-            "ci_95_high": row.get("ci_95_high", ""),
-            "normalization_profile": row.get("normalization_profile", ""),
-        }
+def _is_clean_utterance(row: dict[str, Any]) -> bool:
+    noise_profile = str(row.get("noise_profile", "") or "")
+    return noise_profile in {"", "none", "clean"} and row.get("snr_db") in {"", None}
+
+
+def _quality_rows(
+    summary_rows: list[dict[str, Any]],
+    utterance_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    normalization_by_key = {
+        (str(row.get("provider", "") or ""), str(row.get("model", "") or "")): row.get(
+            "normalization_profile", ""
+        )
         for row in summary_rows
-    ]
+    }
+    grouped: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for row in utterance_rows:
+        if not _is_clean_utterance(row):
+            continue
+        grouped[(str(row.get("provider", "") or ""), str(row.get("model", "") or ""))].append(row)
+
+    output: list[dict[str, Any]] = []
+    for (provider, model), rows in sorted(grouped.items()):
+        output.append(
+            {
+                "provider": provider,
+                "model": model,
+                "dataset": rows[0].get("dataset", "") if rows else "",
+                "language": ",".join(
+                    sorted(
+                        {
+                            str(row.get("language", "") or "")
+                            for row in rows
+                            if str(row.get("language", "") or "")
+                        }
+                    )
+                ),
+                "samples": len({str(row.get("utt_id", "") or "") for row in rows}),
+                "wer": _wer_for_rows(rows),
+                "cer": _sum_rate(rows, "char_edits", "ref_chars", "cer"),
+                "ser": mean(
+                    value
+                    for value in (_as_float(row.get("ser")) for row in rows)
+                    if value is not None
+                )
+                if any(_as_float(row.get("ser")) is not None for row in rows)
+                else "",
+                "ci_95_low": "",
+                "ci_95_high": "",
+                "normalization_profile": normalization_by_key.get((provider, model), ""),
+            }
+        )
+    return output
 
 
 def _performance_rows(summary_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -467,6 +572,16 @@ def _wer_for_rows(rows: list[dict[str, Any]]) -> float | None:
     if ref_words > 0:
         return word_edits / ref_words
     values = [_as_float(row.get("wer")) for row in rows]
+    usable = [value for value in values if value is not None]
+    return mean(usable) if usable else None
+
+
+def _sum_rate(rows: list[dict[str, Any]], edits_key: str, denom_key: str, fallback_key: str) -> float | None:
+    numerator = sum(int(float(row.get(edits_key) or 0)) for row in rows)
+    denominator = sum(int(float(row.get(denom_key) or 0)) for row in rows)
+    if denominator > 0:
+        return numerator / denominator
+    values = [_as_float(row.get(fallback_key)) for row in rows]
     usable = [value for value in values if value is not None]
     return mean(usable) if usable else None
 
@@ -656,52 +771,138 @@ def _write_final_report(
     *,
     runs: list[dict[str, Any]],
     summary_rows: list[dict[str, Any]],
+    smoke_rows: list[dict[str, Any]],
+    primary_utterance_rows: list[dict[str, Any]],
     tables: dict[str, list[dict[str, Any]]],
 ) -> None:
-    tested = sorted({str(row.get("provider", "") or "") for row in summary_rows})
-    skipped = [provider for provider in PROVIDER_CATALOG if provider not in tested]
-    min_samples = min((int(row.get("num_utterances") or 0) for row in summary_rows), default=0)
+    benchmarked = sorted({str(row.get("provider", "") or "") for row in summary_rows})
+    smoke_tested = sorted({str(row.get("provider", "") or "") for row in smoke_rows})
+    smoke_by_provider = {str(row.get("provider", "") or ""): row for row in smoke_rows}
+    skipped = [provider for provider in PROVIDER_CATALOG if provider not in benchmarked]
+    clean_rows = [row for row in primary_utterance_rows if _is_clean_utterance(row)]
+    clean_sample_count = len({str(row.get("utt_id", "") or "") for row in clean_rows})
+    variant_sample_count = len(primary_utterance_rows)
+    datasets = sorted({str(row.get("dataset", "") or "") for row in primary_utterance_rows if str(row.get("dataset", "") or "")})
     calibration_valid = any(_as_bool(row.get("calibration_valid")) for row in summary_rows)
-    has_cloud = any(PROVIDER_CATALOG.get(provider, {}).get("local_or_cloud") == "cloud" for provider in tested)
+    has_cloud = any(PROVIDER_CATALOG.get(provider, {}).get("local_or_cloud") == "cloud" for provider in benchmarked)
+    validation_json = PROJECT_ROOT / "reports" / "datasets" / "dataset_asset_validation.json"
+    validation_passed = "unknown"
+    if validation_json.exists():
+        payload = _load_json(validation_json)
+        if isinstance(payload, dict):
+            validation_passed = "passed" if _as_bool(payload.get("passed")) else "failed"
+    canonical_artifacts = sorted(
+        {
+            str(run.get("manifest", {}).get("source", {}).get("input_path", "") or "")
+            for run in runs
+            if str(run.get("manifest", {}).get("source", {}).get("input_path", "") or "").startswith("artifacts/")
+        }
+    )
+    canonical_status: list[dict[str, Any]] = []
+    for artifact in canonical_artifacts:
+        summary_path = PROJECT_ROOT / artifact / "reports" / "summary.json"
+        if not summary_path.exists():
+            continue
+        payload = _load_json(summary_path)
+        if isinstance(payload, dict):
+            canonical_status.append(
+                {
+                    "run_id": payload.get("run_id", Path(artifact).name),
+                    "total_samples": payload.get("total_samples", payload.get("samples", "")),
+                    "successful_samples": payload.get("successful_samples", ""),
+                    "failed_samples": payload.get("failed_samples", ""),
+                }
+            )
 
     lines = [
         "# Final Thesis ASR Benchmark Report",
         "",
-        "## Goal And Thesis Alignment",
+        "## Thesis Goal",
         "",
         "This report summarizes a bachelor thesis prototype for ROS2 ASR integration and experimental comparison of selected commercial and non-commercial ASR systems.",
         "",
         "## Tested Providers",
         "",
-        f"Actually tested providers: {', '.join(tested) if tested else 'none'}",
-        f"Skipped or not present in selected run artifacts: {', '.join(skipped) if skipped else 'none'}",
+        f"Implemented providers: {', '.join(PROVIDER_CATALOG) if PROVIDER_CATALOG else 'none'}",
+        f"Smoke-tested providers: {', '.join(smoke_tested) if smoke_tested else 'none'}",
+        f"Benchmarked providers: {', '.join(benchmarked) if benchmarked else 'none'}",
         "",
-        "## Dataset Description",
+        "## Skipped Providers",
         "",
-        f"Selected schema-first runs: {len(runs)}",
-        f"Minimum per-row sample count: {min_samples}",
-        "Sample counts in these tables are utterance-variant rows and include clean/noisy SNR variants.",
-        "",
-        "## Hardware And Software Environment",
-        "",
-        f"OS: {platform.platform()}",
-        f"Python: {platform.python_version()}",
-        f"Git branch: {_git_value('branch', '--show-current')}",
-        f"Git commit: {_git_value('rev-parse', 'HEAD')}",
-        "",
-        "## Methodology",
-        "",
-        "Canonical benchmark artifacts are collected into schema-first run directories under `results/runs/<run_id>/`, then exported into thesis tables under `results/thesis_final/`.",
-        "Mock and fake providers are excluded from final thesis tables.",
-        "",
-        "## Metric Definitions",
-        "",
-        "WER/CER/SER measure recognition quality. Final latency and end-to-end RTF measure ROS2/operator-facing performance. `provider_compute_rtf` is secondary and `real_time_factor` is a deprecated compatibility alias.",
-        "RTF in this thesis means end-to-end real-time factor unless explicitly stated otherwise.",
-        "",
-        "## Tables Summary",
-        "",
+        "| Provider | Reason |",
+        "|---|---|",
     ]
+    if skipped:
+        for provider in skipped:
+            smoke = smoke_by_provider.get(provider, {})
+            reason = str(smoke.get("error_type") or "not present in selected benchmark artifacts")
+            message = str(smoke.get("error_message_sanitized") or "").strip()
+            if message:
+                reason = f"{reason}: {message}"
+            lines.append(f"| {provider} | {reason} |")
+    else:
+        lines.append("| none | all implemented providers were benchmarked |")
+    lines.extend(
+        [
+            "",
+            "## Dataset Description",
+            "",
+            f"Selected schema-first runs: {len(runs)}",
+            f"Dataset used: {', '.join(datasets) if datasets else 'unknown'}",
+            f"Clean source utterances in quality table: {clean_sample_count}",
+            f"Utterance-variant rows in performance and robustness tables: {variant_sample_count}",
+            f"Dataset validation status: {validation_passed}",
+            "Dataset validation report: `reports/datasets/dataset_asset_validation.md`",
+            "Credential availability report: `reports/thesis_test/credential_availability.md`",
+            "",
+            "## Hardware And Software Environment",
+            "",
+            f"OS: {platform.platform()}",
+            f"Python: {platform.python_version()}",
+            f"Git branch: {_git_value('branch', '--show-current')}",
+            f"Git commit: {_git_value('rev-parse', 'HEAD')}",
+            "",
+            "## Methodology",
+            "",
+            "Canonical benchmark artifacts are collected into schema-first run directories under `results/runs/<run_id>/`, then exported into thesis tables under `results/thesis_final/`.",
+            "Mock and fake providers are excluded from final thesis tables.",
+            "Quality results are computed from clean source utterances. Noise robustness is reported separately from clean/noisy utterance variants.",
+            "",
+            "## Canonical Benchmark Artifacts",
+            "",
+        ]
+    )
+    if canonical_artifacts:
+        lines.extend(f"- `{path}`" for path in canonical_artifacts)
+    else:
+        lines.append("- none found in selected schema manifests")
+    if canonical_status:
+        lines.extend(
+            [
+                "",
+                "## Run Completion",
+                "",
+                "| Run | Total Rows | Successful | Failed |",
+                "|---|---:|---:|---:|",
+            ]
+        )
+        for item in canonical_status:
+            lines.append(
+                f"| {item['run_id']} | {item['total_samples']} | "
+                f"{item['successful_samples']} | {item['failed_samples']} |"
+            )
+    lines.extend(
+        [
+            "",
+            "## Metric Definitions",
+            "",
+            "WER/CER/SER measure recognition quality. Final latency and end-to-end RTF measure ROS2/operator-facing performance. `provider_compute_rtf` is secondary and `real_time_factor` is a deprecated compatibility alias.",
+            "Primary RTF = `end_to_end_rtf`. `provider_compute_rtf` is secondary. `real_time_factor` is a deprecated alias retained for compatibility.",
+            "",
+            "## Tables Summary",
+            "",
+        ]
+    )
     for table_name, rows in tables.items():
         lines.append(f"- `{table_name}`: {len(rows)} rows")
     lines.extend(
@@ -715,12 +916,21 @@ def _write_final_report(
             "",
         ]
     )
-    if min_samples and min_samples < 30:
+    if clean_sample_count and clean_sample_count < 30:
         lines.append("The results are indicative and suitable for bachelor-thesis prototype evaluation, but not a large-scale ASR benchmark.")
     if not calibration_valid:
         lines.append("Confidence calibration is diagnostic only unless at least 30 confidence-bearing utterances are available.")
     if not has_cloud:
-        lines.append("Cloud provider results are absent from the selected run artifacts; cloud comparison remains pending until credentials and runs are available.")
+        lines.append("Cloud providers were configured but not benchmarked because credentials were missing or validation failed.")
+    failed_counts = [
+        int(item.get("failed_samples") or 0)
+        for item in canonical_status
+        if str(item.get("failed_samples", "") or "").isdigit()
+    ]
+    if sum(failed_counts) > 0:
+        lines.append(
+            f"The canonical benchmark contains {sum(failed_counts)} failed utterance-variant row(s); failures remain represented in aggregate quality/error metrics."
+        )
     lines.extend(
         [
             "",
@@ -751,9 +961,11 @@ def main() -> None:
 
     output_dir = Path(args.output)
     output_dir.mkdir(parents=True, exist_ok=True)
+    smoke_rows = _read_csv(output_dir / "provider_smoke_tests.csv")
     tables = {
-        "provider_comparison.csv": _provider_comparison_rows(summary_rows),
-        "quality_table.csv": _quality_rows(primary_summary_rows),
+        "provider_comparison.csv": _provider_comparison_rows(summary_rows, smoke_rows),
+        "provider_smoke_tests.csv": smoke_rows,
+        "quality_table.csv": _quality_rows(primary_summary_rows, primary_utterance_rows),
         "performance_table.csv": _performance_rows(primary_summary_rows),
         "resource_table.csv": _resource_rows(primary_summary_rows, primary_utterance_rows),
         "noise_robustness_table.csv": _noise_rows(primary_utterance_rows),
@@ -766,17 +978,17 @@ def main() -> None:
     _generate_plots(output_dir, tables)
     manifest = {
         "created_at": datetime.now(UTC).isoformat(),
-        "input": str(Path(args.input)),
-        "output": str(output_dir),
+        "input": _repo_relative_path(Path(args.input)),
+        "output": _repo_relative_path(output_dir),
         "run_count": len(runs),
         "primary_run_count": len(primary_runs),
         "summary_row_count": len(summary_rows),
         "primary_summary_row_count": len(primary_summary_rows),
         "primary_utterance_row_count": len(primary_utterance_rows),
         "excluded_providers": "mock/fake providers",
-        "tables": {name: str(output_dir / name) for name in tables},
-        "plots_dir": str(output_dir / "plots"),
-        "final_report": str(output_dir / "final_report.md"),
+        "tables": {name: _repo_relative_path(output_dir / name) for name in tables},
+        "plots_dir": _repo_relative_path(output_dir / "plots"),
+        "final_report": _repo_relative_path(output_dir / "final_report.md"),
     }
     (output_dir / "manifest.json").write_text(
         json.dumps(manifest, ensure_ascii=True, indent=2) + "\n",
@@ -786,9 +998,11 @@ def main() -> None:
         output_dir / "final_report.md",
         runs=runs,
         summary_rows=summary_rows,
+        smoke_rows=smoke_rows,
+        primary_utterance_rows=primary_utterance_rows,
         tables=tables,
     )
-    print(json.dumps({"output": str(output_dir), "run_count": len(runs)}, indent=2))
+    print(json.dumps({"output": _repo_relative_path(output_dir), "run_count": len(runs)}, indent=2))
 
 
 if __name__ == "__main__":

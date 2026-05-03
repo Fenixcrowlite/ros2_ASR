@@ -1,0 +1,129 @@
+{
+  "request_id": "req_98eddcc5b2934c14a039272d772b9352",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "vosk",
+  "text": "this has indeed been harassing day continue reading his eyes fixed before his friend",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.0,
+  "utterance_end_sec": 5.7,
+  "audio_duration_sec": 5.85,
+  "words": [
+    {
+      "word": "this",
+      "start_sec": 0.0,
+      "end_sec": 0.72,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "has",
+      "start_sec": 0.72,
+      "end_sec": 1.05,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "indeed",
+      "start_sec": 1.05,
+      "end_sec": 1.56,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "been",
+      "start_sec": 1.56,
+      "end_sec": 1.8,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "harassing",
+      "start_sec": 1.86,
+      "end_sec": 2.455519,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "day",
+      "start_sec": 2.46,
+      "end_sec": 2.76,
+      "confidence": 0.556168,
+      "confidence_available": true
+    },
+    {
+      "word": "continue",
+      "start_sec": 2.79,
+      "end_sec": 3.3,
+      "confidence": 0.574784,
+      "confidence_available": true
+    },
+    {
+      "word": "reading",
+      "start_sec": 3.3,
+      "end_sec": 3.63,
+      "confidence": 0.574784,
+      "confidence_available": true
+    },
+    {
+      "word": "his",
+      "start_sec": 4.02,
+      "end_sec": 4.17,
+      "confidence": 0.533376,
+      "confidence_available": true
+    },
+    {
+      "word": "eyes",
+      "start_sec": 4.178297,
+      "end_sec": 4.53,
+      "confidence": 0.618966,
+      "confidence_available": true
+    },
+    {
+      "word": "fixed",
+      "start_sec": 4.53,
+      "end_sec": 4.894031,
+      "confidence": 0.823091,
+      "confidence_available": true
+    },
+    {
+      "word": "before",
+      "start_sec": 4.894031,
+      "end_sec": 5.16,
+      "confidence": 0.561116,
+      "confidence_available": true
+    },
+    {
+      "word": "his",
+      "start_sec": 5.167859,
+      "end_sec": 5.34,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "friend",
+      "start_sec": 5.34,
+      "end_sec": 5.7,
+      "confidence": 1.0,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.803020357142857,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 1322.5467920001392,
+    "preprocess_ms": 0.006852999831608031,
+    "inference_ms": 1322.4623430005522,
+    "postprocess_ms": 0.07759599975543097,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

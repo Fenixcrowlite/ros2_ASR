@@ -1,0 +1,353 @@
+{
+  "run_id": "thesis_local_20260503T184131Z",
+  "provider_profile": "providers/whisper_local",
+  "provider_id": "whisper",
+  "sample_id": "6930-75918-0004",
+  "success": true,
+  "text": "She taught her daughter that by her own affection for it, that loved her country where they had both been hospitable in the sea, and where a brilliant future opened for it.",
+  "reference_text": "SHE TAUGHT HER DAUGHTER THEN BY HER OWN AFFECTION FOR IT THAT LOVE FOR A COUNTRY WHERE THEY HAD BOTH BEEN HOSPITABLY RECEIVED AND WHERE A BRILLIANT FUTURE OPENED BEFORE THEM",
+  "normalized_reference_text": "she taught her daughter then by her own affection for it that love for a country where they had both been hospitably received and where a brilliant future opened before them",
+  "normalized_hypothesis_text": "she taught her daughter that by her own affection for it that loved her country where they had both been hospitable in the sea and where a brilliant future opened for it",
+  "quality_support": {
+    "normalized_reference": "she taught her daughter then by her own affection for it that love for a country where they had both been hospitably received and where a brilliant future opened before them",
+    "normalized_hypothesis": "she taught her daughter that by her own affection for it that loved her country where they had both been hospitable in the sea and where a brilliant future opened for it",
+    "reference_has_content": true,
+    "hypothesis_has_content": true,
+    "reference_word_count": 31,
+    "reference_char_count": 143,
+    "word_edits": 10,
+    "char_edits": 20,
+    "exact_match": false,
+    "wer": 0.3225806451612903,
+    "cer": 0.13986013986013987
+  },
+  "error_code": "",
+  "error_message": "",
+  "metrics": {
+    "cer": 0.13986013986013987,
+    "estimated_cost_usd": 0.0,
+    "failure_rate": 0.0,
+    "per_utterance_latency_ms": 577.6578670001982,
+    "real_time_factor": 0.052205862358806886,
+    "sample_accuracy": 0.0,
+    "success_rate": 1.0,
+    "total_latency_ms": 577.6578670001982,
+    "wer": 0.3225806451612903,
+    "confidence": 0.772127478964305,
+    "preprocess_ms": 0.006643000233452767,
+    "inference_ms": 577.5761029999558,
+    "postprocess_ms": 0.07512100000894861,
+    "model_load_ms": 0.706274,
+    "provider_init_cold_start": true,
+    "provider_init_warm_start": false,
+    "provider_call_cold_start": false,
+    "provider_call_warm_start": true,
+    "provider_invocation_index": 25,
+    "audio_duration_sec": 11.065,
+    "measured_audio_duration_sec": 11.065,
+    "declared_audio_duration_sec": 11.065,
+    "duration_mismatch_sec": 0.0,
+    "audio_duration_source": "measured_file",
+    "provider_compute_latency_ms": 577.6578670001982,
+    "end_to_end_latency_ms": 577.9689499995584,
+    "time_to_first_result_ms": 577.9689499995584,
+    "time_to_final_result_ms": 577.9689499995584,
+    "partial_count": 0,
+    "first_partial_latency_ms": 0.0,
+    "provider_compute_rtf": 0.052205862358806886,
+    "end_to_end_rtf": 0.052233976502445406,
+    "time_to_result_ms": 577.9689499995584,
+    "cpu_percent_mean": 31.650000000000002,
+    "cpu_percent_peak": 90.5,
+    "memory_mb_mean": 917.5234375,
+    "memory_mb_peak": 961.765625,
+    "gpu_util_percent_mean": 0.0,
+    "gpu_util_percent_peak": 0.0,
+    "gpu_memory_mb_mean": 590.0,
+    "gpu_memory_mb_peak": 590.0,
+    "cpu_percent": 31.650000000000002,
+    "memory_mb": 917.5234375,
+    "gpu_util_percent": 0.0,
+    "gpu_memory_mb": 590.0
+  },
+  "metrics_semantics_version": 2,
+  "legacy_metrics": false,
+  "execution_mode": "batch",
+  "streaming_mode": "none",
+  "scenario": "noise_robustness",
+  "noise_level": "custom_0db",
+  "noise_mode": "white",
+  "noise_snr_db": 0.0,
+  "provider_preset": "light",
+  "input_audio_path": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/derived_audio/6930-75918-0004__white__custom_0db.wav",
+  "audio_duration_sec": 11.065,
+  "measured_audio_duration_sec": 11.065,
+  "declared_audio_duration_sec": 11.065,
+  "duration_mismatch_sec": 0.0,
+  "audio_duration_source": "measured_file",
+  "confidence": 0.772127478964305,
+  "preprocess_ms": 0.006643000233452767,
+  "inference_ms": 577.5761029999558,
+  "postprocess_ms": 0.07512100000894861,
+  "trace_artifact_ref": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/traces/trace_096b31baac2548bea2ebf66821da1753.json",
+  "trace_corrupted": false,
+  "trace_warnings": [
+    "Optional metric `finalization_latency_ms` unavailable"
+  ],
+  "trace_warning_count": 1,
+  "normalized_result": {
+    "request_id": "req_6ea139aa418b4e6da015bd52a5eed5f1",
+    "session_id": "benchmark_thesis_local_20260503T184131Z",
+    "provider_id": "whisper",
+    "text": "She taught her daughter that by her own affection for it, that loved her country where they had both been hospitable in the sea, and where a brilliant future opened for it.",
+    "is_final": true,
+    "is_partial": false,
+    "utterance_start_sec": 0.08,
+    "utterance_end_sec": 10.84,
+    "audio_duration_sec": 11.065,
+    "words": [
+      {
+        "word": "She",
+        "start_sec": 0.08,
+        "end_sec": 0.72,
+        "confidence": 0.8358376026153564,
+        "confidence_available": true
+      },
+      {
+        "word": "taught",
+        "start_sec": 0.72,
+        "end_sec": 0.94,
+        "confidence": 0.9818669557571411,
+        "confidence_available": true
+      },
+      {
+        "word": "her",
+        "start_sec": 0.94,
+        "end_sec": 1.18,
+        "confidence": 0.999485969543457,
+        "confidence_available": true
+      },
+      {
+        "word": "daughter",
+        "start_sec": 1.18,
+        "end_sec": 1.66,
+        "confidence": 0.9600112438201904,
+        "confidence_available": true
+      },
+      {
+        "word": "that",
+        "start_sec": 1.66,
+        "end_sec": 2.14,
+        "confidence": 0.27446749806404114,
+        "confidence_available": true
+      },
+      {
+        "word": "by",
+        "start_sec": 2.14,
+        "end_sec": 2.62,
+        "confidence": 0.7332898378372192,
+        "confidence_available": true
+      },
+      {
+        "word": "her",
+        "start_sec": 2.62,
+        "end_sec": 2.96,
+        "confidence": 0.9975329637527466,
+        "confidence_available": true
+      },
+      {
+        "word": "own",
+        "start_sec": 2.96,
+        "end_sec": 3.16,
+        "confidence": 0.977338969707489,
+        "confidence_available": true
+      },
+      {
+        "word": "affection",
+        "start_sec": 3.16,
+        "end_sec": 3.52,
+        "confidence": 0.8184788227081299,
+        "confidence_available": true
+      },
+      {
+        "word": "for",
+        "start_sec": 3.52,
+        "end_sec": 4.08,
+        "confidence": 0.9488710165023804,
+        "confidence_available": true
+      },
+      {
+        "word": "it,",
+        "start_sec": 4.08,
+        "end_sec": 4.28,
+        "confidence": 0.8029767274856567,
+        "confidence_available": true
+      },
+      {
+        "word": "that",
+        "start_sec": 4.34,
+        "end_sec": 4.46,
+        "confidence": 0.4465681314468384,
+        "confidence_available": true
+      },
+      {
+        "word": "loved",
+        "start_sec": 4.46,
+        "end_sec": 4.78,
+        "confidence": 0.16262498497962952,
+        "confidence_available": true
+      },
+      {
+        "word": "her",
+        "start_sec": 4.78,
+        "end_sec": 5.08,
+        "confidence": 0.9959426522254944,
+        "confidence_available": true
+      },
+      {
+        "word": "country",
+        "start_sec": 5.08,
+        "end_sec": 5.5,
+        "confidence": 0.9860353469848633,
+        "confidence_available": true
+      },
+      {
+        "word": "where",
+        "start_sec": 5.5,
+        "end_sec": 5.84,
+        "confidence": 0.8656969666481018,
+        "confidence_available": true
+      },
+      {
+        "word": "they",
+        "start_sec": 5.84,
+        "end_sec": 6.1,
+        "confidence": 0.991157054901123,
+        "confidence_available": true
+      },
+      {
+        "word": "had",
+        "start_sec": 6.1,
+        "end_sec": 6.24,
+        "confidence": 0.6008219718933105,
+        "confidence_available": true
+      },
+      {
+        "word": "both",
+        "start_sec": 6.24,
+        "end_sec": 6.46,
+        "confidence": 0.8940220475196838,
+        "confidence_available": true
+      },
+      {
+        "word": "been",
+        "start_sec": 6.46,
+        "end_sec": 6.72,
+        "confidence": 0.37983179092407227,
+        "confidence_available": true
+      },
+      {
+        "word": "hospitable",
+        "start_sec": 6.72,
+        "end_sec": 7.2,
+        "confidence": 0.43768714368343353,
+        "confidence_available": true
+      },
+      {
+        "word": "in",
+        "start_sec": 7.2,
+        "end_sec": 7.48,
+        "confidence": 0.6725456714630127,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 7.48,
+        "end_sec": 7.5,
+        "confidence": 0.6114810705184937,
+        "confidence_available": true
+      },
+      {
+        "word": "sea,",
+        "start_sec": 7.5,
+        "end_sec": 7.94,
+        "confidence": 0.6015326976776123,
+        "confidence_available": true
+      },
+      {
+        "word": "and",
+        "start_sec": 8.4,
+        "end_sec": 8.44,
+        "confidence": 0.9754285216331482,
+        "confidence_available": true
+      },
+      {
+        "word": "where",
+        "start_sec": 8.44,
+        "end_sec": 8.64,
+        "confidence": 0.6034647822380066,
+        "confidence_available": true
+      },
+      {
+        "word": "a",
+        "start_sec": 8.64,
+        "end_sec": 9.02,
+        "confidence": 0.8970838785171509,
+        "confidence_available": true
+      },
+      {
+        "word": "brilliant",
+        "start_sec": 9.02,
+        "end_sec": 9.38,
+        "confidence": 0.9639555215835571,
+        "confidence_available": true
+      },
+      {
+        "word": "future",
+        "start_sec": 9.38,
+        "end_sec": 9.82,
+        "confidence": 0.9685049653053284,
+        "confidence_available": true
+      },
+      {
+        "word": "opened",
+        "start_sec": 9.82,
+        "end_sec": 10.28,
+        "confidence": 0.5065414309501648,
+        "confidence_available": true
+      },
+      {
+        "word": "for",
+        "start_sec": 10.28,
+        "end_sec": 10.52,
+        "confidence": 0.6232748031616211,
+        "confidence_available": true
+      },
+      {
+        "word": "it.",
+        "start_sec": 10.52,
+        "end_sec": 10.84,
+        "confidence": 0.7524847984313965,
+        "confidence_available": true
+      }
+    ],
+    "confidence": 0.772127478964305,
+    "confidence_available": true,
+    "timestamps_available": true,
+    "language": "en-US",
+    "language_detected": false,
+    "latency": {
+      "total_ms": 577.6578670001982,
+      "preprocess_ms": 0.006643000233452767,
+      "inference_ms": 577.5761029999558,
+      "postprocess_ms": 0.07512100000894861,
+      "first_partial_ms": 0.0,
+      "finalization_ms": 0.0
+    },
+    "raw_metadata_ref": "",
+    "degraded": false,
+    "error_code": "",
+    "error_message": "",
+    "tags": []
+  }
+}

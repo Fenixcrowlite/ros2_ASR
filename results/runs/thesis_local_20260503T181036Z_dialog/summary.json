@@ -31,17 +31,17 @@
     },
     "source": {
       "kind": "canonical",
-      "input_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_local_20260503T181036Z",
-      "summary_json": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_local_20260503T181036Z/reports/summary.json",
-      "results_json": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_local_20260503T181036Z/metrics/results.json"
+      "input_path": "artifacts/benchmark_runs/thesis_local_20260503T181036Z",
+      "summary_json": "artifacts/benchmark_runs/thesis_local_20260503T181036Z/reports/summary.json",
+      "results_json": "artifacts/benchmark_runs/thesis_local_20260503T181036Z/metrics/results.json"
     },
     "artifacts": {
-      "manifest": "/home/fenix/Desktop/ros2ws/results/runs/thesis_local_20260503T181036Z_dialog/manifest.json",
-      "utterance_csv": "/home/fenix/Desktop/ros2ws/results/runs/thesis_local_20260503T181036Z_dialog/utterance_metrics.csv",
-      "summary_csv": "/home/fenix/Desktop/ros2ws/results/runs/thesis_local_20260503T181036Z_dialog/summary.csv",
-      "summary_json": "/home/fenix/Desktop/ros2ws/results/runs/thesis_local_20260503T181036Z_dialog/summary.json",
-      "report_md": "/home/fenix/Desktop/ros2ws/results/runs/thesis_local_20260503T181036Z_dialog/report.md",
-      "plots_dir": "/home/fenix/Desktop/ros2ws/results/runs/thesis_local_20260503T181036Z_dialog/plots"
+      "manifest": "results/runs/thesis_local_20260503T181036Z_dialog/manifest.json",
+      "utterance_csv": "results/runs/thesis_local_20260503T181036Z_dialog/utterance_metrics.csv",
+      "summary_csv": "results/runs/thesis_local_20260503T181036Z_dialog/summary.csv",
+      "summary_json": "results/runs/thesis_local_20260503T181036Z_dialog/summary.json",
+      "report_md": "results/runs/thesis_local_20260503T181036Z_dialog/report.md",
+      "plots_dir": "results/runs/thesis_local_20260503T181036Z_dialog/plots"
     }
   },
   "models": [

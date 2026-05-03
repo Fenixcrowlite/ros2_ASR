@@ -1,0 +1,251 @@
+{
+  "run_id": "thesis_local_20260503T184131Z",
+  "provider_profile": "providers/huggingface_local",
+  "provider_id": "huggingface_local",
+  "sample_id": "6930-75918-0006",
+  "success": true,
+  "text": "This has indeed been a harassing day, continued the young man, his eyes fixed upon his friend.",
+  "reference_text": "THIS HAS INDEED BEEN A HARASSING DAY CONTINUED THE YOUNG MAN HIS EYES FIXED UPON HIS FRIEND",
+  "normalized_reference_text": "this has indeed been a harassing day continued the young man his eyes fixed upon his friend",
+  "normalized_hypothesis_text": "this has indeed been a harassing day continued the young man his eyes fixed upon his friend",
+  "quality_support": {
+    "normalized_reference": "this has indeed been a harassing day continued the young man his eyes fixed upon his friend",
+    "normalized_hypothesis": "this has indeed been a harassing day continued the young man his eyes fixed upon his friend",
+    "reference_has_content": true,
+    "hypothesis_has_content": true,
+    "reference_word_count": 17,
+    "reference_char_count": 75,
+    "word_edits": 0,
+    "char_edits": 0,
+    "exact_match": true,
+    "wer": 0.0,
+    "cer": 0.0
+  },
+  "error_code": "",
+  "error_message": "",
+  "metrics": {
+    "cer": 0.0,
+    "estimated_cost_usd": 0.0,
+    "failure_rate": 0.0,
+    "per_utterance_latency_ms": 1308.6057230011647,
+    "real_time_factor": 0.2236932859831051,
+    "sample_accuracy": 1.0,
+    "success_rate": 1.0,
+    "total_latency_ms": 1308.6057230011647,
+    "wer": 0.0,
+    "confidence": 0.0,
+    "preprocess_ms": 0.28049600041413214,
+    "inference_ms": 1308.2385150000846,
+    "postprocess_ms": 0.08671200066601159,
+    "model_load_ms": 2.661801,
+    "provider_init_cold_start": true,
+    "provider_init_warm_start": false,
+    "provider_call_cold_start": false,
+    "provider_call_warm_start": true,
+    "provider_invocation_index": 33,
+    "audio_duration_sec": 5.85,
+    "measured_audio_duration_sec": 5.85,
+    "declared_audio_duration_sec": 5.85,
+    "duration_mismatch_sec": 0.0,
+    "audio_duration_source": "measured_file",
+    "provider_compute_latency_ms": 1308.6057230011647,
+    "end_to_end_latency_ms": 1308.8221500001964,
+    "time_to_first_result_ms": 1308.8221500001964,
+    "time_to_final_result_ms": 1308.8221500001964,
+    "partial_count": 0,
+    "first_partial_latency_ms": 0.0,
+    "provider_compute_rtf": 0.2236932859831051,
+    "end_to_end_rtf": 0.22373028205131565,
+    "time_to_result_ms": 1308.8221500001964,
+    "cpu_percent_mean": 10.157142857142857,
+    "cpu_percent_peak": 22.2,
+    "memory_mb_mean": 2493.826171875,
+    "memory_mb_peak": 3387.78515625,
+    "gpu_util_percent_mean": 31.2,
+    "gpu_util_percent_peak": 70.0,
+    "gpu_memory_mb_mean": 4556.8,
+    "gpu_memory_mb_peak": 4558.0,
+    "cpu_percent": 10.157142857142857,
+    "memory_mb": 2493.826171875,
+    "gpu_util_percent": 31.2,
+    "gpu_memory_mb": 4556.8
+  },
+  "metrics_semantics_version": 2,
+  "legacy_metrics": false,
+  "execution_mode": "batch",
+  "streaming_mode": "none",
+  "scenario": "noise_robustness",
+  "noise_level": "custom_10db",
+  "noise_mode": "white",
+  "noise_snr_db": 10.0,
+  "provider_preset": "balanced",
+  "input_audio_path": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/derived_audio/6930-75918-0006__white__custom_10db.wav",
+  "audio_duration_sec": 5.85,
+  "measured_audio_duration_sec": 5.85,
+  "declared_audio_duration_sec": 5.85,
+  "duration_mismatch_sec": 0.0,
+  "audio_duration_source": "measured_file",
+  "confidence": 0.0,
+  "preprocess_ms": 0.28049600041413214,
+  "inference_ms": 1308.2385150000846,
+  "postprocess_ms": 0.08671200066601159,
+  "trace_artifact_ref": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/traces/trace_aa86fa99f2884c4ba9aabd1ab6dd2e9a.json",
+  "trace_corrupted": false,
+  "trace_warnings": [
+    "Optional metric `finalization_latency_ms` unavailable"
+  ],
+  "trace_warning_count": 1,
+  "normalized_result": {
+    "request_id": "req_052c46a1c712425c8b28a9638399d2af",
+    "session_id": "benchmark_thesis_local_20260503T184131Z",
+    "provider_id": "huggingface_local",
+    "text": "This has indeed been a harassing day, continued the young man, his eyes fixed upon his friend.",
+    "is_final": true,
+    "is_partial": false,
+    "utterance_start_sec": 0.0,
+    "utterance_end_sec": 5.8,
+    "audio_duration_sec": 5.85,
+    "words": [
+      {
+        "word": "This",
+        "start_sec": 0.0,
+        "end_sec": 0.66,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "has",
+        "start_sec": 0.66,
+        "end_sec": 0.94,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "indeed",
+        "start_sec": 0.94,
+        "end_sec": 1.36,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "been",
+        "start_sec": 1.36,
+        "end_sec": 1.72,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "a",
+        "start_sec": 1.72,
+        "end_sec": 1.84,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "harassing",
+        "start_sec": 1.84,
+        "end_sec": 2.44,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "day,",
+        "start_sec": 2.44,
+        "end_sec": 2.86,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "continued",
+        "start_sec": 2.86,
+        "end_sec": 3.14,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "the",
+        "start_sec": 3.14,
+        "end_sec": 3.44,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "young",
+        "start_sec": 3.44,
+        "end_sec": 3.62,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "man,",
+        "start_sec": 3.62,
+        "end_sec": 4.02,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "his",
+        "start_sec": 4.02,
+        "end_sec": 4.12,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "eyes",
+        "start_sec": 4.12,
+        "end_sec": 4.4,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "fixed",
+        "start_sec": 4.4,
+        "end_sec": 4.76,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "upon",
+        "start_sec": 4.76,
+        "end_sec": 5.06,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "his",
+        "start_sec": 5.06,
+        "end_sec": 5.32,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "friend.",
+        "start_sec": 5.32,
+        "end_sec": 5.8,
+        "confidence": 0.0,
+        "confidence_available": false
+      }
+    ],
+    "confidence": 0.0,
+    "confidence_available": false,
+    "timestamps_available": true,
+    "language": "en-US",
+    "language_detected": false,
+    "latency": {
+      "total_ms": 1308.6057230011647,
+      "preprocess_ms": 0.28049600041413214,
+      "inference_ms": 1308.2385150000846,
+      "postprocess_ms": 0.08671200066601159,
+      "first_partial_ms": 0.0,
+      "finalization_ms": 0.0
+    },
+    "raw_metadata_ref": "",
+    "degraded": false,
+    "error_code": "",
+    "error_message": "",
+    "tags": [
+      "hf_local",
+      "transformers"
+    ]
+  }
+}

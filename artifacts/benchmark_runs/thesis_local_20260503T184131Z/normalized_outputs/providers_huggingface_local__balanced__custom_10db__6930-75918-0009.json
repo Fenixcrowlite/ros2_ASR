@@ -1,0 +1,202 @@
+{
+  "request_id": "req_1b64063422654fe0933f19f2bff9e118",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "huggingface_local",
+  "text": "It is you who are mistaken, Raul. I have read his distress in his eyes, in his every gesture and action the whole day.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.0,
+  "utterance_end_sec": 7.14,
+  "audio_duration_sec": 7.28,
+  "words": [
+    {
+      "word": "It",
+      "start_sec": 0.0,
+      "end_sec": 0.48,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "is",
+      "start_sec": 0.48,
+      "end_sec": 0.66,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "you",
+      "start_sec": 0.66,
+      "end_sec": 0.86,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "who",
+      "start_sec": 0.86,
+      "end_sec": 1.06,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "are",
+      "start_sec": 1.06,
+      "end_sec": 1.1,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "mistaken,",
+      "start_sec": 1.1,
+      "end_sec": 1.78,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "Raul.",
+      "start_sec": 1.78,
+      "end_sec": 2.16,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "I",
+      "start_sec": 2.16,
+      "end_sec": 2.28,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "have",
+      "start_sec": 2.28,
+      "end_sec": 2.44,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "read",
+      "start_sec": 2.44,
+      "end_sec": 2.74,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "his",
+      "start_sec": 2.74,
+      "end_sec": 2.96,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "distress",
+      "start_sec": 2.96,
+      "end_sec": 3.28,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "in",
+      "start_sec": 3.28,
+      "end_sec": 3.62,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "his",
+      "start_sec": 3.62,
+      "end_sec": 3.8,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "eyes,",
+      "start_sec": 3.8,
+      "end_sec": 4.3,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "in",
+      "start_sec": 4.3,
+      "end_sec": 4.46,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "his",
+      "start_sec": 4.46,
+      "end_sec": 4.64,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "every",
+      "start_sec": 4.64,
+      "end_sec": 4.96,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "gesture",
+      "start_sec": 4.96,
+      "end_sec": 5.34,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "and",
+      "start_sec": 5.34,
+      "end_sec": 5.62,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "action",
+      "start_sec": 5.62,
+      "end_sec": 6.04,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "the",
+      "start_sec": 6.04,
+      "end_sec": 6.26,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "whole",
+      "start_sec": 6.26,
+      "end_sec": 6.56,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "day.",
+      "start_sec": 6.56,
+      "end_sec": 7.14,
+      "confidence": 0.0,
+      "confidence_available": false
+    }
+  ],
+  "confidence": 0.0,
+  "confidence_available": false,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 1408.485880999251,
+    "preprocess_ms": 0.3408289994695224,
+    "inference_ms": 1408.0468180000025,
+    "postprocess_ms": 0.09823399977904046,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": [
+    "hf_local",
+    "transformers"
+  ]
+}

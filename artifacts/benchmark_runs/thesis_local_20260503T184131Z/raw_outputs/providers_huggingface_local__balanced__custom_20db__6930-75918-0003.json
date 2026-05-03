@@ -1,0 +1,580 @@
+{
+  "run_id": "thesis_local_20260503T184131Z",
+  "provider_profile": "providers/huggingface_local",
+  "provider_id": "huggingface_local",
+  "sample_id": "6930-75918-0003",
+  "success": true,
+  "text": "From the respect paid her on all sides, she seemed like a queen, and from the adoration with which she was treated by two or three, she appeared an object of worship. The queen mother gave the French the most affectionate reception. France was her native country, and she had suffered too much unhappiness in England for England to have made her forget France.",
+  "reference_text": "FROM THE RESPECT PAID HER ON ALL SIDES SHE SEEMED LIKE A QUEEN AND FROM THE ADORATION WITH WHICH SHE WAS TREATED BY TWO OR THREE SHE APPEARED AN OBJECT OF WORSHIP THE QUEEN MOTHER GAVE THE FRENCH THE MOST AFFECTIONATE RECEPTION FRANCE WAS HER NATIVE COUNTRY AND SHE HAD SUFFERED TOO MUCH UNHAPPINESS IN ENGLAND FOR ENGLAND TO HAVE MADE HER FORGET FRANCE",
+  "normalized_reference_text": "from the respect paid her on all sides she seemed like a queen and from the adoration with which she was treated by two or three she appeared an object of worship the queen mother gave the french the most affectionate reception france was her native country and she had suffered too much unhappiness in england for england to have made her forget france",
+  "normalized_hypothesis_text": "from the respect paid her on all sides she seemed like a queen and from the adoration with which she was treated by two or three she appeared an object of worship the queen mother gave the french the most affectionate reception france was her native country and she had suffered too much unhappiness in england for england to have made her forget france",
+  "quality_support": {
+    "normalized_reference": "from the respect paid her on all sides she seemed like a queen and from the adoration with which she was treated by two or three she appeared an object of worship the queen mother gave the french the most affectionate reception france was her native country and she had suffered too much unhappiness in england for england to have made her forget france",
+    "normalized_hypothesis": "from the respect paid her on all sides she seemed like a queen and from the adoration with which she was treated by two or three she appeared an object of worship the queen mother gave the french the most affectionate reception france was her native country and she had suffered too much unhappiness in england for england to have made her forget france",
+    "reference_has_content": true,
+    "hypothesis_has_content": true,
+    "reference_word_count": 64,
+    "reference_char_count": 290,
+    "word_edits": 0,
+    "char_edits": 0,
+    "exact_match": true,
+    "wer": 0.0,
+    "cer": 0.0
+  },
+  "error_code": "",
+  "error_message": "",
+  "metrics": {
+    "cer": 0.0,
+    "estimated_cost_usd": 0.0,
+    "failure_rate": 0.0,
+    "per_utterance_latency_ms": 3986.0689780007306,
+    "real_time_factor": 0.17096585794555996,
+    "sample_accuracy": 1.0,
+    "success_rate": 1.0,
+    "total_latency_ms": 3986.0689780007306,
+    "wer": 0.0,
+    "confidence": 0.0,
+    "preprocess_ms": 0.6918580002093222,
+    "inference_ms": 3985.2505230001043,
+    "postprocess_ms": 0.12659700041695032,
+    "model_load_ms": 2.661801,
+    "provider_init_cold_start": true,
+    "provider_init_warm_start": false,
+    "provider_call_cold_start": false,
+    "provider_call_warm_start": true,
+    "provider_invocation_index": 17,
+    "audio_duration_sec": 23.315,
+    "measured_audio_duration_sec": 23.315,
+    "declared_audio_duration_sec": 23.315,
+    "duration_mismatch_sec": 0.0,
+    "audio_duration_source": "measured_file",
+    "provider_compute_latency_ms": 3986.0689780007306,
+    "end_to_end_latency_ms": 3986.3329420004447,
+    "time_to_first_result_ms": 3986.3329420004447,
+    "time_to_final_result_ms": 3986.3329420004447,
+    "partial_count": 0,
+    "first_partial_latency_ms": 0.0,
+    "provider_compute_rtf": 0.17096585794555996,
+    "end_to_end_rtf": 0.1709771795839779,
+    "time_to_result_ms": 3986.3329420004447,
+    "cpu_percent_mean": 13.752500000000001,
+    "cpu_percent_peak": 42.8,
+    "memory_mb_mean": 2383.68466796875,
+    "memory_mb_peak": 3352.81640625,
+    "gpu_util_percent_mean": 41.285714285714285,
+    "gpu_util_percent_peak": 70.0,
+    "gpu_memory_mb_mean": 4531.142857142857,
+    "gpu_memory_mb_peak": 4557.0,
+    "cpu_percent": 13.752500000000001,
+    "memory_mb": 2383.68466796875,
+    "gpu_util_percent": 41.285714285714285,
+    "gpu_memory_mb": 4531.142857142857
+  },
+  "metrics_semantics_version": 2,
+  "legacy_metrics": false,
+  "execution_mode": "batch",
+  "streaming_mode": "none",
+  "scenario": "noise_robustness",
+  "noise_level": "custom_20db",
+  "noise_mode": "white",
+  "noise_snr_db": 20.0,
+  "provider_preset": "balanced",
+  "input_audio_path": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/derived_audio/6930-75918-0003__white__custom_20db.wav",
+  "audio_duration_sec": 23.315,
+  "measured_audio_duration_sec": 23.315,
+  "declared_audio_duration_sec": 23.315,
+  "duration_mismatch_sec": 0.0,
+  "audio_duration_source": "measured_file",
+  "confidence": 0.0,
+  "preprocess_ms": 0.6918580002093222,
+  "inference_ms": 3985.2505230001043,
+  "postprocess_ms": 0.12659700041695032,
+  "trace_artifact_ref": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/traces/trace_995b68933e484015a1320dd5e2fb4457.json",
+  "trace_corrupted": false,
+  "trace_warnings": [
+    "Optional metric `finalization_latency_ms` unavailable"
+  ],
+  "trace_warning_count": 1,
+  "normalized_result": {
+    "request_id": "req_1b5f69d46c254f4e844f5ae2b28e6f88",
+    "session_id": "benchmark_thesis_local_20260503T184131Z",
+    "provider_id": "huggingface_local",
+    "text": "From the respect paid her on all sides, she seemed like a queen, and from the adoration with which she was treated by two or three, she appeared an object of worship. The queen mother gave the French the most affectionate reception. France was her native country, and she had suffered too much unhappiness in England for England to have made her forget France.",
+    "is_final": true,
+    "is_partial": false,
+    "utterance_start_sec": 0.0,
+    "utterance_end_sec": 23.29,
+    "audio_duration_sec": 23.315,
+    "words": [
+      {
+        "word": "From",
+        "start_sec": 0.0,
+        "end_sec": 0.34,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "the",
+        "start_sec": 0.34,
+        "end_sec": 0.46,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "respect",
+        "start_sec": 0.46,
+        "end_sec": 0.78,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "paid",
+        "start_sec": 0.78,
+        "end_sec": 1.26,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "her",
+        "start_sec": 1.26,
+        "end_sec": 1.52,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "on",
+        "start_sec": 1.52,
+        "end_sec": 1.8,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "all",
+        "start_sec": 1.8,
+        "end_sec": 2.08,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "sides,",
+        "start_sec": 2.08,
+        "end_sec": 3.02,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "she",
+        "start_sec": 3.02,
+        "end_sec": 3.12,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "seemed",
+        "start_sec": 3.12,
+        "end_sec": 3.5,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "like",
+        "start_sec": 3.5,
+        "end_sec": 3.76,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "a",
+        "start_sec": 3.76,
+        "end_sec": 3.92,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "queen,",
+        "start_sec": 3.92,
+        "end_sec": 4.54,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "and",
+        "start_sec": 4.54,
+        "end_sec": 4.88,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "from",
+        "start_sec": 4.88,
+        "end_sec": 5.12,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "the",
+        "start_sec": 5.12,
+        "end_sec": 5.28,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "adoration",
+        "start_sec": 5.28,
+        "end_sec": 6.0,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "with",
+        "start_sec": 6.2,
+        "end_sec": 6.42,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "which",
+        "start_sec": 6.42,
+        "end_sec": 6.7,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "she",
+        "start_sec": 6.7,
+        "end_sec": 7.0,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "was",
+        "start_sec": 7.0,
+        "end_sec": 7.2,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "treated",
+        "start_sec": 7.2,
+        "end_sec": 7.52,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "by",
+        "start_sec": 7.52,
+        "end_sec": 7.82,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "two",
+        "start_sec": 7.82,
+        "end_sec": 8.16,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "or",
+        "start_sec": 8.16,
+        "end_sec": 8.4,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "three,",
+        "start_sec": 8.4,
+        "end_sec": 9.28,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "she",
+        "start_sec": 9.28,
+        "end_sec": 9.4,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "appeared",
+        "start_sec": 9.4,
+        "end_sec": 9.76,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "an",
+        "start_sec": 9.76,
+        "end_sec": 10.06,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "object",
+        "start_sec": 10.06,
+        "end_sec": 10.48,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "of",
+        "start_sec": 10.48,
+        "end_sec": 10.82,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "worship.",
+        "start_sec": 10.82,
+        "end_sec": 11.66,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "The",
+        "start_sec": 11.68,
+        "end_sec": 11.84,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "queen",
+        "start_sec": 11.84,
+        "end_sec": 12.14,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "mother",
+        "start_sec": 12.14,
+        "end_sec": 12.46,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "gave",
+        "start_sec": 12.46,
+        "end_sec": 12.92,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "the",
+        "start_sec": 12.92,
+        "end_sec": 13.16,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "French",
+        "start_sec": 13.16,
+        "end_sec": 13.46,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "the",
+        "start_sec": 13.46,
+        "end_sec": 13.68,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "most",
+        "start_sec": 13.68,
+        "end_sec": 13.94,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "affectionate",
+        "start_sec": 13.94,
+        "end_sec": 14.6,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "reception.",
+        "start_sec": 14.6,
+        "end_sec": 15.54,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "France",
+        "start_sec": 15.54,
+        "end_sec": 15.82,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "was",
+        "start_sec": 15.82,
+        "end_sec": 16.04,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "her",
+        "start_sec": 16.04,
+        "end_sec": 16.26,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "native",
+        "start_sec": 16.26,
+        "end_sec": 16.44,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "country,",
+        "start_sec": 16.44,
+        "end_sec": 17.37,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "and",
+        "start_sec": 17.37,
+        "end_sec": 17.69,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "she",
+        "start_sec": 17.69,
+        "end_sec": 17.95,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "had",
+        "start_sec": 17.95,
+        "end_sec": 18.15,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "suffered",
+        "start_sec": 18.15,
+        "end_sec": 18.43,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "too",
+        "start_sec": 18.63,
+        "end_sec": 18.83,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "much",
+        "start_sec": 18.83,
+        "end_sec": 19.07,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "unhappiness",
+        "start_sec": 19.07,
+        "end_sec": 19.63,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "in",
+        "start_sec": 19.63,
+        "end_sec": 19.89,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "England",
+        "start_sec": 19.89,
+        "end_sec": 20.21,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "for",
+        "start_sec": 20.21,
+        "end_sec": 20.47,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "England",
+        "start_sec": 20.47,
+        "end_sec": 20.85,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "to",
+        "start_sec": 20.85,
+        "end_sec": 21.15,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "have",
+        "start_sec": 21.15,
+        "end_sec": 21.37,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "made",
+        "start_sec": 21.37,
+        "end_sec": 21.65,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "her",
+        "start_sec": 21.65,
+        "end_sec": 21.87,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "forget",
+        "start_sec": 21.87,
+        "end_sec": 22.23,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "France.",
+        "start_sec": 22.23,
+        "end_sec": 23.29,
+        "confidence": 0.0,
+        "confidence_available": false
+      }
+    ],
+    "confidence": 0.0,
+    "confidence_available": false,
+    "timestamps_available": true,
+    "language": "en-US",
+    "language_detected": false,
+    "latency": {
+      "total_ms": 3986.0689780007306,
+      "preprocess_ms": 0.6918580002093222,
+      "inference_ms": 3985.2505230001043,
+      "postprocess_ms": 0.12659700041695032,
+      "first_partial_ms": 0.0,
+      "finalization_ms": 0.0
+    },
+    "raw_metadata_ref": "",
+    "degraded": false,
+    "error_code": "",
+    "error_message": "",
+    "tags": [
+      "hf_local",
+      "transformers"
+    ]
+  }
+}

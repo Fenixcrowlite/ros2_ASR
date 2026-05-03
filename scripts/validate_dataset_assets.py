@@ -57,6 +57,14 @@ def _load_json(path: Path) -> Any:
         raise SystemExit(f"Invalid JSON in {path}: {exc}") from exc
 
 
+def _repo_relative(path: Path, root: Path) -> str:
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(root.resolve()))
+    except ValueError:
+        return str(path)
+
+
 def _resolve_path(root: Path, raw_path: str) -> Path:
     candidate = Path(raw_path).expanduser()
     if candidate.is_absolute():
@@ -144,7 +152,7 @@ def _validate_dataset_entry(root: Path, entry: Any) -> DatasetValidation:
     result = DatasetValidation(
         dataset_id=dataset_id,
         manifest_ref=manifest_ref,
-        manifest_path=str(manifest_path),
+        manifest_path=_repo_relative(manifest_path, root),
         declared_sample_count=declared_sample_count,
     )
 
@@ -269,8 +277,8 @@ def main() -> None:
     results = [_validate_dataset_entry(root, entry) for entry in entries]
     report = {
         "created_at": datetime.now(UTC).isoformat(),
-        "root": str(root),
-        "registry": str(registry_path),
+        "root": ".",
+        "registry": _repo_relative(registry_path, root),
         "passed": all(item.passed for item in results),
         "dataset_count": len(results),
         "valid_dataset_count": sum(1 for item in results if item.passed),

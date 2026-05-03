@@ -1,0 +1,30 @@
+{
+  "request_id": "req_e696650bf3474f68ad1c93e9632d0e92",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "vosk",
+  "text": "",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.0,
+  "utterance_end_sec": 0.0,
+  "audio_duration_sec": 3.315,
+  "words": [],
+  "confidence": 0.0,
+  "confidence_available": false,
+  "timestamps_available": false,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 342.9906329993173,
+    "preprocess_ms": 0.007063999873935245,
+    "inference_ms": 342.91462900000624,
+    "postprocess_ms": 0.06893999943713425,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": true,
+  "error_code": "empty_transcript",
+  "error_message": "Provider returned an empty transcript.",
+  "tags": []
+}

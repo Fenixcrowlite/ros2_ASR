@@ -1,0 +1,94 @@
+{
+  "request_id": "req_454c8b8ec4454199b51dca4eb7891357",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "You will be frank with me. I always am.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.05,
+  "utterance_end_sec": 2.89,
+  "audio_duration_sec": 3.315,
+  "words": [
+    {
+      "word": "You",
+      "start_sec": 0.05,
+      "end_sec": 0.65,
+      "confidence": 0.6420178413391113,
+      "confidence_available": true
+    },
+    {
+      "word": "will",
+      "start_sec": 0.65,
+      "end_sec": 0.81,
+      "confidence": 0.6977435946464539,
+      "confidence_available": true
+    },
+    {
+      "word": "be",
+      "start_sec": 0.81,
+      "end_sec": 1.01,
+      "confidence": 0.9981107711791992,
+      "confidence_available": true
+    },
+    {
+      "word": "frank",
+      "start_sec": 1.01,
+      "end_sec": 1.27,
+      "confidence": 0.7953752279281616,
+      "confidence_available": true
+    },
+    {
+      "word": "with",
+      "start_sec": 1.27,
+      "end_sec": 1.47,
+      "confidence": 0.9957669973373413,
+      "confidence_available": true
+    },
+    {
+      "word": "me.",
+      "start_sec": 1.47,
+      "end_sec": 2.15,
+      "confidence": 0.9993602633476257,
+      "confidence_available": true
+    },
+    {
+      "word": "I",
+      "start_sec": 2.17,
+      "end_sec": 2.31,
+      "confidence": 0.9740784764289856,
+      "confidence_available": true
+    },
+    {
+      "word": "always",
+      "start_sec": 2.31,
+      "end_sec": 2.55,
+      "confidence": 0.6085373759269714,
+      "confidence_available": true
+    },
+    {
+      "word": "am.",
+      "start_sec": 2.55,
+      "end_sec": 2.89,
+      "confidence": 0.8705165982246399,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.8488862702676228,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 405.2183359999617,
+    "preprocess_ms": 0.006582999958482105,
+    "inference_ms": 405.0991120002436,
+    "postprocess_ms": 0.11264099975960562,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

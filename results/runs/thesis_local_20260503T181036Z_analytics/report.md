@@ -14,7 +14,7 @@ Normalization: `normalized-v1`
 
 ## Artifacts
 
-- manifest: `/home/fenix/Desktop/ros2ws/results/runs/thesis_local_20260503T181036Z_analytics/manifest.json`
-- utterance metrics: `/home/fenix/Desktop/ros2ws/results/runs/thesis_local_20260503T181036Z_analytics/utterance_metrics.csv`
-- summary CSV: `/home/fenix/Desktop/ros2ws/results/runs/thesis_local_20260503T181036Z_analytics/summary.csv`
-- plots: `/home/fenix/Desktop/ros2ws/results/runs/thesis_local_20260503T181036Z_analytics/plots`
+- manifest: `results/runs/thesis_local_20260503T181036Z_analytics/manifest.json`
+- utterance metrics: `results/runs/thesis_local_20260503T181036Z_analytics/utterance_metrics.csv`
+- summary CSV: `results/runs/thesis_local_20260503T181036Z_analytics/summary.csv`
+- plots: `results/runs/thesis_local_20260503T181036Z_analytics/plots`

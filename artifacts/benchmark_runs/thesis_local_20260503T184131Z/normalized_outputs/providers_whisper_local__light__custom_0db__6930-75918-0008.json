@@ -1,0 +1,108 @@
+{
+  "request_id": "req_1bdde51bc230476bacdacfde078a861a",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "Can you imagine why Buckingham has been so fine? I suspect.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.21,
+  "utterance_end_sec": 4.23,
+  "audio_duration_sec": 4.785,
+  "words": [
+    {
+      "word": "Can",
+      "start_sec": 0.21,
+      "end_sec": 0.75,
+      "confidence": 0.8699206113815308,
+      "confidence_available": true
+    },
+    {
+      "word": "you",
+      "start_sec": 0.75,
+      "end_sec": 0.93,
+      "confidence": 0.9875295162200928,
+      "confidence_available": true
+    },
+    {
+      "word": "imagine",
+      "start_sec": 0.93,
+      "end_sec": 1.33,
+      "confidence": 0.9972942471504211,
+      "confidence_available": true
+    },
+    {
+      "word": "why",
+      "start_sec": 1.33,
+      "end_sec": 1.59,
+      "confidence": 0.2987029552459717,
+      "confidence_available": true
+    },
+    {
+      "word": "Buckingham",
+      "start_sec": 1.59,
+      "end_sec": 2.13,
+      "confidence": 0.7693902055422465,
+      "confidence_available": true
+    },
+    {
+      "word": "has",
+      "start_sec": 2.13,
+      "end_sec": 2.37,
+      "confidence": 0.9076474905014038,
+      "confidence_available": true
+    },
+    {
+      "word": "been",
+      "start_sec": 2.37,
+      "end_sec": 2.55,
+      "confidence": 0.9966229200363159,
+      "confidence_available": true
+    },
+    {
+      "word": "so",
+      "start_sec": 2.55,
+      "end_sec": 2.79,
+      "confidence": 0.9852484464645386,
+      "confidence_available": true
+    },
+    {
+      "word": "fine?",
+      "start_sec": 2.79,
+      "end_sec": 3.27,
+      "confidence": 0.3505462110042572,
+      "confidence_available": true
+    },
+    {
+      "word": "I",
+      "start_sec": 3.73,
+      "end_sec": 3.81,
+      "confidence": 0.8285819292068481,
+      "confidence_available": true
+    },
+    {
+      "word": "suspect.",
+      "start_sec": 3.81,
+      "end_sec": 4.23,
+      "confidence": 0.9344719648361206,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.8266437702759718,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 438.57265600126993,
+    "preprocess_ms": 0.007164000635384582,
+    "inference_ms": 438.48377900030755,
+    "postprocess_ms": 0.08171300032699946,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

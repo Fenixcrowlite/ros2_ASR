@@ -55,7 +55,7 @@
     {
       "dataset_id": "librispeech_test_clean_subset",
       "manifest_ref": "datasets/manifests/librispeech_test_clean_subset.jsonl",
-      "sample_count": 2,
+      "sample_count": 10,
       "metadata": {
         "source": "external_download",
         "source_ref": "OpenSLR SLR12 test-clean",

@@ -1,0 +1,94 @@
+{
+  "request_id": "req_e51563b0189043d18084ad3719de5c5a",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "Come forward, return to its place amid the tents.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.24,
+  "utterance_end_sec": 3.28,
+  "audio_duration_sec": 3.505,
+  "words": [
+    {
+      "word": "Come",
+      "start_sec": 0.24,
+      "end_sec": 0.86,
+      "confidence": 0.03601933643221855,
+      "confidence_available": true
+    },
+    {
+      "word": "forward,",
+      "start_sec": 0.86,
+      "end_sec": 1.2,
+      "confidence": 0.6869338154792786,
+      "confidence_available": true
+    },
+    {
+      "word": "return",
+      "start_sec": 1.48,
+      "end_sec": 1.66,
+      "confidence": 0.9837290644645691,
+      "confidence_available": true
+    },
+    {
+      "word": "to",
+      "start_sec": 1.66,
+      "end_sec": 1.94,
+      "confidence": 0.26668334007263184,
+      "confidence_available": true
+    },
+    {
+      "word": "its",
+      "start_sec": 1.94,
+      "end_sec": 2.06,
+      "confidence": 0.8473219871520996,
+      "confidence_available": true
+    },
+    {
+      "word": "place",
+      "start_sec": 2.06,
+      "end_sec": 2.36,
+      "confidence": 0.9962897300720215,
+      "confidence_available": true
+    },
+    {
+      "word": "amid",
+      "start_sec": 2.36,
+      "end_sec": 2.64,
+      "confidence": 0.36805006861686707,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 2.64,
+      "end_sec": 2.94,
+      "confidence": 0.8483996391296387,
+      "confidence_available": true
+    },
+    {
+      "word": "tents.",
+      "start_sec": 2.94,
+      "end_sec": 3.28,
+      "confidence": 0.4118713140487671,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.6274102690496616,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 449.4649029993525,
+    "preprocess_ms": 0.007192999873950612,
+    "inference_ms": 449.3550970000797,
+    "postprocess_ms": 0.10261299939884339,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

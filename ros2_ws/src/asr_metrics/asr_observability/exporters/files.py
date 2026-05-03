@@ -30,6 +30,13 @@ class FileTraceExporter:
     def benchmark_trace_path(*, run_dir: str, trace: PipelineTrace) -> Path:
         return Path(run_dir) / "metrics" / "traces" / f"{trace.trace_id}.json"
 
+    @staticmethod
+    def _portable_path(path: Path) -> str:
+        try:
+            return str(path.resolve().relative_to(Path.cwd().resolve()))
+        except ValueError:
+            return str(path)
+
     def _append_csv_row(self, path: Path, row: dict[str, Any]) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         write_header = not path.exists()
@@ -106,7 +113,7 @@ class FileTraceExporter:
         json_path = self.runtime_trace_path(trace)
         base_dir = json_path.parent
         base_dir.mkdir(parents=True, exist_ok=True)
-        trace.artifact_path = str(json_path)
+        trace.artifact_path = self._portable_path(json_path)
         if self.config.export_json:
             json_path.write_text(
                 json.dumps(trace.as_dict(), ensure_ascii=True, indent=2),
@@ -117,13 +124,13 @@ class FileTraceExporter:
                 base_dir / self.config.runtime_index_filename,
                 self._summary_row(trace),
             )
-        return str(json_path)
+        return trace.artifact_path
 
     def export_benchmark_trace(self, *, run_dir: str, trace: PipelineTrace) -> str:
         json_path = self.benchmark_trace_path(run_dir=run_dir, trace=trace)
         base_dir = json_path.parent
         base_dir.mkdir(parents=True, exist_ok=True)
-        trace.artifact_path = str(json_path)
+        trace.artifact_path = self._portable_path(json_path)
         if self.config.export_json:
             json_path.write_text(
                 json.dumps(trace.as_dict(), ensure_ascii=True, indent=2),
@@ -134,4 +141,4 @@ class FileTraceExporter:
                 base_dir / self.config.benchmark_index_filename,
                 self._summary_row(trace),
             )
-        return str(json_path)
+        return trace.artifact_path

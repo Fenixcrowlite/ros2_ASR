@@ -1,0 +1,87 @@
+{
+  "request_id": "req_a28a2b7aa99c49948e14c1781653202f",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "Concord return to its place amidst the tents.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.18,
+  "utterance_end_sec": 3.3,
+  "audio_duration_sec": 3.505,
+  "words": [
+    {
+      "word": "Concord",
+      "start_sec": 0.18,
+      "end_sec": 1.22,
+      "confidence": 0.583879292011261,
+      "confidence_available": true
+    },
+    {
+      "word": "return",
+      "start_sec": 1.22,
+      "end_sec": 1.62,
+      "confidence": 0.43733885884284973,
+      "confidence_available": true
+    },
+    {
+      "word": "to",
+      "start_sec": 1.62,
+      "end_sec": 1.84,
+      "confidence": 0.9911918044090271,
+      "confidence_available": true
+    },
+    {
+      "word": "its",
+      "start_sec": 1.84,
+      "end_sec": 2.0,
+      "confidence": 0.9962051510810852,
+      "confidence_available": true
+    },
+    {
+      "word": "place",
+      "start_sec": 2.0,
+      "end_sec": 2.3,
+      "confidence": 0.997867226600647,
+      "confidence_available": true
+    },
+    {
+      "word": "amidst",
+      "start_sec": 2.3,
+      "end_sec": 2.86,
+      "confidence": 0.9614099860191345,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 2.86,
+      "end_sec": 2.96,
+      "confidence": 0.9814412593841553,
+      "confidence_available": true
+    },
+    {
+      "word": "tents.",
+      "start_sec": 2.96,
+      "end_sec": 3.3,
+      "confidence": 0.7752044200897217,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.8491403802992806,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 3558.9648630002557,
+    "preprocess_ms": 3000.7623929996043,
+    "inference_ms": 558.1090450004922,
+    "postprocess_ms": 0.09342500015918631,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

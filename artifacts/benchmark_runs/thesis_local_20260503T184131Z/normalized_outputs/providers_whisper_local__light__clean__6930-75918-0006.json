@@ -1,0 +1,150 @@
+{
+  "request_id": "req_12799154e0cb496da350d6436ae3e792",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "This has indeed been a harassing day, continued the young man his eyes fixed upon his friend.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.08,
+  "utterance_end_sec": 5.74,
+  "audio_duration_sec": 5.85,
+  "words": [
+    {
+      "word": "This",
+      "start_sec": 0.08,
+      "end_sec": 0.74,
+      "confidence": 0.756648600101471,
+      "confidence_available": true
+    },
+    {
+      "word": "has",
+      "start_sec": 0.74,
+      "end_sec": 1.16,
+      "confidence": 0.7581186890602112,
+      "confidence_available": true
+    },
+    {
+      "word": "indeed",
+      "start_sec": 1.16,
+      "end_sec": 1.44,
+      "confidence": 0.9657300114631653,
+      "confidence_available": true
+    },
+    {
+      "word": "been",
+      "start_sec": 1.44,
+      "end_sec": 1.86,
+      "confidence": 0.9986935257911682,
+      "confidence_available": true
+    },
+    {
+      "word": "a",
+      "start_sec": 1.86,
+      "end_sec": 2.0,
+      "confidence": 0.9958975315093994,
+      "confidence_available": true
+    },
+    {
+      "word": "harassing",
+      "start_sec": 2.0,
+      "end_sec": 2.54,
+      "confidence": 0.9735156893730164,
+      "confidence_available": true
+    },
+    {
+      "word": "day,",
+      "start_sec": 2.54,
+      "end_sec": 2.84,
+      "confidence": 0.8105309009552002,
+      "confidence_available": true
+    },
+    {
+      "word": "continued",
+      "start_sec": 3.0,
+      "end_sec": 3.22,
+      "confidence": 0.9502564072608948,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 3.22,
+      "end_sec": 3.54,
+      "confidence": 0.9687842726707458,
+      "confidence_available": true
+    },
+    {
+      "word": "young",
+      "start_sec": 3.54,
+      "end_sec": 3.72,
+      "confidence": 0.940725564956665,
+      "confidence_available": true
+    },
+    {
+      "word": "man",
+      "start_sec": 3.72,
+      "end_sec": 4.0,
+      "confidence": 0.9930347204208374,
+      "confidence_available": true
+    },
+    {
+      "word": "his",
+      "start_sec": 4.0,
+      "end_sec": 4.26,
+      "confidence": 0.5220876932144165,
+      "confidence_available": true
+    },
+    {
+      "word": "eyes",
+      "start_sec": 4.26,
+      "end_sec": 4.56,
+      "confidence": 0.9930295348167419,
+      "confidence_available": true
+    },
+    {
+      "word": "fixed",
+      "start_sec": 4.56,
+      "end_sec": 4.9,
+      "confidence": 0.9793328642845154,
+      "confidence_available": true
+    },
+    {
+      "word": "upon",
+      "start_sec": 4.9,
+      "end_sec": 5.18,
+      "confidence": 0.9296902418136597,
+      "confidence_available": true
+    },
+    {
+      "word": "his",
+      "start_sec": 5.18,
+      "end_sec": 5.44,
+      "confidence": 0.9950756430625916,
+      "confidence_available": true
+    },
+    {
+      "word": "friend.",
+      "start_sec": 5.44,
+      "end_sec": 5.74,
+      "confidence": 0.9918712377548218,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.9149840846441794,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 512.7882040005716,
+    "preprocess_ms": 0.0055199998314492404,
+    "inference_ms": 512.6922440003909,
+    "postprocess_ms": 0.09044000034919009,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

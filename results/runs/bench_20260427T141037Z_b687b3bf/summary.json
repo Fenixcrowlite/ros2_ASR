@@ -31,17 +31,17 @@
     },
     "source": {
       "kind": "canonical",
-      "input_path": "/home/fenix/Desktop/ros2ws/results/latest_benchmark_summary.json",
-      "summary_json": "/home/fenix/Desktop/ros2ws/results/latest_benchmark_summary.json",
-      "results_json": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260427T141037Z_b687b3bf/metrics/results.json"
+      "input_path": "results/latest_benchmark_summary.json",
+      "summary_json": "results/latest_benchmark_summary.json",
+      "results_json": "artifacts/benchmark_runs/bench_20260427T141037Z_b687b3bf/metrics/results.json"
     },
     "artifacts": {
-      "manifest": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141037Z_b687b3bf/manifest.json",
-      "utterance_csv": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141037Z_b687b3bf/utterance_metrics.csv",
-      "summary_csv": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141037Z_b687b3bf/summary.csv",
-      "summary_json": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141037Z_b687b3bf/summary.json",
-      "report_md": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141037Z_b687b3bf/report.md",
-      "plots_dir": "/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141037Z_b687b3bf/plots"
+      "manifest": "results/runs/bench_20260427T141037Z_b687b3bf/manifest.json",
+      "utterance_csv": "results/runs/bench_20260427T141037Z_b687b3bf/utterance_metrics.csv",
+      "summary_csv": "results/runs/bench_20260427T141037Z_b687b3bf/summary.csv",
+      "summary_json": "results/runs/bench_20260427T141037Z_b687b3bf/summary.json",
+      "report_md": "results/runs/bench_20260427T141037Z_b687b3bf/report.md",
+      "plots_dir": "results/runs/bench_20260427T141037Z_b687b3bf/plots"
     }
   },
   "models": [

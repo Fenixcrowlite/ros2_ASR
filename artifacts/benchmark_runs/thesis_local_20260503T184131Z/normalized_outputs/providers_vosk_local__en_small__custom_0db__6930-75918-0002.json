@@ -1,0 +1,45 @@
+{
+  "request_id": "req_07202888a3cd4401b7a3d1bde3167450",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "vosk",
+  "text": "virtually everywhere",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.48,
+  "utterance_end_sec": 3.75,
+  "audio_duration_sec": 5.025,
+  "words": [
+    {
+      "word": "virtually",
+      "start_sec": 0.48,
+      "end_sec": 1.02,
+      "confidence": 0.629566,
+      "confidence_available": true
+    },
+    {
+      "word": "everywhere",
+      "start_sec": 3.18,
+      "end_sec": 3.75,
+      "confidence": 1.0,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.814783,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 672.9715359988404,
+    "preprocess_ms": 0.01007899936666945,
+    "inference_ms": 672.8479449993756,
+    "postprocess_ms": 0.11351200009812601,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

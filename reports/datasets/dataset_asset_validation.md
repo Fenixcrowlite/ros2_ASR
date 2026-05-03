@@ -1,8 +1,8 @@
 # Dataset Asset Validation
 
-Created: `2026-05-03T18:15:06.092329+00:00`
-Registry: `/home/fenix/Desktop/ros2ws/datasets/registry/datasets.json`
-Root: `/home/fenix/Desktop/ros2ws`
+Created: `2026-05-03T18:52:23.376582+00:00`
+Registry: `datasets/registry/datasets.json`
+Root: `.`
 Status: `PASS`
 
 | Dataset | Declared | Actual | Missing Audio | Absolute Audio Paths | Status |
@@ -11,7 +11,7 @@ Status: `PASS`
 | fleurs_fr_fr_test_subset | 2 | 2 | 0 | 0 | PASS |
 | fleurs_ja_jp_test_subset | 2 | 2 | 0 | 0 | PASS |
 | fleurs_sk_sk_test_subset | 2 | 2 | 0 | 0 | PASS |
-| librispeech_test_clean_subset | 2 | 2 | 0 | 0 | PASS |
+| librispeech_test_clean_subset | 10 | 10 | 0 | 0 | PASS |
 | librispeech_test_other_subset | 2 | 2 | 0 | 0 | PASS |
 | mini_librispeech_dev_clean_2_subset | 2 | 2 | 0 | 0 | PASS |
 | mls_german_test_subset | 2 | 2 | 0 | 0 | PASS |

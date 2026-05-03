@@ -1,0 +1,332 @@
+{
+  "request_id": "req_712330fcf08e4fd4a152dfdcf40c0d5d",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "The English voted to the French baskets of flowers of which they had made a plantable provision to create the arrival of the young princess. The French in return invited the English to a supper, which was to be given the next day.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.0,
+  "utterance_end_sec": 14.04,
+  "audio_duration_sec": 14.225,
+  "words": [
+    {
+      "word": "The",
+      "start_sec": 0.0,
+      "end_sec": 0.54,
+      "confidence": 0.7545905709266663,
+      "confidence_available": true
+    },
+    {
+      "word": "English",
+      "start_sec": 0.54,
+      "end_sec": 0.86,
+      "confidence": 0.9646024107933044,
+      "confidence_available": true
+    },
+    {
+      "word": "voted",
+      "start_sec": 0.86,
+      "end_sec": 1.28,
+      "confidence": 0.4745064675807953,
+      "confidence_available": true
+    },
+    {
+      "word": "to",
+      "start_sec": 1.28,
+      "end_sec": 1.62,
+      "confidence": 0.8431436419487,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 1.62,
+      "end_sec": 1.82,
+      "confidence": 0.9696753621101379,
+      "confidence_available": true
+    },
+    {
+      "word": "French",
+      "start_sec": 1.82,
+      "end_sec": 2.14,
+      "confidence": 0.9842849373817444,
+      "confidence_available": true
+    },
+    {
+      "word": "baskets",
+      "start_sec": 2.14,
+      "end_sec": 2.62,
+      "confidence": 0.5861442685127258,
+      "confidence_available": true
+    },
+    {
+      "word": "of",
+      "start_sec": 2.62,
+      "end_sec": 2.88,
+      "confidence": 0.9666125774383545,
+      "confidence_available": true
+    },
+    {
+      "word": "flowers",
+      "start_sec": 2.88,
+      "end_sec": 3.22,
+      "confidence": 0.9848210215568542,
+      "confidence_available": true
+    },
+    {
+      "word": "of",
+      "start_sec": 3.22,
+      "end_sec": 3.56,
+      "confidence": 0.5576081275939941,
+      "confidence_available": true
+    },
+    {
+      "word": "which",
+      "start_sec": 3.56,
+      "end_sec": 3.8,
+      "confidence": 0.9905195236206055,
+      "confidence_available": true
+    },
+    {
+      "word": "they",
+      "start_sec": 3.8,
+      "end_sec": 4.0,
+      "confidence": 0.9830531477928162,
+      "confidence_available": true
+    },
+    {
+      "word": "had",
+      "start_sec": 4.0,
+      "end_sec": 4.22,
+      "confidence": 0.9896190762519836,
+      "confidence_available": true
+    },
+    {
+      "word": "made",
+      "start_sec": 4.22,
+      "end_sec": 4.42,
+      "confidence": 0.9956081509590149,
+      "confidence_available": true
+    },
+    {
+      "word": "a",
+      "start_sec": 4.42,
+      "end_sec": 4.54,
+      "confidence": 0.9725875854492188,
+      "confidence_available": true
+    },
+    {
+      "word": "plantable",
+      "start_sec": 4.54,
+      "end_sec": 5.0,
+      "confidence": 0.612673357129097,
+      "confidence_available": true
+    },
+    {
+      "word": "provision",
+      "start_sec": 5.0,
+      "end_sec": 5.38,
+      "confidence": 0.9610673189163208,
+      "confidence_available": true
+    },
+    {
+      "word": "to",
+      "start_sec": 5.38,
+      "end_sec": 5.72,
+      "confidence": 0.9988216757774353,
+      "confidence_available": true
+    },
+    {
+      "word": "create",
+      "start_sec": 5.72,
+      "end_sec": 5.98,
+      "confidence": 0.4470096528530121,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 5.98,
+      "end_sec": 6.18,
+      "confidence": 0.9951366782188416,
+      "confidence_available": true
+    },
+    {
+      "word": "arrival",
+      "start_sec": 6.18,
+      "end_sec": 6.54,
+      "confidence": 0.994679868221283,
+      "confidence_available": true
+    },
+    {
+      "word": "of",
+      "start_sec": 6.54,
+      "end_sec": 7.0,
+      "confidence": 0.9987305998802185,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 7.0,
+      "end_sec": 7.14,
+      "confidence": 0.9898074269294739,
+      "confidence_available": true
+    },
+    {
+      "word": "young",
+      "start_sec": 7.14,
+      "end_sec": 7.36,
+      "confidence": 0.9720341563224792,
+      "confidence_available": true
+    },
+    {
+      "word": "princess.",
+      "start_sec": 7.36,
+      "end_sec": 7.88,
+      "confidence": 0.8978275060653687,
+      "confidence_available": true
+    },
+    {
+      "word": "The",
+      "start_sec": 8.58,
+      "end_sec": 8.66,
+      "confidence": 0.9875786900520325,
+      "confidence_available": true
+    },
+    {
+      "word": "French",
+      "start_sec": 8.66,
+      "end_sec": 9.02,
+      "confidence": 0.9969246983528137,
+      "confidence_available": true
+    },
+    {
+      "word": "in",
+      "start_sec": 9.02,
+      "end_sec": 9.26,
+      "confidence": 0.6723280549049377,
+      "confidence_available": true
+    },
+    {
+      "word": "return",
+      "start_sec": 9.26,
+      "end_sec": 9.72,
+      "confidence": 0.9726348519325256,
+      "confidence_available": true
+    },
+    {
+      "word": "invited",
+      "start_sec": 9.72,
+      "end_sec": 10.24,
+      "confidence": 0.9893209934234619,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 10.24,
+      "end_sec": 10.56,
+      "confidence": 0.9944807291030884,
+      "confidence_available": true
+    },
+    {
+      "word": "English",
+      "start_sec": 10.56,
+      "end_sec": 10.8,
+      "confidence": 0.993908166885376,
+      "confidence_available": true
+    },
+    {
+      "word": "to",
+      "start_sec": 10.8,
+      "end_sec": 11.04,
+      "confidence": 0.9932984709739685,
+      "confidence_available": true
+    },
+    {
+      "word": "a",
+      "start_sec": 11.04,
+      "end_sec": 11.24,
+      "confidence": 0.9750721454620361,
+      "confidence_available": true
+    },
+    {
+      "word": "supper,",
+      "start_sec": 11.24,
+      "end_sec": 11.62,
+      "confidence": 0.7148082256317139,
+      "confidence_available": true
+    },
+    {
+      "word": "which",
+      "start_sec": 12.08,
+      "end_sec": 12.16,
+      "confidence": 0.9953619837760925,
+      "confidence_available": true
+    },
+    {
+      "word": "was",
+      "start_sec": 12.16,
+      "end_sec": 12.4,
+      "confidence": 0.9960359930992126,
+      "confidence_available": true
+    },
+    {
+      "word": "to",
+      "start_sec": 12.4,
+      "end_sec": 12.52,
+      "confidence": 0.9794726371765137,
+      "confidence_available": true
+    },
+    {
+      "word": "be",
+      "start_sec": 12.52,
+      "end_sec": 12.64,
+      "confidence": 0.9794617295265198,
+      "confidence_available": true
+    },
+    {
+      "word": "given",
+      "start_sec": 12.64,
+      "end_sec": 12.98,
+      "confidence": 0.9965053796768188,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 12.98,
+      "end_sec": 13.4,
+      "confidence": 0.9728727340698242,
+      "confidence_available": true
+    },
+    {
+      "word": "next",
+      "start_sec": 13.4,
+      "end_sec": 13.7,
+      "confidence": 0.997008740901947,
+      "confidence_available": true
+    },
+    {
+      "word": "day.",
+      "start_sec": 13.7,
+      "end_sec": 14.04,
+      "confidence": 0.998833954334259,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.9111191484612278,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 618.104427999242,
+    "preprocess_ms": 0.007072999324009288,
+    "inference_ms": 618.0156520003948,
+    "postprocess_ms": 0.08170299952325877,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

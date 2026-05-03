@@ -1,0 +1,185 @@
+{
+  "request_id": "req_cf44f4f9f0c044af858313eb1d68f016",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "It is you who are mistaken. I have ready to stress a new life in every gesture and action that whole day.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.0,
+  "utterance_end_sec": 7.02,
+  "audio_duration_sec": 7.28,
+  "words": [
+    {
+      "word": "It",
+      "start_sec": 0.0,
+      "end_sec": 0.66,
+      "confidence": 0.5402477383613586,
+      "confidence_available": true
+    },
+    {
+      "word": "is",
+      "start_sec": 0.66,
+      "end_sec": 0.84,
+      "confidence": 0.9746353030204773,
+      "confidence_available": true
+    },
+    {
+      "word": "you",
+      "start_sec": 0.84,
+      "end_sec": 1.04,
+      "confidence": 0.9348796606063843,
+      "confidence_available": true
+    },
+    {
+      "word": "who",
+      "start_sec": 1.04,
+      "end_sec": 1.2,
+      "confidence": 0.7174881100654602,
+      "confidence_available": true
+    },
+    {
+      "word": "are",
+      "start_sec": 1.2,
+      "end_sec": 1.22,
+      "confidence": 0.7988256812095642,
+      "confidence_available": true
+    },
+    {
+      "word": "mistaken.",
+      "start_sec": 1.22,
+      "end_sec": 1.62,
+      "confidence": 0.7556849122047424,
+      "confidence_available": true
+    },
+    {
+      "word": "I",
+      "start_sec": 2.18,
+      "end_sec": 2.34,
+      "confidence": 0.9274911880493164,
+      "confidence_available": true
+    },
+    {
+      "word": "have",
+      "start_sec": 2.34,
+      "end_sec": 2.6,
+      "confidence": 0.9103910326957703,
+      "confidence_available": true
+    },
+    {
+      "word": "ready",
+      "start_sec": 2.6,
+      "end_sec": 2.96,
+      "confidence": 0.17768719792366028,
+      "confidence_available": true
+    },
+    {
+      "word": "to",
+      "start_sec": 2.96,
+      "end_sec": 3.28,
+      "confidence": 0.9488140344619751,
+      "confidence_available": true
+    },
+    {
+      "word": "stress",
+      "start_sec": 3.28,
+      "end_sec": 3.56,
+      "confidence": 0.29844042658805847,
+      "confidence_available": true
+    },
+    {
+      "word": "a",
+      "start_sec": 3.56,
+      "end_sec": 3.82,
+      "confidence": 0.3783912658691406,
+      "confidence_available": true
+    },
+    {
+      "word": "new",
+      "start_sec": 3.82,
+      "end_sec": 3.86,
+      "confidence": 0.9299934506416321,
+      "confidence_available": true
+    },
+    {
+      "word": "life",
+      "start_sec": 3.86,
+      "end_sec": 4.32,
+      "confidence": 0.3673216998577118,
+      "confidence_available": true
+    },
+    {
+      "word": "in",
+      "start_sec": 4.32,
+      "end_sec": 4.56,
+      "confidence": 0.6473588347434998,
+      "confidence_available": true
+    },
+    {
+      "word": "every",
+      "start_sec": 4.56,
+      "end_sec": 5.08,
+      "confidence": 0.8929012417793274,
+      "confidence_available": true
+    },
+    {
+      "word": "gesture",
+      "start_sec": 5.08,
+      "end_sec": 5.48,
+      "confidence": 0.549895167350769,
+      "confidence_available": true
+    },
+    {
+      "word": "and",
+      "start_sec": 5.48,
+      "end_sec": 5.8,
+      "confidence": 0.2958129346370697,
+      "confidence_available": true
+    },
+    {
+      "word": "action",
+      "start_sec": 5.8,
+      "end_sec": 6.16,
+      "confidence": 0.7973631024360657,
+      "confidence_available": true
+    },
+    {
+      "word": "that",
+      "start_sec": 6.16,
+      "end_sec": 6.46,
+      "confidence": 0.41071614623069763,
+      "confidence_available": true
+    },
+    {
+      "word": "whole",
+      "start_sec": 6.46,
+      "end_sec": 6.7,
+      "confidence": 0.12045742571353912,
+      "confidence_available": true
+    },
+    {
+      "word": "day.",
+      "start_sec": 6.7,
+      "end_sec": 7.02,
+      "confidence": 0.9980103373527527,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.6630918726684967,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 482.2521650003182,
+    "preprocess_ms": 0.012743999832309783,
+    "inference_ms": 482.1817030006059,
+    "postprocess_ms": 0.057717999879969284,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

@@ -1,0 +1,262 @@
+{
+  "request_id": "req_9de45614268a4e21a0de33f8bebcb6ee",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "The count had thrown himself back on his seat, leaning his shoulders against the partition of the tent and remained thus. His face buried in his hands, with heaving chest and restless limbs.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.0,
+  "utterance_end_sec": 12.62,
+  "audio_duration_sec": 13.16,
+  "words": [
+    {
+      "word": "The",
+      "start_sec": 0.0,
+      "end_sec": 0.46,
+      "confidence": 0.44177934527397156,
+      "confidence_available": true
+    },
+    {
+      "word": "count",
+      "start_sec": 0.46,
+      "end_sec": 0.76,
+      "confidence": 0.7314337491989136,
+      "confidence_available": true
+    },
+    {
+      "word": "had",
+      "start_sec": 0.76,
+      "end_sec": 1.08,
+      "confidence": 0.9824987649917603,
+      "confidence_available": true
+    },
+    {
+      "word": "thrown",
+      "start_sec": 1.08,
+      "end_sec": 1.5,
+      "confidence": 0.9589234590530396,
+      "confidence_available": true
+    },
+    {
+      "word": "himself",
+      "start_sec": 1.5,
+      "end_sec": 2.0,
+      "confidence": 0.9585182666778564,
+      "confidence_available": true
+    },
+    {
+      "word": "back",
+      "start_sec": 2.0,
+      "end_sec": 2.52,
+      "confidence": 0.9935332536697388,
+      "confidence_available": true
+    },
+    {
+      "word": "on",
+      "start_sec": 2.52,
+      "end_sec": 2.7,
+      "confidence": 0.9857906103134155,
+      "confidence_available": true
+    },
+    {
+      "word": "his",
+      "start_sec": 2.7,
+      "end_sec": 2.96,
+      "confidence": 0.9875675439834595,
+      "confidence_available": true
+    },
+    {
+      "word": "seat,",
+      "start_sec": 2.96,
+      "end_sec": 3.34,
+      "confidence": 0.9789526462554932,
+      "confidence_available": true
+    },
+    {
+      "word": "leaning",
+      "start_sec": 3.76,
+      "end_sec": 3.86,
+      "confidence": 0.9079389572143555,
+      "confidence_available": true
+    },
+    {
+      "word": "his",
+      "start_sec": 3.86,
+      "end_sec": 4.2,
+      "confidence": 0.989963710308075,
+      "confidence_available": true
+    },
+    {
+      "word": "shoulders",
+      "start_sec": 4.2,
+      "end_sec": 4.46,
+      "confidence": 0.9962049126625061,
+      "confidence_available": true
+    },
+    {
+      "word": "against",
+      "start_sec": 4.46,
+      "end_sec": 4.84,
+      "confidence": 0.9919968247413635,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 4.84,
+      "end_sec": 5.06,
+      "confidence": 0.85027676820755,
+      "confidence_available": true
+    },
+    {
+      "word": "partition",
+      "start_sec": 5.06,
+      "end_sec": 5.46,
+      "confidence": 0.9813576340675354,
+      "confidence_available": true
+    },
+    {
+      "word": "of",
+      "start_sec": 5.46,
+      "end_sec": 5.78,
+      "confidence": 0.9977583885192871,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 5.78,
+      "end_sec": 5.9,
+      "confidence": 0.9578757882118225,
+      "confidence_available": true
+    },
+    {
+      "word": "tent",
+      "start_sec": 5.9,
+      "end_sec": 6.2,
+      "confidence": 0.9845539331436157,
+      "confidence_available": true
+    },
+    {
+      "word": "and",
+      "start_sec": 6.2,
+      "end_sec": 6.56,
+      "confidence": 0.682435929775238,
+      "confidence_available": true
+    },
+    {
+      "word": "remained",
+      "start_sec": 6.56,
+      "end_sec": 6.94,
+      "confidence": 0.8945119380950928,
+      "confidence_available": true
+    },
+    {
+      "word": "thus.",
+      "start_sec": 6.94,
+      "end_sec": 7.48,
+      "confidence": 0.8082181215286255,
+      "confidence_available": true
+    },
+    {
+      "word": "His",
+      "start_sec": 7.76,
+      "end_sec": 7.98,
+      "confidence": 0.9832877516746521,
+      "confidence_available": true
+    },
+    {
+      "word": "face",
+      "start_sec": 7.98,
+      "end_sec": 8.38,
+      "confidence": 0.9949604272842407,
+      "confidence_available": true
+    },
+    {
+      "word": "buried",
+      "start_sec": 8.38,
+      "end_sec": 8.92,
+      "confidence": 0.8354611992835999,
+      "confidence_available": true
+    },
+    {
+      "word": "in",
+      "start_sec": 8.92,
+      "end_sec": 9.2,
+      "confidence": 0.9903025031089783,
+      "confidence_available": true
+    },
+    {
+      "word": "his",
+      "start_sec": 9.2,
+      "end_sec": 9.34,
+      "confidence": 0.994843602180481,
+      "confidence_available": true
+    },
+    {
+      "word": "hands,",
+      "start_sec": 9.34,
+      "end_sec": 9.76,
+      "confidence": 0.9942232966423035,
+      "confidence_available": true
+    },
+    {
+      "word": "with",
+      "start_sec": 10.18,
+      "end_sec": 10.38,
+      "confidence": 0.987883985042572,
+      "confidence_available": true
+    },
+    {
+      "word": "heaving",
+      "start_sec": 10.38,
+      "end_sec": 10.84,
+      "confidence": 0.9161925911903381,
+      "confidence_available": true
+    },
+    {
+      "word": "chest",
+      "start_sec": 10.84,
+      "end_sec": 11.26,
+      "confidence": 0.956061601638794,
+      "confidence_available": true
+    },
+    {
+      "word": "and",
+      "start_sec": 11.26,
+      "end_sec": 11.8,
+      "confidence": 0.7150867581367493,
+      "confidence_available": true
+    },
+    {
+      "word": "restless",
+      "start_sec": 11.8,
+      "end_sec": 12.1,
+      "confidence": 0.9356807470321655,
+      "confidence_available": true
+    },
+    {
+      "word": "limbs.",
+      "start_sec": 12.1,
+      "end_sec": 12.62,
+      "confidence": 0.9973843693733215,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.9215967388683776,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 669.5567299984759,
+    "preprocess_ms": 0.015789999451953918,
+    "inference_ms": 669.4439679995412,
+    "postprocess_ms": 0.09697199948277557,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

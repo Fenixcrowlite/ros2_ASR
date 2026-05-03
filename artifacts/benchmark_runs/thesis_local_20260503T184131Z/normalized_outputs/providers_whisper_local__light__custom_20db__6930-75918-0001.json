@@ -1,0 +1,332 @@
+{
+  "request_id": "req_b8c295ec99b24947b0cb1118939b9390",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "The English forwarded to the French baskets of flowers of which they had made a plantable provision to greet the arrival of the young princess. The French in return invited the English to a supper, which was to be given the next day.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.0,
+  "utterance_end_sec": 14.04,
+  "audio_duration_sec": 14.225,
+  "words": [
+    {
+      "word": "The",
+      "start_sec": 0.0,
+      "end_sec": 0.5,
+      "confidence": 0.8050248026847839,
+      "confidence_available": true
+    },
+    {
+      "word": "English",
+      "start_sec": 0.5,
+      "end_sec": 0.86,
+      "confidence": 0.9551945328712463,
+      "confidence_available": true
+    },
+    {
+      "word": "forwarded",
+      "start_sec": 0.86,
+      "end_sec": 1.4,
+      "confidence": 0.6542539447546005,
+      "confidence_available": true
+    },
+    {
+      "word": "to",
+      "start_sec": 1.4,
+      "end_sec": 1.64,
+      "confidence": 0.8035476803779602,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 1.64,
+      "end_sec": 1.84,
+      "confidence": 0.9915292263031006,
+      "confidence_available": true
+    },
+    {
+      "word": "French",
+      "start_sec": 1.84,
+      "end_sec": 2.12,
+      "confidence": 0.9906386137008667,
+      "confidence_available": true
+    },
+    {
+      "word": "baskets",
+      "start_sec": 2.12,
+      "end_sec": 2.6,
+      "confidence": 0.5293195247650146,
+      "confidence_available": true
+    },
+    {
+      "word": "of",
+      "start_sec": 2.6,
+      "end_sec": 2.86,
+      "confidence": 0.9206207394599915,
+      "confidence_available": true
+    },
+    {
+      "word": "flowers",
+      "start_sec": 2.86,
+      "end_sec": 3.2,
+      "confidence": 0.9836242198944092,
+      "confidence_available": true
+    },
+    {
+      "word": "of",
+      "start_sec": 3.2,
+      "end_sec": 3.56,
+      "confidence": 0.4272124469280243,
+      "confidence_available": true
+    },
+    {
+      "word": "which",
+      "start_sec": 3.56,
+      "end_sec": 3.78,
+      "confidence": 0.9826021194458008,
+      "confidence_available": true
+    },
+    {
+      "word": "they",
+      "start_sec": 3.78,
+      "end_sec": 4.0,
+      "confidence": 0.9776570200920105,
+      "confidence_available": true
+    },
+    {
+      "word": "had",
+      "start_sec": 4.0,
+      "end_sec": 4.2,
+      "confidence": 0.977395236492157,
+      "confidence_available": true
+    },
+    {
+      "word": "made",
+      "start_sec": 4.2,
+      "end_sec": 4.42,
+      "confidence": 0.9962700605392456,
+      "confidence_available": true
+    },
+    {
+      "word": "a",
+      "start_sec": 4.42,
+      "end_sec": 4.52,
+      "confidence": 0.9923377633094788,
+      "confidence_available": true
+    },
+    {
+      "word": "plantable",
+      "start_sec": 4.52,
+      "end_sec": 4.96,
+      "confidence": 0.7521269023418427,
+      "confidence_available": true
+    },
+    {
+      "word": "provision",
+      "start_sec": 4.96,
+      "end_sec": 5.38,
+      "confidence": 0.9836252331733704,
+      "confidence_available": true
+    },
+    {
+      "word": "to",
+      "start_sec": 5.38,
+      "end_sec": 5.74,
+      "confidence": 0.9973410964012146,
+      "confidence_available": true
+    },
+    {
+      "word": "greet",
+      "start_sec": 5.74,
+      "end_sec": 5.98,
+      "confidence": 0.8055413365364075,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 5.98,
+      "end_sec": 6.2,
+      "confidence": 0.9966997504234314,
+      "confidence_available": true
+    },
+    {
+      "word": "arrival",
+      "start_sec": 6.2,
+      "end_sec": 6.52,
+      "confidence": 0.9958880543708801,
+      "confidence_available": true
+    },
+    {
+      "word": "of",
+      "start_sec": 6.52,
+      "end_sec": 7.0,
+      "confidence": 0.9987363219261169,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 7.0,
+      "end_sec": 7.12,
+      "confidence": 0.9903509020805359,
+      "confidence_available": true
+    },
+    {
+      "word": "young",
+      "start_sec": 7.12,
+      "end_sec": 7.38,
+      "confidence": 0.9603955149650574,
+      "confidence_available": true
+    },
+    {
+      "word": "princess.",
+      "start_sec": 7.38,
+      "end_sec": 7.88,
+      "confidence": 0.8229113221168518,
+      "confidence_available": true
+    },
+    {
+      "word": "The",
+      "start_sec": 8.56,
+      "end_sec": 8.62,
+      "confidence": 0.9848526120185852,
+      "confidence_available": true
+    },
+    {
+      "word": "French",
+      "start_sec": 8.62,
+      "end_sec": 9.0,
+      "confidence": 0.9961779117584229,
+      "confidence_available": true
+    },
+    {
+      "word": "in",
+      "start_sec": 9.0,
+      "end_sec": 9.26,
+      "confidence": 0.7754141092300415,
+      "confidence_available": true
+    },
+    {
+      "word": "return",
+      "start_sec": 9.26,
+      "end_sec": 9.72,
+      "confidence": 0.9691895842552185,
+      "confidence_available": true
+    },
+    {
+      "word": "invited",
+      "start_sec": 9.72,
+      "end_sec": 10.22,
+      "confidence": 0.9785361886024475,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 10.22,
+      "end_sec": 10.56,
+      "confidence": 0.9949589967727661,
+      "confidence_available": true
+    },
+    {
+      "word": "English",
+      "start_sec": 10.56,
+      "end_sec": 10.76,
+      "confidence": 0.9931914210319519,
+      "confidence_available": true
+    },
+    {
+      "word": "to",
+      "start_sec": 10.76,
+      "end_sec": 11.04,
+      "confidence": 0.980972170829773,
+      "confidence_available": true
+    },
+    {
+      "word": "a",
+      "start_sec": 11.04,
+      "end_sec": 11.24,
+      "confidence": 0.9776430130004883,
+      "confidence_available": true
+    },
+    {
+      "word": "supper,",
+      "start_sec": 11.24,
+      "end_sec": 11.62,
+      "confidence": 0.964792788028717,
+      "confidence_available": true
+    },
+    {
+      "word": "which",
+      "start_sec": 12.06,
+      "end_sec": 12.14,
+      "confidence": 0.993707537651062,
+      "confidence_available": true
+    },
+    {
+      "word": "was",
+      "start_sec": 12.14,
+      "end_sec": 12.4,
+      "confidence": 0.9962660670280457,
+      "confidence_available": true
+    },
+    {
+      "word": "to",
+      "start_sec": 12.4,
+      "end_sec": 12.48,
+      "confidence": 0.9700002670288086,
+      "confidence_available": true
+    },
+    {
+      "word": "be",
+      "start_sec": 12.48,
+      "end_sec": 12.64,
+      "confidence": 0.9927582740783691,
+      "confidence_available": true
+    },
+    {
+      "word": "given",
+      "start_sec": 12.64,
+      "end_sec": 12.98,
+      "confidence": 0.9974508881568909,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 12.98,
+      "end_sec": 13.4,
+      "confidence": 0.9736717939376831,
+      "confidence_available": true
+    },
+    {
+      "word": "next",
+      "start_sec": 13.4,
+      "end_sec": 13.68,
+      "confidence": 0.9933502078056335,
+      "confidence_available": true
+    },
+    {
+      "word": "day.",
+      "start_sec": 13.68,
+      "end_sec": 14.04,
+      "confidence": 0.9986124038696289,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.9275707130749521,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 638.2344130006459,
+    "preprocess_ms": 0.006743000085407402,
+    "inference_ms": 638.1446639998103,
+    "postprocess_ms": 0.08300600075017428,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

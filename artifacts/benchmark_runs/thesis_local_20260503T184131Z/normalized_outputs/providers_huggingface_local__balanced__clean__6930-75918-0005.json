@@ -1,0 +1,265 @@
+{
+  "request_id": "req_a6b272158e8041ba93d1f66f46c8f765",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "huggingface_local",
+  "text": "The Count had thrown himself back on his seat, leaning his shoulders against the partition of the tent, and remained thus, his face buried in his hands, with heaving chest and restless limbs.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.0,
+  "utterance_end_sec": 13.14,
+  "audio_duration_sec": 13.16,
+  "words": [
+    {
+      "word": "The",
+      "start_sec": 0.0,
+      "end_sec": 0.34,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "Count",
+      "start_sec": 0.34,
+      "end_sec": 0.66,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "had",
+      "start_sec": 0.66,
+      "end_sec": 0.9,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "thrown",
+      "start_sec": 0.9,
+      "end_sec": 1.3,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "himself",
+      "start_sec": 1.3,
+      "end_sec": 1.84,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "back",
+      "start_sec": 1.84,
+      "end_sec": 2.32,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "on",
+      "start_sec": 2.32,
+      "end_sec": 2.58,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "his",
+      "start_sec": 2.58,
+      "end_sec": 2.76,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "seat,",
+      "start_sec": 2.76,
+      "end_sec": 3.56,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "leaning",
+      "start_sec": 3.56,
+      "end_sec": 3.74,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "his",
+      "start_sec": 3.74,
+      "end_sec": 4.06,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "shoulders",
+      "start_sec": 4.06,
+      "end_sec": 4.34,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "against",
+      "start_sec": 4.34,
+      "end_sec": 4.7,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "the",
+      "start_sec": 4.7,
+      "end_sec": 4.96,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "partition",
+      "start_sec": 4.96,
+      "end_sec": 5.38,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "of",
+      "start_sec": 5.54,
+      "end_sec": 5.64,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "the",
+      "start_sec": 5.64,
+      "end_sec": 5.78,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "tent,",
+      "start_sec": 5.78,
+      "end_sec": 6.3,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "and",
+      "start_sec": 6.3,
+      "end_sec": 6.38,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "remained",
+      "start_sec": 6.38,
+      "end_sec": 6.72,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "thus,",
+      "start_sec": 6.72,
+      "end_sec": 7.66,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "his",
+      "start_sec": 7.66,
+      "end_sec": 7.86,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "face",
+      "start_sec": 7.86,
+      "end_sec": 8.16,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "buried",
+      "start_sec": 8.16,
+      "end_sec": 8.82,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "in",
+      "start_sec": 8.82,
+      "end_sec": 9.04,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "his",
+      "start_sec": 9.04,
+      "end_sec": 9.2,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "hands,",
+      "start_sec": 9.2,
+      "end_sec": 10.06,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "with",
+      "start_sec": 10.06,
+      "end_sec": 10.2,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "heaving",
+      "start_sec": 10.2,
+      "end_sec": 10.66,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "chest",
+      "start_sec": 10.66,
+      "end_sec": 11.02,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "and",
+      "start_sec": 11.02,
+      "end_sec": 11.66,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "restless",
+      "start_sec": 11.66,
+      "end_sec": 12.06,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "limbs.",
+      "start_sec": 12.38,
+      "end_sec": 13.14,
+      "confidence": 0.0,
+      "confidence_available": false
+    }
+  ],
+  "confidence": 0.0,
+  "confidence_available": false,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 1707.6643390000754,
+    "preprocess_ms": 1.3182309994590469,
+    "inference_ms": 1706.248204000076,
+    "postprocess_ms": 0.09790400054043857,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": [
+    "hf_local",
+    "transformers"
+  ]
+}

@@ -1,0 +1,423 @@
+{
+  "run_id": "thesis_local_20260503T184131Z",
+  "provider_profile": "providers/whisper_local",
+  "provider_id": "whisper",
+  "sample_id": "6930-75918-0001",
+  "success": true,
+  "text": "The English voted to the French fans get the powers of which they had made a contribution to the ideal rival of the young princess. The French painter invited me to this tour center, which was to be given the next day.",
+  "reference_text": "THE ENGLISH FORWARDED TO THE FRENCH BASKETS OF FLOWERS OF WHICH THEY HAD MADE A PLENTIFUL PROVISION TO GREET THE ARRIVAL OF THE YOUNG PRINCESS THE FRENCH IN RETURN INVITED THE ENGLISH TO A SUPPER WHICH WAS TO BE GIVEN THE NEXT DAY",
+  "normalized_reference_text": "the english forwarded to the french baskets of flowers of which they had made a plentiful provision to greet the arrival of the young princess the french in return invited the english to a supper which was to be given the next day",
+  "normalized_hypothesis_text": "the english voted to the french fans get the powers of which they had made a contribution to the ideal rival of the young princess the french painter invited me to this tour center which was to be given the next day",
+  "quality_support": {
+    "normalized_reference": "the english forwarded to the french baskets of flowers of which they had made a plentiful provision to greet the arrival of the young princess the french in return invited the english to a supper which was to be given the next day",
+    "normalized_hypothesis": "the english voted to the french fans get the powers of which they had made a contribution to the ideal rival of the young princess the french painter invited me to this tour center which was to be given the next day",
+    "reference_has_content": true,
+    "hypothesis_has_content": true,
+    "reference_word_count": 43,
+    "reference_char_count": 188,
+    "word_edits": 17,
+    "char_edits": 52,
+    "exact_match": false,
+    "wer": 0.3953488372093023,
+    "cer": 0.2765957446808511
+  },
+  "error_code": "",
+  "error_message": "",
+  "metrics": {
+    "cer": 0.2765957446808511,
+    "estimated_cost_usd": 0.0,
+    "failure_rate": 0.0,
+    "per_utterance_latency_ms": 614.8149710006692,
+    "real_time_factor": 0.04322073609846532,
+    "sample_accuracy": 0.0,
+    "success_rate": 1.0,
+    "total_latency_ms": 614.8149710006692,
+    "wer": 0.3953488372093023,
+    "confidence": 0.7126766704564745,
+    "preprocess_ms": 0.008076000085566193,
+    "inference_ms": 614.7433760006606,
+    "postprocess_ms": 0.0635189999229624,
+    "model_load_ms": 0.706274,
+    "provider_init_cold_start": true,
+    "provider_init_warm_start": false,
+    "provider_call_cold_start": false,
+    "provider_call_warm_start": true,
+    "provider_invocation_index": 10,
+    "audio_duration_sec": 14.225,
+    "measured_audio_duration_sec": 14.225,
+    "declared_audio_duration_sec": 14.225,
+    "duration_mismatch_sec": 0.0,
+    "audio_duration_source": "measured_file",
+    "provider_compute_latency_ms": 614.8149710006692,
+    "end_to_end_latency_ms": 615.1537549994828,
+    "time_to_first_result_ms": 615.1537549994828,
+    "time_to_final_result_ms": 615.1537549994828,
+    "partial_count": 0,
+    "first_partial_latency_ms": 0.0,
+    "provider_compute_rtf": 0.04322073609846532,
+    "end_to_end_rtf": 0.04324455219680019,
+    "time_to_result_ms": 615.1537549994828,
+    "cpu_percent_mean": 29.642857142857142,
+    "cpu_percent_peak": 89.4,
+    "memory_mb_mean": 891.24609375,
+    "memory_mb_peak": 962.65234375,
+    "gpu_util_percent_mean": 4.333333333333333,
+    "gpu_util_percent_peak": 7.0,
+    "gpu_memory_mb_mean": 565.3333333333334,
+    "gpu_memory_mb_peak": 568.0,
+    "cpu_percent": 29.642857142857142,
+    "memory_mb": 891.24609375,
+    "gpu_util_percent": 4.333333333333333,
+    "gpu_memory_mb": 565.3333333333334
+  },
+  "metrics_semantics_version": 2,
+  "legacy_metrics": false,
+  "execution_mode": "batch",
+  "streaming_mode": "none",
+  "scenario": "noise_robustness",
+  "noise_level": "custom_0db",
+  "noise_mode": "white",
+  "noise_snr_db": 0.0,
+  "provider_preset": "light",
+  "input_audio_path": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/derived_audio/6930-75918-0001__white__custom_0db.wav",
+  "audio_duration_sec": 14.225,
+  "measured_audio_duration_sec": 14.225,
+  "declared_audio_duration_sec": 14.225,
+  "duration_mismatch_sec": 0.0,
+  "audio_duration_source": "measured_file",
+  "confidence": 0.7126766704564745,
+  "preprocess_ms": 0.008076000085566193,
+  "inference_ms": 614.7433760006606,
+  "postprocess_ms": 0.0635189999229624,
+  "trace_artifact_ref": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/traces/trace_9947e9ed58af4b88ae076724d1a0cd23.json",
+  "trace_corrupted": false,
+  "trace_warnings": [
+    "Optional metric `finalization_latency_ms` unavailable"
+  ],
+  "trace_warning_count": 1,
+  "normalized_result": {
+    "request_id": "req_3e915a428b5842148ecf5d91cf5bd032",
+    "session_id": "benchmark_thesis_local_20260503T184131Z",
+    "provider_id": "whisper",
+    "text": "The English voted to the French fans get the powers of which they had made a contribution to the ideal rival of the young princess. The French painter invited me to this tour center, which was to be given the next day.",
+    "is_final": true,
+    "is_partial": false,
+    "utterance_start_sec": 0.0,
+    "utterance_end_sec": 14.0,
+    "audio_duration_sec": 14.225,
+    "words": [
+      {
+        "word": "The",
+        "start_sec": 0.0,
+        "end_sec": 0.56,
+        "confidence": 0.6970313191413879,
+        "confidence_available": true
+      },
+      {
+        "word": "English",
+        "start_sec": 0.56,
+        "end_sec": 0.92,
+        "confidence": 0.9835741519927979,
+        "confidence_available": true
+      },
+      {
+        "word": "voted",
+        "start_sec": 0.92,
+        "end_sec": 1.34,
+        "confidence": 0.264243483543396,
+        "confidence_available": true
+      },
+      {
+        "word": "to",
+        "start_sec": 1.34,
+        "end_sec": 1.62,
+        "confidence": 0.8749958276748657,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 1.62,
+        "end_sec": 1.82,
+        "confidence": 0.9694498777389526,
+        "confidence_available": true
+      },
+      {
+        "word": "French",
+        "start_sec": 1.82,
+        "end_sec": 2.12,
+        "confidence": 0.3803131878376007,
+        "confidence_available": true
+      },
+      {
+        "word": "fans",
+        "start_sec": 2.12,
+        "end_sec": 2.44,
+        "confidence": 0.25363612174987793,
+        "confidence_available": true
+      },
+      {
+        "word": "get",
+        "start_sec": 2.44,
+        "end_sec": 2.72,
+        "confidence": 0.5967902541160583,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 2.72,
+        "end_sec": 2.88,
+        "confidence": 0.949985682964325,
+        "confidence_available": true
+      },
+      {
+        "word": "powers",
+        "start_sec": 2.88,
+        "end_sec": 3.22,
+        "confidence": 0.847965657711029,
+        "confidence_available": true
+      },
+      {
+        "word": "of",
+        "start_sec": 3.22,
+        "end_sec": 3.58,
+        "confidence": 0.8467526435852051,
+        "confidence_available": true
+      },
+      {
+        "word": "which",
+        "start_sec": 3.58,
+        "end_sec": 3.82,
+        "confidence": 0.9958359003067017,
+        "confidence_available": true
+      },
+      {
+        "word": "they",
+        "start_sec": 3.82,
+        "end_sec": 4.02,
+        "confidence": 0.99294114112854,
+        "confidence_available": true
+      },
+      {
+        "word": "had",
+        "start_sec": 4.02,
+        "end_sec": 4.22,
+        "confidence": 0.9658932685852051,
+        "confidence_available": true
+      },
+      {
+        "word": "made",
+        "start_sec": 4.22,
+        "end_sec": 4.42,
+        "confidence": 0.8000969290733337,
+        "confidence_available": true
+      },
+      {
+        "word": "a",
+        "start_sec": 4.42,
+        "end_sec": 4.56,
+        "confidence": 0.7078170776367188,
+        "confidence_available": true
+      },
+      {
+        "word": "contribution",
+        "start_sec": 4.56,
+        "end_sec": 4.96,
+        "confidence": 0.05628228932619095,
+        "confidence_available": true
+      },
+      {
+        "word": "to",
+        "start_sec": 4.96,
+        "end_sec": 5.68,
+        "confidence": 0.922377347946167,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 5.68,
+        "end_sec": 6.0,
+        "confidence": 0.5570192337036133,
+        "confidence_available": true
+      },
+      {
+        "word": "ideal",
+        "start_sec": 6.0,
+        "end_sec": 6.28,
+        "confidence": 0.044772252440452576,
+        "confidence_available": true
+      },
+      {
+        "word": "rival",
+        "start_sec": 6.28,
+        "end_sec": 6.6,
+        "confidence": 0.5492069125175476,
+        "confidence_available": true
+      },
+      {
+        "word": "of",
+        "start_sec": 6.6,
+        "end_sec": 7.04,
+        "confidence": 0.9939760565757751,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 7.04,
+        "end_sec": 7.18,
+        "confidence": 0.986639142036438,
+        "confidence_available": true
+      },
+      {
+        "word": "young",
+        "start_sec": 7.18,
+        "end_sec": 7.4,
+        "confidence": 0.3754644989967346,
+        "confidence_available": true
+      },
+      {
+        "word": "princess.",
+        "start_sec": 7.4,
+        "end_sec": 7.88,
+        "confidence": 0.9038282632827759,
+        "confidence_available": true
+      },
+      {
+        "word": "The",
+        "start_sec": 8.6,
+        "end_sec": 8.68,
+        "confidence": 0.9726377725601196,
+        "confidence_available": true
+      },
+      {
+        "word": "French",
+        "start_sec": 8.68,
+        "end_sec": 9.06,
+        "confidence": 0.9906732439994812,
+        "confidence_available": true
+      },
+      {
+        "word": "painter",
+        "start_sec": 9.06,
+        "end_sec": 9.64,
+        "confidence": 0.0797419473528862,
+        "confidence_available": true
+      },
+      {
+        "word": "invited",
+        "start_sec": 9.64,
+        "end_sec": 10.22,
+        "confidence": 0.8060428500175476,
+        "confidence_available": true
+      },
+      {
+        "word": "me",
+        "start_sec": 10.22,
+        "end_sec": 10.62,
+        "confidence": 0.6329602003097534,
+        "confidence_available": true
+      },
+      {
+        "word": "to",
+        "start_sec": 10.62,
+        "end_sec": 10.74,
+        "confidence": 0.3329549729824066,
+        "confidence_available": true
+      },
+      {
+        "word": "this",
+        "start_sec": 10.74,
+        "end_sec": 10.94,
+        "confidence": 0.6630638241767883,
+        "confidence_available": true
+      },
+      {
+        "word": "tour",
+        "start_sec": 10.94,
+        "end_sec": 11.16,
+        "confidence": 0.1636488437652588,
+        "confidence_available": true
+      },
+      {
+        "word": "center,",
+        "start_sec": 11.16,
+        "end_sec": 11.6,
+        "confidence": 0.14119431376457214,
+        "confidence_available": true
+      },
+      {
+        "word": "which",
+        "start_sec": 12.08,
+        "end_sec": 12.18,
+        "confidence": 0.9925515651702881,
+        "confidence_available": true
+      },
+      {
+        "word": "was",
+        "start_sec": 12.18,
+        "end_sec": 12.42,
+        "confidence": 0.9732702970504761,
+        "confidence_available": true
+      },
+      {
+        "word": "to",
+        "start_sec": 12.42,
+        "end_sec": 12.58,
+        "confidence": 0.806829035282135,
+        "confidence_available": true
+      },
+      {
+        "word": "be",
+        "start_sec": 12.58,
+        "end_sec": 12.64,
+        "confidence": 0.6848178505897522,
+        "confidence_available": true
+      },
+      {
+        "word": "given",
+        "start_sec": 12.64,
+        "end_sec": 13.16,
+        "confidence": 0.9973772764205933,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 13.16,
+        "end_sec": 13.4,
+        "confidence": 0.9680138826370239,
+        "confidence_available": true
+      },
+      {
+        "word": "next",
+        "start_sec": 13.4,
+        "end_sec": 13.74,
+        "confidence": 0.987942636013031,
+        "confidence_available": true
+      },
+      {
+        "word": "day.",
+        "start_sec": 13.74,
+        "end_sec": 14.0,
+        "confidence": 0.8723887801170349,
+        "confidence_available": true
+      }
+    ],
+    "confidence": 0.7126766704564745,
+    "confidence_available": true,
+    "timestamps_available": true,
+    "language": "en-US",
+    "language_detected": false,
+    "latency": {
+      "total_ms": 614.8149710006692,
+      "preprocess_ms": 0.008076000085566193,
+      "inference_ms": 614.7433760006606,
+      "postprocess_ms": 0.0635189999229624,
+      "first_partial_ms": 0.0,
+      "finalization_ms": 0.0
+    },
+    "raw_metadata_ref": "",
+    "degraded": false,
+    "error_code": "",
+    "error_message": "",
+    "tags": []
+  }
+}

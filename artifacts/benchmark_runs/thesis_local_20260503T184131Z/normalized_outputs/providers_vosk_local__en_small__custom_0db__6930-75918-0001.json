@@ -1,0 +1,38 @@
+{
+  "request_id": "req_9aee771cf224488cab87d93502d91346",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "vosk",
+  "text": "yeah",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 12.57,
+  "utterance_end_sec": 12.78,
+  "audio_duration_sec": 14.225,
+  "words": [
+    {
+      "word": "yeah",
+      "start_sec": 12.57,
+      "end_sec": 12.78,
+      "confidence": 1.0,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 1.0,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 1987.206458999026,
+    "preprocess_ms": 0.007363999429799151,
+    "inference_ms": 1987.0222129993635,
+    "postprocess_ms": 0.17688200023258105,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

@@ -1,0 +1,248 @@
+{
+  "request_id": "req_c22aa65a36d1426f81ead9b5d396aec1",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "vosk",
+  "text": "she taught her daughter then by her own affection for it that love for a country where they had both been hospitably received and were a brilliant future open for them",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.42,
+  "utterance_end_sec": 10.8,
+  "audio_duration_sec": 11.065,
+  "words": [
+    {
+      "word": "she",
+      "start_sec": 0.42,
+      "end_sec": 0.63,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "taught",
+      "start_sec": 0.63,
+      "end_sec": 0.93,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "her",
+      "start_sec": 0.93,
+      "end_sec": 1.08,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "daughter",
+      "start_sec": 1.08,
+      "end_sec": 1.59,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "then",
+      "start_sec": 1.68,
+      "end_sec": 2.13,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "by",
+      "start_sec": 2.31,
+      "end_sec": 2.55,
+      "confidence": 0.687615,
+      "confidence_available": true
+    },
+    {
+      "word": "her",
+      "start_sec": 2.55,
+      "end_sec": 2.76,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "own",
+      "start_sec": 2.76,
+      "end_sec": 3.12,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "affection",
+      "start_sec": 3.12,
+      "end_sec": 3.66,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "for",
+      "start_sec": 3.66,
+      "end_sec": 3.9,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "it",
+      "start_sec": 3.9,
+      "end_sec": 4.05,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "that",
+      "start_sec": 4.11,
+      "end_sec": 4.35,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "love",
+      "start_sec": 4.35,
+      "end_sec": 4.71,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "for",
+      "start_sec": 4.71,
+      "end_sec": 4.89,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "a",
+      "start_sec": 4.89,
+      "end_sec": 4.95,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "country",
+      "start_sec": 4.95,
+      "end_sec": 5.49,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "where",
+      "start_sec": 5.49,
+      "end_sec": 5.76,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "they",
+      "start_sec": 5.76,
+      "end_sec": 5.91,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "had",
+      "start_sec": 5.91,
+      "end_sec": 6.09,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "both",
+      "start_sec": 6.09,
+      "end_sec": 6.42,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "been",
+      "start_sec": 6.42,
+      "end_sec": 6.6,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "hospitably",
+      "start_sec": 6.6,
+      "end_sec": 7.23,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "received",
+      "start_sec": 7.23,
+      "end_sec": 7.83,
+      "confidence": 0.84803,
+      "confidence_available": true
+    },
+    {
+      "word": "and",
+      "start_sec": 8.1,
+      "end_sec": 8.31,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "were",
+      "start_sec": 8.31,
+      "end_sec": 8.49,
+      "confidence": 0.665495,
+      "confidence_available": true
+    },
+    {
+      "word": "a",
+      "start_sec": 8.49,
+      "end_sec": 8.58,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "brilliant",
+      "start_sec": 8.58,
+      "end_sec": 9.33,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "future",
+      "start_sec": 9.33,
+      "end_sec": 9.81,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "open",
+      "start_sec": 9.84,
+      "end_sec": 10.26,
+      "confidence": 0.713808,
+      "confidence_available": true
+    },
+    {
+      "word": "for",
+      "start_sec": 10.26,
+      "end_sec": 10.47,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "them",
+      "start_sec": 10.47,
+      "end_sec": 10.8,
+      "confidence": 1.0,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.9649983225806451,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 1263.7436430013622,
+    "preprocess_ms": 0.005951000275672413,
+    "inference_ms": 1263.667670000359,
+    "postprocess_ms": 0.07002200072747655,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

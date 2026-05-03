@@ -1,0 +1,248 @@
+{
+  "request_id": "req_3d3e83eef70e4859a27db572ba82eb6d",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "She taught her daughter, then, by her own affection for it, that love for a country where they had both been hospitably received and where a brilliant future opened for them.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.05,
+  "utterance_end_sec": 10.81,
+  "audio_duration_sec": 11.065,
+  "words": [
+    {
+      "word": "She",
+      "start_sec": 0.05,
+      "end_sec": 0.71,
+      "confidence": 0.7658321261405945,
+      "confidence_available": true
+    },
+    {
+      "word": "taught",
+      "start_sec": 0.71,
+      "end_sec": 0.95,
+      "confidence": 0.982822835445404,
+      "confidence_available": true
+    },
+    {
+      "word": "her",
+      "start_sec": 0.95,
+      "end_sec": 1.19,
+      "confidence": 0.9995676875114441,
+      "confidence_available": true
+    },
+    {
+      "word": "daughter,",
+      "start_sec": 1.19,
+      "end_sec": 1.57,
+      "confidence": 0.9824903607368469,
+      "confidence_available": true
+    },
+    {
+      "word": "then,",
+      "start_sec": 1.89,
+      "end_sec": 2.19,
+      "confidence": 0.9403634667396545,
+      "confidence_available": true
+    },
+    {
+      "word": "by",
+      "start_sec": 2.55,
+      "end_sec": 2.61,
+      "confidence": 0.9848803281784058,
+      "confidence_available": true
+    },
+    {
+      "word": "her",
+      "start_sec": 2.61,
+      "end_sec": 2.99,
+      "confidence": 0.9982933402061462,
+      "confidence_available": true
+    },
+    {
+      "word": "own",
+      "start_sec": 2.99,
+      "end_sec": 3.23,
+      "confidence": 0.9968488812446594,
+      "confidence_available": true
+    },
+    {
+      "word": "affection",
+      "start_sec": 3.23,
+      "end_sec": 3.53,
+      "confidence": 0.9857434630393982,
+      "confidence_available": true
+    },
+    {
+      "word": "for",
+      "start_sec": 3.53,
+      "end_sec": 3.95,
+      "confidence": 0.983880341053009,
+      "confidence_available": true
+    },
+    {
+      "word": "it,",
+      "start_sec": 3.95,
+      "end_sec": 4.17,
+      "confidence": 0.983636200428009,
+      "confidence_available": true
+    },
+    {
+      "word": "that",
+      "start_sec": 4.41,
+      "end_sec": 4.47,
+      "confidence": 0.9847710728645325,
+      "confidence_available": true
+    },
+    {
+      "word": "love",
+      "start_sec": 4.47,
+      "end_sec": 4.77,
+      "confidence": 0.9730420112609863,
+      "confidence_available": true
+    },
+    {
+      "word": "for",
+      "start_sec": 4.77,
+      "end_sec": 5.03,
+      "confidence": 0.9903308153152466,
+      "confidence_available": true
+    },
+    {
+      "word": "a",
+      "start_sec": 5.03,
+      "end_sec": 5.15,
+      "confidence": 0.8808298110961914,
+      "confidence_available": true
+    },
+    {
+      "word": "country",
+      "start_sec": 5.15,
+      "end_sec": 5.49,
+      "confidence": 0.9984717965126038,
+      "confidence_available": true
+    },
+    {
+      "word": "where",
+      "start_sec": 5.49,
+      "end_sec": 5.83,
+      "confidence": 0.9219605922698975,
+      "confidence_available": true
+    },
+    {
+      "word": "they",
+      "start_sec": 5.83,
+      "end_sec": 5.99,
+      "confidence": 0.9967846870422363,
+      "confidence_available": true
+    },
+    {
+      "word": "had",
+      "start_sec": 5.99,
+      "end_sec": 6.23,
+      "confidence": 0.916217029094696,
+      "confidence_available": true
+    },
+    {
+      "word": "both",
+      "start_sec": 6.23,
+      "end_sec": 6.45,
+      "confidence": 0.9916273355484009,
+      "confidence_available": true
+    },
+    {
+      "word": "been",
+      "start_sec": 6.45,
+      "end_sec": 6.69,
+      "confidence": 0.9897541403770447,
+      "confidence_available": true
+    },
+    {
+      "word": "hospitably",
+      "start_sec": 6.69,
+      "end_sec": 7.27,
+      "confidence": 0.7429296771685282,
+      "confidence_available": true
+    },
+    {
+      "word": "received",
+      "start_sec": 7.27,
+      "end_sec": 7.83,
+      "confidence": 0.8161309957504272,
+      "confidence_available": true
+    },
+    {
+      "word": "and",
+      "start_sec": 7.83,
+      "end_sec": 8.43,
+      "confidence": 0.7606151103973389,
+      "confidence_available": true
+    },
+    {
+      "word": "where",
+      "start_sec": 8.43,
+      "end_sec": 8.63,
+      "confidence": 0.7399909496307373,
+      "confidence_available": true
+    },
+    {
+      "word": "a",
+      "start_sec": 8.63,
+      "end_sec": 8.81,
+      "confidence": 0.9933282136917114,
+      "confidence_available": true
+    },
+    {
+      "word": "brilliant",
+      "start_sec": 8.81,
+      "end_sec": 9.27,
+      "confidence": 0.9964801669120789,
+      "confidence_available": true
+    },
+    {
+      "word": "future",
+      "start_sec": 9.27,
+      "end_sec": 9.77,
+      "confidence": 0.9933657050132751,
+      "confidence_available": true
+    },
+    {
+      "word": "opened",
+      "start_sec": 9.77,
+      "end_sec": 10.27,
+      "confidence": 0.940132200717926,
+      "confidence_available": true
+    },
+    {
+      "word": "for",
+      "start_sec": 10.27,
+      "end_sec": 10.55,
+      "confidence": 0.9934216141700745,
+      "confidence_available": true
+    },
+    {
+      "word": "them.",
+      "start_sec": 10.55,
+      "end_sec": 10.81,
+      "confidence": 0.9949552416801453,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.9430293437939448,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 548.135801999706,
+    "preprocess_ms": 0.006762999873899389,
+    "inference_ms": 548.0493200002456,
+    "postprocess_ms": 0.07971899958647555,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

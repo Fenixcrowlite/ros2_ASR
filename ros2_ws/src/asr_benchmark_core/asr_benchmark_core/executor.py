@@ -7,6 +7,7 @@ paths.
 
 from __future__ import annotations
 
+from pathlib import Path
 from time import perf_counter, sleep
 from typing import Any
 
@@ -46,6 +47,16 @@ class BatchExecutor:
         self.observability_config = observability_config
         self.trace_exporter = trace_exporter
         self.run_dir = run_dir
+
+    @staticmethod
+    def _portable_path(value: str) -> str:
+        path = Path(value).expanduser()
+        if not path.is_absolute():
+            return value
+        try:
+            return str(path.resolve().relative_to(Path.cwd().resolve()))
+        except ValueError:
+            return value
 
     @staticmethod
     def _stream_replay_rate(execution_meta: dict[str, Any]) -> float:
@@ -196,7 +207,7 @@ class BatchExecutor:
                 "sample_id": sample.sample_id,
                 "scenario": execution_meta.get("scenario", "clean_baseline"),
                 "noise_level": execution_meta.get("noise_level", "clean"),
-                "input_audio_path": active_audio_path,
+                "input_audio_path": self._portable_path(active_audio_path),
             },
         )
         provider_meta = provider_runtime_metadata(provider, record_invocation=True)
@@ -330,7 +341,7 @@ class BatchExecutor:
             "noise_mode": execution_meta.get("noise_mode", "none"),
             "noise_snr_db": execution_meta.get("snr_db"),
             "provider_preset": execution_meta.get("provider_preset", ""),
-            "input_audio_path": active_audio_path,
+            "input_audio_path": self._portable_path(active_audio_path),
             "audio_duration_sec": audio_duration_sec,
             "measured_audio_duration_sec": duration_fields.get("measured_audio_duration_sec"),
             "declared_audio_duration_sec": duration_fields.get("declared_audio_duration_sec"),
@@ -380,7 +391,7 @@ class BatchExecutor:
                 "sample_id": sample.sample_id,
                 "scenario": execution_meta.get("scenario", "clean_baseline"),
                 "noise_level": execution_meta.get("noise_level", "clean"),
-                "input_audio_path": active_audio_path,
+                "input_audio_path": self._portable_path(active_audio_path),
                 "streaming_mode": execution_meta.get("streaming_mode", "none"),
             },
         )
@@ -604,7 +615,7 @@ class BatchExecutor:
             "noise_mode": execution_meta.get("noise_mode", "none"),
             "noise_snr_db": execution_meta.get("snr_db"),
             "provider_preset": execution_meta.get("provider_preset", ""),
-            "input_audio_path": active_audio_path,
+            "input_audio_path": self._portable_path(active_audio_path),
             "audio_duration_sec": audio_duration_sec,
             "measured_audio_duration_sec": duration_fields.get("measured_audio_duration_sec"),
             "declared_audio_duration_sec": duration_fields.get("declared_audio_duration_sec"),

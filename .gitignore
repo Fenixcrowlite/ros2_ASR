@@ -76,6 +76,8 @@ datasets/processed/*
 datasets/noise_assets/*
 !datasets/raw/.gitkeep
 !datasets/imported/.gitkeep
+!datasets/imported/librispeech_test_clean_subset/
+!datasets/imported/librispeech_test_clean_subset/*.wav
 !datasets/processed/.gitkeep
 !datasets/noise_assets/.gitkeep
 
@@ -91,6 +93,8 @@ logs/gateway/*
 logs/gui/*
 !artifacts/runtime_sessions/.gitkeep
 !artifacts/benchmark_runs/.gitkeep
+!artifacts/benchmark_runs/thesis_local_20260503T184131Z/
+!artifacts/benchmark_runs/thesis_local_20260503T184131Z/**
 !artifacts/comparisons/.gitkeep
 !artifacts/exports/.gitkeep
 !artifacts/temp/.gitkeep

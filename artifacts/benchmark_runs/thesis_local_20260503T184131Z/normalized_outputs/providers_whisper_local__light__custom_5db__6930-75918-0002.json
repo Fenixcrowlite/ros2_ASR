@@ -1,0 +1,101 @@
+{
+  "request_id": "req_eaad957b06b24e74ad7b0475ef68c804",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "Congratulations, report in upon the purchase everywhere during her journey.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.0,
+  "utterance_end_sec": 4.88,
+  "audio_duration_sec": 5.025,
+  "words": [
+    {
+      "word": "Congratulations,",
+      "start_sec": 0.0,
+      "end_sec": 1.22,
+      "confidence": 0.8123683333396912,
+      "confidence_available": true
+    },
+    {
+      "word": "report",
+      "start_sec": 1.78,
+      "end_sec": 1.9,
+      "confidence": 0.8987688422203064,
+      "confidence_available": true
+    },
+    {
+      "word": "in",
+      "start_sec": 1.9,
+      "end_sec": 2.3,
+      "confidence": 0.574283242225647,
+      "confidence_available": true
+    },
+    {
+      "word": "upon",
+      "start_sec": 2.3,
+      "end_sec": 2.62,
+      "confidence": 0.9700684547424316,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 2.62,
+      "end_sec": 2.78,
+      "confidence": 0.9545924663543701,
+      "confidence_available": true
+    },
+    {
+      "word": "purchase",
+      "start_sec": 2.78,
+      "end_sec": 3.12,
+      "confidence": 0.30259498953819275,
+      "confidence_available": true
+    },
+    {
+      "word": "everywhere",
+      "start_sec": 3.12,
+      "end_sec": 3.78,
+      "confidence": 0.847335934638977,
+      "confidence_available": true
+    },
+    {
+      "word": "during",
+      "start_sec": 3.78,
+      "end_sec": 4.26,
+      "confidence": 0.8802667260169983,
+      "confidence_available": true
+    },
+    {
+      "word": "her",
+      "start_sec": 4.26,
+      "end_sec": 4.52,
+      "confidence": 0.7251386642456055,
+      "confidence_available": true
+    },
+    {
+      "word": "journey.",
+      "start_sec": 4.52,
+      "end_sec": 4.88,
+      "confidence": 0.9238438010215759,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.7990579809203292,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 451.31859699904453,
+    "preprocess_ms": 0.006871999175928067,
+    "inference_ms": 451.2114270000893,
+    "postprocess_ms": 0.10029799977928633,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

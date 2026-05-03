@@ -1,0 +1,94 @@
+{
+  "request_id": "req_596878f0ca8c43c7af2a8e1fb142f7a9",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "vosk",
+  "text": "you will be frank with me i always am",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.39,
+  "utterance_end_sec": 2.85,
+  "audio_duration_sec": 3.315,
+  "words": [
+    {
+      "word": "you",
+      "start_sec": 0.39,
+      "end_sec": 0.54,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "will",
+      "start_sec": 0.54,
+      "end_sec": 0.69,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "be",
+      "start_sec": 0.69,
+      "end_sec": 0.87,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "frank",
+      "start_sec": 0.87,
+      "end_sec": 1.26,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "with",
+      "start_sec": 1.26,
+      "end_sec": 1.38,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "me",
+      "start_sec": 1.38,
+      "end_sec": 1.62,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "i",
+      "start_sec": 2.04,
+      "end_sec": 2.25,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "always",
+      "start_sec": 2.25,
+      "end_sec": 2.52,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "am",
+      "start_sec": 2.52,
+      "end_sec": 2.85,
+      "confidence": 1.0,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 1.0,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 527.3617100001502,
+    "preprocess_ms": 0.007343999641307164,
+    "inference_ms": 527.2796460003519,
+    "postprocess_ms": 0.07472000015695812,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

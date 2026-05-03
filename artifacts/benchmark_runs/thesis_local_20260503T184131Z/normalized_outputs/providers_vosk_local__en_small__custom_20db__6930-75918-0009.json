@@ -1,0 +1,192 @@
+{
+  "request_id": "req_d3e010eacfdd475d854505f0c9ad9094",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "vosk",
+  "text": "it is you were mistaken row i have read his distress in his eyes in his every gesture and action the whole day",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.33,
+  "utterance_end_sec": 6.99,
+  "audio_duration_sec": 7.28,
+  "words": [
+    {
+      "word": "it",
+      "start_sec": 0.33,
+      "end_sec": 0.54,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "is",
+      "start_sec": 0.54,
+      "end_sec": 0.66,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "you",
+      "start_sec": 0.66,
+      "end_sec": 0.933335,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "were",
+      "start_sec": 0.933335,
+      "end_sec": 1.14,
+      "confidence": 0.870891,
+      "confidence_available": true
+    },
+    {
+      "word": "mistaken",
+      "start_sec": 1.14,
+      "end_sec": 1.74,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "row",
+      "start_sec": 1.74,
+      "end_sec": 2.1,
+      "confidence": 0.733708,
+      "confidence_available": true
+    },
+    {
+      "word": "i",
+      "start_sec": 2.1,
+      "end_sec": 2.272011,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "have",
+      "start_sec": 2.272011,
+      "end_sec": 2.49,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "read",
+      "start_sec": 2.49,
+      "end_sec": 2.85,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "his",
+      "start_sec": 2.85,
+      "end_sec": 3.0,
+      "confidence": 0.789543,
+      "confidence_available": true
+    },
+    {
+      "word": "distress",
+      "start_sec": 3.0,
+      "end_sec": 3.54,
+      "confidence": 0.868296,
+      "confidence_available": true
+    },
+    {
+      "word": "in",
+      "start_sec": 3.54,
+      "end_sec": 3.66,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "his",
+      "start_sec": 3.66,
+      "end_sec": 3.84,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "eyes",
+      "start_sec": 3.84,
+      "end_sec": 4.23,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "in",
+      "start_sec": 4.29,
+      "end_sec": 4.47,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "his",
+      "start_sec": 4.47,
+      "end_sec": 4.65,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "every",
+      "start_sec": 4.65,
+      "end_sec": 5.01,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "gesture",
+      "start_sec": 5.01,
+      "end_sec": 5.49,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "and",
+      "start_sec": 5.49,
+      "end_sec": 5.67,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "action",
+      "start_sec": 5.73,
+      "end_sec": 6.15,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 6.15,
+      "end_sec": 6.27,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "whole",
+      "start_sec": 6.27,
+      "end_sec": 6.63,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "day",
+      "start_sec": 6.63,
+      "end_sec": 6.99,
+      "confidence": 1.0,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.9679320869565217,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 956.2603960011984,
+    "preprocess_ms": 0.00837500010675285,
+    "inference_ms": 956.1739750006382,
+    "postprocess_ms": 0.07804600045346888,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

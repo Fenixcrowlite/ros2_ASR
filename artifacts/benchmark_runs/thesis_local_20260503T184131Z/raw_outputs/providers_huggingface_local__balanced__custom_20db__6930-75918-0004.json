@@ -1,0 +1,349 @@
+{
+  "run_id": "thesis_local_20260503T184131Z",
+  "provider_profile": "providers/huggingface_local",
+  "provider_id": "huggingface_local",
+  "sample_id": "6930-75918-0004",
+  "success": true,
+  "text": "She taught her daughter, then, by her own affection for it, that love for a country where they had both been hospitably received and where a brilliant future opened for them.",
+  "reference_text": "SHE TAUGHT HER DAUGHTER THEN BY HER OWN AFFECTION FOR IT THAT LOVE FOR A COUNTRY WHERE THEY HAD BOTH BEEN HOSPITABLY RECEIVED AND WHERE A BRILLIANT FUTURE OPENED BEFORE THEM",
+  "normalized_reference_text": "she taught her daughter then by her own affection for it that love for a country where they had both been hospitably received and where a brilliant future opened before them",
+  "normalized_hypothesis_text": "she taught her daughter then by her own affection for it that love for a country where they had both been hospitably received and where a brilliant future opened for them",
+  "quality_support": {
+    "normalized_reference": "she taught her daughter then by her own affection for it that love for a country where they had both been hospitably received and where a brilliant future opened before them",
+    "normalized_hypothesis": "she taught her daughter then by her own affection for it that love for a country where they had both been hospitably received and where a brilliant future opened for them",
+    "reference_has_content": true,
+    "hypothesis_has_content": true,
+    "reference_word_count": 31,
+    "reference_char_count": 143,
+    "word_edits": 1,
+    "char_edits": 3,
+    "exact_match": false,
+    "wer": 0.03225806451612903,
+    "cer": 0.02097902097902098
+  },
+  "error_code": "",
+  "error_message": "",
+  "metrics": {
+    "cer": 0.02097902097902098,
+    "estimated_cost_usd": 0.0,
+    "failure_rate": 0.0,
+    "per_utterance_latency_ms": 1712.9606919997968,
+    "real_time_factor": 0.15480891929505622,
+    "sample_accuracy": 0.0,
+    "success_rate": 1.0,
+    "total_latency_ms": 1712.9606919997968,
+    "wer": 0.03225806451612903,
+    "confidence": 0.0,
+    "preprocess_ms": 0.36187800014886307,
+    "inference_ms": 1712.4994179994246,
+    "postprocess_ms": 0.09939600022335071,
+    "model_load_ms": 2.661801,
+    "provider_init_cold_start": true,
+    "provider_init_warm_start": false,
+    "provider_call_cold_start": false,
+    "provider_call_warm_start": true,
+    "provider_invocation_index": 22,
+    "audio_duration_sec": 11.065,
+    "measured_audio_duration_sec": 11.065,
+    "declared_audio_duration_sec": 11.065,
+    "duration_mismatch_sec": 0.0,
+    "audio_duration_source": "measured_file",
+    "provider_compute_latency_ms": 1712.9606919997968,
+    "end_to_end_latency_ms": 1713.1965250000576,
+    "time_to_first_result_ms": 1713.1965250000576,
+    "time_to_final_result_ms": 1713.1965250000576,
+    "partial_count": 0,
+    "first_partial_latency_ms": 0.0,
+    "provider_compute_rtf": 0.15480891929505622,
+    "end_to_end_rtf": 0.15483023271577565,
+    "time_to_result_ms": 1713.1965250000576,
+    "cpu_percent_mean": 12.916666666666666,
+    "cpu_percent_peak": 21.8,
+    "memory_mb_mean": 2410.1006944444443,
+    "memory_mb_peak": 3361.49609375,
+    "gpu_util_percent_mean": 39.5,
+    "gpu_util_percent_peak": 69.0,
+    "gpu_memory_mb_mean": 4534.0,
+    "gpu_memory_mb_peak": 4534.0,
+    "cpu_percent": 12.916666666666666,
+    "memory_mb": 2410.1006944444443,
+    "gpu_util_percent": 39.5,
+    "gpu_memory_mb": 4534.0
+  },
+  "metrics_semantics_version": 2,
+  "legacy_metrics": false,
+  "execution_mode": "batch",
+  "streaming_mode": "none",
+  "scenario": "noise_robustness",
+  "noise_level": "custom_20db",
+  "noise_mode": "white",
+  "noise_snr_db": 20.0,
+  "provider_preset": "balanced",
+  "input_audio_path": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/derived_audio/6930-75918-0004__white__custom_20db.wav",
+  "audio_duration_sec": 11.065,
+  "measured_audio_duration_sec": 11.065,
+  "declared_audio_duration_sec": 11.065,
+  "duration_mismatch_sec": 0.0,
+  "audio_duration_source": "measured_file",
+  "confidence": 0.0,
+  "preprocess_ms": 0.36187800014886307,
+  "inference_ms": 1712.4994179994246,
+  "postprocess_ms": 0.09939600022335071,
+  "trace_artifact_ref": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/traces/trace_24bc509989094329bf0b48cd5e43e529.json",
+  "trace_corrupted": false,
+  "trace_warnings": [
+    "Optional metric `finalization_latency_ms` unavailable"
+  ],
+  "trace_warning_count": 1,
+  "normalized_result": {
+    "request_id": "req_aac827c317f349a18e56ebdbf70fad35",
+    "session_id": "benchmark_thesis_local_20260503T184131Z",
+    "provider_id": "huggingface_local",
+    "text": "She taught her daughter, then, by her own affection for it, that love for a country where they had both been hospitably received and where a brilliant future opened for them.",
+    "is_final": true,
+    "is_partial": false,
+    "utterance_start_sec": 0.0,
+    "utterance_end_sec": 11.04,
+    "audio_duration_sec": 11.065,
+    "words": [
+      {
+        "word": "She",
+        "start_sec": 0.0,
+        "end_sec": 0.58,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "taught",
+        "start_sec": 0.58,
+        "end_sec": 0.82,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "her",
+        "start_sec": 0.82,
+        "end_sec": 1.04,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "daughter,",
+        "start_sec": 1.04,
+        "end_sec": 1.66,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "then,",
+        "start_sec": 1.66,
+        "end_sec": 2.3,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "by",
+        "start_sec": 2.3,
+        "end_sec": 2.5,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "her",
+        "start_sec": 2.5,
+        "end_sec": 2.7,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "own",
+        "start_sec": 2.7,
+        "end_sec": 3.04,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "affection",
+        "start_sec": 3.04,
+        "end_sec": 3.46,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "for",
+        "start_sec": 3.46,
+        "end_sec": 3.84,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "it,",
+        "start_sec": 3.84,
+        "end_sec": 4.14,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "that",
+        "start_sec": 4.14,
+        "end_sec": 4.32,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "love",
+        "start_sec": 4.32,
+        "end_sec": 4.58,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "for",
+        "start_sec": 4.58,
+        "end_sec": 4.86,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "a",
+        "start_sec": 4.86,
+        "end_sec": 5.0,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "country",
+        "start_sec": 5.0,
+        "end_sec": 5.38,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "where",
+        "start_sec": 5.38,
+        "end_sec": 5.68,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "they",
+        "start_sec": 5.68,
+        "end_sec": 5.88,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "had",
+        "start_sec": 5.88,
+        "end_sec": 6.04,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "both",
+        "start_sec": 6.04,
+        "end_sec": 6.34,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "been",
+        "start_sec": 6.34,
+        "end_sec": 6.58,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "hospitably",
+        "start_sec": 6.58,
+        "end_sec": 7.2,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "received",
+        "start_sec": 7.2,
+        "end_sec": 7.64,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "and",
+        "start_sec": 7.64,
+        "end_sec": 8.26,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "where",
+        "start_sec": 8.26,
+        "end_sec": 8.46,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "a",
+        "start_sec": 8.46,
+        "end_sec": 8.62,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "brilliant",
+        "start_sec": 8.62,
+        "end_sec": 9.12,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "future",
+        "start_sec": 9.12,
+        "end_sec": 9.66,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "opened",
+        "start_sec": 9.66,
+        "end_sec": 10.14,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "for",
+        "start_sec": 10.14,
+        "end_sec": 10.44,
+        "confidence": 0.0,
+        "confidence_available": false
+      },
+      {
+        "word": "them.",
+        "start_sec": 10.44,
+        "end_sec": 11.04,
+        "confidence": 0.0,
+        "confidence_available": false
+      }
+    ],
+    "confidence": 0.0,
+    "confidence_available": false,
+    "timestamps_available": true,
+    "language": "en-US",
+    "language_detected": false,
+    "latency": {
+      "total_ms": 1712.9606919997968,
+      "preprocess_ms": 0.36187800014886307,
+      "inference_ms": 1712.4994179994246,
+      "postprocess_ms": 0.09939600022335071,
+      "first_partial_ms": 0.0,
+      "finalization_ms": 0.0
+    },
+    "raw_metadata_ref": "",
+    "degraded": false,
+    "error_code": "",
+    "error_message": "",
+    "tags": [
+      "hf_local",
+      "transformers"
+    ]
+  }
+}

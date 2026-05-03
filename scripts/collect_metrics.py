@@ -40,6 +40,19 @@ PROJECT_ROOT = _bootstrap_imports()
 from asr_metrics.quality import normalize_text, text_quality_support  # noqa: E402
 
 
+def _repo_relative_path(value: str | Path) -> str:
+    text = str(value)
+    if not text:
+        return ""
+    path = Path(text).expanduser()
+    if not path.is_absolute():
+        return text
+    try:
+        return str(path.resolve().relative_to(PROJECT_ROOT.resolve()))
+    except ValueError:
+        return text
+
+
 SCENARIOS = ("embedded", "batch", "analytics", "dialog")
 
 SCENARIO_WEIGHTS: dict[str, dict[str, float]] = {
@@ -668,7 +681,7 @@ def _normalize_rows(
                 "oov_rate": (oov_tokens / ref_tokens) if oov_available else None,
                 "cost_usd": _metric(row, "estimated_cost_usd", "cost_estimate"),
                 "model_size_mb": _metric(row, "model_size_mb"),
-                "trace_artifact_ref": str(row.get("trace_artifact_ref", "") or ""),
+                "trace_artifact_ref": _repo_relative_path(row.get("trace_artifact_ref", "") or ""),
                 "source_schema": loaded.source_kind,
             }
         )
@@ -1232,16 +1245,19 @@ def _build_manifest(
         },
         "source": {
             "kind": loaded.source_kind,
-            "input_path": str(loaded.input_path),
-            **loaded.source_paths,
+            "input_path": _repo_relative_path(loaded.input_path),
+            **{
+                key: _repo_relative_path(value)
+                for key, value in loaded.source_paths.items()
+            },
         },
         "artifacts": {
-            "manifest": str(output_dir / "manifest.json"),
-            "utterance_csv": str(output_dir / "utterance_metrics.csv"),
-            "summary_csv": str(output_dir / "summary.csv"),
-            "summary_json": str(output_dir / "summary.json"),
-            "report_md": str(output_dir / "report.md"),
-            "plots_dir": str(output_dir / "plots"),
+            "manifest": _repo_relative_path(output_dir / "manifest.json"),
+            "utterance_csv": _repo_relative_path(output_dir / "utterance_metrics.csv"),
+            "summary_csv": _repo_relative_path(output_dir / "summary.csv"),
+            "summary_json": _repo_relative_path(output_dir / "summary.json"),
+            "report_md": _repo_relative_path(output_dir / "report.md"),
+            "plots_dir": _repo_relative_path(output_dir / "plots"),
         },
     }
 
@@ -1355,11 +1371,11 @@ def main() -> None:
         {
             "run_id": run_id,
             "scenario": args.scenario,
-            "run_dir": str(output_dir),
-            "manifest": str(output_dir / "manifest.json"),
-            "summary_json": str(output_dir / "summary.json"),
-            "summary_csv": str(output_dir / "summary.csv"),
-            "utterance_csv": str(output_dir / "utterance_metrics.csv"),
+            "run_dir": _repo_relative_path(output_dir),
+            "manifest": _repo_relative_path(output_dir / "manifest.json"),
+            "summary_json": _repo_relative_path(output_dir / "summary.json"),
+            "summary_csv": _repo_relative_path(output_dir / "summary.csv"),
+            "utterance_csv": _repo_relative_path(output_dir / "utterance_metrics.csv"),
         },
     )
 
@@ -1368,12 +1384,12 @@ def main() -> None:
             {
                 "run_id": run_id,
                 "scenario": args.scenario,
-                "run_dir": str(output_dir),
-                "manifest": str(output_dir / "manifest.json"),
-                "summary_json": str(output_dir / "summary.json"),
-                "summary_csv": str(output_dir / "summary.csv"),
-                "utterance_csv": str(output_dir / "utterance_metrics.csv"),
-                "plots_dir": str(plots_dir),
+                "run_dir": _repo_relative_path(output_dir),
+                "manifest": _repo_relative_path(output_dir / "manifest.json"),
+                "summary_json": _repo_relative_path(output_dir / "summary.json"),
+                "summary_csv": _repo_relative_path(output_dir / "summary.csv"),
+                "utterance_csv": _repo_relative_path(output_dir / "utterance_metrics.csv"),
+                "plots_dir": _repo_relative_path(plots_dir),
             },
             ensure_ascii=True,
             indent=2,

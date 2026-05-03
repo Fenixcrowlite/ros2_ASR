@@ -1,0 +1,87 @@
+{
+  "request_id": "req_dd2bda1b3a124881b4b764fb1ef22f35",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "vosk",
+  "text": "concord return to it's place amid the tents",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.54,
+  "utterance_end_sec": 3.36,
+  "audio_duration_sec": 3.505,
+  "words": [
+    {
+      "word": "concord",
+      "start_sec": 0.54,
+      "end_sec": 1.2,
+      "confidence": 0.735455,
+      "confidence_available": true
+    },
+    {
+      "word": "return",
+      "start_sec": 1.2,
+      "end_sec": 1.65,
+      "confidence": 0.632477,
+      "confidence_available": true
+    },
+    {
+      "word": "to",
+      "start_sec": 1.65,
+      "end_sec": 1.77,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "it's",
+      "start_sec": 1.77,
+      "end_sec": 1.92,
+      "confidence": 0.694967,
+      "confidence_available": true
+    },
+    {
+      "word": "place",
+      "start_sec": 1.92,
+      "end_sec": 2.28,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "amid",
+      "start_sec": 2.31,
+      "end_sec": 2.64,
+      "confidence": 0.810281,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 2.705692,
+      "end_sec": 2.82,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "tents",
+      "start_sec": 2.82,
+      "end_sec": 3.36,
+      "confidence": 0.701974,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.8218942499999999,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 619.4456290004382,
+    "preprocess_ms": 0.012063000212947372,
+    "inference_ms": 619.339559000764,
+    "postprocess_ms": 0.09400699946127133,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

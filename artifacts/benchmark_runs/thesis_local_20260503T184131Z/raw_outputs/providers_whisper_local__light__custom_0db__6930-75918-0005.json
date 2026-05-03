@@ -1,0 +1,381 @@
+{
+  "run_id": "thesis_local_20260503T184131Z",
+  "provider_profile": "providers/whisper_local",
+  "provider_id": "whisper",
+  "sample_id": "6930-75918-0005",
+  "success": true,
+  "text": "They count as the glow of himself back on his feet. They need his shoulders against the partition of the tent and remain thus. It's faith, buried in his hands with eating chest and restless legs.",
+  "reference_text": "THE COUNT HAD THROWN HIMSELF BACK ON HIS SEAT LEANING HIS SHOULDERS AGAINST THE PARTITION OF THE TENT AND REMAINED THUS HIS FACE BURIED IN HIS HANDS WITH HEAVING CHEST AND RESTLESS LIMBS",
+  "normalized_reference_text": "the count had thrown himself back on his seat leaning his shoulders against the partition of the tent and remained thus his face buried in his hands with heaving chest and restless limbs",
+  "normalized_hypothesis_text": "they count as the glow of himself back on his feet they need his shoulders against the partition of the tent and remain thus its faith buried in his hands with eating chest and restless legs",
+  "quality_support": {
+    "normalized_reference": "the count had thrown himself back on his seat leaning his shoulders against the partition of the tent and remained thus his face buried in his hands with heaving chest and restless limbs",
+    "normalized_hypothesis": "they count as the glow of himself back on his feet they need his shoulders against the partition of the tent and remain thus its faith buried in his hands with eating chest and restless legs",
+    "reference_has_content": true,
+    "hypothesis_has_content": true,
+    "reference_word_count": 33,
+    "reference_char_count": 154,
+    "word_edits": 13,
+    "char_edits": 28,
+    "exact_match": false,
+    "wer": 0.3939393939393939,
+    "cer": 0.18181818181818182
+  },
+  "error_code": "",
+  "error_message": "",
+  "metrics": {
+    "cer": 0.18181818181818182,
+    "estimated_cost_usd": 0.0,
+    "failure_rate": 0.0,
+    "per_utterance_latency_ms": 588.0331899998055,
+    "real_time_factor": 0.04468337310028917,
+    "sample_accuracy": 0.0,
+    "success_rate": 1.0,
+    "total_latency_ms": 588.0331899998055,
+    "wer": 0.3939393939393939,
+    "confidence": 0.7337866347187605,
+    "preprocess_ms": 0.006883000423840713,
+    "inference_ms": 587.9314399999203,
+    "postprocess_ms": 0.09486699946137378,
+    "model_load_ms": 0.706274,
+    "provider_init_cold_start": true,
+    "provider_init_warm_start": false,
+    "provider_call_cold_start": false,
+    "provider_call_warm_start": true,
+    "provider_invocation_index": 30,
+    "audio_duration_sec": 13.16,
+    "measured_audio_duration_sec": 13.16,
+    "declared_audio_duration_sec": 13.16,
+    "duration_mismatch_sec": 0.0,
+    "audio_duration_source": "measured_file",
+    "provider_compute_latency_ms": 588.0331899998055,
+    "end_to_end_latency_ms": 588.3746400004384,
+    "time_to_first_result_ms": 588.3746400004384,
+    "time_to_final_result_ms": 588.3746400004384,
+    "partial_count": 0,
+    "first_partial_latency_ms": 0.0,
+    "provider_compute_rtf": 0.04468337310028917,
+    "end_to_end_rtf": 0.04470931914896948,
+    "time_to_result_ms": 588.3746400004384,
+    "cpu_percent_mean": 30.900000000000002,
+    "cpu_percent_peak": 89.4,
+    "memory_mb_mean": 929.5638020833334,
+    "memory_mb_peak": 1000.0078125,
+    "gpu_util_percent_mean": 0.0,
+    "gpu_util_percent_peak": 0.0,
+    "gpu_memory_mb_mean": 543.5,
+    "gpu_memory_mb_peak": 545.0,
+    "cpu_percent": 30.900000000000002,
+    "memory_mb": 929.5638020833334,
+    "gpu_util_percent": 0.0,
+    "gpu_memory_mb": 543.5
+  },
+  "metrics_semantics_version": 2,
+  "legacy_metrics": false,
+  "execution_mode": "batch",
+  "streaming_mode": "none",
+  "scenario": "noise_robustness",
+  "noise_level": "custom_0db",
+  "noise_mode": "white",
+  "noise_snr_db": 0.0,
+  "provider_preset": "light",
+  "input_audio_path": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/derived_audio/6930-75918-0005__white__custom_0db.wav",
+  "audio_duration_sec": 13.16,
+  "measured_audio_duration_sec": 13.16,
+  "declared_audio_duration_sec": 13.16,
+  "duration_mismatch_sec": 0.0,
+  "audio_duration_source": "measured_file",
+  "confidence": 0.7337866347187605,
+  "preprocess_ms": 0.006883000423840713,
+  "inference_ms": 587.9314399999203,
+  "postprocess_ms": 0.09486699946137378,
+  "trace_artifact_ref": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/traces/trace_cf7a0d42eda046bc8f2a77191e1c177e.json",
+  "trace_corrupted": false,
+  "trace_warnings": [
+    "Optional metric `finalization_latency_ms` unavailable"
+  ],
+  "trace_warning_count": 1,
+  "normalized_result": {
+    "request_id": "req_bcbce279c69c48af836dade8d2c08008",
+    "session_id": "benchmark_thesis_local_20260503T184131Z",
+    "provider_id": "whisper",
+    "text": "They count as the glow of himself back on his feet. They need his shoulders against the partition of the tent and remain thus. It's faith, buried in his hands with eating chest and restless legs.",
+    "is_final": true,
+    "is_partial": false,
+    "utterance_start_sec": 0.0,
+    "utterance_end_sec": 12.58,
+    "audio_duration_sec": 13.16,
+    "words": [
+      {
+        "word": "They",
+        "start_sec": 0.0,
+        "end_sec": 0.52,
+        "confidence": 0.432413250207901,
+        "confidence_available": true
+      },
+      {
+        "word": "count",
+        "start_sec": 0.52,
+        "end_sec": 0.78,
+        "confidence": 0.8975119590759277,
+        "confidence_available": true
+      },
+      {
+        "word": "as",
+        "start_sec": 0.78,
+        "end_sec": 1.16,
+        "confidence": 0.5546464323997498,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 1.16,
+        "end_sec": 1.36,
+        "confidence": 0.8112310767173767,
+        "confidence_available": true
+      },
+      {
+        "word": "glow",
+        "start_sec": 1.36,
+        "end_sec": 1.52,
+        "confidence": 0.3763313889503479,
+        "confidence_available": true
+      },
+      {
+        "word": "of",
+        "start_sec": 1.52,
+        "end_sec": 1.76,
+        "confidence": 0.44802194833755493,
+        "confidence_available": true
+      },
+      {
+        "word": "himself",
+        "start_sec": 1.76,
+        "end_sec": 2.04,
+        "confidence": 0.8104357123374939,
+        "confidence_available": true
+      },
+      {
+        "word": "back",
+        "start_sec": 2.04,
+        "end_sec": 2.52,
+        "confidence": 0.9004424214363098,
+        "confidence_available": true
+      },
+      {
+        "word": "on",
+        "start_sec": 2.52,
+        "end_sec": 2.76,
+        "confidence": 0.9628498554229736,
+        "confidence_available": true
+      },
+      {
+        "word": "his",
+        "start_sec": 2.76,
+        "end_sec": 2.96,
+        "confidence": 0.9601153135299683,
+        "confidence_available": true
+      },
+      {
+        "word": "feet.",
+        "start_sec": 2.96,
+        "end_sec": 3.52,
+        "confidence": 0.2938641607761383,
+        "confidence_available": true
+      },
+      {
+        "word": "They",
+        "start_sec": 3.78,
+        "end_sec": 3.8,
+        "confidence": 0.704321026802063,
+        "confidence_available": true
+      },
+      {
+        "word": "need",
+        "start_sec": 3.8,
+        "end_sec": 4.1,
+        "confidence": 0.9340461492538452,
+        "confidence_available": true
+      },
+      {
+        "word": "his",
+        "start_sec": 4.1,
+        "end_sec": 4.24,
+        "confidence": 0.5224134922027588,
+        "confidence_available": true
+      },
+      {
+        "word": "shoulders",
+        "start_sec": 4.24,
+        "end_sec": 4.52,
+        "confidence": 0.9418261051177979,
+        "confidence_available": true
+      },
+      {
+        "word": "against",
+        "start_sec": 4.52,
+        "end_sec": 4.9,
+        "confidence": 0.9116042852401733,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 4.9,
+        "end_sec": 5.18,
+        "confidence": 0.8960059285163879,
+        "confidence_available": true
+      },
+      {
+        "word": "partition",
+        "start_sec": 5.18,
+        "end_sec": 5.46,
+        "confidence": 0.1204078197479248,
+        "confidence_available": true
+      },
+      {
+        "word": "of",
+        "start_sec": 5.46,
+        "end_sec": 5.8,
+        "confidence": 0.9726855158805847,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 5.8,
+        "end_sec": 5.92,
+        "confidence": 0.9174562692642212,
+        "confidence_available": true
+      },
+      {
+        "word": "tent",
+        "start_sec": 5.92,
+        "end_sec": 6.24,
+        "confidence": 0.7632551789283752,
+        "confidence_available": true
+      },
+      {
+        "word": "and",
+        "start_sec": 6.24,
+        "end_sec": 6.54,
+        "confidence": 0.6777433156967163,
+        "confidence_available": true
+      },
+      {
+        "word": "remain",
+        "start_sec": 6.54,
+        "end_sec": 6.92,
+        "confidence": 0.9074631333351135,
+        "confidence_available": true
+      },
+      {
+        "word": "thus.",
+        "start_sec": 6.92,
+        "end_sec": 7.38,
+        "confidence": 0.6602166891098022,
+        "confidence_available": true
+      },
+      {
+        "word": "It's",
+        "start_sec": 7.76,
+        "end_sec": 8.08,
+        "confidence": 0.8622254133224487,
+        "confidence_available": true
+      },
+      {
+        "word": "faith,",
+        "start_sec": 8.08,
+        "end_sec": 8.34,
+        "confidence": 0.24587397277355194,
+        "confidence_available": true
+      },
+      {
+        "word": "buried",
+        "start_sec": 8.76,
+        "end_sec": 8.94,
+        "confidence": 0.947480320930481,
+        "confidence_available": true
+      },
+      {
+        "word": "in",
+        "start_sec": 8.94,
+        "end_sec": 9.24,
+        "confidence": 0.9663017988204956,
+        "confidence_available": true
+      },
+      {
+        "word": "his",
+        "start_sec": 9.24,
+        "end_sec": 9.38,
+        "confidence": 0.8017740845680237,
+        "confidence_available": true
+      },
+      {
+        "word": "hands",
+        "start_sec": 9.38,
+        "end_sec": 9.86,
+        "confidence": 0.9681476354598999,
+        "confidence_available": true
+      },
+      {
+        "word": "with",
+        "start_sec": 9.86,
+        "end_sec": 10.32,
+        "confidence": 0.4777037799358368,
+        "confidence_available": true
+      },
+      {
+        "word": "eating",
+        "start_sec": 10.32,
+        "end_sec": 10.78,
+        "confidence": 0.5758968591690063,
+        "confidence_available": true
+      },
+      {
+        "word": "chest",
+        "start_sec": 10.78,
+        "end_sec": 11.24,
+        "confidence": 0.4425840377807617,
+        "confidence_available": true
+      },
+      {
+        "word": "and",
+        "start_sec": 11.24,
+        "end_sec": 11.8,
+        "confidence": 0.8814610838890076,
+        "confidence_available": true
+      },
+      {
+        "word": "restless",
+        "start_sec": 11.8,
+        "end_sec": 12.2,
+        "confidence": 0.6577765345573425,
+        "confidence_available": true
+      },
+      {
+        "word": "legs.",
+        "start_sec": 12.2,
+        "end_sec": 12.58,
+        "confidence": 0.7528549432754517,
+        "confidence_available": true
+      }
+    ],
+    "confidence": 0.7337866347187605,
+    "confidence_available": true,
+    "timestamps_available": true,
+    "language": "en-US",
+    "language_detected": false,
+    "latency": {
+      "total_ms": 588.0331899998055,
+      "preprocess_ms": 0.006883000423840713,
+      "inference_ms": 587.9314399999203,
+      "postprocess_ms": 0.09486699946137378,
+      "first_partial_ms": 0.0,
+      "finalization_ms": 0.0
+    },
+    "raw_metadata_ref": "",
+    "degraded": false,
+    "error_code": "",
+    "error_message": "",
+    "tags": []
+  }
+}

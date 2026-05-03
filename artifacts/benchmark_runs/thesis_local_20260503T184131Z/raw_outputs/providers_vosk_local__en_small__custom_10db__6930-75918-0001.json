@@ -1,0 +1,430 @@
+{
+  "run_id": "thesis_local_20260503T184131Z",
+  "provider_profile": "providers/vosk_local",
+  "provider_id": "vosk",
+  "sample_id": "6930-75918-0001",
+  "success": true,
+  "text": "the english voted to the french baskets of flowers of which they had made a plentiful provision to create the arrival of the young princess the french in return invited the english to a super which was to be given the next day",
+  "reference_text": "THE ENGLISH FORWARDED TO THE FRENCH BASKETS OF FLOWERS OF WHICH THEY HAD MADE A PLENTIFUL PROVISION TO GREET THE ARRIVAL OF THE YOUNG PRINCESS THE FRENCH IN RETURN INVITED THE ENGLISH TO A SUPPER WHICH WAS TO BE GIVEN THE NEXT DAY",
+  "normalized_reference_text": "the english forwarded to the french baskets of flowers of which they had made a plentiful provision to greet the arrival of the young princess the french in return invited the english to a supper which was to be given the next day",
+  "normalized_hypothesis_text": "the english voted to the french baskets of flowers of which they had made a plentiful provision to create the arrival of the young princess the french in return invited the english to a super which was to be given the next day",
+  "quality_support": {
+    "normalized_reference": "the english forwarded to the french baskets of flowers of which they had made a plentiful provision to greet the arrival of the young princess the french in return invited the english to a supper which was to be given the next day",
+    "normalized_hypothesis": "the english voted to the french baskets of flowers of which they had made a plentiful provision to create the arrival of the young princess the french in return invited the english to a super which was to be given the next day",
+    "reference_has_content": true,
+    "hypothesis_has_content": true,
+    "reference_word_count": 43,
+    "reference_char_count": 188,
+    "word_edits": 3,
+    "char_edits": 10,
+    "exact_match": false,
+    "wer": 0.06976744186046512,
+    "cer": 0.05319148936170213
+  },
+  "error_code": "",
+  "error_message": "",
+  "metrics": {
+    "cer": 0.05319148936170213,
+    "estimated_cost_usd": 0.0,
+    "failure_rate": 0.0,
+    "per_utterance_latency_ms": 1522.5822190004692,
+    "real_time_factor": 0.10703565687173773,
+    "sample_accuracy": 0.0,
+    "success_rate": 1.0,
+    "total_latency_ms": 1522.5822190004692,
+    "wer": 0.06976744186046512,
+    "confidence": 0.9705003255813953,
+    "preprocess_ms": 0.009106999641517177,
+    "inference_ms": 1522.510474000228,
+    "postprocess_ms": 0.06263800059969071,
+    "model_load_ms": 1.494823,
+    "provider_init_cold_start": true,
+    "provider_init_warm_start": false,
+    "provider_call_cold_start": false,
+    "provider_call_warm_start": true,
+    "provider_invocation_index": 8,
+    "audio_duration_sec": 14.225,
+    "measured_audio_duration_sec": 14.225,
+    "declared_audio_duration_sec": 14.225,
+    "duration_mismatch_sec": 0.0,
+    "audio_duration_source": "measured_file",
+    "provider_compute_latency_ms": 1522.5822190004692,
+    "end_to_end_latency_ms": 1541.868852999869,
+    "time_to_first_result_ms": 1541.868852999869,
+    "time_to_final_result_ms": 1541.868852999869,
+    "partial_count": 0,
+    "first_partial_latency_ms": 0.0,
+    "provider_compute_rtf": 0.10703565687173773,
+    "end_to_end_rtf": 0.10839148351492928,
+    "time_to_result_ms": 1541.868852999869,
+    "cpu_percent_mean": 7.51875,
+    "cpu_percent_peak": 10.1,
+    "memory_mb_mean": 1001.156005859375,
+    "memory_mb_peak": 1003.90625,
+    "gpu_util_percent_mean": 1.8333333333333333,
+    "gpu_util_percent_peak": 5.0,
+    "gpu_memory_mb_mean": 543.0,
+    "gpu_memory_mb_peak": 543.0,
+    "cpu_percent": 7.51875,
+    "memory_mb": 1001.156005859375,
+    "gpu_util_percent": 1.8333333333333333,
+    "gpu_memory_mb": 543.0
+  },
+  "metrics_semantics_version": 2,
+  "legacy_metrics": false,
+  "execution_mode": "batch",
+  "streaming_mode": "none",
+  "scenario": "noise_robustness",
+  "noise_level": "custom_10db",
+  "noise_mode": "white",
+  "noise_snr_db": 10.0,
+  "provider_preset": "en_small",
+  "input_audio_path": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/derived_audio/6930-75918-0001__white__custom_10db.wav",
+  "audio_duration_sec": 14.225,
+  "measured_audio_duration_sec": 14.225,
+  "declared_audio_duration_sec": 14.225,
+  "duration_mismatch_sec": 0.0,
+  "audio_duration_source": "measured_file",
+  "confidence": 0.9705003255813953,
+  "preprocess_ms": 0.009106999641517177,
+  "inference_ms": 1522.510474000228,
+  "postprocess_ms": 0.06263800059969071,
+  "trace_artifact_ref": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/traces/trace_66558d7e0e684448a6e2ae051f8153cc.json",
+  "trace_corrupted": false,
+  "trace_warnings": [
+    "Optional metric `finalization_latency_ms` unavailable"
+  ],
+  "trace_warning_count": 1,
+  "normalized_result": {
+    "request_id": "req_113561ff24db40feb6f916b6f817369c",
+    "session_id": "benchmark_thesis_local_20260503T184131Z",
+    "provider_id": "vosk",
+    "text": "the english voted to the french baskets of flowers of which they had made a plentiful provision to create the arrival of the young princess the french in return invited the english to a super which was to be given the next day",
+    "is_final": true,
+    "is_partial": false,
+    "utterance_start_sec": 0.0,
+    "utterance_end_sec": 14.04,
+    "audio_duration_sec": 14.225,
+    "words": [
+      {
+        "word": "the",
+        "start_sec": 0.0,
+        "end_sec": 0.42,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "english",
+        "start_sec": 0.42,
+        "end_sec": 0.9,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "voted",
+        "start_sec": 0.9,
+        "end_sec": 1.35,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "to",
+        "start_sec": 1.35,
+        "end_sec": 1.56,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 1.56,
+        "end_sec": 1.68,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "french",
+        "start_sec": 1.68,
+        "end_sec": 2.1,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "baskets",
+        "start_sec": 2.1,
+        "end_sec": 2.67,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "of",
+        "start_sec": 2.67,
+        "end_sec": 2.76,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "flowers",
+        "start_sec": 2.76,
+        "end_sec": 3.24,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "of",
+        "start_sec": 3.3,
+        "end_sec": 3.48,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "which",
+        "start_sec": 3.48,
+        "end_sec": 3.75,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "they",
+        "start_sec": 3.75,
+        "end_sec": 3.9,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "had",
+        "start_sec": 3.9,
+        "end_sec": 4.11,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "made",
+        "start_sec": 4.11,
+        "end_sec": 4.35,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "a",
+        "start_sec": 4.35,
+        "end_sec": 4.41,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "plentiful",
+        "start_sec": 4.41,
+        "end_sec": 4.92,
+        "confidence": 0.816169,
+        "confidence_available": true
+      },
+      {
+        "word": "provision",
+        "start_sec": 4.92,
+        "end_sec": 5.49,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "to",
+        "start_sec": 5.49,
+        "end_sec": 5.64,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "create",
+        "start_sec": 5.64,
+        "end_sec": 5.93222,
+        "confidence": 0.226907,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 5.93222,
+        "end_sec": 6.09,
+        "confidence": 0.880471,
+        "confidence_available": true
+      },
+      {
+        "word": "arrival",
+        "start_sec": 6.09,
+        "end_sec": 6.6,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "of",
+        "start_sec": 6.66,
+        "end_sec": 6.84,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 6.84,
+        "end_sec": 6.99,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "young",
+        "start_sec": 6.99,
+        "end_sec": 7.32,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "princess",
+        "start_sec": 7.32,
+        "end_sec": 7.98,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 8.43,
+        "end_sec": 8.55,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "french",
+        "start_sec": 8.55,
+        "end_sec": 9.03,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "in",
+        "start_sec": 9.06,
+        "end_sec": 9.24,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "return",
+        "start_sec": 9.24,
+        "end_sec": 9.69,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "invited",
+        "start_sec": 9.72,
+        "end_sec": 10.26,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 10.26,
+        "end_sec": 10.41,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "english",
+        "start_sec": 10.41,
+        "end_sec": 10.8,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "to",
+        "start_sec": 10.8,
+        "end_sec": 10.98,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "a",
+        "start_sec": 10.98,
+        "end_sec": 11.04,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "super",
+        "start_sec": 11.04,
+        "end_sec": 11.58,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "which",
+        "start_sec": 11.85,
+        "end_sec": 12.144239,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "was",
+        "start_sec": 12.15,
+        "end_sec": 12.3,
+        "confidence": 0.807967,
+        "confidence_available": true
+      },
+      {
+        "word": "to",
+        "start_sec": 12.3,
+        "end_sec": 12.42,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "be",
+        "start_sec": 12.42,
+        "end_sec": 12.54,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "given",
+        "start_sec": 12.54,
+        "end_sec": 12.99,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 13.17,
+        "end_sec": 13.29,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "next",
+        "start_sec": 13.29,
+        "end_sec": 13.65,
+        "confidence": 1.0,
+        "confidence_available": true
+      },
+      {
+        "word": "day",
+        "start_sec": 13.65,
+        "end_sec": 14.04,
+        "confidence": 1.0,
+        "confidence_available": true
+      }
+    ],
+    "confidence": 0.9705003255813953,
+    "confidence_available": true,
+    "timestamps_available": true,
+    "language": "en-US",
+    "language_detected": false,
+    "latency": {
+      "total_ms": 1522.5822190004692,
+      "preprocess_ms": 0.009106999641517177,
+      "inference_ms": 1522.510474000228,
+      "postprocess_ms": 0.06263800059969071,
+      "first_partial_ms": 0.0,
+      "finalization_ms": 0.0
+    },
+    "raw_metadata_ref": "",
+    "degraded": false,
+    "error_code": "",
+    "error_message": "",
+    "tags": []
+  }
+}

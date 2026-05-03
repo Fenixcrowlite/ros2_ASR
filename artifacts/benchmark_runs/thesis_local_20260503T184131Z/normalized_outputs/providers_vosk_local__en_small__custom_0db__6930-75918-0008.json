@@ -1,0 +1,101 @@
+{
+  "request_id": "req_be721b29fc08487fab279d412a3c50a0",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "vosk",
+  "text": "can you imagine my buckingham has been so i suspect",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.51,
+  "utterance_end_sec": 4.44,
+  "audio_duration_sec": 4.785,
+  "words": [
+    {
+      "word": "can",
+      "start_sec": 0.51,
+      "end_sec": 0.72,
+      "confidence": 0.971701,
+      "confidence_available": true
+    },
+    {
+      "word": "you",
+      "start_sec": 0.72,
+      "end_sec": 0.84,
+      "confidence": 0.971701,
+      "confidence_available": true
+    },
+    {
+      "word": "imagine",
+      "start_sec": 0.84,
+      "end_sec": 1.29,
+      "confidence": 0.971701,
+      "confidence_available": true
+    },
+    {
+      "word": "my",
+      "start_sec": 1.29,
+      "end_sec": 1.5,
+      "confidence": 0.44805,
+      "confidence_available": true
+    },
+    {
+      "word": "buckingham",
+      "start_sec": 1.503835,
+      "end_sec": 2.100035,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "has",
+      "start_sec": 2.100035,
+      "end_sec": 2.28,
+      "confidence": 0.436852,
+      "confidence_available": true
+    },
+    {
+      "word": "been",
+      "start_sec": 2.28,
+      "end_sec": 2.46,
+      "confidence": 0.564857,
+      "confidence_available": true
+    },
+    {
+      "word": "so",
+      "start_sec": 2.46,
+      "end_sec": 2.67,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "i",
+      "start_sec": 3.6,
+      "end_sec": 3.69,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "suspect",
+      "start_sec": 3.69,
+      "end_sec": 4.44,
+      "confidence": 1.0,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.8364862000000001,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 909.6118509996813,
+    "preprocess_ms": 0.007153000296966638,
+    "inference_ms": 909.497867999562,
+    "postprocess_ms": 0.10682999982236652,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

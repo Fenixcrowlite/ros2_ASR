@@ -1,0 +1,108 @@
+{
+  "request_id": "req_228aec88deff485a847e2875e6b99b8e",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "Congratulations for pouring in upon the purchase everywhere during her journey.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.0,
+  "utterance_end_sec": 4.86,
+  "audio_duration_sec": 5.025,
+  "words": [
+    {
+      "word": "Congratulations",
+      "start_sec": 0.0,
+      "end_sec": 1.2,
+      "confidence": 0.632550835609436,
+      "confidence_available": true
+    },
+    {
+      "word": "for",
+      "start_sec": 1.2,
+      "end_sec": 1.62,
+      "confidence": 0.5847934484481812,
+      "confidence_available": true
+    },
+    {
+      "word": "pouring",
+      "start_sec": 1.62,
+      "end_sec": 2.04,
+      "confidence": 0.04889664798974991,
+      "confidence_available": true
+    },
+    {
+      "word": "in",
+      "start_sec": 2.04,
+      "end_sec": 2.32,
+      "confidence": 0.9748245477676392,
+      "confidence_available": true
+    },
+    {
+      "word": "upon",
+      "start_sec": 2.32,
+      "end_sec": 2.64,
+      "confidence": 0.958824098110199,
+      "confidence_available": true
+    },
+    {
+      "word": "the",
+      "start_sec": 2.64,
+      "end_sec": 2.78,
+      "confidence": 0.8387588262557983,
+      "confidence_available": true
+    },
+    {
+      "word": "purchase",
+      "start_sec": 2.78,
+      "end_sec": 3.06,
+      "confidence": 0.39534276723861694,
+      "confidence_available": true
+    },
+    {
+      "word": "everywhere",
+      "start_sec": 3.06,
+      "end_sec": 3.74,
+      "confidence": 0.8132707476615906,
+      "confidence_available": true
+    },
+    {
+      "word": "during",
+      "start_sec": 3.74,
+      "end_sec": 4.28,
+      "confidence": 0.7154858708381653,
+      "confidence_available": true
+    },
+    {
+      "word": "her",
+      "start_sec": 4.28,
+      "end_sec": 4.52,
+      "confidence": 0.5228533148765564,
+      "confidence_available": true
+    },
+    {
+      "word": "journey.",
+      "start_sec": 4.52,
+      "end_sec": 4.86,
+      "confidence": 0.5269387364387512,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.6559639277640316,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 455.7173559996954,
+    "preprocess_ms": 0.007112999810487963,
+    "inference_ms": 455.6334090002565,
+    "postprocess_ms": 0.07683399962843396,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

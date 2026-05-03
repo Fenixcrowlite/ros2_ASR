@@ -1,4 +1,4 @@
 provider,model,device,cpu_pct_mean,cpu_pct_peak,ram_mb_peak,gpu_util_pct_mean,gpu_mem_mb_peak,model_size_mb
-whisper_local,light,local,29.85880952,90.6,946.90625,8.538888889,662,
-huggingface_local,balanced,local,11.219301,51,3827.3125,33.22619601,4287,
-vosk_local,en_small,local,10.5452742,100,998.1835938,10.18642857,677,
+huggingface_local,balanced,local,12.82168878,100,3414.132812,33.12420635,4559,
+whisper_local,light,local,31.65700772,93.1,1000.007812,7.521666666,614,
+vosk_local,en_small,local,10.05607219,100,1042.117188,8.719005772,561,

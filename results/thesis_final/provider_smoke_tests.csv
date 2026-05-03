@@ -1,0 +1,8 @@
+provider,model_or_preset,available,success,latency_ms,end_to_end_rtf,text_preview,error_type,error_message_sanitized
+whisper_local,light,true,true,4040.955605,1.152911728,Concord return to its place amidst the tents.,,
+vosk_local,en_small,true,true,1123.554345,0.3205575877,concord return to it's place amidst the tents,,
+huggingface_local,light,true,true,17450.34149,4.978699426,Concord returned to its place amidst the tents.,,
+huggingface_api,,false,false,,,,missing_credentials,HF_TOKEN
+azure_cloud,standard,false,false,,,,missing_credentials,"AZURE_SPEECH_KEY,AZURE_SPEECH_REGION"
+google_cloud,,false,false,,,,missing_credentials,"GOOGLE_APPLICATION_CREDENTIALS,GOOGLE_CLOUD_PROJECT"
+aws_cloud,standard,false,false,,,,missing_credentials,AWS_TRANSCRIBE_BUCKET

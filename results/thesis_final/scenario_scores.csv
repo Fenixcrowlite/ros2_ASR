@@ -1,4 +1,4 @@
 provider,model,embedded_score,batch_score,analytics_score,dialog_score,best_use_case,final_recommendation
-huggingface_local,balanced,68.11272574,70.94667026,80.66007117,65.49246126,analytics,best suited for offline analysis in this result set
-vosk_local,en_small,58.43814106,60.3614512,35.63982109,47.56531533,batch,best suited for batch throughput in this result set
-whisper_local,light,77.55073928,77.42918671,61.89037695,67.0541147,embedded,best suited for local/embedded ROS2 use in this result set
+huggingface_local,balanced,86.7656723,91.97208645,90.90856752,87.69358223,batch,best suited for batch throughput in this result set
+vosk_local,en_small,64.50275687,65.31890638,42.95263479,53.67344931,batch,best suited for batch throughput in this result set
+whisper_local,light,81.80567663,81.33361988,68.01132596,71.42854939,embedded,best suited for local/embedded ROS2 use in this result set

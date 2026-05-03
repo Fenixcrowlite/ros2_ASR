@@ -1,0 +1,297 @@
+{
+  "run_id": "thesis_local_20260503T184131Z",
+  "provider_profile": "providers/whisper_local",
+  "provider_id": "whisper",
+  "sample_id": "6930-75918-0009",
+  "success": true,
+  "text": "It is you who are mistaken, Rao. I have read his distress in his eyes in his every gesture and action the whole day.",
+  "reference_text": "IT IS YOU WHO ARE MISTAKEN RAOUL I HAVE READ HIS DISTRESS IN HIS EYES IN HIS EVERY GESTURE AND ACTION THE WHOLE DAY",
+  "normalized_reference_text": "it is you who are mistaken raoul i have read his distress in his eyes in his every gesture and action the whole day",
+  "normalized_hypothesis_text": "it is you who are mistaken rao i have read his distress in his eyes in his every gesture and action the whole day",
+  "quality_support": {
+    "normalized_reference": "it is you who are mistaken raoul i have read his distress in his eyes in his every gesture and action the whole day",
+    "normalized_hypothesis": "it is you who are mistaken rao i have read his distress in his eyes in his every gesture and action the whole day",
+    "reference_has_content": true,
+    "hypothesis_has_content": true,
+    "reference_word_count": 24,
+    "reference_char_count": 92,
+    "word_edits": 1,
+    "char_edits": 2,
+    "exact_match": false,
+    "wer": 0.041666666666666664,
+    "cer": 0.021739130434782608
+  },
+  "error_code": "",
+  "error_message": "",
+  "metrics": {
+    "cer": 0.021739130434782608,
+    "estimated_cost_usd": 0.0,
+    "failure_rate": 0.0,
+    "per_utterance_latency_ms": 519.0137450008478,
+    "real_time_factor": 0.0712930968407758,
+    "sample_accuracy": 0.0,
+    "success_rate": 1.0,
+    "total_latency_ms": 519.0137450008478,
+    "wer": 0.041666666666666664,
+    "confidence": 0.8978961117805973,
+    "preprocess_ms": 0.006953000593057368,
+    "inference_ms": 518.9235860007102,
+    "postprocess_ms": 0.08320599954458885,
+    "model_load_ms": 0.706274,
+    "provider_init_cold_start": true,
+    "provider_init_warm_start": false,
+    "provider_call_cold_start": false,
+    "provider_call_warm_start": true,
+    "provider_invocation_index": 47,
+    "audio_duration_sec": 7.28,
+    "measured_audio_duration_sec": 7.28,
+    "declared_audio_duration_sec": 7.28,
+    "duration_mismatch_sec": 0.0,
+    "audio_duration_source": "measured_file",
+    "provider_compute_latency_ms": 519.0137450008478,
+    "end_to_end_latency_ms": 519.3374419995962,
+    "time_to_first_result_ms": 519.3374419995962,
+    "time_to_final_result_ms": 519.3374419995962,
+    "partial_count": 0,
+    "first_partial_latency_ms": 0.0,
+    "provider_compute_rtf": 0.0712930968407758,
+    "end_to_end_rtf": 0.07133756071423024,
+    "time_to_result_ms": 519.3374419995962,
+    "cpu_percent_mean": 32.6,
+    "cpu_percent_peak": 87.5,
+    "memory_mb_mean": 918.0826822916666,
+    "memory_mb_peak": 964.8125,
+    "gpu_util_percent_mean": 0.0,
+    "gpu_util_percent_peak": 0.0,
+    "gpu_memory_mb_mean": 526.0,
+    "gpu_memory_mb_peak": 526.0,
+    "cpu_percent": 32.6,
+    "memory_mb": 918.0826822916666,
+    "gpu_util_percent": 0.0,
+    "gpu_memory_mb": 526.0
+  },
+  "metrics_semantics_version": 2,
+  "legacy_metrics": false,
+  "execution_mode": "batch",
+  "streaming_mode": "none",
+  "scenario": "noise_robustness",
+  "noise_level": "custom_20db",
+  "noise_mode": "white",
+  "noise_snr_db": 20.0,
+  "provider_preset": "light",
+  "input_audio_path": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/derived_audio/6930-75918-0009__white__custom_20db.wav",
+  "audio_duration_sec": 7.28,
+  "measured_audio_duration_sec": 7.28,
+  "declared_audio_duration_sec": 7.28,
+  "duration_mismatch_sec": 0.0,
+  "audio_duration_source": "measured_file",
+  "confidence": 0.8978961117805973,
+  "preprocess_ms": 0.006953000593057368,
+  "inference_ms": 518.9235860007102,
+  "postprocess_ms": 0.08320599954458885,
+  "trace_artifact_ref": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/traces/trace_35e056f1f8f1497f81b8a9b6ff130d15.json",
+  "trace_corrupted": false,
+  "trace_warnings": [
+    "Optional metric `finalization_latency_ms` unavailable"
+  ],
+  "trace_warning_count": 1,
+  "normalized_result": {
+    "request_id": "req_fc18b577452f46c89140e511fbefe980",
+    "session_id": "benchmark_thesis_local_20260503T184131Z",
+    "provider_id": "whisper",
+    "text": "It is you who are mistaken, Rao. I have read his distress in his eyes in his every gesture and action the whole day.",
+    "is_final": true,
+    "is_partial": false,
+    "utterance_start_sec": 0.0,
+    "utterance_end_sec": 7.04,
+    "audio_duration_sec": 7.28,
+    "words": [
+      {
+        "word": "It",
+        "start_sec": 0.0,
+        "end_sec": 0.64,
+        "confidence": 0.6778820753097534,
+        "confidence_available": true
+      },
+      {
+        "word": "is",
+        "start_sec": 0.64,
+        "end_sec": 0.8,
+        "confidence": 0.9777629971504211,
+        "confidence_available": true
+      },
+      {
+        "word": "you",
+        "start_sec": 0.8,
+        "end_sec": 1.02,
+        "confidence": 0.9743311405181885,
+        "confidence_available": true
+      },
+      {
+        "word": "who",
+        "start_sec": 1.02,
+        "end_sec": 1.14,
+        "confidence": 0.5435643792152405,
+        "confidence_available": true
+      },
+      {
+        "word": "are",
+        "start_sec": 1.14,
+        "end_sec": 1.2,
+        "confidence": 0.9638300538063049,
+        "confidence_available": true
+      },
+      {
+        "word": "mistaken,",
+        "start_sec": 1.2,
+        "end_sec": 1.6,
+        "confidence": 0.9704030156135559,
+        "confidence_available": true
+      },
+      {
+        "word": "Rao.",
+        "start_sec": 1.98,
+        "end_sec": 2.12,
+        "confidence": 0.5607501864433289,
+        "confidence_available": true
+      },
+      {
+        "word": "I",
+        "start_sec": 2.4,
+        "end_sec": 2.4,
+        "confidence": 0.994515061378479,
+        "confidence_available": true
+      },
+      {
+        "word": "have",
+        "start_sec": 2.4,
+        "end_sec": 2.66,
+        "confidence": 0.9761958122253418,
+        "confidence_available": true
+      },
+      {
+        "word": "read",
+        "start_sec": 2.66,
+        "end_sec": 2.86,
+        "confidence": 0.9463310837745667,
+        "confidence_available": true
+      },
+      {
+        "word": "his",
+        "start_sec": 2.86,
+        "end_sec": 3.08,
+        "confidence": 0.8042279481887817,
+        "confidence_available": true
+      },
+      {
+        "word": "distress",
+        "start_sec": 3.08,
+        "end_sec": 3.5,
+        "confidence": 0.9183854460716248,
+        "confidence_available": true
+      },
+      {
+        "word": "in",
+        "start_sec": 3.5,
+        "end_sec": 3.76,
+        "confidence": 0.9757335782051086,
+        "confidence_available": true
+      },
+      {
+        "word": "his",
+        "start_sec": 3.76,
+        "end_sec": 3.86,
+        "confidence": 0.9894914627075195,
+        "confidence_available": true
+      },
+      {
+        "word": "eyes",
+        "start_sec": 3.86,
+        "end_sec": 4.24,
+        "confidence": 0.9946251511573792,
+        "confidence_available": true
+      },
+      {
+        "word": "in",
+        "start_sec": 4.24,
+        "end_sec": 4.58,
+        "confidence": 0.6537309885025024,
+        "confidence_available": true
+      },
+      {
+        "word": "his",
+        "start_sec": 4.58,
+        "end_sec": 4.86,
+        "confidence": 0.966448962688446,
+        "confidence_available": true
+      },
+      {
+        "word": "every",
+        "start_sec": 4.86,
+        "end_sec": 5.08,
+        "confidence": 0.9584125280380249,
+        "confidence_available": true
+      },
+      {
+        "word": "gesture",
+        "start_sec": 5.08,
+        "end_sec": 5.46,
+        "confidence": 0.932458758354187,
+        "confidence_available": true
+      },
+      {
+        "word": "and",
+        "start_sec": 5.46,
+        "end_sec": 5.8,
+        "confidence": 0.8668665885925293,
+        "confidence_available": true
+      },
+      {
+        "word": "action",
+        "start_sec": 5.8,
+        "end_sec": 6.16,
+        "confidence": 0.9264235496520996,
+        "confidence_available": true
+      },
+      {
+        "word": "the",
+        "start_sec": 6.16,
+        "end_sec": 6.44,
+        "confidence": 0.9292864203453064,
+        "confidence_available": true
+      },
+      {
+        "word": "whole",
+        "start_sec": 6.44,
+        "end_sec": 6.68,
+        "confidence": 0.9950171113014221,
+        "confidence_available": true
+      },
+      {
+        "word": "day.",
+        "start_sec": 6.68,
+        "end_sec": 7.04,
+        "confidence": 0.9992897510528564,
+        "confidence_available": true
+      }
+    ],
+    "confidence": 0.8978961117805973,
+    "confidence_available": true,
+    "timestamps_available": true,
+    "language": "en-US",
+    "language_detected": false,
+    "latency": {
+      "total_ms": 519.0137450008478,
+      "preprocess_ms": 0.006953000593057368,
+      "inference_ms": 518.9235860007102,
+      "postprocess_ms": 0.08320599954458885,
+      "first_partial_ms": 0.0,
+      "finalization_ms": 0.0
+    },
+    "raw_metadata_ref": "",
+    "degraded": false,
+    "error_code": "",
+    "error_message": "",
+    "tags": []
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "request_id": "req_5c6cdf72b80949aeb4813b27a6469d0c",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "vosk",
+  "text": "you will be frank with me i always am",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.42,
+  "utterance_end_sec": 2.82,
+  "audio_duration_sec": 3.315,
+  "words": [
+    {
+      "word": "you",
+      "start_sec": 0.42,
+      "end_sec": 0.533662,
+      "confidence": 0.498184,
+      "confidence_available": true
+    },
+    {
+      "word": "will",
+      "start_sec": 0.533662,
+      "end_sec": 0.69,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "be",
+      "start_sec": 0.69,
+      "end_sec": 0.87,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "frank",
+      "start_sec": 0.87,
+      "end_sec": 1.26,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "with",
+      "start_sec": 1.26,
+      "end_sec": 1.41,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "me",
+      "start_sec": 1.41,
+      "end_sec": 1.59,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "i",
+      "start_sec": 2.07,
+      "end_sec": 2.25,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "always",
+      "start_sec": 2.25,
+      "end_sec": 2.52,
+      "confidence": 1.0,
+      "confidence_available": true
+    },
+    {
+      "word": "am",
+      "start_sec": 2.52,
+      "end_sec": 2.82,
+      "confidence": 1.0,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.9442426666666667,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 559.621856999911,
+    "preprocess_ms": 0.00956799976847833,
+    "inference_ms": 559.5280719999209,
+    "postprocess_ms": 0.08421700022154255,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

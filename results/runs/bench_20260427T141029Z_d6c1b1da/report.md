@@ -12,7 +12,7 @@ Normalization: `normalized-v1`
 
 ## Artifacts
 
-- manifest: `/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141029Z_d6c1b1da/manifest.json`
-- utterance metrics: `/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141029Z_d6c1b1da/utterance_metrics.csv`
-- summary CSV: `/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141029Z_d6c1b1da/summary.csv`
-- plots: `/home/fenix/Desktop/ros2ws/results/runs/bench_20260427T141029Z_d6c1b1da/plots`
+- manifest: `results/runs/bench_20260427T141029Z_d6c1b1da/manifest.json`
+- utterance metrics: `results/runs/bench_20260427T141029Z_d6c1b1da/utterance_metrics.csv`
+- summary CSV: `results/runs/bench_20260427T141029Z_d6c1b1da/summary.csv`
+- plots: `results/runs/bench_20260427T141029Z_d6c1b1da/plots`

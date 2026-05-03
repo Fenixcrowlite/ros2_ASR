@@ -1,0 +1,97 @@
+{
+  "request_id": "req_1af2c2ce18e74af88159dac8bf1abf7f",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "huggingface_local",
+  "text": "You will be frank with me. I always am",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.0,
+  "utterance_end_sec": 2.72,
+  "audio_duration_sec": 3.315,
+  "words": [
+    {
+      "word": "You",
+      "start_sec": 0.0,
+      "end_sec": 0.54,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "will",
+      "start_sec": 0.54,
+      "end_sec": 0.64,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "be",
+      "start_sec": 0.64,
+      "end_sec": 0.84,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "frank",
+      "start_sec": 0.84,
+      "end_sec": 1.16,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "with",
+      "start_sec": 1.16,
+      "end_sec": 1.36,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "me.",
+      "start_sec": 1.36,
+      "end_sec": 1.8,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "I",
+      "start_sec": 1.8,
+      "end_sec": 2.16,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "always",
+      "start_sec": 2.16,
+      "end_sec": 2.44,
+      "confidence": 0.0,
+      "confidence_available": false
+    },
+    {
+      "word": "am",
+      "start_sec": 2.44,
+      "end_sec": 2.72,
+      "confidence": 0.0,
+      "confidence_available": false
+    }
+  ],
+  "confidence": 0.0,
+  "confidence_available": false,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 1103.8576410010137,
+    "preprocess_ms": 0.2646060002007289,
+    "inference_ms": 1103.510360000655,
+    "postprocess_ms": 0.08267500015790574,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": [
+    "hf_local",
+    "transformers"
+  ]
+}

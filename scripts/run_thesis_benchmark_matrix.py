@@ -29,6 +29,16 @@ CLOUD_PROVIDER_ENV = {
 }
 
 
+def _repo_relative_path(value: str | Path) -> str:
+    path = Path(str(value)).expanduser()
+    if not path.is_absolute():
+        return str(value)
+    try:
+        return str(path.resolve().relative_to(PROJECT_ROOT.resolve()))
+    except ValueError:
+        return str(value)
+
+
 def _run(command: list[str], *, cwd: Path = PROJECT_ROOT) -> subprocess.CompletedProcess[str]:
     return subprocess.run(
         command,
@@ -169,6 +179,14 @@ def _run_export() -> None:
     _run_checked(
         [
             PYTHON_CMD,
+            "scripts/run_provider_smoke_tests.py",
+            "--output",
+            "results/thesis_final/provider_smoke_tests.csv",
+        ]
+    )
+    _run_checked(
+        [
+            PYTHON_CMD,
             "scripts/export_thesis_tables.py",
             "--input",
             str(PROJECT_ROOT / "results" / "runs"),
@@ -243,7 +261,7 @@ def main() -> None:
         "created_at": datetime.now(UTC).isoformat(),
         "mode": args.mode,
         "completed": completed,
-        "thesis_final": str(PROJECT_ROOT / "results" / "thesis_final"),
+        "thesis_final": _repo_relative_path(PROJECT_ROOT / "results" / "thesis_final"),
     }
     print(json.dumps(output, ensure_ascii=True, indent=2))
 

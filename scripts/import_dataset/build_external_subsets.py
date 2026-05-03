@@ -9,7 +9,7 @@ import io
 import json
 import re
 import tarfile
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
@@ -315,7 +315,7 @@ def _persist_subset(spec: ExternalSubsetSpec, records: list[dict[str, Any]]) -> 
     datasets.append(
         {
             "dataset_id": spec.dataset_id,
-            "manifest_ref": str(manifest_path.resolve()),
+            "manifest_ref": str(manifest_path.relative_to(PROJECT_ROOT)),
             "sample_count": len(records),
             "metadata": {
                 "source": "external_download",
@@ -572,6 +572,12 @@ def parse_args() -> argparse.Namespace:
         default=[],
         help="Build only specific dataset_id values. Repeat to select multiple.",
     )
+    parser.add_argument(
+        "--item-count",
+        type=int,
+        default=0,
+        help="Override the configured sample count for selected subsets.",
+    )
     return parser.parse_args()
 
 
@@ -583,6 +589,10 @@ def main() -> None:
         unknown = sorted(selected - {spec.dataset_id for spec in EXTERNAL_SUBSETS})
         if unknown:
             raise SystemExit(f"Unknown dataset_id values: {', '.join(unknown)}")
+    if args.item_count < 0:
+        raise SystemExit("--item-count must be >= 0")
+    if args.item_count:
+        specs = [replace(spec, item_count=args.item_count) for spec in specs]
 
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
     for spec in specs:

@@ -1,0 +1,136 @@
+{
+  "request_id": "req_c17f63e00e06469694e881eb984aa3be",
+  "session_id": "benchmark_thesis_local_20260503T184131Z",
+  "provider_id": "whisper",
+  "text": "This has indeed been a harassing day, until you've been a family of arts victims.",
+  "is_final": true,
+  "is_partial": false,
+  "utterance_start_sec": 0.11,
+  "utterance_end_sec": 5.07,
+  "audio_duration_sec": 5.85,
+  "words": [
+    {
+      "word": "This",
+      "start_sec": 0.11,
+      "end_sec": 0.77,
+      "confidence": 0.7286320924758911,
+      "confidence_available": true
+    },
+    {
+      "word": "has",
+      "start_sec": 0.77,
+      "end_sec": 1.15,
+      "confidence": 0.8611225485801697,
+      "confidence_available": true
+    },
+    {
+      "word": "indeed",
+      "start_sec": 1.15,
+      "end_sec": 1.59,
+      "confidence": 0.9954609274864197,
+      "confidence_available": true
+    },
+    {
+      "word": "been",
+      "start_sec": 1.59,
+      "end_sec": 1.85,
+      "confidence": 0.9433002471923828,
+      "confidence_available": true
+    },
+    {
+      "word": "a",
+      "start_sec": 1.85,
+      "end_sec": 2.01,
+      "confidence": 0.7204692363739014,
+      "confidence_available": true
+    },
+    {
+      "word": "harassing",
+      "start_sec": 2.01,
+      "end_sec": 2.55,
+      "confidence": 0.601777695119381,
+      "confidence_available": true
+    },
+    {
+      "word": "day,",
+      "start_sec": 2.55,
+      "end_sec": 2.83,
+      "confidence": 0.1857830435037613,
+      "confidence_available": true
+    },
+    {
+      "word": "until",
+      "start_sec": 3.09,
+      "end_sec": 3.19,
+      "confidence": 0.16803643107414246,
+      "confidence_available": true
+    },
+    {
+      "word": "you've",
+      "start_sec": 3.19,
+      "end_sec": 3.73,
+      "confidence": 0.6297806352376938,
+      "confidence_available": true
+    },
+    {
+      "word": "been",
+      "start_sec": 3.73,
+      "end_sec": 3.73,
+      "confidence": 0.7415211200714111,
+      "confidence_available": true
+    },
+    {
+      "word": "a",
+      "start_sec": 3.73,
+      "end_sec": 3.83,
+      "confidence": 0.32379263639450073,
+      "confidence_available": true
+    },
+    {
+      "word": "family",
+      "start_sec": 3.83,
+      "end_sec": 4.17,
+      "confidence": 0.11851567775011063,
+      "confidence_available": true
+    },
+    {
+      "word": "of",
+      "start_sec": 4.17,
+      "end_sec": 4.33,
+      "confidence": 0.2600100040435791,
+      "confidence_available": true
+    },
+    {
+      "word": "arts",
+      "start_sec": 4.33,
+      "end_sec": 4.57,
+      "confidence": 0.29513561725616455,
+      "confidence_available": true
+    },
+    {
+      "word": "victims.",
+      "start_sec": 4.57,
+      "end_sec": 5.07,
+      "confidence": 0.6599154472351074,
+      "confidence_available": true
+    }
+  ],
+  "confidence": 0.5660111482170496,
+  "confidence_available": true,
+  "timestamps_available": true,
+  "language": "en-US",
+  "language_detected": false,
+  "latency": {
+    "total_ms": 462.914888999876,
+    "preprocess_ms": 0.006752999979653396,
+    "inference_ms": 462.8276149996964,
+    "postprocess_ms": 0.08052100019995123,
+    "first_partial_ms": 0.0,
+    "finalization_ms": 0.0
+  },
+  "raw_metadata_ref": "",
+  "degraded": false,
+  "error_code": "",
+  "error_message": "",
+  "tags": []
+}

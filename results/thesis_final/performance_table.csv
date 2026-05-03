@@ -1,4 +1,4 @@
 provider,model,execution_mode,samples,final_latency_ms_p50,final_latency_ms_p95,end_to_end_rtf_mean,end_to_end_rtf_p95,provider_compute_rtf_mean,throughput_audio_sec_per_sec,admissible,admissibility_flags
-whisper_local,light,batch,10,625.8826435,3991.561854,0.2668223508,1.115968619,0.2667671548,7.53910111,true,
-huggingface_local,balanced,batch,10,1957.175969,36418.4825,2.038875806,10.27590903,2.038832684,1.122753591,false,embedded_rtf_gt_1
-vosk_local,en_small,batch,10,1283.690234,2183.814627,0.1772177197,0.2850144603,0.1753763062,6.841848332,true,
+huggingface_local,balanced,batch,50,1431.393503,3976.012523,0.258026219,0.3460917745,0.2579903549,4.998967457,true,
+whisper_local,light,batch,50,488.8105955,949.0913489,0.09473022586,0.1307145283,0.09468251797,15.08442264,true,
+vosk_local,en_small,batch,50,972.2917825,2222.424114,0.1471882126,0.2234232317,0.1455963153,7.644242177,true,
