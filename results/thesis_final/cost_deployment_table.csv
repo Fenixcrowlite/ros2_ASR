@@ -1,12 +1,12 @@
-comparison_tier,provider,model,local_or_cloud,cost_per_audio_hour_usd,offline_capable,internet_required,credentials_required,ros2_suitability,cocohrip_suitability
-accurate_or_high_quality,google_cloud,accurate,cloud,,false,true,true,medium,good when internet and credentials are acceptable
-accurate_or_high_quality,whisper_local,accurate,local,,true,false,false,high,high for offline/local baseline
-balanced,huggingface_local,balanced,local,,true,model download only,false,medium-high,good when model cache and hardware are available
-balanced,whisper_local,balanced,local,,true,false,false,high,high for offline/local baseline
-balanced,azure_cloud,standard,cloud,1.08,false,true,true,medium,good when internet and credentials are acceptable
-balanced,google_cloud,balanced,cloud,,false,true,true,medium,good when internet and credentials are acceptable
-balanced,aws_cloud,standard,cloud,1.44,false,true,true,medium,good when AWS account and bucket are configured
-fast_or_low_resource,whisper_local,light,local,,true,false,false,high,high for offline/local baseline
-fast_or_low_resource,huggingface_local,light,local,,true,model download only,false,medium-high,good when model cache and hardware are available
-fast_or_low_resource,google_cloud,light,cloud,,false,true,true,medium,good when internet and credentials are acceptable
-fast_or_low_resource,vosk_local,en_small,local,,true,false,false,high,high for embedded/offline commands
+comparison_tier,provider,model,local_or_cloud,cost_per_audio_hour_usd,cost_type,cost_estimate_available,offline_capable,internet_required,credentials_required,ros2_suitability,cocohrip_suitability
+accurate_or_high_quality,google_cloud,accurate,cloud,not_estimated,cloud_not_estimated,false,false,true,true,medium,good when internet and credentials are acceptable
+accurate_or_high_quality,whisper_local,accurate,local,0,local_hardware_not_monetized,true,true,false,false,high,high for offline/local baseline
+balanced,huggingface_local,balanced,local,0,local_hardware_not_monetized,true,true,model download only,false,medium-high,good when model cache and hardware are available
+balanced,whisper_local,balanced,local,0,local_hardware_not_monetized,true,true,false,false,high,high for offline/local baseline
+balanced,azure_cloud,standard,cloud,1.08,cloud_estimated,true,false,true,true,medium,good when internet and credentials are acceptable
+balanced,google_cloud,balanced,cloud,not_estimated,cloud_not_estimated,false,false,true,true,medium,good when internet and credentials are acceptable
+balanced,aws_cloud,standard,cloud,1.44,cloud_estimated,true,false,true,true,medium,good when AWS account and bucket are configured
+fast_or_low_resource,whisper_local,light,local,0,local_hardware_not_monetized,true,true,false,false,high,high for offline/local baseline
+fast_or_low_resource,huggingface_local,light,local,0,local_hardware_not_monetized,true,true,model download only,false,medium-high,good when model cache and hardware are available
+fast_or_low_resource,google_cloud,light,cloud,not_estimated,cloud_not_estimated,false,false,true,true,medium,good when internet and credentials are acceptable
+fast_or_low_resource,vosk_local,en_small,local,0,local_hardware_not_monetized,true,true,false,false,high,high for embedded/offline commands

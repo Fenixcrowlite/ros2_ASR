@@ -7,7 +7,7 @@ cd "$ROOT_DIR"
 
 SECRET_REGEX="AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{35}|-----BEGIN[[:space:]]+[^-]*PRIVATE KEY-----|aws_secret_access_key[[:space:]]*[:=][[:space:]]*['\"]?[A-Za-z0-9/+=]{16,}|speech_key[[:space:]]*[:=][[:space:]]*['\"]?[A-Za-z0-9]{16,}|subscription_key[[:space:]]*[:=][[:space:]]*['\"]?[A-Za-z0-9]{16,}|xox[baprs]-[0-9A-Za-z-]{10,}"
 
-SCAN_ROOTS=(.ai reports results scripts configs datasets docs)
+SCAN_ROOTS=(.ai reports results artifacts scripts configs datasets docs)
 EXCLUDE_NAME_EXPR=(
   -name '*.wav' -o -name '*.mp3' -o -name '*.flac' -o
   -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.gif' -o -name '*.webp' -o

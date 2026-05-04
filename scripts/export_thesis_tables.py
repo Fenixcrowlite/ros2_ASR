@@ -254,6 +254,7 @@ TABLE_FIELDS: dict[str, list[str]] = {
         "ser",
         "ci_95_low",
         "ci_95_high",
+        "ci_95_available",
         "normalization_profile",
     ],
     "performance_table.csv": [
@@ -282,6 +283,11 @@ TABLE_FIELDS: dict[str, list[str]] = {
         "gpu_util_pct_mean",
         "gpu_mem_mb_peak",
         "model_size_mb",
+        "cpu_available",
+        "ram_available",
+        "gpu_available",
+        "model_size_available",
+        "resource_metrics_available",
     ],
     "noise_robustness_table.csv": [
         "comparison_tier",
@@ -300,6 +306,8 @@ TABLE_FIELDS: dict[str, list[str]] = {
         "model",
         "local_or_cloud",
         "cost_per_audio_hour_usd",
+        "cost_type",
+        "cost_estimate_available",
         "offline_capable",
         "internet_required",
         "credentials_required",
@@ -696,8 +704,9 @@ def _quality_rows(
                 )
                 if any(_as_float(row.get("ser")) is not None for row in rows)
                 else "",
-                "ci_95_low": "",
-                "ci_95_high": "",
+                "ci_95_low": "not_computed",
+                "ci_95_high": "not_computed",
+                "ci_95_available": False,
                 "normalization_profile": normalization_by_key.get((comparison_tier, provider, model), ""),
             }
         )
@@ -750,6 +759,14 @@ def _resource_rows(summary_rows: list[dict[str, Any]], utterance_rows: list[dict
         rows = by_key.get(key, [])
         cpu_peaks = [_as_float(row.get("cpu_pct_peak")) for row in rows]
         gpu_utils = [_as_float(row.get("gpu_util_pct_mean")) for row in rows]
+        cpu_available = _as_float(summary.get("cpu_pct_mean")) is not None or any(
+            value is not None for value in cpu_peaks
+        )
+        ram_available = _as_float(summary.get("ram_mb_peak")) is not None
+        gpu_available = _as_float(summary.get("gpu_mem_mb_peak")) is not None or any(
+            value is not None for value in gpu_utils
+        )
+        model_size_available = _as_float(summary.get("model_size_mb")) is not None
         output.append(
             {
                 "comparison_tier": key[0],
@@ -762,6 +779,13 @@ def _resource_rows(summary_rows: list[dict[str, Any]], utterance_rows: list[dict
                 "gpu_util_pct_mean": mean([value for value in gpu_utils if value is not None]) if any(value is not None for value in gpu_utils) else "",
                 "gpu_mem_mb_peak": summary.get("gpu_mem_mb_peak", ""),
                 "model_size_mb": summary.get("model_size_mb", ""),
+                "cpu_available": cpu_available,
+                "ram_available": ram_available,
+                "gpu_available": gpu_available,
+                "model_size_available": model_size_available,
+                "resource_metrics_available": any(
+                    [cpu_available, ram_available, gpu_available, model_size_available]
+                ),
             }
         )
     return output
@@ -849,13 +873,30 @@ def _cost_rows(summary_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
             continue
         seen.add(key)
         meta = PROVIDER_CATALOG.get(provider, {})
+        local_or_cloud = str(meta.get("local_or_cloud", "") or "")
+        raw_cost = row.get("cost_per_audio_hour_usd") or meta.get("cost_per_audio_hour_usd", "")
+        cost_value = _as_float(raw_cost)
+        if local_or_cloud == "local":
+            cost_output: Any = 0.0
+            cost_type = "local_hardware_not_monetized"
+            cost_estimate_available = True
+        elif cost_value is not None:
+            cost_output = cost_value
+            cost_type = "cloud_estimated"
+            cost_estimate_available = True
+        else:
+            cost_output = "not_estimated"
+            cost_type = "cloud_not_estimated"
+            cost_estimate_available = False
         output.append(
             {
                 "provider": provider,
                 "comparison_tier": comparison_tier,
                 "model": model,
-                "local_or_cloud": meta.get("local_or_cloud", ""),
-                "cost_per_audio_hour_usd": row.get("cost_per_audio_hour_usd") or meta.get("cost_per_audio_hour_usd", ""),
+                "local_or_cloud": local_or_cloud,
+                "cost_per_audio_hour_usd": cost_output,
+                "cost_type": cost_type,
+                "cost_estimate_available": cost_estimate_available,
                 "offline_capable": meta.get("offline_capable", ""),
                 "internet_required": meta.get("internet_required", ""),
                 "credentials_required": meta.get("credentials_required", ""),
@@ -924,7 +965,16 @@ def _plot_message(path: Path, title: str, message: str) -> None:
     plt.close(fig)
 
 
-def _bar_plot(path: Path, title: str, ylabel: str, rows: list[dict[str, Any]], value_key: str) -> None:
+def _bar_plot(
+    path: Path,
+    title: str,
+    ylabel: str,
+    rows: list[dict[str, Any]],
+    value_key: str,
+    *,
+    threshold: float | None = None,
+    threshold_label: str = "",
+) -> None:
     import matplotlib
 
     matplotlib.use("Agg")
@@ -944,8 +994,152 @@ def _bar_plot(path: Path, title: str, ylabel: str, rows: list[dict[str, Any]], v
     ax.bar(labels, values, color="#0f766e")
     ax.set_title(title)
     ax.set_ylabel(ylabel)
+    if threshold is not None:
+        ax.axhline(threshold, color="#b91c1c", linestyle="--", linewidth=1.2)
+        if threshold_label:
+            ax.text(
+                0.99,
+                threshold,
+                threshold_label,
+                color="#7f1d1d",
+                ha="right",
+                va="bottom",
+                transform=ax.get_yaxis_transform(),
+            )
     ax.tick_params(axis="x", rotation=30)
     ax.grid(axis="y", linestyle="--", alpha=0.35)
+    fig.tight_layout()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path)
+    plt.close(fig)
+
+
+def _join_metric_rows(
+    quality_rows: list[dict[str, Any]],
+    performance_rows: list[dict[str, Any]],
+    cost_rows: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    perf_by_key = {
+        (
+            str(row.get("comparison_tier", "") or ""),
+            str(row.get("provider", "") or ""),
+            str(row.get("model", "") or ""),
+        ): row
+        for row in performance_rows
+    }
+    cost_by_key = {
+        (
+            str(row.get("comparison_tier", "") or ""),
+            str(row.get("provider", "") or ""),
+            str(row.get("model", "") or ""),
+        ): row
+        for row in cost_rows
+    }
+    joined: list[dict[str, Any]] = []
+    for quality in quality_rows:
+        key = (
+            str(quality.get("comparison_tier", "") or ""),
+            str(quality.get("provider", "") or ""),
+            str(quality.get("model", "") or ""),
+        )
+        joined.append({**quality, **perf_by_key.get(key, {}), **cost_by_key.get(key, {})})
+    return joined
+
+
+def _pareto_plot(path: Path, rows: list[dict[str, Any]]) -> None:
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    points = []
+    for row in rows:
+        wer = _as_float(row.get("wer"))
+        latency = _as_float(row.get("final_latency_ms_p95"))
+        if wer is None or latency is None:
+            continue
+        points.append(
+            {
+                "label": f"{row.get('provider', '')}:{row.get('model', '')}",
+                "wer": wer,
+                "latency": latency,
+                "local_or_cloud": str(row.get("local_or_cloud", "") or ""),
+            }
+        )
+    if not points:
+        _plot_message(path, "WER vs P95 Latency Trade-off", "Data unavailable")
+        return
+
+    fig, ax = plt.subplots(figsize=(8.5, 5))
+    for mode, marker, color in (("local", "o", "#0f766e"), ("cloud", "s", "#2563eb")):
+        subset = [point for point in points if point["local_or_cloud"] == mode]
+        if not subset:
+            continue
+        ax.scatter(
+            [point["latency"] for point in subset],
+            [point["wer"] for point in subset],
+            label=mode,
+            marker=marker,
+            color=color,
+            s=60,
+        )
+    for point in points:
+        ax.annotate(point["label"], (point["latency"], point["wer"]), fontsize=7, xytext=(4, 4), textcoords="offset points")
+    ax.set_title("WER vs P95 Latency Trade-off")
+    ax.set_xlabel("P95 final latency (ms)")
+    ax.set_ylabel("Clean WER")
+    ax.grid(True, linestyle="--", alpha=0.35)
+    ax.legend()
+    fig.tight_layout()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(path)
+    plt.close(fig)
+
+
+def _cost_quality_plot(path: Path, rows: list[dict[str, Any]]) -> None:
+    import matplotlib
+
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+
+    points = []
+    for row in rows:
+        wer = _as_float(row.get("wer"))
+        cost = _as_float(row.get("cost_per_audio_hour_usd"))
+        if wer is None or cost is None:
+            continue
+        points.append(
+            {
+                "label": f"{row.get('provider', '')}:{row.get('model', '')}",
+                "wer": wer,
+                "cost": cost,
+                "local_or_cloud": str(row.get("local_or_cloud", "") or ""),
+            }
+        )
+    if not points:
+        _plot_message(path, "Cost vs Recognition Quality", "Cost data unavailable")
+        return
+
+    fig, ax = plt.subplots(figsize=(8.5, 5))
+    for mode, marker, color in (("local", "o", "#0f766e"), ("cloud", "s", "#2563eb")):
+        subset = [point for point in points if point["local_or_cloud"] == mode]
+        if not subset:
+            continue
+        ax.scatter(
+            [point["cost"] for point in subset],
+            [point["wer"] for point in subset],
+            label=mode,
+            marker=marker,
+            color=color,
+            s=60,
+        )
+    for point in points:
+        ax.annotate(point["label"], (point["cost"], point["wer"]), fontsize=7, xytext=(4, 4), textcoords="offset points")
+    ax.set_title("Cost vs Recognition Quality")
+    ax.set_xlabel("Direct API cost (USD/audio hour)")
+    ax.set_ylabel("Clean WER")
+    ax.grid(True, linestyle="--", alpha=0.35)
+    ax.legend()
     fig.tight_layout()
     path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(path)
@@ -955,14 +1149,27 @@ def _bar_plot(path: Path, title: str, ylabel: str, rows: list[dict[str, Any]], v
 def _generate_plots(output_dir: Path, tables: dict[str, list[dict[str, Any]]]) -> None:
     plots_dir = output_dir / "plots"
     try:
-        _bar_plot(plots_dir / "wer_by_provider.png", "WER by Provider", "WER", tables["quality_table.csv"], "wer")
-        _bar_plot(plots_dir / "cer_by_provider.png", "CER by Provider", "CER", tables["quality_table.csv"], "cer")
-        _bar_plot(plots_dir / "latency_p95_by_provider.png", "Latency p95 by Provider", "ms", tables["performance_table.csv"], "final_latency_ms_p95")
-        _bar_plot(plots_dir / "rtf_by_provider.png", "End-to-End RTF by Provider", "RTF", tables["performance_table.csv"], "end_to_end_rtf_mean")
-        _bar_plot(plots_dir / "noise_robustness_by_provider.png", "Noise Degradation by Provider", "percentage points", tables["noise_robustness_table.csv"], "noise_deg_pp")
-        _bar_plot(plots_dir / "scenario_scores.png", "Embedded Scenario Scores", "score", tables["scenario_scores.csv"], "embedded_score")
-        _plot_message(plots_dir / "wer_vs_latency_pareto.png", "WER vs Latency", "Use quality_table.csv and performance_table.csv for numeric values.")
-        _plot_message(plots_dir / "cost_vs_quality.png", "Cost vs Quality", "Cost data is exported when providers report measured or estimated costs.")
+        joined_rows = _join_metric_rows(
+            tables["quality_table.csv"],
+            tables["performance_table.csv"],
+            tables["cost_deployment_table.csv"],
+        )
+        _bar_plot(plots_dir / "wer_by_provider.png", "Clean WER by Provider Preset", "WER", tables["quality_table.csv"], "wer")
+        _bar_plot(plots_dir / "cer_by_provider.png", "Clean CER by Provider Preset", "CER", tables["quality_table.csv"], "cer")
+        _bar_plot(plots_dir / "latency_p95_by_provider.png", "P95 Final Latency by Provider Preset", "ms", tables["performance_table.csv"], "final_latency_ms_p95")
+        _bar_plot(
+            plots_dir / "rtf_by_provider.png",
+            "End-to-End RTF by Provider Preset",
+            "RTF",
+            tables["performance_table.csv"],
+            "end_to_end_rtf_mean",
+            threshold=1.0,
+            threshold_label="RTF = 1",
+        )
+        _pareto_plot(plots_dir / "wer_vs_latency_pareto.png", joined_rows)
+        _bar_plot(plots_dir / "noise_robustness_by_provider.png", "WER Degradation Under Synthetic Noise", "percentage points", tables["noise_robustness_table.csv"], "noise_deg_pp")
+        _bar_plot(plots_dir / "scenario_scores.png", "Scenario Suitability Scores", "embedded score", tables["scenario_scores.csv"], "embedded_score")
+        _cost_quality_plot(plots_dir / "cost_vs_quality.png", joined_rows)
     except ImportError:
         plots_dir.mkdir(parents=True, exist_ok=True)
         for name in (
@@ -1169,6 +1376,8 @@ def _write_final_report(
             f"Dataset validation status: {validation_passed}",
             "Primary benchmark mode: tiered local/cloud comparison",
             "",
+            "The active dataset contains 10 clean LibriSpeech utterances. For robustness evaluation, each utterance is also evaluated under derived white-noise SNR variants. Therefore quality tables use 10 clean source utterances per provider preset, while performance and robustness tables aggregate 50 utterance-variant rows per provider preset: 10 clean utterances x 5 acoustic conditions. The final primary evidence contains 550 utterance-variant rows across 11 valid provider presets.",
+            "",
             "Fast tier run id:",
             tier_by_kind.get("fast", "none"),
             "",
@@ -1187,6 +1396,21 @@ def _write_final_report(
             "The local and cloud matrix runs are supporting evidence for provider coverage and credentialed cloud execution; final provider ranking uses the tiered benchmark artifacts.",
             "Dataset validation report: `reports/datasets/dataset_asset_validation.md`",
             "Credential availability report: `reports/thesis_test/credential_availability.md`",
+            "",
+            "## Evidence Structure",
+            "",
+            "Primary evidence:",
+            "",
+            "- tiered benchmark runs: fast_or_low_resource, balanced and accurate_or_high_quality",
+            "",
+            "Supporting evidence:",
+            "",
+            "- local matrix run",
+            "- cloud matrix run",
+            "- provider smoke tests",
+            "- credential availability report",
+            "- dataset validation report",
+            "- thesis evidence validation report",
             "",
             "## Hardware And Software Environment",
             "",
@@ -1263,18 +1487,59 @@ def _write_final_report(
             "WER/CER/SER measure recognition quality. Final latency and end-to-end RTF measure ROS2/operator-facing performance. `provider_compute_rtf` is secondary and `real_time_factor` is a deprecated compatibility alias.",
             "Primary RTF = `end_to_end_rtf`. `provider_compute_rtf` is secondary. `real_time_factor` is a deprecated alias retained for compatibility.",
             "",
+            "## Metric Family Rationale",
+            "",
+            "The thesis uses multiple metric families because ASR provider suitability in robotics is multi-objective. A single global score is not used as the primary result because provider suitability depends on the deployment scenario.",
+            "",
+            "Recognition quality, performance, real-time behavior, robustness, resource usage, cost, deployment constraints and scenario suitability are interpreted separately. This prevents a low-WER cloud provider from being treated as automatically best when it may require internet access, credentials, higher latency or non-local execution. The metric families are documented in `docs/metric_families.md`.",
+            "",
+            "## Scenario Score Methodology",
+            "",
+            "Scenario scores are normalized heuristic suitability scores derived from quality, latency, RTF, robustness, deployment constraints and cost-related fields. They are not independent benchmark measurements.",
+            "",
+            "The score should not be interpreted as an absolute scientific metric. It is a decision-support index for this bachelor thesis prototype.",
+            "",
             "## Tables Summary",
             "",
         ]
     )
+    table_descriptions = {
+        "provider_comparison.csv": "implemented provider capabilities, deployment type and credential requirements",
+        "provider_smoke_tests.csv": "provider availability, credential detection and one-sample recognition smoke test",
+        "quality_table.csv": "clean-source WER/CER/SER comparison; confidence intervals are marked not_computed because the sample set is thesis-scale",
+        "performance_table.csv": "latency, RTF, throughput and real-time admissibility",
+        "resource_table.csv": "CPU/RAM/GPU/model-size observations with availability flags",
+        "noise_robustness_table.csv": "WER degradation under SNR 20, 10, 5 and 0 dB",
+        "cost_deployment_table.csv": "local/cloud deployment constraints, direct API cost semantics and cost availability flags",
+        "scenario_scores.csv": "normalized heuristic suitability scores for embedded, batch, analytics and dialog scenarios",
+    }
     for table_name, rows in tables.items():
-        lines.append(f"- `{table_name}`: {len(rows)} rows")
+        lines.append(f"- `{table_name}`: {len(rows)} rows; {table_descriptions.get(table_name, 'final thesis table')}.")
     lines.extend(
         [
             "",
+            "## Plot Interpretation Guide",
+            "",
+            "- `wer_by_provider.png` - Clean WER by Provider Preset. Lower is better. Computed on 10 clean LibriSpeech source utterances.",
+            "- `cer_by_provider.png` - Clean CER by Provider Preset. CER complements WER by showing character-level transcription errors. Lower is better.",
+            "- `latency_p95_by_provider.png` - P95 Final Latency by Provider Preset. Lower p95 latency indicates more predictable response time for interactive ROS2 use.",
+            "- `rtf_by_provider.png` - End-to-End RTF by Provider Preset. RTF < 1 indicates faster-than-real-time processing. The RTF = 1 threshold separates faster and slower than real time.",
+            "- `wer_vs_latency_pareto.png` - WER vs P95 Latency Trade-off. Lower-left points represent better quality-latency trade-off. Local and cloud providers are marked separately where plot data is available.",
+            "- `noise_robustness_by_provider.png` - WER Degradation Under Synthetic Noise. Synthetic white noise was used, so results show robustness trends, not full real-world acoustic coverage.",
+            "- `scenario_scores.png` - Scenario Suitability Scores. Higher scores indicate stronger heuristic suitability for the scenario; scores are normalized decision-support indices, not direct benchmark measurements.",
+            "- `cost_vs_quality.png` - Cost vs Recognition Quality. Lower WER and lower direct API cost are preferable. Local providers have zero direct API cost; hardware and maintenance costs are not monetized.",
+            "",
             "## Main Findings",
             "",
-            "The generated CSV tables contain the provider-level quality, performance, resource, robustness, cost and scenario suitability values used for thesis interpretation.",
+            "The benchmark confirmed that all selected local providers and three commercial cloud providers can be integrated into the ROS2 ASR evaluation workflow.",
+            "",
+            "In the fast_or_low_resource tier, local providers were more suitable for offline ROS2 usage. Hugging Face local light and Whisper local light had low end-to-end RTF values and did not require internet access or credentials. Vosk remained useful as a low-resource offline baseline, but showed the highest WER and the strongest degradation under heavy noise.",
+            "",
+            "In the balanced tier, Azure Speech and AWS Transcribe achieved the lowest clean WER in this small LibriSpeech subset, while Hugging Face local balanced provided the strongest local/offline quality-performance compromise. AWS produced strong recognition quality but was not admissible for embedded-style real-time use because its mean end-to-end RTF exceeded 1.0.",
+            "",
+            "In the accurate_or_high_quality tier, Whisper local accurate achieved lower clean WER than Google Cloud accurate in this experiment, while Google Cloud accurate had competitive latency. Hugging Face local accurate could not be evaluated because the workstation ran out of GPU memory, so that high-memory preset remains a failed preset attempt rather than a metric-table row.",
+            "",
+            "Noise robustness results showed that provider behavior differs strongly under SNR degradation. Vosk local degraded the most at SNR 0 in the fast tier, while AWS standard showed the smallest WER degradation in the balanced tier. These results are indicative only because the benchmark uses 10 clean source utterances and derived noisy variants.",
             "",
             "## Limitations",
             "",
@@ -1300,7 +1565,11 @@ def _write_final_report(
             "",
             "## Recommendation For ROS2/COCOHRIP",
             "",
-            "Use local providers for offline ROS2 experiments and cloud providers only when internet access, credentials, latency and cost are acceptable for the laboratory scenario.",
+            "For offline ROS2 laboratory experiments, Whisper local should be used as the primary local baseline because it provides a good balance of quality, reproducibility and independence from cloud services. Hugging Face local is useful when cached models and sufficient hardware are available, but high-memory presets must be treated carefully. Vosk remains useful as a lightweight offline baseline, especially for low-resource experiments, but it should not be selected as the highest-accuracy option based on this benchmark.",
+            "",
+            "For cloud-assisted ASR, Azure Speech, Google Speech-to-Text and AWS Transcribe are suitable only when external connectivity, credentials, latency and cost are acceptable. AWS Transcribe achieved strong recognition quality in the balanced tier, but its measured end-to-end RTF and latency make it less suitable for interactive embedded-style ROS2 control in this prototype.",
+            "",
+            "The recommended thesis conclusion is therefore a hybrid architecture: local ASR providers for reproducible offline robot experiments, and cloud ASR providers for optional high-quality transcription or comparative benchmarking.",
         ]
     )
     path.write_text("\n".join(lines) + "\n", encoding="utf-8")

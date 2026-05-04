@@ -36,7 +36,7 @@ LINT_RUFF_PATHS := \
 	ros2_ws/src/asr_provider_base
 LINT_MYPY_PATHS := $(LINT_RUFF_PATHS)
 
-.PHONY: help setup setup-vosk build test test-unit test-ros test-colcon run bench bench-suite collect-metrics validate-datasets report web-gui web-gui-lan web-gui-stop up up-runtime up-lan down hf-smoke-local hf-smoke-api bench-hf rqt arch-static arch-runtime arch arch-diff lint lint-ruff lint-mypy security-scan format clean dist docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
+.PHONY: help setup setup-vosk build test test-unit test-ros test-colcon run bench bench-suite collect-metrics validate-datasets report web-gui web-gui-lan web-gui-stop up up-runtime up-lan down hf-smoke-local hf-smoke-api bench-hf rqt arch-static arch-runtime arch arch-diff lint lint-ruff lint-mypy security-scan format clean dist dist-thesis docsbot-setup docsbot-detect docsbot-snapshot docsbot-generate docsbot-validate docsbot-watch docsbot-install-hooks
 
 help:
 	@printf '%s\n' \
@@ -170,6 +170,13 @@ dist:
 	$(MAKE) test-unit
 	$(MAKE) bench
 	bash scripts/release_check.sh
+	bash scripts/secret_scan.sh
+	bash scripts/make_dist.sh
+
+dist-thesis:
+	python3 scripts/validate_dataset_assets.py --registry datasets/registry/datasets.json --root .
+	python3 scripts/validate_thesis_evidence.py --root .
+	python3 -m compileall -q scripts ros2_ws/src tests
 	bash scripts/secret_scan.sh
 	bash scripts/make_dist.sh
 

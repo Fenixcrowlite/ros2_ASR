@@ -5,27 +5,42 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
-if [ ! -d "results/plots" ]; then
-  echo "ERROR: results/plots is missing. Run make bench first."
+if [ ! -d "results/thesis_final/plots" ]; then
+  echo "ERROR: results/thesis_final/plots is missing. Run scripts/export_thesis_tables.py from existing artifacts first."
   exit 1
 fi
 
-PLOT_COUNT=$(find results/plots -maxdepth 1 -name '*.png' | wc -l | tr -d ' ')
-if [ "$PLOT_COUNT" -lt 3 ]; then
-  echo "ERROR: expected at least 3 plots in results/plots, found $PLOT_COUNT"
+PLOT_COUNT=$(find results/thesis_final/plots -maxdepth 1 -name '*.png' | wc -l | tr -d ' ')
+if [ "$PLOT_COUNT" -lt 8 ]; then
+  echo "ERROR: expected 8 thesis plots in results/thesis_final/plots, found $PLOT_COUNT"
   exit 1
 fi
 
 mkdir -p dist
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 ARCHIVE="dist/ros2_asr_release_${TIMESTAMP}.tar.gz"
-FINAL_BENCHMARK_ARTIFACTS=(
-  artifacts/benchmark_runs/thesis_fast_20260503T225907Z
-  artifacts/benchmark_runs/thesis_balanced_20260503T232650Z
-  artifacts/benchmark_runs/thesis_accurate_20260503T225907Z
-  artifacts/benchmark_runs/thesis_cloud_20260503T223116Z
-  artifacts/benchmark_runs/thesis_local_20260503T222647Z
+MANIFEST_PATH="results/thesis_final/manifest.json"
+if [ ! -f "$MANIFEST_PATH" ]; then
+  echo "ERROR: missing thesis manifest: $MANIFEST_PATH"
+  exit 1
+fi
+
+mapfile -t FINAL_BENCHMARK_ARTIFACTS < <(
+  python3 - <<'PY'
+import json
+from pathlib import Path
+
+manifest = Path("results/thesis_final/manifest.json")
+payload = json.loads(manifest.read_text(encoding="utf-8"))
+for item in payload.get("canonical_artifacts", []):
+    if item:
+        print(item)
+PY
 )
+if [ "${#FINAL_BENCHMARK_ARTIFACTS[@]}" -eq 0 ]; then
+  echo "ERROR: no canonical_artifacts listed in $MANIFEST_PATH"
+  exit 1
+fi
 
 for artifact_dir in "${FINAL_BENCHMARK_ARTIFACTS[@]}"; do
   for required_file in \
