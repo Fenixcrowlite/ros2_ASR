@@ -1,0 +1,474 @@
+{
+  "generated_at": "2026-03-26T18:23:25.063070+00:00",
+  "profiles": [
+    "fleurs_en_us_test_subset_whisper",
+    "fleurs_fr_fr_test_subset_whisper",
+    "fleurs_ja_jp_test_subset_whisper",
+    "fleurs_sk_sk_test_subset_whisper",
+    "librispeech_test_clean_subset_whisper",
+    "librispeech_test_other_subset_whisper",
+    "mini_librispeech_dev_clean_2_subset_whisper",
+    "mls_german_test_subset_whisper",
+    "mls_spanish_test_subset_whisper",
+    "voxpopuli_de_test_subset_whisper",
+    "voxpopuli_en_test_subset_whisper",
+    "voxpopuli_es_test_subset_whisper"
+  ],
+  "direct_runs": [],
+  "api_runs": [
+    {
+      "benchmark_profile": "fleurs_en_us_test_subset_whisper",
+      "dataset_profile": "fleurs_en_us_test_subset",
+      "dataset_profile_ref": "datasets/fleurs_en_us_test_subset",
+      "language": "en-US",
+      "sample_count": 2,
+      "source": "FLEURS",
+      "source_ref": "google/fleurs en_us test",
+      "source_url": "https://huggingface.co/datasets/google/fleurs",
+      "acoustic_profile": "crowdsourced_mobile",
+      "split": "test",
+      "tags": [
+        "external",
+        "fleurs",
+        "english",
+        "crowdsourced",
+        "mobile",
+        "subset"
+      ],
+      "run_id": "extsuite_api_fleurs_en_us_test_subset_whisper_20260326T182325Z",
+      "accepted": true,
+      "state": "completed",
+      "message": "Benchmark completed",
+      "result": {
+        "run_id": "extsuite_api_fleurs_en_us_test_subset_whisper_20260326T182325Z",
+        "success": true,
+        "message": "Benchmark completed",
+        "summary": {
+          "total_samples": 2,
+          "successful_samples": 2,
+          "failed_samples": 0,
+          "mean_wer": 0.15625,
+          "mean_cer": 0.13436731696128845,
+          "mean_latency_ms": 880.1077880859375,
+          "summary_artifact_ref": "artifacts/benchmark_runs/extsuite_api_fleurs_en_us_test_subset_whisper_20260326T182325Z/reports/summary.json"
+        }
+      }
+    },
+    {
+      "benchmark_profile": "fleurs_fr_fr_test_subset_whisper",
+      "dataset_profile": "fleurs_fr_fr_test_subset",
+      "dataset_profile_ref": "datasets/fleurs_fr_fr_test_subset",
+      "language": "fr-FR",
+      "sample_count": 2,
+      "source": "FLEURS",
+      "source_ref": "google/fleurs fr_fr test",
+      "source_url": "https://huggingface.co/datasets/google/fleurs",
+      "acoustic_profile": "crowdsourced_mobile",
+      "split": "test",
+      "tags": [
+        "external",
+        "fleurs",
+        "french",
+        "crowdsourced",
+        "mobile",
+        "subset"
+      ],
+      "run_id": "extsuite_api_fleurs_fr_fr_test_subset_whisper_20260326T182325Z",
+      "accepted": true,
+      "state": "completed",
+      "message": "Benchmark completed",
+      "result": {
+        "run_id": "extsuite_api_fleurs_fr_fr_test_subset_whisper_20260326T182325Z",
+        "success": true,
+        "message": "Benchmark completed",
+        "summary": {
+          "total_samples": 2,
+          "successful_samples": 2,
+          "failed_samples": 0,
+          "mean_wer": 0.3934169411659241,
+          "mean_cer": 0.19901546835899353,
+          "mean_latency_ms": 718.07080078125,
+          "summary_artifact_ref": "artifacts/benchmark_runs/extsuite_api_fleurs_fr_fr_test_subset_whisper_20260326T182325Z/reports/summary.json"
+        }
+      }
+    },
+    {
+      "benchmark_profile": "fleurs_ja_jp_test_subset_whisper",
+      "dataset_profile": "fleurs_ja_jp_test_subset",
+      "dataset_profile_ref": "datasets/fleurs_ja_jp_test_subset",
+      "language": "ja-JP",
+      "sample_count": 2,
+      "source": "FLEURS",
+      "source_ref": "google/fleurs ja_jp test",
+      "source_url": "https://huggingface.co/datasets/google/fleurs",
+      "acoustic_profile": "crowdsourced_mobile",
+      "split": "test",
+      "tags": [
+        "external",
+        "fleurs",
+        "japanese",
+        "crowdsourced",
+        "mobile",
+        "subset"
+      ],
+      "run_id": "extsuite_api_fleurs_ja_jp_test_subset_whisper_20260326T182325Z",
+      "accepted": true,
+      "state": "completed",
+      "message": "Benchmark completed",
+      "result": {
+        "run_id": "extsuite_api_fleurs_ja_jp_test_subset_whisper_20260326T182325Z",
+        "success": true,
+        "message": "Benchmark completed",
+        "summary": {
+          "total_samples": 2,
+          "successful_samples": 2,
+          "failed_samples": 0,
+          "mean_wer": 1.0,
+          "mean_cer": 0.26308202743530273,
+          "mean_latency_ms": 966.3566284179688,
+          "summary_artifact_ref": "artifacts/benchmark_runs/extsuite_api_fleurs_ja_jp_test_subset_whisper_20260326T182325Z/reports/summary.json"
+        }
+      }
+    },
+    {
+      "benchmark_profile": "fleurs_sk_sk_test_subset_whisper",
+      "dataset_profile": "fleurs_sk_sk_test_subset",
+      "dataset_profile_ref": "datasets/fleurs_sk_sk_test_subset",
+      "language": "sk-SK",
+      "sample_count": 2,
+      "source": "FLEURS",
+      "source_ref": "google/fleurs sk_sk test",
+      "source_url": "https://huggingface.co/datasets/google/fleurs",
+      "acoustic_profile": "crowdsourced_mobile",
+      "split": "test",
+      "tags": [
+        "external",
+        "fleurs",
+        "slovak",
+        "subset",
+        "crowdsourced",
+        "mobile"
+      ],
+      "run_id": "extsuite_api_fleurs_sk_sk_test_subset_whisper_20260326T182325Z",
+      "accepted": true,
+      "state": "completed",
+      "message": "Benchmark completed",
+      "result": {
+        "run_id": "extsuite_api_fleurs_sk_sk_test_subset_whisper_20260326T182325Z",
+        "success": true,
+        "message": "Benchmark completed",
+        "summary": {
+          "total_samples": 2,
+          "successful_samples": 2,
+          "failed_samples": 0,
+          "mean_wer": 0.8571428656578064,
+          "mean_cer": 0.19166666269302368,
+          "mean_latency_ms": 668.8268432617188,
+          "summary_artifact_ref": "artifacts/benchmark_runs/extsuite_api_fleurs_sk_sk_test_subset_whisper_20260326T182325Z/reports/summary.json"
+        }
+      }
+    },
+    {
+      "benchmark_profile": "librispeech_test_clean_subset_whisper",
+      "dataset_profile": "librispeech_test_clean_subset",
+      "dataset_profile_ref": "datasets/librispeech_test_clean_subset",
+      "language": "en-US",
+      "sample_count": 2,
+      "source": "LibriSpeech",
+      "source_ref": "OpenSLR SLR12 test-clean",
+      "source_url": "https://www.openslr.org/12/",
+      "acoustic_profile": "clean_read",
+      "split": "test",
+      "tags": [
+        "external",
+        "librispeech",
+        "clean",
+        "read_speech",
+        "subset"
+      ],
+      "run_id": "extsuite_api_librispeech_test_clean_subset_whisper_20260326T182325Z",
+      "accepted": true,
+      "state": "completed",
+      "message": "Benchmark completed",
+      "result": {
+        "run_id": "extsuite_api_librispeech_test_clean_subset_whisper_20260326T182325Z",
+        "success": true,
+        "message": "Benchmark completed",
+        "summary": {
+          "total_samples": 2,
+          "successful_samples": 2,
+          "failed_samples": 0,
+          "mean_wer": 0.07412790507078171,
+          "mean_cer": 0.03893889859318733,
+          "mean_latency_ms": 733.7821655273438,
+          "summary_artifact_ref": "artifacts/benchmark_runs/extsuite_api_librispeech_test_clean_subset_whisper_20260326T182325Z/reports/summary.json"
+        }
+      }
+    },
+    {
+      "benchmark_profile": "librispeech_test_other_subset_whisper",
+      "dataset_profile": "librispeech_test_other_subset",
+      "dataset_profile_ref": "datasets/librispeech_test_other_subset",
+      "language": "en-US",
+      "sample_count": 2,
+      "source": "LibriSpeech",
+      "source_ref": "OpenSLR SLR12 test-other",
+      "source_url": "https://www.openslr.org/12/",
+      "acoustic_profile": "harder_read",
+      "split": "test",
+      "tags": [
+        "external",
+        "librispeech",
+        "other",
+        "harder_condition",
+        "subset"
+      ],
+      "run_id": "extsuite_api_librispeech_test_other_subset_whisper_20260326T182325Z",
+      "accepted": true,
+      "state": "completed",
+      "message": "Benchmark completed",
+      "result": {
+        "run_id": "extsuite_api_librispeech_test_other_subset_whisper_20260326T182325Z",
+        "success": true,
+        "message": "Benchmark completed",
+        "summary": {
+          "total_samples": 2,
+          "successful_samples": 2,
+          "failed_samples": 0,
+          "mean_wer": 0.1111111119389534,
+          "mean_cer": 0.015625,
+          "mean_latency_ms": 557.7318725585938,
+          "summary_artifact_ref": "artifacts/benchmark_runs/extsuite_api_librispeech_test_other_subset_whisper_20260326T182325Z/reports/summary.json"
+        }
+      }
+    },
+    {
+      "benchmark_profile": "mini_librispeech_dev_clean_2_subset_whisper",
+      "dataset_profile": "mini_librispeech_dev_clean_2_subset",
+      "dataset_profile_ref": "datasets/mini_librispeech_dev_clean_2_subset",
+      "language": "en-US",
+      "sample_count": 2,
+      "source": "Mini LibriSpeech",
+      "source_ref": "OpenSLR SLR31 dev-clean-2",
+      "source_url": "https://www.openslr.org/31/",
+      "acoustic_profile": "clean_read",
+      "split": "validation",
+      "tags": [
+        "external",
+        "mini_librispeech",
+        "clean",
+        "subset",
+        "read_speech"
+      ],
+      "run_id": "extsuite_api_mini_librispeech_dev_clean_2_subset_whisper_20260326T182325Z",
+      "accepted": true,
+      "state": "completed",
+      "message": "Benchmark completed",
+      "result": {
+        "run_id": "extsuite_api_mini_librispeech_dev_clean_2_subset_whisper_20260326T182325Z",
+        "success": true,
+        "message": "Benchmark completed",
+        "summary": {
+          "total_samples": 2,
+          "successful_samples": 2,
+          "failed_samples": 0,
+          "mean_wer": 0.07692307978868484,
+          "mean_cer": 0.032258063554763794,
+          "mean_latency_ms": 726.2593994140625,
+          "summary_artifact_ref": "artifacts/benchmark_runs/extsuite_api_mini_librispeech_dev_clean_2_subset_whisper_20260326T182325Z/reports/summary.json"
+        }
+      }
+    },
+    {
+      "benchmark_profile": "mls_german_test_subset_whisper",
+      "dataset_profile": "mls_german_test_subset",
+      "dataset_profile_ref": "datasets/mls_german_test_subset",
+      "language": "de-DE",
+      "sample_count": 2,
+      "source": "Multilingual LibriSpeech",
+      "source_ref": "facebook/multilingual_librispeech mls_german test",
+      "source_url": "https://huggingface.co/datasets/facebook/multilingual_librispeech",
+      "acoustic_profile": "multilingual_audiobook",
+      "split": "test",
+      "tags": [
+        "external",
+        "mls",
+        "german",
+        "audiobook",
+        "read_speech",
+        "subset"
+      ],
+      "run_id": "extsuite_api_mls_german_test_subset_whisper_20260326T182325Z",
+      "accepted": true,
+      "state": "completed",
+      "message": "Benchmark completed",
+      "result": {
+        "run_id": "extsuite_api_mls_german_test_subset_whisper_20260326T182325Z",
+        "success": true,
+        "message": "Benchmark completed",
+        "summary": {
+          "total_samples": 2,
+          "successful_samples": 2,
+          "failed_samples": 0,
+          "mean_wer": 0.2083333283662796,
+          "mean_cer": 0.03384237736463547,
+          "mean_latency_ms": 882.639404296875,
+          "summary_artifact_ref": "artifacts/benchmark_runs/extsuite_api_mls_german_test_subset_whisper_20260326T182325Z/reports/summary.json"
+        }
+      }
+    },
+    {
+      "benchmark_profile": "mls_spanish_test_subset_whisper",
+      "dataset_profile": "mls_spanish_test_subset",
+      "dataset_profile_ref": "datasets/mls_spanish_test_subset",
+      "language": "es-ES",
+      "sample_count": 2,
+      "source": "Multilingual LibriSpeech",
+      "source_ref": "facebook/multilingual_librispeech mls_spanish test",
+      "source_url": "https://huggingface.co/datasets/facebook/multilingual_librispeech",
+      "acoustic_profile": "multilingual_audiobook",
+      "split": "test",
+      "tags": [
+        "external",
+        "mls",
+        "spanish",
+        "audiobook",
+        "read_speech",
+        "subset"
+      ],
+      "run_id": "extsuite_api_mls_spanish_test_subset_whisper_20260326T182325Z",
+      "accepted": true,
+      "state": "completed",
+      "message": "Benchmark completed",
+      "result": {
+        "run_id": "extsuite_api_mls_spanish_test_subset_whisper_20260326T182325Z",
+        "success": true,
+        "message": "Benchmark completed",
+        "summary": {
+          "total_samples": 2,
+          "successful_samples": 2,
+          "failed_samples": 0,
+          "mean_wer": 0.10000000149011612,
+          "mean_cer": 0.030424214899539948,
+          "mean_latency_ms": 839.9536743164062,
+          "summary_artifact_ref": "artifacts/benchmark_runs/extsuite_api_mls_spanish_test_subset_whisper_20260326T182325Z/reports/summary.json"
+        }
+      }
+    },
+    {
+      "benchmark_profile": "voxpopuli_de_test_subset_whisper",
+      "dataset_profile": "voxpopuli_de_test_subset",
+      "dataset_profile_ref": "datasets/voxpopuli_de_test_subset",
+      "language": "de-DE",
+      "sample_count": 2,
+      "source": "VoxPopuli",
+      "source_ref": "facebook/voxpopuli de test",
+      "source_url": "https://huggingface.co/datasets/facebook/voxpopuli",
+      "acoustic_profile": "far_field_plenary",
+      "split": "test",
+      "tags": [
+        "external",
+        "voxpopuli",
+        "german",
+        "parliament",
+        "far_field",
+        "subset"
+      ],
+      "run_id": "extsuite_api_voxpopuli_de_test_subset_whisper_20260326T182325Z",
+      "accepted": true,
+      "state": "completed",
+      "message": "Benchmark completed",
+      "result": {
+        "run_id": "extsuite_api_voxpopuli_de_test_subset_whisper_20260326T182325Z",
+        "success": true,
+        "message": "Benchmark completed",
+        "summary": {
+          "total_samples": 2,
+          "successful_samples": 2,
+          "failed_samples": 0,
+          "mean_wer": 0.1542443037033081,
+          "mean_cer": 0.05931495502591133,
+          "mean_latency_ms": 757.963623046875,
+          "summary_artifact_ref": "artifacts/benchmark_runs/extsuite_api_voxpopuli_de_test_subset_whisper_20260326T182325Z/reports/summary.json"
+        }
+      }
+    },
+    {
+      "benchmark_profile": "voxpopuli_en_test_subset_whisper",
+      "dataset_profile": "voxpopuli_en_test_subset",
+      "dataset_profile_ref": "datasets/voxpopuli_en_test_subset",
+      "language": "en-US",
+      "sample_count": 2,
+      "source": "VoxPopuli",
+      "source_ref": "facebook/voxpopuli en test",
+      "source_url": "https://huggingface.co/datasets/facebook/voxpopuli",
+      "acoustic_profile": "far_field_plenary",
+      "split": "test",
+      "tags": [
+        "external",
+        "voxpopuli",
+        "english",
+        "parliament",
+        "far_field",
+        "subset"
+      ],
+      "run_id": "extsuite_api_voxpopuli_en_test_subset_whisper_20260326T182325Z",
+      "accepted": true,
+      "state": "completed",
+      "message": "Benchmark completed",
+      "result": {
+        "run_id": "extsuite_api_voxpopuli_en_test_subset_whisper_20260326T182325Z",
+        "success": true,
+        "message": "Benchmark completed",
+        "summary": {
+          "total_samples": 2,
+          "successful_samples": 2,
+          "failed_samples": 0,
+          "mean_wer": 0.25457876920700073,
+          "mean_cer": 0.025974025949835777,
+          "mean_latency_ms": 729.546142578125,
+          "summary_artifact_ref": "artifacts/benchmark_runs/extsuite_api_voxpopuli_en_test_subset_whisper_20260326T182325Z/reports/summary.json"
+        }
+      }
+    },
+    {
+      "benchmark_profile": "voxpopuli_es_test_subset_whisper",
+      "dataset_profile": "voxpopuli_es_test_subset",
+      "dataset_profile_ref": "datasets/voxpopuli_es_test_subset",
+      "language": "es-ES",
+      "sample_count": 2,
+      "source": "VoxPopuli",
+      "source_ref": "facebook/voxpopuli es test",
+      "source_url": "https://huggingface.co/datasets/facebook/voxpopuli",
+      "acoustic_profile": "far_field_plenary",
+      "split": "test",
+      "tags": [
+        "external",
+        "voxpopuli",
+        "spanish",
+        "parliament",
+        "far_field",
+        "subset"
+      ],
+      "run_id": "extsuite_api_voxpopuli_es_test_subset_whisper_20260326T182325Z",
+      "accepted": true,
+      "state": "completed",
+      "message": "Benchmark completed",
+      "result": {
+        "run_id": "extsuite_api_voxpopuli_es_test_subset_whisper_20260326T182325Z",
+        "success": true,
+        "message": "Benchmark completed",
+        "summary": {
+          "total_samples": 2,
+          "successful_samples": 2,
+          "failed_samples": 0,
+          "mean_wer": 0.284280925989151,
+          "mean_cer": 0.15815909206867218,
+          "mean_latency_ms": 894.8731079101562,
+          "summary_artifact_ref": "artifacts/benchmark_runs/extsuite_api_voxpopuli_es_test_subset_whisper_20260326T182325Z/reports/summary.json"
+        }
+      }
+    }
+  ],
+  "api_base_url": "http://127.0.0.1:8088"
+}

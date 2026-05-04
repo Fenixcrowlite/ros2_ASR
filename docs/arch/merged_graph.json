@@ -162,7 +162,7 @@
       "namespace": null,
       "node": "/GatewayRosClient",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_gateway/asr_gateway/ros_client.py",
+      "source_file": "ros2_ws/src/asr_gateway/asr_gateway/ros_client.py",
       "state": "expected_only",
       "type": "service_type"
     },
@@ -178,7 +178,7 @@
       "namespace": null,
       "node": "/asr_orchestrator_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
       "state": "expected_only",
       "type": "service_type"
     },
@@ -405,7 +405,7 @@
       "namespace": null,
       "node": "/asr_orchestrator_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/GetAsrStatus"
     },
@@ -422,7 +422,7 @@
       "namespace": null,
       "node": "/asr_orchestrator_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/ListBackends"
     },
@@ -439,7 +439,7 @@
       "namespace": null,
       "node": "/asr_orchestrator_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/RecognizeOnce"
     },
@@ -456,7 +456,7 @@
       "namespace": null,
       "node": "/asr_orchestrator_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/ReconfigureRuntime"
     },
@@ -473,7 +473,7 @@
       "namespace": null,
       "node": "/asr_orchestrator_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/StartRuntimeSession"
     },
@@ -490,7 +490,7 @@
       "namespace": null,
       "node": "/asr_orchestrator_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/StopRuntimeSession"
     },
@@ -612,7 +612,7 @@
       "namespace": null,
       "node": "/asr_orchestrator_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/ListProfiles"
     },
@@ -629,7 +629,7 @@
       "namespace": null,
       "node": "/asr_orchestrator_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/ValidateConfig"
     },
@@ -646,7 +646,7 @@
       "namespace": null,
       "node": "/audio_input_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/ReconfigureRuntime"
     },
@@ -663,7 +663,7 @@
       "namespace": null,
       "node": "/audio_input_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/StartRuntimeSession"
     },
@@ -680,7 +680,7 @@
       "namespace": null,
       "node": "/audio_input_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/StopRuntimeSession"
     },
@@ -802,7 +802,7 @@
       "namespace": null,
       "node": "/audio_preprocess_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/ReconfigureRuntime"
     },
@@ -924,7 +924,7 @@
       "namespace": null,
       "node": "/benchmark_manager_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark_nodes/asr_benchmark_nodes/benchmark_manager_node.py",
+      "source_file": "ros2_ws/src/asr_benchmark_nodes/asr_benchmark_nodes/benchmark_manager_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/GetBenchmarkStatus"
     },
@@ -1046,7 +1046,7 @@
       "namespace": null,
       "node": "/benchmark_manager_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark_nodes/asr_benchmark_nodes/benchmark_manager_node.py",
+      "source_file": "ros2_ws/src/asr_benchmark_nodes/asr_benchmark_nodes/benchmark_manager_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/ListDatasets"
     },
@@ -1063,7 +1063,7 @@
       "namespace": null,
       "node": "/benchmark_manager_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark_nodes/asr_benchmark_nodes/benchmark_manager_node.py",
+      "source_file": "ros2_ws/src/asr_benchmark_nodes/asr_benchmark_nodes/benchmark_manager_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/RegisterDataset"
     },
@@ -1080,7 +1080,7 @@
       "namespace": null,
       "node": "/vad_segmenter_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py",
       "state": "both",
       "type": "asr_interfaces/srv/ReconfigureRuntime"
     },
@@ -1201,7 +1201,7 @@
       "namespace": null,
       "node": "/asr_orchestrator_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
       "state": "expected_only",
       "type": "timer"
     },
@@ -1217,7 +1217,7 @@
       "namespace": null,
       "node": "/audio_input_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
       "state": "expected_only",
       "type": "timer"
     },
@@ -1233,7 +1233,7 @@
       "namespace": null,
       "node": "/audio_input_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
       "state": "expected_only",
       "type": "timer"
     },
@@ -1249,7 +1249,7 @@
       "namespace": null,
       "node": "/audio_preprocess_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py",
       "state": "expected_only",
       "type": "timer"
     },
@@ -1265,7 +1265,7 @@
       "namespace": null,
       "node": "/vad_segmenter_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py",
       "state": "expected_only",
       "type": "timer"
     },
@@ -1431,7 +1431,7 @@
       "namespace": null,
       "node": "/asr_orchestrator_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
       "state": "expected_only",
       "type": "AsrResult"
     },
@@ -1507,7 +1507,7 @@
       "namespace": null,
       "node": "/audio_input_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
       "state": "expected_only",
       "type": "AudioChunk"
     },
@@ -1583,7 +1583,7 @@
       "namespace": null,
       "node": "/audio_preprocess_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py",
       "state": "expected_only",
       "type": "AudioChunk"
     },
@@ -1704,7 +1704,7 @@
       "namespace": null,
       "node": "/vad_segmenter_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py",
       "state": "expected_only",
       "type": "SpeechActivity"
     },
@@ -1720,7 +1720,7 @@
       "namespace": null,
       "node": "/RuntimeObserver",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_gateway/asr_gateway/ros_client.py",
+      "source_file": "ros2_ws/src/asr_gateway/asr_gateway/ros_client.py",
       "state": "expected_only",
       "type": "AsrResult"
     },
@@ -1826,7 +1826,7 @@
       "namespace": null,
       "node": "/asr_orchestrator_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
       "state": "expected_only",
       "type": "AudioSegment"
     },
@@ -1857,7 +1857,7 @@
       "namespace": null,
       "node": "/audio_preprocess_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py",
       "state": "expected_only",
       "type": "AudioChunk"
     },
@@ -1888,7 +1888,7 @@
       "namespace": null,
       "node": "/vad_segmenter_node",
       "package": null,
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py",
       "state": "expected_only",
       "type": "AudioChunk"
     }
@@ -1917,7 +1917,7 @@
         }
       ],
       "package": "asr_launch",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/benchmark_matrix.launch.py"
+      "path": "ros2_ws/src/asr_launch/launch/benchmark_matrix.launch.py"
     },
     {
       "declared_args": [
@@ -1942,7 +1942,7 @@
         }
       ],
       "package": "asr_launch",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/benchmark_single_provider.launch.py"
+      "path": "ros2_ws/src/asr_launch/launch/benchmark_single_provider.launch.py"
     },
     {
       "declared_args": [
@@ -1959,7 +1959,7 @@
       "file": "full_stack_dev.launch.py",
       "nodes": [],
       "package": "asr_launch",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/full_stack_dev.launch.py"
+      "path": "ros2_ws/src/asr_launch/launch/full_stack_dev.launch.py"
     },
     {
       "declared_args": [
@@ -2024,7 +2024,7 @@
         }
       ],
       "package": "asr_launch",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py"
+      "path": "ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py"
     },
     {
       "declared_args": [
@@ -2079,7 +2079,7 @@
         }
       ],
       "package": "asr_launch",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/runtime_minimal.launch.py"
+      "path": "ros2_ws/src/asr_launch/launch/runtime_minimal.launch.py"
     },
     {
       "declared_args": [
@@ -2138,7 +2138,7 @@
         }
       ],
       "package": "asr_launch",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/runtime_streaming.launch.py"
+      "path": "ros2_ws/src/asr_launch/launch/runtime_streaming.launch.py"
     }
   ],
   "meta": {
@@ -2150,7 +2150,7 @@
       "runtime_nodes": 7,
       "static_nodes": 8
     },
-    "workspace": "/home/fenix/Desktop/ros2ws/ros2_ws"
+    "workspace": "ros2_ws"
   },
   "nodes": [
     {
@@ -2164,7 +2164,7 @@
       "name": "GatewayRosClient",
       "namespace": "/",
       "package": "asr_gateway",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_gateway/asr_gateway/ros_client.py",
+      "source_file": "ros2_ws/src/asr_gateway/asr_gateway/ros_client.py",
       "state": "expected_only",
       "type": "unknown"
     },
@@ -2179,7 +2179,7 @@
       "name": "RuntimeObserver",
       "namespace": "/",
       "package": "asr_gateway",
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_gateway/asr_gateway/ros_client.py",
+      "source_file": "ros2_ws/src/asr_gateway/asr_gateway/ros_client.py",
       "state": "expected_only",
       "type": "unknown"
     },
@@ -2219,7 +2219,7 @@
       "executable": "asr_gateway_server",
       "id": "/asr_gateway_server",
       "kind": null,
-      "launch_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py",
+      "launch_file": "ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py",
       "name": "asr_gateway_server",
       "namespace": "/",
       "package": "asr_gateway",
@@ -2238,7 +2238,7 @@
       "executable": "asr_orchestrator_node",
       "id": "/asr_orchestrator_node",
       "kind": null,
-      "launch_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py",
+      "launch_file": "ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py",
       "name": "asr_orchestrator_node",
       "namespace": "/",
       "package": "asr_runtime_nodes",
@@ -2247,7 +2247,7 @@
         "runtime_profile"
       ],
       "remappings": [],
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py",
       "state": "both",
       "type": "unknown"
     },
@@ -2261,7 +2261,7 @@
       "executable": "audio_input_node",
       "id": "/audio_input_node",
       "kind": null,
-      "launch_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py",
+      "launch_file": "ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py",
       "name": "audio_input_node",
       "namespace": "/",
       "package": "asr_runtime_nodes",
@@ -2272,7 +2272,7 @@
         "runtime_profile"
       ],
       "remappings": [],
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py",
       "state": "both",
       "type": "unknown"
     },
@@ -2286,7 +2286,7 @@
       "executable": "audio_preprocess_node",
       "id": "/audio_preprocess_node",
       "kind": null,
-      "launch_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py",
+      "launch_file": "ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py",
       "name": "audio_preprocess_node",
       "namespace": "/",
       "package": "asr_runtime_nodes",
@@ -2294,7 +2294,7 @@
         "runtime_profile"
       ],
       "remappings": [],
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py",
       "state": "both",
       "type": "unknown"
     },
@@ -2308,7 +2308,7 @@
       "executable": "benchmark_manager_node",
       "id": "/benchmark_manager_node",
       "kind": null,
-      "launch_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/benchmark_matrix.launch.py",
+      "launch_file": "ros2_ws/src/asr_launch/launch/benchmark_matrix.launch.py",
       "name": "benchmark_manager_node",
       "namespace": "/",
       "package": "asr_benchmark_nodes",
@@ -2317,7 +2317,7 @@
         "configs_root"
       ],
       "remappings": [],
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark_nodes/asr_benchmark_nodes/benchmark_manager_node.py",
+      "source_file": "ros2_ws/src/asr_benchmark_nodes/asr_benchmark_nodes/benchmark_manager_node.py",
       "state": "both",
       "type": "unknown"
     },
@@ -2331,7 +2331,7 @@
       "executable": "vad_segmenter_node",
       "id": "/vad_segmenter_node",
       "kind": null,
-      "launch_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py",
+      "launch_file": "ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py",
       "name": "vad_segmenter_node",
       "namespace": "/",
       "package": "asr_runtime_nodes",
@@ -2343,7 +2343,7 @@
         "runtime_profile"
       ],
       "remappings": [],
-      "source_file": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py",
+      "source_file": "ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py",
       "state": "both",
       "type": "unknown"
     }
@@ -2372,7 +2372,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_benchmark_core",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark_core"
+      "path": "ros2_ws/src/asr_benchmark_core"
     },
     {
       "dependencies": [
@@ -2393,7 +2393,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_benchmark_nodes",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark_nodes"
+      "path": "ros2_ws/src/asr_benchmark_nodes"
     },
     {
       "dependencies": [
@@ -2409,7 +2409,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_config",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_config"
+      "path": "ros2_ws/src/asr_config"
     },
     {
       "dependencies": [
@@ -2423,7 +2423,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_core",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_core"
+      "path": "ros2_ws/src/asr_core"
     },
     {
       "dependencies": [
@@ -2438,7 +2438,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_datasets",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_datasets"
+      "path": "ros2_ws/src/asr_datasets"
     },
     {
       "dependencies": [
@@ -2472,7 +2472,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_gateway",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_gateway"
+      "path": "ros2_ws/src/asr_gateway"
     },
     {
       "dependencies": [
@@ -2500,7 +2500,7 @@
           "kind": "msg",
           "name": "AsrEvent",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/AsrEvent.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/AsrEvent.msg"
         },
         {
           "fields": [
@@ -2528,7 +2528,7 @@
           "kind": "msg",
           "name": "AsrMetrics",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/AsrMetrics.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/AsrMetrics.msg"
         },
         {
           "fields": [
@@ -2567,7 +2567,7 @@
           "kind": "msg",
           "name": "AsrResult",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/AsrResult.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/AsrResult.msg"
         },
         {
           "fields": [
@@ -2585,7 +2585,7 @@
           "kind": "msg",
           "name": "AsrResultPartial",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/AsrResultPartial.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/AsrResultPartial.msg"
         },
         {
           "fields": [
@@ -2602,7 +2602,7 @@
           "kind": "msg",
           "name": "AudioChunk",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/AudioChunk.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/AudioChunk.msg"
         },
         {
           "fields": [
@@ -2621,7 +2621,7 @@
           "kind": "msg",
           "name": "AudioSegment",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/AudioSegment.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/AudioSegment.msg"
         },
         {
           "fields": [
@@ -2641,7 +2641,7 @@
           "kind": "msg",
           "name": "BenchmarkJobStatus",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/BenchmarkJobStatus.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/BenchmarkJobStatus.msg"
         },
         {
           "fields": [
@@ -2656,7 +2656,7 @@
           "kind": "msg",
           "name": "DatasetStatus",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/DatasetStatus.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/DatasetStatus.msg"
         },
         {
           "fields": [
@@ -2676,7 +2676,7 @@
           "kind": "msg",
           "name": "ExperimentSummary",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/ExperimentSummary.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/ExperimentSummary.msg"
         },
         {
           "fields": [
@@ -2690,7 +2690,7 @@
           "kind": "msg",
           "name": "MetricArtifactRef",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/MetricArtifactRef.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/MetricArtifactRef.msg"
         },
         {
           "fields": [
@@ -2707,7 +2707,7 @@
           "kind": "msg",
           "name": "NodeStatus",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/NodeStatus.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/NodeStatus.msg"
         },
         {
           "fields": [
@@ -2721,7 +2721,7 @@
           "kind": "msg",
           "name": "ResultArtifactRef",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/ResultArtifactRef.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/ResultArtifactRef.msg"
         },
         {
           "fields": [
@@ -2741,7 +2741,7 @@
           "kind": "msg",
           "name": "SessionStatus",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/SessionStatus.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/SessionStatus.msg"
         },
         {
           "fields": [
@@ -2756,7 +2756,7 @@
           "kind": "msg",
           "name": "SpeechActivity",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/SpeechActivity.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/SpeechActivity.msg"
         },
         {
           "fields": [
@@ -2769,13 +2769,13 @@
           "kind": "msg",
           "name": "WordTimestamp",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/msg/WordTimestamp.msg"
+          "path": "ros2_ws/src/asr_interfaces/msg/WordTimestamp.msg"
         },
         {
           "kind": "srv",
           "name": "GetAsrStatus",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/srv/GetAsrStatus.srv",
+          "path": "ros2_ws/src/asr_interfaces/srv/GetAsrStatus.srv",
           "request_fields": [],
           "response_fields": [
             "string backend",
@@ -2798,7 +2798,7 @@
           "kind": "srv",
           "name": "GetBenchmarkStatus",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/srv/GetBenchmarkStatus.srv",
+          "path": "ros2_ws/src/asr_interfaces/srv/GetBenchmarkStatus.srv",
           "request_fields": [
             "string run_id"
           ],
@@ -2810,7 +2810,7 @@
           "kind": "srv",
           "name": "ListBackends",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/srv/ListBackends.srv",
+          "path": "ros2_ws/src/asr_interfaces/srv/ListBackends.srv",
           "request_fields": [],
           "response_fields": [
             "string[] provider_ids"
@@ -2820,7 +2820,7 @@
           "kind": "srv",
           "name": "ListDatasets",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/srv/ListDatasets.srv",
+          "path": "ros2_ws/src/asr_interfaces/srv/ListDatasets.srv",
           "request_fields": [],
           "response_fields": [
             "string[] dataset_ids",
@@ -2831,7 +2831,7 @@
           "kind": "srv",
           "name": "ListProfiles",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/srv/ListProfiles.srv",
+          "path": "ros2_ws/src/asr_interfaces/srv/ListProfiles.srv",
           "request_fields": [
             "string profile_type"
           ],
@@ -2843,7 +2843,7 @@
           "kind": "srv",
           "name": "RecognizeOnce",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/srv/RecognizeOnce.srv",
+          "path": "ros2_ws/src/asr_interfaces/srv/RecognizeOnce.srv",
           "request_fields": [
             "string wav_path",
             "string language",
@@ -2862,7 +2862,7 @@
           "kind": "srv",
           "name": "ReconfigureRuntime",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/srv/ReconfigureRuntime.srv",
+          "path": "ros2_ws/src/asr_interfaces/srv/ReconfigureRuntime.srv",
           "request_fields": [
             "string session_id",
             "string runtime_profile",
@@ -2885,7 +2885,7 @@
           "kind": "srv",
           "name": "RegisterDataset",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/srv/RegisterDataset.srv",
+          "path": "ros2_ws/src/asr_interfaces/srv/RegisterDataset.srv",
           "request_fields": [
             "string manifest_path",
             "string dataset_id",
@@ -2901,7 +2901,7 @@
           "kind": "srv",
           "name": "SetAsrBackend",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/srv/SetAsrBackend.srv",
+          "path": "ros2_ws/src/asr_interfaces/srv/SetAsrBackend.srv",
           "request_fields": [
             "string backend",
             "string model",
@@ -2916,7 +2916,7 @@
           "kind": "srv",
           "name": "StartRuntimeSession",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/srv/StartRuntimeSession.srv",
+          "path": "ros2_ws/src/asr_interfaces/srv/StartRuntimeSession.srv",
           "request_fields": [
             "string runtime_profile",
             "string provider_profile",
@@ -2942,7 +2942,7 @@
           "kind": "srv",
           "name": "StopRuntimeSession",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/srv/StopRuntimeSession.srv",
+          "path": "ros2_ws/src/asr_interfaces/srv/StopRuntimeSession.srv",
           "request_fields": [
             "string session_id"
           ],
@@ -2955,7 +2955,7 @@
           "kind": "srv",
           "name": "ValidateConfig",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/srv/ValidateConfig.srv",
+          "path": "ros2_ws/src/asr_interfaces/srv/ValidateConfig.srv",
           "request_fields": [
             "string profile_type",
             "string profile_id",
@@ -2981,7 +2981,7 @@
           "kind": "action",
           "name": "DownloadModel",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/action/DownloadModel.action",
+          "path": "ros2_ws/src/asr_interfaces/action/DownloadModel.action",
           "result_fields": [
             "bool success",
             "string model_path",
@@ -3002,7 +3002,7 @@
           "kind": "action",
           "name": "GenerateReport",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/action/GenerateReport.action",
+          "path": "ros2_ws/src/asr_interfaces/action/GenerateReport.action",
           "result_fields": [
             "bool success",
             "string report_ref",
@@ -3021,7 +3021,7 @@
           "kind": "action",
           "name": "ImportDataset",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/action/ImportDataset.action",
+          "path": "ros2_ws/src/asr_interfaces/action/ImportDataset.action",
           "result_fields": [
             "bool success",
             "string dataset_id",
@@ -3045,7 +3045,7 @@
           "kind": "action",
           "name": "RunBenchmarkExperiment",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/action/RunBenchmarkExperiment.action",
+          "path": "ros2_ws/src/asr_interfaces/action/RunBenchmarkExperiment.action",
           "result_fields": [
             "bool success",
             "string run_id",
@@ -3067,7 +3067,7 @@
           "kind": "action",
           "name": "StreamSession",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/action/StreamSession.action",
+          "path": "ros2_ws/src/asr_interfaces/action/StreamSession.action",
           "result_fields": [
             "bool success",
             "string session_id",
@@ -3091,7 +3091,7 @@
           "kind": "action",
           "name": "Transcribe",
           "package": "asr_interfaces",
-          "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces/action/Transcribe.action",
+          "path": "ros2_ws/src/asr_interfaces/action/Transcribe.action",
           "result_fields": [
             "asr_interfaces/AsrResult result"
           ]
@@ -3099,7 +3099,7 @@
       ],
       "launch_files": [],
       "name": "asr_interfaces",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_interfaces"
+      "path": "ros2_ws/src/asr_interfaces"
     },
     {
       "dependencies": [
@@ -3124,7 +3124,7 @@
         "runtime_streaming.launch.py"
       ],
       "name": "asr_launch",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch"
+      "path": "ros2_ws/src/asr_launch"
     },
     {
       "dependencies": [
@@ -3141,7 +3141,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_metrics",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_metrics"
+      "path": "ros2_ws/src/asr_metrics"
     },
     {
       "dependencies": [
@@ -3156,7 +3156,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_provider_aws",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_provider_aws"
+      "path": "ros2_ws/src/asr_provider_aws"
     },
     {
       "dependencies": [
@@ -3171,7 +3171,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_provider_azure",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_provider_azure"
+      "path": "ros2_ws/src/asr_provider_azure"
     },
     {
       "dependencies": [
@@ -3187,7 +3187,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_provider_base",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_provider_base"
+      "path": "ros2_ws/src/asr_provider_base"
     },
     {
       "dependencies": [
@@ -3202,7 +3202,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_provider_google",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_provider_google"
+      "path": "ros2_ws/src/asr_provider_google"
     },
     {
       "dependencies": [
@@ -3221,7 +3221,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_provider_huggingface",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_provider_huggingface"
+      "path": "ros2_ws/src/asr_provider_huggingface"
     },
     {
       "dependencies": [
@@ -3236,7 +3236,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_provider_vosk",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_provider_vosk"
+      "path": "ros2_ws/src/asr_provider_vosk"
     },
     {
       "dependencies": [
@@ -3251,7 +3251,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_provider_whisper",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_provider_whisper"
+      "path": "ros2_ws/src/asr_provider_whisper"
     },
     {
       "dependencies": [
@@ -3266,7 +3266,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_reporting",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_reporting"
+      "path": "ros2_ws/src/asr_reporting"
     },
     {
       "dependencies": [
@@ -3299,7 +3299,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_runtime_nodes",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes"
+      "path": "ros2_ws/src/asr_runtime_nodes"
     },
     {
       "dependencies": [
@@ -3313,7 +3313,7 @@
       "interfaces": [],
       "launch_files": [],
       "name": "asr_storage",
-      "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_storage"
+      "path": "ros2_ws/src/asr_storage"
     }
   ],
   "runtime_errors": [],
@@ -4448,7 +4448,7 @@
         "command": "ros2 launch asr_launch gateway_with_runtime.launch.py",
         "file": "gateway_with_runtime.launch.py",
         "package": "asr_launch",
-        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py"
+        "path": "ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py"
       },
       "stderr_tail": "",
       "stdout_tail": "g signal 'SIGINT' to process[asr_orchestrator_node-4]\n[INFO] [vad_segmenter_node-3]: sending signal 'SIGINT' to process[vad_segmenter_node-3]\n[INFO] [audio_preprocess_node-2]: sending signal 'SIGINT' to process[audio_preprocess_node-2]\n[INFO] [audio_input_node-1]: sending signal 'SIGINT' to process[audio_input_node-1]\n[asr_gateway_server-5] gateway ROS bridge executor stopped unexpectedly: \n[asr_gateway_server-5] INFO:     Shutting down\n[asr_gateway_server-5] INFO:     Waiting for application shutdown.\n[asr_gateway_server-5] INFO:     Application shutdown complete.\n[asr_gateway_server-5] INFO:     Finished server process [62842]\n[INFO] [vad_segmenter_node-3]: process has finished cleanly [pid 62840]\n[INFO] [audio_preprocess_node-2]: process has finished cleanly [pid 62839]\n[INFO] [asr_orchestrator_node-4]: process has finished cleanly [pid 62841]\n[INFO] [audio_input_node-1]: process has finished cleanly [pid 62838]\n[INFO] [asr_gateway_server-5]: process has finished cleanly [pid 62842]"
@@ -4461,7 +4461,7 @@
         "command": "ros2 launch asr_launch runtime_minimal.launch.py",
         "file": "runtime_minimal.launch.py",
         "package": "asr_launch",
-        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/runtime_minimal.launch.py"
+        "path": "ros2_ws/src/asr_launch/launch/runtime_minimal.launch.py"
       },
       "stderr_tail": "",
       "stdout_tail": "_node-3]: process started with pid [63329]\n[INFO] [asr_orchestrator_node-4]: process started with pid [63330]\n[audio_input_node-1] [INFO] [1777832209.372772334] [audio_input_node]: Audio input configured: profile=default_runtime source=file file=data/sample/vosk_test.wav mic_device=default\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [asr_orchestrator_node-4]: sending signal 'SIGINT' to process[asr_orchestrator_node-4]\n[INFO] [vad_segmenter_node-3]: sending signal 'SIGINT' to process[vad_segmenter_node-3]\n[INFO] [audio_preprocess_node-2]: sending signal 'SIGINT' to process[audio_preprocess_node-2]\n[INFO] [audio_input_node-1]: sending signal 'SIGINT' to process[audio_input_node-1]\n[INFO] [vad_segmenter_node-3]: process has finished cleanly [pid 63329]\n[INFO] [audio_preprocess_node-2]: process has finished cleanly [pid 63328]\n[INFO] [audio_input_node-1]: process has finished cleanly [pid 63327]\n[INFO] [asr_orchestrator_node-4]: process has finished cleanly [pid 63330]"
@@ -4474,7 +4474,7 @@
         "command": "ros2 launch asr_launch benchmark_single_provider.launch.py",
         "file": "benchmark_single_provider.launch.py",
         "package": "asr_launch",
-        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/benchmark_single_provider.launch.py"
+        "path": "ros2_ws/src/asr_launch/launch/benchmark_single_provider.launch.py"
       },
       "stderr_tail": "",
       "stdout_tail": "[INFO] [launch]: All log files can be found below /home/fenix/.ros/log/2026-05-03-20-17-16-115252-fenixmachine-63889\n[INFO] [launch]: Default logging verbosity is set to INFO\n[INFO] [benchmark_manager_node-1]: process started with pid [63900]\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [benchmark_manager_node-1]: sending signal 'SIGINT' to process[benchmark_manager_node-1]\n[INFO] [benchmark_manager_node-1]: process has finished cleanly [pid 63900]"
@@ -4487,7 +4487,7 @@
         "command": "ros2 launch asr_launch benchmark_matrix.launch.py",
         "file": "benchmark_matrix.launch.py",
         "package": "asr_launch",
-        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/benchmark_matrix.launch.py"
+        "path": "ros2_ws/src/asr_launch/launch/benchmark_matrix.launch.py"
       },
       "stderr_tail": "",
       "stdout_tail": "[INFO] [launch]: All log files can be found below /home/fenix/.ros/log/2026-05-03-20-17-38-951825-fenixmachine-64156\n[INFO] [launch]: Default logging verbosity is set to INFO\n[INFO] [benchmark_manager_node-1]: process started with pid [64160]\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [benchmark_manager_node-1]: sending signal 'SIGINT' to process[benchmark_manager_node-1]\n[INFO] [benchmark_manager_node-1]: process has finished cleanly [pid 64160]"
@@ -4500,7 +4500,7 @@
         "command": "ros2 launch asr_launch full_stack_dev.launch.py",
         "file": "full_stack_dev.launch.py",
         "package": "asr_launch",
-        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/full_stack_dev.launch.py"
+        "path": "ros2_ws/src/asr_launch/launch/full_stack_dev.launch.py"
       },
       "stderr_tail": "",
       "stdout_tail": "node-3]: sending signal 'SIGINT' to process[vad_segmenter_node-3]\n[INFO] [audio_preprocess_node-2]: sending signal 'SIGINT' to process[audio_preprocess_node-2]\n[INFO] [audio_input_node-1]: sending signal 'SIGINT' to process[audio_input_node-1]\n[asr_gateway_server-5] gateway ROS bridge executor stopped unexpectedly: \n[asr_gateway_server-5] INFO:     Shutting down\n[asr_gateway_server-5] INFO:     Waiting for application shutdown.\n[asr_gateway_server-5] INFO:     Application shutdown complete.\n[asr_gateway_server-5] INFO:     Finished server process [64427]\n[INFO] [benchmark_manager_node-6]: process has finished cleanly [pid 64428]\n[INFO] [vad_segmenter_node-3]: process has finished cleanly [pid 64425]\n[INFO] [audio_input_node-1]: process has finished cleanly [pid 64423]\n[INFO] [audio_preprocess_node-2]: process has finished cleanly [pid 64424]\n[INFO] [asr_orchestrator_node-4]: process has finished cleanly [pid 64426]\n[INFO] [asr_gateway_server-5]: process has finished cleanly [pid 64427]"
@@ -4515,7 +4515,7 @@
         "command": "ros2 launch asr_launch runtime_streaming.launch.py input_mode:=file",
         "file": "runtime_streaming.launch.py",
         "package": "asr_launch",
-        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/runtime_streaming.launch.py"
+        "path": "ros2_ws/src/asr_launch/launch/runtime_streaming.launch.py"
       },
       "stderr_tail": "",
       "stdout_tail": "_node-3]: process started with pid [65000]\n[INFO] [asr_orchestrator_node-4]: process started with pid [65001]\n[audio_input_node-1] [INFO] [1777832310.899418637] [audio_input_node]: Audio input configured: profile=default_runtime source=file file=data/sample/vosk_test.wav mic_device=default\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [asr_orchestrator_node-4]: sending signal 'SIGINT' to process[asr_orchestrator_node-4]\n[INFO] [vad_segmenter_node-3]: sending signal 'SIGINT' to process[vad_segmenter_node-3]\n[INFO] [audio_preprocess_node-2]: sending signal 'SIGINT' to process[audio_preprocess_node-2]\n[INFO] [audio_input_node-1]: sending signal 'SIGINT' to process[audio_input_node-1]\n[INFO] [audio_input_node-1]: process has finished cleanly [pid 64998]\n[INFO] [asr_orchestrator_node-4]: process has finished cleanly [pid 65001]\n[INFO] [vad_segmenter_node-3]: process has finished cleanly [pid 65000]\n[INFO] [audio_preprocess_node-2]: process has finished cleanly [pid 64999]"

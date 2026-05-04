@@ -14,9 +14,9 @@ Audit date: `2026-03-31`
 
 Primary implementation:
 
-- [quality.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_metrics/asr_metrics/quality.py)
-- [plugins.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_metrics/asr_metrics/plugins.py)
-- [summary.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_metrics/asr_metrics/summary.py)
+- [quality.py](ros2_ws/src/asr_metrics/asr_metrics/quality.py)
+- [plugins.py](ros2_ws/src/asr_metrics/asr_metrics/plugins.py)
+- [summary.py](ros2_ws/src/asr_metrics/asr_metrics/summary.py)
 
 ## Findings
 
@@ -31,18 +31,18 @@ Primary implementation:
 
 ## Files changed for this audit
 
-- [definitions.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_metrics/asr_metrics/definitions.py)
-- [results.js](/home/fenix/Desktop/ros2ws/web_ui/frontend/js/pages/results.js)
-- [benchmark.js](/home/fenix/Desktop/ros2ws/web_ui/frontend/js/pages/benchmark.js)
-- [generate_report.py](/home/fenix/Desktop/ros2ws/scripts/generate_report.py)
-- [run_external_dataset_suite.py](/home/fenix/Desktop/ros2ws/scripts/run_external_dataset_suite.py)
-- [project.py](/home/fenix/Desktop/ros2ws/tests/utils/project.py)
-- [test_quality.py](/home/fenix/Desktop/ros2ws/tests/unit/test_quality.py)
-- [test_metric_engine_baseline.py](/home/fenix/Desktop/ros2ws/tests/unit/test_metric_engine_baseline.py)
-- [test_metric_summary.py](/home/fenix/Desktop/ros2ws/tests/unit/test_metric_summary.py)
-- [test_gateway_result_views.py](/home/fenix/Desktop/ros2ws/tests/unit/test_gateway_result_views.py)
-- [test_frontend_shell.py](/home/fenix/Desktop/ros2ws/tests/gui/test_frontend_shell.py)
-- [test_cli_flows.py](/home/fenix/Desktop/ros2ws/tests/integration/test_cli_flows.py)
+- [definitions.py](ros2_ws/src/asr_metrics/asr_metrics/definitions.py)
+- [results.js](web_ui/frontend/js/pages/results.js)
+- [benchmark.js](web_ui/frontend/js/pages/benchmark.js)
+- [generate_report.py](scripts/generate_report.py)
+- [run_external_dataset_suite.py](scripts/run_external_dataset_suite.py)
+- [project.py](tests/utils/project.py)
+- [test_quality.py](tests/unit/test_quality.py)
+- [test_metric_engine_baseline.py](tests/unit/test_metric_engine_baseline.py)
+- [test_metric_summary.py](tests/unit/test_metric_summary.py)
+- [test_gateway_result_views.py](tests/unit/test_gateway_result_views.py)
+- [test_frontend_shell.py](tests/gui/test_frontend_shell.py)
+- [test_cli_flows.py](tests/integration/test_cli_flows.py)
 
 ## Validation
 

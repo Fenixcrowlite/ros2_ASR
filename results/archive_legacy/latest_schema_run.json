@@ -1,0 +1,9 @@
+{
+  "run_id": "thesis_balanced_20260503T232650Z_dialog",
+  "scenario": "dialog",
+  "run_dir": "results/runs/thesis_balanced_20260503T232650Z_dialog",
+  "manifest": "results/runs/thesis_balanced_20260503T232650Z_dialog/manifest.json",
+  "summary_json": "results/runs/thesis_balanced_20260503T232650Z_dialog/summary.json",
+  "summary_csv": "results/runs/thesis_balanced_20260503T232650Z_dialog/summary.csv",
+  "utterance_csv": "results/runs/thesis_balanced_20260503T232650Z_dialog/utterance_metrics.csv"
+}

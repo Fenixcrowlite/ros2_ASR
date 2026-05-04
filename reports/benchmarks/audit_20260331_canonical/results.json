@@ -23,7 +23,7 @@
       "cer": 1.0
     },
     "error_code": "whisper_runtime_error",
-    "error_message": "[Errno 2] No such file or directory: '/home/fenix/Desktop/ros2ws/datasets/manifests/data/sample/vosk_test.wav'",
+    "error_message": "[Errno 2] No such file or directory: 'datasets/manifests/data/sample/vosk_test.wav'",
     "metrics": {
       "cer": 1.0,
       "estimated_cost_usd": 0.0,
@@ -50,13 +50,13 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "light",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/manifests/data/sample/vosk_test.wav",
+    "input_audio_path": "datasets/manifests/data/sample/vosk_test.wav",
     "audio_duration_sec": 8.308,
     "confidence": 0.0,
     "preprocess_ms": 0.0,
     "inference_ms": 0.0,
     "postprocess_ms": 0.0,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/audit_20260331_canonical/metrics/traces/trace_dc28d865a2cb4b5f9f879054cfebb58c.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/audit_20260331_canonical/metrics/traces/trace_dc28d865a2cb4b5f9f879054cfebb58c.json",
     "trace_corrupted": false,
     "normalized_result": {
       "request_id": "req_a170ac79d2fe48d9828062dfc4cede27",
@@ -85,7 +85,7 @@
       "raw_metadata_ref": "",
       "degraded": true,
       "error_code": "whisper_runtime_error",
-      "error_message": "[Errno 2] No such file or directory: '/home/fenix/Desktop/ros2ws/datasets/manifests/data/sample/vosk_test.wav'",
+      "error_message": "[Errno 2] No such file or directory: 'datasets/manifests/data/sample/vosk_test.wav'",
       "tags": []
     }
   }

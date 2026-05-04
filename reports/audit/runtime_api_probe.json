@@ -425,7 +425,7 @@
             "audio_file_path": "data/sample/vosk_test.wav",
             "language": "en-US",
             "success": true,
-            "resolved_config_ref": "/home/fenix/Desktop/ros2ws/configs/resolved/runtime__default_runtime.json"
+            "resolved_config_ref": "configs/resolved/runtime__default_runtime.json"
           }
         },
         {

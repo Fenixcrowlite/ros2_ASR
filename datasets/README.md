@@ -1,51 +1,33 @@
-# External Dataset Subsets
+# Dataset Registry
 
-This repository now includes reproducible tiny subsets extracted from large
-public ASR corpora. They are intended for smoke tests, demos, gateway checks,
-and cro
-## Build And Validatess-corpus local benchmarks, not for statistically final research claims.
+This repository separates the stable baseline dataset registry from extension candidates used for broader thesis experiments.
 
+## Baseline Active Registry
+
+`datasets/registry/datasets.json` contains the current baseline active dataset registry. The validated baseline thesis evidence uses:
+
+| dataset_id | source | language | samples | audio included | used in baseline benchmark |
+|---|---|---|---:|---|---|
+| `librispeech_test_clean_subset` | LibriSpeech test-clean | en-US | 10 | yes | yes |
+
+Validate it with:
 
 ```bash
-bash scripts/download_dataset_optional.sh
-python scripts/run_external_dataset_suite.py --mode core
-python scripts/run_external_dataset_suite.py --mode both --api-base-url http://127.0.0.1:8088
+python3 scripts/validate_dataset_assets.py --registry datasets/registry/datasets.json --root .
 ```
 
-The download step rebuilds the local subset manifests, imported WAV files,
-dataset profiles, benchmark profiles, and dataset registry entries in a
-deterministic way.
+## Optional Catalog And Extension Candidates
 
-## Included Subsets
+`datasets/registry/datasets_catalog.json` lists additional dataset manifests and imported audio that can be promoted into an extended benchmark registry after validation. These entries are not part of the baseline thesis interpretation until they are included in `datasets/registry/datasets_extended.json`.
 
-| dataset_id | source corpus | lang | acoustic profile | source URL |
-|---|---|---|---|---|
-| `mini_librispeech_dev_clean_2_subset` | Mini LibriSpeech / SLR31 | `en-US` | `clean_read` | <https://www.openslr.org/31/> |
-| `librispeech_test_clean_subset` | LibriSpeech / SLR12 | `en-US` | `clean_read` | <https://www.openslr.org/12/> |
-| `librispeech_test_other_subset` | LibriSpeech / SLR12 | `en-US` | `harder_read` | <https://www.openslr.org/12/> |
-| `fleurs_en_us_test_subset` | FLEURS | `en-US` | `crowdsourced_mobile` | <https://huggingface.co/datasets/google/fleurs> |
-| `fleurs_fr_fr_test_subset` | FLEURS | `fr-FR` | `crowdsourced_mobile` | <https://huggingface.co/datasets/google/fleurs> |
-| `fleurs_ja_jp_test_subset` | FLEURS | `ja-JP` | `crowdsourced_mobile` | <https://huggingface.co/datasets/google/fleurs> |
-| `fleurs_sk_sk_test_subset` | FLEURS | `sk-SK` | `crowdsourced_mobile` | <https://huggingface.co/datasets/google/fleurs> |
-| `voxpopuli_en_test_subset` | VoxPopuli | `en-US` | `far_field_plenary` | <https://huggingface.co/datasets/facebook/voxpopuli> |
-| `voxpopuli_de_test_subset` | VoxPopuli | `de-DE` | `far_field_plenary` | <https://huggingface.co/datasets/facebook/voxpopuli> |
-| `voxpopuli_es_test_subset` | VoxPopuli | `es-ES` | `far_field_plenary` | <https://huggingface.co/datasets/facebook/voxpopuli> |
-| `mls_german_test_subset` | Multilingual LibriSpeech | `de-DE` | `multilingual_audiobook` | <https://huggingface.co/datasets/facebook/multilingual_librispeech> |
-| `mls_spanish_test_subset` | Multilingual LibriSpeech | `es-ES` | `multilingual_audiobook` | <https://huggingface.co/datasets/facebook/multilingual_librispeech> |
+The extended benchmark work promotes validated catalog datasets into:
 
-Every subset currently keeps `2` local samples and has a paired benchmark
-profile `benchmark/<dataset_id>_whisper`.
+```text
+datasets/registry/datasets_extended.json
+```
 
-## Latest End-To-End Suite
+That registry is intended for multi-dataset, multilingual and domain-generalization experiments while preserving the existing baseline evidence package.
 
-Latest combined direct+API suite artifact:
+## Benchmark Scale
 
-- `results/external_dataset_suite_20260326T182557Z.md`
-- `results/external_dataset_suite_20260326T182557Z.json`
-
-That suite validated:
-
-- `12` benchmark profiles
-- `24/24` successful direct benchmark samples
-- `24/24` successful live API benchmark samples
-- no direct/API WER divergence beyond floating-point noise
+The baseline benchmark is thesis-scale and uses 10 clean LibriSpeech source utterances with derived SNR variants for robustness testing. Extended benchmark subsets may contain more datasets and languages, but they remain controlled thesis subsets rather than statistically representative large-scale ASR corpora.

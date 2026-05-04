@@ -1,0 +1,668 @@
+{
+  "created_at": "2026-05-04T12:26:54.226156+00:00",
+  "mode": "cloud",
+  "datasets": [
+    "librispeech_test_clean_subset",
+    "librispeech_test_other_subset",
+    "mini_librispeech_dev_clean_2_subset",
+    "fleurs_en_us_test_subset",
+    "fleurs_fr_fr_test_subset",
+    "fleurs_ja_jp_test_subset",
+    "fleurs_sk_sk_test_subset",
+    "voxpopuli_en_test_subset",
+    "voxpopuli_de_test_subset",
+    "voxpopuli_es_test_subset",
+    "mls_german_test_subset",
+    "mls_spanish_test_subset"
+  ],
+  "completed": [
+    {
+      "kind": "cloud",
+      "dataset_id": "librispeech_test_clean_subset",
+      "run_id": "thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset",
+      "providers": [
+        "providers/azure_cloud",
+        "providers/google_cloud",
+        "providers/aws_cloud"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset\",\n  \"total_samples\": 30,\n  \"successful_samples\": 30,\n  \"failed_samples\": 0,\n  \"run_dir\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset\",\n  \"canonical_summary_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset/reports/summary.json\",\n  \"canonical_results_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset/metrics/results.json\",\n  \"compat_json\": \"results/archive_legacy/extended_compat/benchmark_results.json\",\n  \"compat_csv\": \"results/archive_legacy/extended_compat/benchmark_results.csv\",\n  \"plots_dir\": \"results/archive_legacy/extended_compat/plots\",\n  \"latest_summary\": \"results/archive_legacy/extended_compat/latest_benchmark_summary.json\",\n  \"latest_run\": \"results/archive_legacy/extended_compat/latest_benchmark_run.json\"\n}\n",
+      "stderr": "",
+      "total_samples": 30,
+      "successful_samples": 30,
+      "failed_samples": 0,
+      "run_dir": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset",
+      "canonical_summary_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset/reports/summary.json",
+      "canonical_results_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset/metrics/results.json",
+      "compat_json": "results/archive_legacy/extended_compat/benchmark_results.json",
+      "compat_csv": "results/archive_legacy/extended_compat/benchmark_results.csv",
+      "plots_dir": "results/archive_legacy/extended_compat/plots",
+      "latest_summary": "results/archive_legacy/extended_compat/latest_benchmark_summary.json",
+      "latest_run": "results/archive_legacy/extended_compat/latest_benchmark_run.json",
+      "schema_runs": [
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_embedded",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_embedded\",\n  \"scenario\": \"embedded\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_embedded\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_embedded/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_embedded/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_embedded/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_embedded/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_embedded/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_embedded"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_batch",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_batch\",\n  \"scenario\": \"batch\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_batch\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_batch/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_batch/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_batch/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_batch/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_batch/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_batch"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_analytics",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_analytics\",\n  \"scenario\": \"analytics\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_analytics\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_analytics/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_analytics/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_analytics/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_analytics/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_analytics/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_analytics"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_dialog",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_dialog\",\n  \"scenario\": \"dialog\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_dialog\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_dialog/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_dialog/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_dialog/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_dialog/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_dialog/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_librispeech_test_clean_subset_dialog"
+        }
+      ]
+    },
+    {
+      "kind": "cloud",
+      "dataset_id": "librispeech_test_other_subset",
+      "run_id": "thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset",
+      "providers": [
+        "providers/azure_cloud",
+        "providers/google_cloud",
+        "providers/aws_cloud"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset\",\n  \"total_samples\": 30,\n  \"successful_samples\": 30,\n  \"failed_samples\": 0,\n  \"run_dir\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset\",\n  \"canonical_summary_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset/reports/summary.json\",\n  \"canonical_results_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset/metrics/results.json\",\n  \"compat_json\": \"results/archive_legacy/extended_compat/benchmark_results.json\",\n  \"compat_csv\": \"results/archive_legacy/extended_compat/benchmark_results.csv\",\n  \"plots_dir\": \"results/archive_legacy/extended_compat/plots\",\n  \"latest_summary\": \"results/archive_legacy/extended_compat/latest_benchmark_summary.json\",\n  \"latest_run\": \"results/archive_legacy/extended_compat/latest_benchmark_run.json\"\n}\n",
+      "stderr": "",
+      "total_samples": 30,
+      "successful_samples": 30,
+      "failed_samples": 0,
+      "run_dir": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset",
+      "canonical_summary_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset/reports/summary.json",
+      "canonical_results_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset/metrics/results.json",
+      "compat_json": "results/archive_legacy/extended_compat/benchmark_results.json",
+      "compat_csv": "results/archive_legacy/extended_compat/benchmark_results.csv",
+      "plots_dir": "results/archive_legacy/extended_compat/plots",
+      "latest_summary": "results/archive_legacy/extended_compat/latest_benchmark_summary.json",
+      "latest_run": "results/archive_legacy/extended_compat/latest_benchmark_run.json",
+      "schema_runs": [
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_embedded",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_embedded\",\n  \"scenario\": \"embedded\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_embedded\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_embedded/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_embedded/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_embedded/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_embedded/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_embedded/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_embedded"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_batch",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_batch\",\n  \"scenario\": \"batch\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_batch\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_batch/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_batch/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_batch/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_batch/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_batch/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_batch"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_analytics",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_analytics\",\n  \"scenario\": \"analytics\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_analytics\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_analytics/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_analytics/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_analytics/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_analytics/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_analytics/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_analytics"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_dialog",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_dialog\",\n  \"scenario\": \"dialog\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_dialog\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_dialog/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_dialog/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_dialog/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_dialog/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_dialog/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_librispeech_test_other_subset_dialog"
+        }
+      ]
+    },
+    {
+      "kind": "cloud",
+      "dataset_id": "mini_librispeech_dev_clean_2_subset",
+      "run_id": "thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset",
+      "providers": [
+        "providers/azure_cloud",
+        "providers/google_cloud",
+        "providers/aws_cloud"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset\",\n  \"total_samples\": 30,\n  \"successful_samples\": 30,\n  \"failed_samples\": 0,\n  \"run_dir\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset\",\n  \"canonical_summary_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset/reports/summary.json\",\n  \"canonical_results_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset/metrics/results.json\",\n  \"compat_json\": \"results/archive_legacy/extended_compat/benchmark_results.json\",\n  \"compat_csv\": \"results/archive_legacy/extended_compat/benchmark_results.csv\",\n  \"plots_dir\": \"results/archive_legacy/extended_compat/plots\",\n  \"latest_summary\": \"results/archive_legacy/extended_compat/latest_benchmark_summary.json\",\n  \"latest_run\": \"results/archive_legacy/extended_compat/latest_benchmark_run.json\"\n}\n",
+      "stderr": "",
+      "total_samples": 30,
+      "successful_samples": 30,
+      "failed_samples": 0,
+      "run_dir": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset",
+      "canonical_summary_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset/reports/summary.json",
+      "canonical_results_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset/metrics/results.json",
+      "compat_json": "results/archive_legacy/extended_compat/benchmark_results.json",
+      "compat_csv": "results/archive_legacy/extended_compat/benchmark_results.csv",
+      "plots_dir": "results/archive_legacy/extended_compat/plots",
+      "latest_summary": "results/archive_legacy/extended_compat/latest_benchmark_summary.json",
+      "latest_run": "results/archive_legacy/extended_compat/latest_benchmark_run.json",
+      "schema_runs": [
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_embedded",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_embedded\",\n  \"scenario\": \"embedded\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_embedded\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_embedded/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_embedded/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_embedded/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_embedded/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_embedded/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_embedded"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_batch",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_batch\",\n  \"scenario\": \"batch\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_batch\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_batch/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_batch/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_batch/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_batch/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_batch/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_batch"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_analytics",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_analytics\",\n  \"scenario\": \"analytics\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_analytics\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_analytics/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_analytics/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_analytics/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_analytics/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_analytics/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_analytics"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_dialog",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_dialog\",\n  \"scenario\": \"dialog\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_dialog\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_dialog/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_dialog/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_dialog/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_dialog/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_dialog/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_mini_librispeech_dev_clean_2_subset_dialog"
+        }
+      ]
+    },
+    {
+      "kind": "cloud",
+      "dataset_id": "fleurs_en_us_test_subset",
+      "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset",
+      "providers": [
+        "providers/azure_cloud",
+        "providers/google_cloud",
+        "providers/aws_cloud"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset\",\n  \"total_samples\": 30,\n  \"successful_samples\": 30,\n  \"failed_samples\": 0,\n  \"run_dir\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset\",\n  \"canonical_summary_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset/reports/summary.json\",\n  \"canonical_results_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset/metrics/results.json\",\n  \"compat_json\": \"results/archive_legacy/extended_compat/benchmark_results.json\",\n  \"compat_csv\": \"results/archive_legacy/extended_compat/benchmark_results.csv\",\n  \"plots_dir\": \"results/archive_legacy/extended_compat/plots\",\n  \"latest_summary\": \"results/archive_legacy/extended_compat/latest_benchmark_summary.json\",\n  \"latest_run\": \"results/archive_legacy/extended_compat/latest_benchmark_run.json\"\n}\n",
+      "stderr": "",
+      "total_samples": 30,
+      "successful_samples": 30,
+      "failed_samples": 0,
+      "run_dir": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset",
+      "canonical_summary_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset/reports/summary.json",
+      "canonical_results_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset/metrics/results.json",
+      "compat_json": "results/archive_legacy/extended_compat/benchmark_results.json",
+      "compat_csv": "results/archive_legacy/extended_compat/benchmark_results.csv",
+      "plots_dir": "results/archive_legacy/extended_compat/plots",
+      "latest_summary": "results/archive_legacy/extended_compat/latest_benchmark_summary.json",
+      "latest_run": "results/archive_legacy/extended_compat/latest_benchmark_run.json",
+      "schema_runs": [
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_embedded",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_embedded\",\n  \"scenario\": \"embedded\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_embedded\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_embedded/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_embedded/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_embedded/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_embedded/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_embedded/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_embedded"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_batch",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_batch\",\n  \"scenario\": \"batch\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_batch\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_batch/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_batch/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_batch/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_batch/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_batch/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_batch"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_analytics",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_analytics\",\n  \"scenario\": \"analytics\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_analytics\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_analytics/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_analytics/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_analytics/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_analytics/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_analytics/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_analytics"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_dialog",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_dialog\",\n  \"scenario\": \"dialog\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_dialog\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_dialog/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_dialog/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_dialog/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_dialog/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_dialog/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_en_us_test_subset_dialog"
+        }
+      ]
+    },
+    {
+      "kind": "cloud",
+      "dataset_id": "fleurs_fr_fr_test_subset",
+      "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset",
+      "providers": [
+        "providers/azure_cloud",
+        "providers/google_cloud",
+        "providers/aws_cloud"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset\",\n  \"total_samples\": 30,\n  \"successful_samples\": 30,\n  \"failed_samples\": 0,\n  \"run_dir\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset\",\n  \"canonical_summary_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset/reports/summary.json\",\n  \"canonical_results_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset/metrics/results.json\",\n  \"compat_json\": \"results/archive_legacy/extended_compat/benchmark_results.json\",\n  \"compat_csv\": \"results/archive_legacy/extended_compat/benchmark_results.csv\",\n  \"plots_dir\": \"results/archive_legacy/extended_compat/plots\",\n  \"latest_summary\": \"results/archive_legacy/extended_compat/latest_benchmark_summary.json\",\n  \"latest_run\": \"results/archive_legacy/extended_compat/latest_benchmark_run.json\"\n}\n",
+      "stderr": "",
+      "total_samples": 30,
+      "successful_samples": 30,
+      "failed_samples": 0,
+      "run_dir": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset",
+      "canonical_summary_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset/reports/summary.json",
+      "canonical_results_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset/metrics/results.json",
+      "compat_json": "results/archive_legacy/extended_compat/benchmark_results.json",
+      "compat_csv": "results/archive_legacy/extended_compat/benchmark_results.csv",
+      "plots_dir": "results/archive_legacy/extended_compat/plots",
+      "latest_summary": "results/archive_legacy/extended_compat/latest_benchmark_summary.json",
+      "latest_run": "results/archive_legacy/extended_compat/latest_benchmark_run.json",
+      "schema_runs": [
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_embedded",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_embedded\",\n  \"scenario\": \"embedded\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_embedded\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_embedded/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_embedded/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_embedded/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_embedded/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_embedded/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_embedded"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_batch",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_batch\",\n  \"scenario\": \"batch\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_batch\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_batch/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_batch/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_batch/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_batch/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_batch/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_batch"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_analytics",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_analytics\",\n  \"scenario\": \"analytics\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_analytics\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_analytics/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_analytics/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_analytics/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_analytics/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_analytics/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_analytics"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_dialog",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_dialog\",\n  \"scenario\": \"dialog\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_dialog\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_dialog/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_dialog/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_dialog/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_dialog/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_dialog/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_fr_fr_test_subset_dialog"
+        }
+      ]
+    },
+    {
+      "kind": "cloud",
+      "dataset_id": "fleurs_ja_jp_test_subset",
+      "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset",
+      "providers": [
+        "providers/azure_cloud",
+        "providers/google_cloud",
+        "providers/aws_cloud"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset\",\n  \"total_samples\": 30,\n  \"successful_samples\": 29,\n  \"failed_samples\": 1,\n  \"run_dir\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset\",\n  \"canonical_summary_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset/reports/summary.json\",\n  \"canonical_results_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset/metrics/results.json\",\n  \"compat_json\": \"results/archive_legacy/extended_compat/benchmark_results.json\",\n  \"compat_csv\": \"results/archive_legacy/extended_compat/benchmark_results.csv\",\n  \"plots_dir\": \"results/archive_legacy/extended_compat/plots\",\n  \"latest_summary\": \"results/archive_legacy/extended_compat/latest_benchmark_summary.json\",\n  \"latest_run\": \"results/archive_legacy/extended_compat/latest_benchmark_run.json\"\n}\n",
+      "stderr": "",
+      "total_samples": 30,
+      "successful_samples": 29,
+      "failed_samples": 1,
+      "run_dir": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset",
+      "canonical_summary_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset/reports/summary.json",
+      "canonical_results_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset/metrics/results.json",
+      "compat_json": "results/archive_legacy/extended_compat/benchmark_results.json",
+      "compat_csv": "results/archive_legacy/extended_compat/benchmark_results.csv",
+      "plots_dir": "results/archive_legacy/extended_compat/plots",
+      "latest_summary": "results/archive_legacy/extended_compat/latest_benchmark_summary.json",
+      "latest_run": "results/archive_legacy/extended_compat/latest_benchmark_run.json",
+      "schema_runs": [
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_embedded",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_embedded\",\n  \"scenario\": \"embedded\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_embedded\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_embedded/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_embedded/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_embedded/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_embedded/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_embedded/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_embedded"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_batch",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_batch\",\n  \"scenario\": \"batch\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_batch\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_batch/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_batch/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_batch/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_batch/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_batch/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_batch"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_analytics",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_analytics\",\n  \"scenario\": \"analytics\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_analytics\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_analytics/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_analytics/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_analytics/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_analytics/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_analytics/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_analytics"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_dialog",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_dialog\",\n  \"scenario\": \"dialog\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_dialog\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_dialog/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_dialog/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_dialog/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_dialog/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_dialog/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_ja_jp_test_subset_dialog"
+        }
+      ]
+    },
+    {
+      "kind": "cloud",
+      "dataset_id": "fleurs_sk_sk_test_subset",
+      "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset",
+      "providers": [
+        "providers/azure_cloud",
+        "providers/google_cloud",
+        "providers/aws_cloud"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset\",\n  \"total_samples\": 30,\n  \"successful_samples\": 30,\n  \"failed_samples\": 0,\n  \"run_dir\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset\",\n  \"canonical_summary_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset/reports/summary.json\",\n  \"canonical_results_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset/metrics/results.json\",\n  \"compat_json\": \"results/archive_legacy/extended_compat/benchmark_results.json\",\n  \"compat_csv\": \"results/archive_legacy/extended_compat/benchmark_results.csv\",\n  \"plots_dir\": \"results/archive_legacy/extended_compat/plots\",\n  \"latest_summary\": \"results/archive_legacy/extended_compat/latest_benchmark_summary.json\",\n  \"latest_run\": \"results/archive_legacy/extended_compat/latest_benchmark_run.json\"\n}\n",
+      "stderr": "",
+      "total_samples": 30,
+      "successful_samples": 30,
+      "failed_samples": 0,
+      "run_dir": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset",
+      "canonical_summary_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset/reports/summary.json",
+      "canonical_results_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset/metrics/results.json",
+      "compat_json": "results/archive_legacy/extended_compat/benchmark_results.json",
+      "compat_csv": "results/archive_legacy/extended_compat/benchmark_results.csv",
+      "plots_dir": "results/archive_legacy/extended_compat/plots",
+      "latest_summary": "results/archive_legacy/extended_compat/latest_benchmark_summary.json",
+      "latest_run": "results/archive_legacy/extended_compat/latest_benchmark_run.json",
+      "schema_runs": [
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_embedded",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_embedded\",\n  \"scenario\": \"embedded\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_embedded\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_embedded/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_embedded/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_embedded/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_embedded/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_embedded/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_embedded"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_batch",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_batch\",\n  \"scenario\": \"batch\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_batch\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_batch/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_batch/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_batch/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_batch/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_batch/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_batch"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_analytics",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_analytics\",\n  \"scenario\": \"analytics\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_analytics\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_analytics/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_analytics/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_analytics/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_analytics/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_analytics/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_analytics"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_dialog",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_dialog\",\n  \"scenario\": \"dialog\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_dialog\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_dialog/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_dialog/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_dialog/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_dialog/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_dialog/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_fleurs_sk_sk_test_subset_dialog"
+        }
+      ]
+    },
+    {
+      "kind": "cloud",
+      "dataset_id": "voxpopuli_en_test_subset",
+      "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset",
+      "providers": [
+        "providers/azure_cloud",
+        "providers/google_cloud",
+        "providers/aws_cloud"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset\",\n  \"total_samples\": 30,\n  \"successful_samples\": 30,\n  \"failed_samples\": 0,\n  \"run_dir\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset\",\n  \"canonical_summary_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset/reports/summary.json\",\n  \"canonical_results_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset/metrics/results.json\",\n  \"compat_json\": \"results/archive_legacy/extended_compat/benchmark_results.json\",\n  \"compat_csv\": \"results/archive_legacy/extended_compat/benchmark_results.csv\",\n  \"plots_dir\": \"results/archive_legacy/extended_compat/plots\",\n  \"latest_summary\": \"results/archive_legacy/extended_compat/latest_benchmark_summary.json\",\n  \"latest_run\": \"results/archive_legacy/extended_compat/latest_benchmark_run.json\"\n}\n",
+      "stderr": "",
+      "total_samples": 30,
+      "successful_samples": 30,
+      "failed_samples": 0,
+      "run_dir": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset",
+      "canonical_summary_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset/reports/summary.json",
+      "canonical_results_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset/metrics/results.json",
+      "compat_json": "results/archive_legacy/extended_compat/benchmark_results.json",
+      "compat_csv": "results/archive_legacy/extended_compat/benchmark_results.csv",
+      "plots_dir": "results/archive_legacy/extended_compat/plots",
+      "latest_summary": "results/archive_legacy/extended_compat/latest_benchmark_summary.json",
+      "latest_run": "results/archive_legacy/extended_compat/latest_benchmark_run.json",
+      "schema_runs": [
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_embedded",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_embedded\",\n  \"scenario\": \"embedded\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_embedded\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_embedded/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_embedded/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_embedded/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_embedded/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_embedded/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_embedded"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_batch",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_batch\",\n  \"scenario\": \"batch\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_batch\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_batch/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_batch/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_batch/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_batch/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_batch/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_batch"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_analytics",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_analytics\",\n  \"scenario\": \"analytics\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_analytics\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_analytics/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_analytics/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_analytics/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_analytics/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_analytics/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_analytics"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_dialog",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_dialog\",\n  \"scenario\": \"dialog\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_dialog\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_dialog/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_dialog/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_dialog/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_dialog/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_dialog/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_voxpopuli_en_test_subset_dialog"
+        }
+      ]
+    },
+    {
+      "kind": "cloud",
+      "dataset_id": "voxpopuli_de_test_subset",
+      "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset",
+      "providers": [
+        "providers/azure_cloud",
+        "providers/google_cloud",
+        "providers/aws_cloud"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset\",\n  \"total_samples\": 30,\n  \"successful_samples\": 30,\n  \"failed_samples\": 0,\n  \"run_dir\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset\",\n  \"canonical_summary_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset/reports/summary.json\",\n  \"canonical_results_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset/metrics/results.json\",\n  \"compat_json\": \"results/archive_legacy/extended_compat/benchmark_results.json\",\n  \"compat_csv\": \"results/archive_legacy/extended_compat/benchmark_results.csv\",\n  \"plots_dir\": \"results/archive_legacy/extended_compat/plots\",\n  \"latest_summary\": \"results/archive_legacy/extended_compat/latest_benchmark_summary.json\",\n  \"latest_run\": \"results/archive_legacy/extended_compat/latest_benchmark_run.json\"\n}\n",
+      "stderr": "",
+      "total_samples": 30,
+      "successful_samples": 30,
+      "failed_samples": 0,
+      "run_dir": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset",
+      "canonical_summary_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset/reports/summary.json",
+      "canonical_results_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset/metrics/results.json",
+      "compat_json": "results/archive_legacy/extended_compat/benchmark_results.json",
+      "compat_csv": "results/archive_legacy/extended_compat/benchmark_results.csv",
+      "plots_dir": "results/archive_legacy/extended_compat/plots",
+      "latest_summary": "results/archive_legacy/extended_compat/latest_benchmark_summary.json",
+      "latest_run": "results/archive_legacy/extended_compat/latest_benchmark_run.json",
+      "schema_runs": [
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_embedded",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_embedded\",\n  \"scenario\": \"embedded\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_embedded\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_embedded/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_embedded/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_embedded/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_embedded/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_embedded/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_embedded"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_batch",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_batch\",\n  \"scenario\": \"batch\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_batch\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_batch/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_batch/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_batch/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_batch/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_batch/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_batch"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_analytics",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_analytics\",\n  \"scenario\": \"analytics\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_analytics\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_analytics/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_analytics/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_analytics/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_analytics/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_analytics/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_analytics"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_dialog",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_dialog\",\n  \"scenario\": \"dialog\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_dialog\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_dialog/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_dialog/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_dialog/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_dialog/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_dialog/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_voxpopuli_de_test_subset_dialog"
+        }
+      ]
+    },
+    {
+      "kind": "cloud",
+      "dataset_id": "voxpopuli_es_test_subset",
+      "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset",
+      "providers": [
+        "providers/azure_cloud",
+        "providers/google_cloud",
+        "providers/aws_cloud"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset\",\n  \"total_samples\": 30,\n  \"successful_samples\": 30,\n  \"failed_samples\": 0,\n  \"run_dir\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset\",\n  \"canonical_summary_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset/reports/summary.json\",\n  \"canonical_results_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset/metrics/results.json\",\n  \"compat_json\": \"results/archive_legacy/extended_compat/benchmark_results.json\",\n  \"compat_csv\": \"results/archive_legacy/extended_compat/benchmark_results.csv\",\n  \"plots_dir\": \"results/archive_legacy/extended_compat/plots\",\n  \"latest_summary\": \"results/archive_legacy/extended_compat/latest_benchmark_summary.json\",\n  \"latest_run\": \"results/archive_legacy/extended_compat/latest_benchmark_run.json\"\n}\n",
+      "stderr": "",
+      "total_samples": 30,
+      "successful_samples": 30,
+      "failed_samples": 0,
+      "run_dir": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset",
+      "canonical_summary_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset/reports/summary.json",
+      "canonical_results_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset/metrics/results.json",
+      "compat_json": "results/archive_legacy/extended_compat/benchmark_results.json",
+      "compat_csv": "results/archive_legacy/extended_compat/benchmark_results.csv",
+      "plots_dir": "results/archive_legacy/extended_compat/plots",
+      "latest_summary": "results/archive_legacy/extended_compat/latest_benchmark_summary.json",
+      "latest_run": "results/archive_legacy/extended_compat/latest_benchmark_run.json",
+      "schema_runs": [
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_embedded",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_embedded\",\n  \"scenario\": \"embedded\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_embedded\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_embedded/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_embedded/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_embedded/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_embedded/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_embedded/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_embedded"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_batch",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_batch\",\n  \"scenario\": \"batch\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_batch\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_batch/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_batch/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_batch/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_batch/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_batch/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_batch"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_analytics",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_analytics\",\n  \"scenario\": \"analytics\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_analytics\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_analytics/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_analytics/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_analytics/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_analytics/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_analytics/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_analytics"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_dialog",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_dialog\",\n  \"scenario\": \"dialog\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_dialog\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_dialog/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_dialog/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_dialog/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_dialog/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_dialog/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_voxpopuli_es_test_subset_dialog"
+        }
+      ]
+    },
+    {
+      "kind": "cloud",
+      "dataset_id": "mls_german_test_subset",
+      "run_id": "thesis_ext_20260504T115425Z_cloud_mls_german_test_subset",
+      "providers": [
+        "providers/azure_cloud",
+        "providers/google_cloud",
+        "providers/aws_cloud"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mls_german_test_subset\",\n  \"total_samples\": 30,\n  \"successful_samples\": 30,\n  \"failed_samples\": 0,\n  \"run_dir\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset\",\n  \"canonical_summary_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset/reports/summary.json\",\n  \"canonical_results_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset/metrics/results.json\",\n  \"compat_json\": \"results/archive_legacy/extended_compat/benchmark_results.json\",\n  \"compat_csv\": \"results/archive_legacy/extended_compat/benchmark_results.csv\",\n  \"plots_dir\": \"results/archive_legacy/extended_compat/plots\",\n  \"latest_summary\": \"results/archive_legacy/extended_compat/latest_benchmark_summary.json\",\n  \"latest_run\": \"results/archive_legacy/extended_compat/latest_benchmark_run.json\"\n}\n",
+      "stderr": "",
+      "total_samples": 30,
+      "successful_samples": 30,
+      "failed_samples": 0,
+      "run_dir": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset",
+      "canonical_summary_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset/reports/summary.json",
+      "canonical_results_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset/metrics/results.json",
+      "compat_json": "results/archive_legacy/extended_compat/benchmark_results.json",
+      "compat_csv": "results/archive_legacy/extended_compat/benchmark_results.csv",
+      "plots_dir": "results/archive_legacy/extended_compat/plots",
+      "latest_summary": "results/archive_legacy/extended_compat/latest_benchmark_summary.json",
+      "latest_run": "results/archive_legacy/extended_compat/latest_benchmark_run.json",
+      "schema_runs": [
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_embedded",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_embedded\",\n  \"scenario\": \"embedded\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_embedded\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_embedded/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_embedded/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_embedded/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_embedded/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_embedded/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_embedded"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_batch",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_batch\",\n  \"scenario\": \"batch\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_batch\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_batch/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_batch/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_batch/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_batch/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_batch/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_batch"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_analytics",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_analytics\",\n  \"scenario\": \"analytics\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_analytics\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_analytics/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_analytics/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_analytics/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_analytics/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_analytics/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_analytics"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_dialog",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_dialog\",\n  \"scenario\": \"dialog\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_dialog\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_dialog/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_dialog/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_dialog/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_dialog/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_dialog/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_mls_german_test_subset_dialog"
+        }
+      ]
+    },
+    {
+      "kind": "cloud",
+      "dataset_id": "mls_spanish_test_subset",
+      "run_id": "thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset",
+      "providers": [
+        "providers/azure_cloud",
+        "providers/google_cloud",
+        "providers/aws_cloud"
+      ],
+      "returncode": 0,
+      "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset\",\n  \"total_samples\": 30,\n  \"successful_samples\": 30,\n  \"failed_samples\": 0,\n  \"run_dir\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset\",\n  \"canonical_summary_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset/reports/summary.json\",\n  \"canonical_results_json\": \"artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset/metrics/results.json\",\n  \"compat_json\": \"results/archive_legacy/extended_compat/benchmark_results.json\",\n  \"compat_csv\": \"results/archive_legacy/extended_compat/benchmark_results.csv\",\n  \"plots_dir\": \"results/archive_legacy/extended_compat/plots\",\n  \"latest_summary\": \"results/archive_legacy/extended_compat/latest_benchmark_summary.json\",\n  \"latest_run\": \"results/archive_legacy/extended_compat/latest_benchmark_run.json\"\n}\n",
+      "stderr": "",
+      "total_samples": 30,
+      "successful_samples": 30,
+      "failed_samples": 0,
+      "run_dir": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset",
+      "canonical_summary_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset/reports/summary.json",
+      "canonical_results_json": "artifacts/benchmark_runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset/metrics/results.json",
+      "compat_json": "results/archive_legacy/extended_compat/benchmark_results.json",
+      "compat_csv": "results/archive_legacy/extended_compat/benchmark_results.csv",
+      "plots_dir": "results/archive_legacy/extended_compat/plots",
+      "latest_summary": "results/archive_legacy/extended_compat/latest_benchmark_summary.json",
+      "latest_run": "results/archive_legacy/extended_compat/latest_benchmark_run.json",
+      "schema_runs": [
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_embedded",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_embedded\",\n  \"scenario\": \"embedded\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_embedded\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_embedded/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_embedded/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_embedded/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_embedded/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_embedded/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_embedded"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_batch",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_batch\",\n  \"scenario\": \"batch\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_batch\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_batch/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_batch/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_batch/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_batch/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_batch/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_batch"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_analytics",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_analytics\",\n  \"scenario\": \"analytics\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_analytics\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_analytics/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_analytics/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_analytics/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_analytics/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_analytics/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_analytics"
+        },
+        {
+          "run_id": "thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_dialog",
+          "returncode": 0,
+          "stdout": "{\n  \"run_id\": \"thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_dialog\",\n  \"scenario\": \"dialog\",\n  \"run_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_dialog\",\n  \"manifest\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_dialog/manifest.json\",\n  \"summary_json\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_dialog/summary.json\",\n  \"summary_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_dialog/summary.csv\",\n  \"utterance_csv\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_dialog/utterance_metrics.csv\",\n  \"plots_dir\": \"results/runs/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_dialog/plots\"\n}\n",
+          "stderr": "scripts/collect_metrics.py:1105: MatplotlibDeprecationWarning: The 'labels' parameter of boxplot() has been renamed 'tick_labels' since Matplotlib 3.9; support for the old name will be dropped in 3.11.\n  ax.boxplot([by_backend_latency[key] for key in ordered_keys], labels=ordered_keys)\n",
+          "run_dir": "results/runs_ext/thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset_dialog"
+        }
+      ]
+    }
+  ]
+}

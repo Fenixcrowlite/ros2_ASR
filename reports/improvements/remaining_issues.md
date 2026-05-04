@@ -8,9 +8,9 @@ The items below are follow-up opportunities, not unresolved entries from the ris
 
 ## Follow-up technical opportunities
 
-- [asr_metrics/system.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_metrics/asr_metrics/system.py)
+- [asr_metrics/system.py](ros2_ws/src/asr_metrics/asr_metrics/system.py)
   - CPU, RAM, and GPU metrics are still point-in-time samples rather than peak or stage-attributed profiles.
-- [asr_gateway/api.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_gateway/asr_gateway/api.py)
+- [asr_gateway/api.py](ros2_ws/src/asr_gateway/asr_gateway/api.py)
   - gateway still exposes subprocess-heavy operational helpers; CI security scan intentionally focuses on canonical runtime/provider/metrics/benchmark packages instead of every tooling endpoint.
 - live ROS transport introspection
   - current runtime telemetry proves delivery latency and sequence gaps, but not DDS-native queue depth.

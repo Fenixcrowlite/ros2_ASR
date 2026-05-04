@@ -2,7 +2,7 @@
 
 ## Scope and Date
 - Assessment date: 2026-03-12
-- Repository: `/home/fenix/Desktop/ros2ws`
+- Repository: `.`
 - Goal: evaluate current GUI/UX and define migration to architecture-safe, user-friendly GUI baseline for ROS2-first ASR platform.
 - Status note: the legacy `web_gui/` described below has since been removed after feature parity work landed in `web_ui` + `asr_gateway`.
 

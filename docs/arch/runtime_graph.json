@@ -1022,7 +1022,7 @@
     "generated_at": "2026-05-03T18:16:19.593442+00:00",
     "schema_version": 1,
     "source": "runtime",
-    "workspace": "/home/fenix/Desktop/ros2ws/ros2_ws"
+    "workspace": "ros2_ws"
   },
   "nodes": [
     {
@@ -1564,7 +1564,7 @@
         "command": "ros2 launch asr_launch gateway_with_runtime.launch.py",
         "file": "gateway_with_runtime.launch.py",
         "package": "asr_launch",
-        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py"
+        "path": "ros2_ws/src/asr_launch/launch/gateway_with_runtime.launch.py"
       },
       "stderr_tail": "",
       "stdout_tail": "g signal 'SIGINT' to process[asr_orchestrator_node-4]\n[INFO] [vad_segmenter_node-3]: sending signal 'SIGINT' to process[vad_segmenter_node-3]\n[INFO] [audio_preprocess_node-2]: sending signal 'SIGINT' to process[audio_preprocess_node-2]\n[INFO] [audio_input_node-1]: sending signal 'SIGINT' to process[audio_input_node-1]\n[asr_gateway_server-5] gateway ROS bridge executor stopped unexpectedly: \n[asr_gateway_server-5] INFO:     Shutting down\n[asr_gateway_server-5] INFO:     Waiting for application shutdown.\n[asr_gateway_server-5] INFO:     Application shutdown complete.\n[asr_gateway_server-5] INFO:     Finished server process [62842]\n[INFO] [vad_segmenter_node-3]: process has finished cleanly [pid 62840]\n[INFO] [audio_preprocess_node-2]: process has finished cleanly [pid 62839]\n[INFO] [asr_orchestrator_node-4]: process has finished cleanly [pid 62841]\n[INFO] [audio_input_node-1]: process has finished cleanly [pid 62838]\n[INFO] [asr_gateway_server-5]: process has finished cleanly [pid 62842]"
@@ -1577,7 +1577,7 @@
         "command": "ros2 launch asr_launch runtime_minimal.launch.py",
         "file": "runtime_minimal.launch.py",
         "package": "asr_launch",
-        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/runtime_minimal.launch.py"
+        "path": "ros2_ws/src/asr_launch/launch/runtime_minimal.launch.py"
       },
       "stderr_tail": "",
       "stdout_tail": "_node-3]: process started with pid [63329]\n[INFO] [asr_orchestrator_node-4]: process started with pid [63330]\n[audio_input_node-1] [INFO] [1777832209.372772334] [audio_input_node]: Audio input configured: profile=default_runtime source=file file=data/sample/vosk_test.wav mic_device=default\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [asr_orchestrator_node-4]: sending signal 'SIGINT' to process[asr_orchestrator_node-4]\n[INFO] [vad_segmenter_node-3]: sending signal 'SIGINT' to process[vad_segmenter_node-3]\n[INFO] [audio_preprocess_node-2]: sending signal 'SIGINT' to process[audio_preprocess_node-2]\n[INFO] [audio_input_node-1]: sending signal 'SIGINT' to process[audio_input_node-1]\n[INFO] [vad_segmenter_node-3]: process has finished cleanly [pid 63329]\n[INFO] [audio_preprocess_node-2]: process has finished cleanly [pid 63328]\n[INFO] [audio_input_node-1]: process has finished cleanly [pid 63327]\n[INFO] [asr_orchestrator_node-4]: process has finished cleanly [pid 63330]"
@@ -1590,7 +1590,7 @@
         "command": "ros2 launch asr_launch benchmark_single_provider.launch.py",
         "file": "benchmark_single_provider.launch.py",
         "package": "asr_launch",
-        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/benchmark_single_provider.launch.py"
+        "path": "ros2_ws/src/asr_launch/launch/benchmark_single_provider.launch.py"
       },
       "stderr_tail": "",
       "stdout_tail": "[INFO] [launch]: All log files can be found below /home/fenix/.ros/log/2026-05-03-20-17-16-115252-fenixmachine-63889\n[INFO] [launch]: Default logging verbosity is set to INFO\n[INFO] [benchmark_manager_node-1]: process started with pid [63900]\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [benchmark_manager_node-1]: sending signal 'SIGINT' to process[benchmark_manager_node-1]\n[INFO] [benchmark_manager_node-1]: process has finished cleanly [pid 63900]"
@@ -1603,7 +1603,7 @@
         "command": "ros2 launch asr_launch benchmark_matrix.launch.py",
         "file": "benchmark_matrix.launch.py",
         "package": "asr_launch",
-        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/benchmark_matrix.launch.py"
+        "path": "ros2_ws/src/asr_launch/launch/benchmark_matrix.launch.py"
       },
       "stderr_tail": "",
       "stdout_tail": "[INFO] [launch]: All log files can be found below /home/fenix/.ros/log/2026-05-03-20-17-38-951825-fenixmachine-64156\n[INFO] [launch]: Default logging verbosity is set to INFO\n[INFO] [benchmark_manager_node-1]: process started with pid [64160]\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [benchmark_manager_node-1]: sending signal 'SIGINT' to process[benchmark_manager_node-1]\n[INFO] [benchmark_manager_node-1]: process has finished cleanly [pid 64160]"
@@ -1616,7 +1616,7 @@
         "command": "ros2 launch asr_launch full_stack_dev.launch.py",
         "file": "full_stack_dev.launch.py",
         "package": "asr_launch",
-        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/full_stack_dev.launch.py"
+        "path": "ros2_ws/src/asr_launch/launch/full_stack_dev.launch.py"
       },
       "stderr_tail": "",
       "stdout_tail": "node-3]: sending signal 'SIGINT' to process[vad_segmenter_node-3]\n[INFO] [audio_preprocess_node-2]: sending signal 'SIGINT' to process[audio_preprocess_node-2]\n[INFO] [audio_input_node-1]: sending signal 'SIGINT' to process[audio_input_node-1]\n[asr_gateway_server-5] gateway ROS bridge executor stopped unexpectedly: \n[asr_gateway_server-5] INFO:     Shutting down\n[asr_gateway_server-5] INFO:     Waiting for application shutdown.\n[asr_gateway_server-5] INFO:     Application shutdown complete.\n[asr_gateway_server-5] INFO:     Finished server process [64427]\n[INFO] [benchmark_manager_node-6]: process has finished cleanly [pid 64428]\n[INFO] [vad_segmenter_node-3]: process has finished cleanly [pid 64425]\n[INFO] [audio_input_node-1]: process has finished cleanly [pid 64423]\n[INFO] [audio_preprocess_node-2]: process has finished cleanly [pid 64424]\n[INFO] [asr_orchestrator_node-4]: process has finished cleanly [pid 64426]\n[INFO] [asr_gateway_server-5]: process has finished cleanly [pid 64427]"
@@ -1631,7 +1631,7 @@
         "command": "ros2 launch asr_launch runtime_streaming.launch.py input_mode:=file",
         "file": "runtime_streaming.launch.py",
         "package": "asr_launch",
-        "path": "/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_launch/launch/runtime_streaming.launch.py"
+        "path": "ros2_ws/src/asr_launch/launch/runtime_streaming.launch.py"
       },
       "stderr_tail": "",
       "stdout_tail": "_node-3]: process started with pid [65000]\n[INFO] [asr_orchestrator_node-4]: process started with pid [65001]\n[audio_input_node-1] [INFO] [1777832310.899418637] [audio_input_node]: Audio input configured: profile=default_runtime source=file file=data/sample/vosk_test.wav mic_device=default\n[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)\n[INFO] [asr_orchestrator_node-4]: sending signal 'SIGINT' to process[asr_orchestrator_node-4]\n[INFO] [vad_segmenter_node-3]: sending signal 'SIGINT' to process[vad_segmenter_node-3]\n[INFO] [audio_preprocess_node-2]: sending signal 'SIGINT' to process[audio_preprocess_node-2]\n[INFO] [audio_input_node-1]: sending signal 'SIGINT' to process[audio_input_node-1]\n[INFO] [audio_input_node-1]: process has finished cleanly [pid 64998]\n[INFO] [asr_orchestrator_node-4]: process has finished cleanly [pid 65001]\n[INFO] [vad_segmenter_node-3]: process has finished cleanly [pid 65000]\n[INFO] [audio_preprocess_node-2]: process has finished cleanly [pid 64999]"

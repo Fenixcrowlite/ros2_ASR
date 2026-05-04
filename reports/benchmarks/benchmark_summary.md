@@ -49,11 +49,11 @@ This run is the first canonical benchmark artifact in this audit sequence that i
 
 ## Artifact references
 
-- run manifest: [run_manifest.json](/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/audit_20260331_risk_closure_final/manifest/run_manifest.json)
-- canonical summary JSON: [summary.json](/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/audit_20260331_risk_closure_final/reports/summary.json)
-- canonical summary Markdown: [summary.md](/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/audit_20260331_risk_closure_final/reports/summary.md)
-- canonical results JSON: [results.json](/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/audit_20260331_risk_closure_final/metrics/results.json)
-- canonical results CSV: [results.csv](/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/audit_20260331_risk_closure_final/metrics/results.csv)
-- per-sample trace JSON: [trace_50a7334b138648c9909cd094b3ae3c19.json](/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/audit_20260331_risk_closure_final/metrics/traces/trace_50a7334b138648c9909cd094b3ae3c19.json)
-- trace index export: [audit_20260331_risk_closure_final_trace_index.csv](/home/fenix/Desktop/ros2ws/reports/benchmarks/metrics_exports/audit_20260331_risk_closure_final_trace_index.csv)
-- compatibility copy: [audit_20260331_risk_closure_final](/home/fenix/Desktop/ros2ws/reports/benchmarks/audit_20260331_risk_closure_final)
+- run manifest: [run_manifest.json](artifacts/benchmark_runs/audit_20260331_risk_closure_final/manifest/run_manifest.json)
+- canonical summary JSON: [summary.json](artifacts/benchmark_runs/audit_20260331_risk_closure_final/reports/summary.json)
+- canonical summary Markdown: [summary.md](artifacts/benchmark_runs/audit_20260331_risk_closure_final/reports/summary.md)
+- canonical results JSON: [results.json](artifacts/benchmark_runs/audit_20260331_risk_closure_final/metrics/results.json)
+- canonical results CSV: [results.csv](artifacts/benchmark_runs/audit_20260331_risk_closure_final/metrics/results.csv)
+- per-sample trace JSON: [trace_50a7334b138648c9909cd094b3ae3c19.json](artifacts/benchmark_runs/audit_20260331_risk_closure_final/metrics/traces/trace_50a7334b138648c9909cd094b3ae3c19.json)
+- trace index export: [audit_20260331_risk_closure_final_trace_index.csv](reports/benchmarks/metrics_exports/audit_20260331_risk_closure_final_trace_index.csv)
+- compatibility copy: [audit_20260331_risk_closure_final](reports/benchmarks/audit_20260331_risk_closure_final)

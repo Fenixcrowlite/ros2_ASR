@@ -1,0 +1,11 @@
+profile_id: benchmark/thesis_extended_language_matrix
+inherits:
+  - thesis_extended_full_matrix
+focus: multilingual and language/domain comparison
+languages:
+  - en-US
+  - sk-SK
+  - fr-FR
+  - ja-JP
+  - de-DE
+  - es-ES

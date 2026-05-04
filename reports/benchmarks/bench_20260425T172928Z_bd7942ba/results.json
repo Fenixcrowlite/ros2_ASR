@@ -80,7 +80,7 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
+    "input_audio_path": "datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -90,7 +90,7 @@
     "preprocess_ms": 0.00860599993757205,
     "inference_ms": 8787.763706999613,
     "postprocess_ms": 0.2780310005618958,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_3847d84fa57943f18d333c17b876e6b8.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_3847d84fa57943f18d333c17b876e6b8.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -316,7 +316,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 30.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__light.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__light.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -326,7 +326,7 @@
     "preprocess_ms": 0.00970900055108359,
     "inference_ms": 8873.989312000049,
     "postprocess_ms": 0.2758860000540153,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_1c9ad17548ae4b0c8d5089aff2445373.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_1c9ad17548ae4b0c8d5089aff2445373.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -552,7 +552,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 20.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__medium.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__medium.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -562,7 +562,7 @@
     "preprocess_ms": 0.007834999451006297,
     "inference_ms": 8711.09541000078,
     "postprocess_ms": 0.3384139999980107,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_018ea4958d9d473ba3ae48be9e0e005f.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_018ea4958d9d473ba3ae48be9e0e005f.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -788,7 +788,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 10.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__heavy.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__heavy.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -798,7 +798,7 @@
     "preprocess_ms": 0.007022999852779321,
     "inference_ms": 8695.432427000014,
     "postprocess_ms": 0.2727310002228478,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_92ab5112384f4e7a9885abb3007276a6.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_92ab5112384f4e7a9885abb3007276a6.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -1024,7 +1024,7 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
+    "input_audio_path": "datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -1034,7 +1034,7 @@
     "preprocess_ms": 0.006001999281579629,
     "inference_ms": 8735.164093000094,
     "postprocess_ms": 0.2894220006055548,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d23604340943448a95dbcfb0f6efb563.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d23604340943448a95dbcfb0f6efb563.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -1267,7 +1267,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 30.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__light.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__light.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -1277,7 +1277,7 @@
     "preprocess_ms": 0.007202999768196605,
     "inference_ms": 8682.702219999555,
     "postprocess_ms": 0.2670300000318093,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_78bdad57a8ca41579c59935794b9a23f.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_78bdad57a8ca41579c59935794b9a23f.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -1510,7 +1510,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 20.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__medium.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__medium.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -1520,7 +1520,7 @@
     "preprocess_ms": 0.00809499942988623,
     "inference_ms": 8710.500553000202,
     "postprocess_ms": 0.28500400003395043,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_a1155459c42b43a8b67e38256a019287.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_a1155459c42b43a8b67e38256a019287.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -1753,7 +1753,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 10.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__heavy.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__heavy.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -1763,7 +1763,7 @@
     "preprocess_ms": 0.007353999535553157,
     "inference_ms": 8666.90467600074,
     "postprocess_ms": 0.2574719992480823,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_0ef927420e84420584e643b660172fad.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_0ef927420e84420584e643b660172fad.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -1996,7 +1996,7 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
+    "input_audio_path": "datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -2006,7 +2006,7 @@
     "preprocess_ms": 0.0,
     "inference_ms": 0.0,
     "postprocess_ms": 0.0,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_04e4ffc28dae42c695b27e0a6e7f3b89.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_04e4ffc28dae42c695b27e0a6e7f3b89.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -2126,7 +2126,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 30.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__light.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__light.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -2136,7 +2136,7 @@
     "preprocess_ms": 0.0,
     "inference_ms": 0.0,
     "postprocess_ms": 0.0,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_a31e28166da04e3fab5b4973eb9b4178.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_a31e28166da04e3fab5b4973eb9b4178.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -2256,7 +2256,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 20.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__medium.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__medium.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -2266,7 +2266,7 @@
     "preprocess_ms": 0.0,
     "inference_ms": 0.0,
     "postprocess_ms": 0.0,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d7b11b8e10e44122a6d88bb65175b7ed.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d7b11b8e10e44122a6d88bb65175b7ed.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -2386,7 +2386,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 10.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__heavy.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__heavy.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -2396,7 +2396,7 @@
     "preprocess_ms": 0.0,
     "inference_ms": 0.0,
     "postprocess_ms": 0.0,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_07c062d720364e09a921b80079306115.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_07c062d720364e09a921b80079306115.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -2516,7 +2516,7 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
+    "input_audio_path": "datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -2526,7 +2526,7 @@
     "preprocess_ms": 0.0,
     "inference_ms": 0.0,
     "postprocess_ms": 0.0,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_dade3fc4bd4c4a3ca824db14c5825d57.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_dade3fc4bd4c4a3ca824db14c5825d57.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -2646,7 +2646,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 30.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__light.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__light.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -2656,7 +2656,7 @@
     "preprocess_ms": 0.0,
     "inference_ms": 0.0,
     "postprocess_ms": 0.0,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_0f64a0dd921f4b9fbdcbd1de14dc9224.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_0f64a0dd921f4b9fbdcbd1de14dc9224.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -2776,7 +2776,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 20.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__medium.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__medium.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -2786,7 +2786,7 @@
     "preprocess_ms": 0.0,
     "inference_ms": 0.0,
     "postprocess_ms": 0.0,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_83ac625a07e34f3fa0a12b37e73efde7.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_83ac625a07e34f3fa0a12b37e73efde7.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -2906,7 +2906,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 10.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__heavy.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__heavy.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -2916,7 +2916,7 @@
     "preprocess_ms": 0.0,
     "inference_ms": 0.0,
     "postprocess_ms": 0.0,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_9a7d04164da54f6498bd27c779037712.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_9a7d04164da54f6498bd27c779037712.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -3036,7 +3036,7 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
+    "input_audio_path": "datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -3046,7 +3046,7 @@
     "preprocess_ms": 30.83383099965431,
     "inference_ms": 2657.9890580005667,
     "postprocess_ms": 0.00012100008461857215,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_8016777f0a6443e28c4b772d551c3f86.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_8016777f0a6443e28c4b772d551c3f86.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -3272,7 +3272,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 30.0,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__light.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__light.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -3282,7 +3282,7 @@
     "preprocess_ms": 0.259836999248364,
     "inference_ms": 2126.8161030002375,
     "postprocess_ms": 0.00016000012692529708,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_b6ff16e8d80d4498876b02a45807f63b.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_b6ff16e8d80d4498876b02a45807f63b.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -3508,7 +3508,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 20.0,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__medium.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__medium.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -3518,7 +3518,7 @@
     "preprocess_ms": 0.2500989994587144,
     "inference_ms": 2161.027527999977,
     "postprocess_ms": 0.00016000012692529708,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_5170f676979348c5a0a571cf34a6073d.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_5170f676979348c5a0a571cf34a6073d.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -3744,7 +3744,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 10.0,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__heavy.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__heavy.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -3754,7 +3754,7 @@
     "preprocess_ms": 0.24711199966986896,
     "inference_ms": 2132.2646689995963,
     "postprocess_ms": 0.00013999942893860862,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_789d0b96335e480e8abd14356af31b9a.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_789d0b96335e480e8abd14356af31b9a.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -3980,7 +3980,7 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
+    "input_audio_path": "datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -3990,7 +3990,7 @@
     "preprocess_ms": 0.2882899998439825,
     "inference_ms": 1715.761358999771,
     "postprocess_ms": 0.00018999980966327712,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_7ae4730528ae49d197a57c176991b254.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_7ae4730528ae49d197a57c176991b254.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -4223,7 +4223,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 30.0,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__light.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__light.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -4233,7 +4233,7 @@
     "preprocess_ms": 0.20823999966523843,
     "inference_ms": 1221.2553660001504,
     "postprocess_ms": 8.999995770864189e-05,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d1587847d2214e439e509690cdbe1706.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d1587847d2214e439e509690cdbe1706.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -4466,7 +4466,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 20.0,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__medium.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__medium.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -4476,7 +4476,7 @@
     "preprocess_ms": 0.19468499976937892,
     "inference_ms": 1681.9891610002742,
     "postprocess_ms": 0.00020100014808122069,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_c2e4d3fcafd047089f296cb23e197fd9.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_c2e4d3fcafd047089f296cb23e197fd9.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -4709,7 +4709,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 10.0,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__heavy.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__heavy.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -4719,7 +4719,7 @@
     "preprocess_ms": 0.4254570003467961,
     "inference_ms": 1205.308450999837,
     "postprocess_ms": 0.00010999974620062858,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_7af0ccfdf607420694f9bbf343d47f47.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_7af0ccfdf607420694f9bbf343d47f47.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -4952,7 +4952,7 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "en_small",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
+    "input_audio_path": "datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -4962,7 +4962,7 @@
     "preprocess_ms": 285.7137890005106,
     "inference_ms": 1111.588734000179,
     "postprocess_ms": 0.06775700057914946,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_21ce7abb4f234eff93c9995bb2e7e0d7.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_21ce7abb4f234eff93c9995bb2e7e0d7.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -5200,7 +5200,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 30.0,
     "provider_preset": "en_small",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__light.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__light.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -5210,7 +5210,7 @@
     "preprocess_ms": 0.009107000551011879,
     "inference_ms": 1092.1394890001466,
     "postprocess_ms": 0.08202400022128131,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_1e2ff9dd4e984619a0e8ae69447f6e6a.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_1e2ff9dd4e984619a0e8ae69447f6e6a.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -5448,7 +5448,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 20.0,
     "provider_preset": "en_small",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__medium.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__medium.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -5458,7 +5458,7 @@
     "preprocess_ms": 0.00801499936642358,
     "inference_ms": 1053.103586999896,
     "postprocess_ms": 0.06720600049447967,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_613e83493b0046ff9d93e7a844b4a825.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_613e83493b0046ff9d93e7a844b4a825.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -5689,7 +5689,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 10.0,
     "provider_preset": "en_small",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__heavy.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__heavy.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -5699,7 +5699,7 @@
     "preprocess_ms": 0.006963000487303361,
     "inference_ms": 1168.7299499999426,
     "postprocess_ms": 0.11152900060551474,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_8d4689ee4e644ff4a855da39af4952ba.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_8d4689ee4e644ff4a855da39af4952ba.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -5923,7 +5923,7 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "en_small",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
+    "input_audio_path": "datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -5933,7 +5933,7 @@
     "preprocess_ms": 0.00795500000094762,
     "inference_ms": 872.2014439999839,
     "postprocess_ms": 0.08721300036995672,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_750d547e95964ae896ce6782a9e32cdb.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_750d547e95964ae896ce6782a9e32cdb.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -6150,7 +6150,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 30.0,
     "provider_preset": "en_small",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__light.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__light.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -6160,7 +6160,7 @@
     "preprocess_ms": 0.007433999599015806,
     "inference_ms": 1026.4628080003604,
     "postprocess_ms": 0.11151900071126875,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_1cae8a72527a4138a00f56412c366fcb.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_1cae8a72527a4138a00f56412c366fcb.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -6363,7 +6363,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 20.0,
     "provider_preset": "en_small",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__medium.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__medium.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -6373,7 +6373,7 @@
     "preprocess_ms": 0.006833000043116044,
     "inference_ms": 985.0648870005898,
     "postprocess_ms": 0.10571800066827564,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d11ef62e1b0e49ac986cb6214398990b.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d11ef62e1b0e49ac986cb6214398990b.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -6576,7 +6576,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 10.0,
     "provider_preset": "en_small",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__heavy.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__heavy.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -6586,7 +6586,7 @@
     "preprocess_ms": 0.007214000106614549,
     "inference_ms": 350.1109130002078,
     "postprocess_ms": 0.11244100005569635,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_c84f9e6270e74bac9a9bcb190bea8b43.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_c84f9e6270e74bac9a9bcb190bea8b43.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -6704,7 +6704,7 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
+    "input_audio_path": "datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -6714,7 +6714,7 @@
     "preprocess_ms": 4192.21263899999,
     "inference_ms": 2147.563724000065,
     "postprocess_ms": 0.04803999945579562,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_69d4e907aead47078973ac2628a16884.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_69d4e907aead47078973ac2628a16884.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -6945,7 +6945,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 30.0,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__light.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__light.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -6955,7 +6955,7 @@
     "preprocess_ms": 0.010108999958902132,
     "inference_ms": 1940.118242000608,
     "postprocess_ms": 0.07991999973455677,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_474297144f9242d08caae6129a634cbb.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_474297144f9242d08caae6129a634cbb.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -7186,7 +7186,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 20.0,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__medium.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__medium.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -7196,7 +7196,7 @@
     "preprocess_ms": 0.008185000297089573,
     "inference_ms": 1946.7520540001715,
     "postprocess_ms": 0.08105100005195709,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d60fc77f973342c3a8e8dd995242e803.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d60fc77f973342c3a8e8dd995242e803.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -7427,7 +7427,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 10.0,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__heavy.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_12741024238657315067__babble__heavy.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -7437,7 +7437,7 @@
     "preprocess_ms": 0.007764999281789642,
     "inference_ms": 1957.724890999998,
     "postprocess_ms": 0.08484899990435224,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d2cbb63be4a44518a709fa9986f11cf2.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d2cbb63be4a44518a709fa9986f11cf2.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -7668,7 +7668,7 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
+    "input_audio_path": "datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -7678,7 +7678,7 @@
     "preprocess_ms": 0.005249000423646066,
     "inference_ms": 1923.2675640005255,
     "postprocess_ms": 0.08814500051812502,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_97b9291ddbda4a6b8234cc8038709198.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_97b9291ddbda4a6b8234cc8038709198.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -7909,7 +7909,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 30.0,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__light.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__light.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -7919,7 +7919,7 @@
     "preprocess_ms": 0.008194999281840865,
     "inference_ms": 1931.1150429994086,
     "postprocess_ms": 0.08333699952345341,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d5a3ed4881d141d6a40ce516fafbec56.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_d5a3ed4881d141d6a40ce516fafbec56.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -8150,7 +8150,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 20.0,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__medium.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__medium.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -8160,7 +8160,7 @@
     "preprocess_ms": 0.007714000275882427,
     "inference_ms": 1934.874896999645,
     "postprocess_ms": 0.08119199992506765,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_5631359095a8424abfca66720d29f5df.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_5631359095a8424abfca66720d29f5df.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -8391,7 +8391,7 @@
     "noise_mode": "babble",
     "noise_snr_db": 10.0,
     "provider_preset": "accurate",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__heavy.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/derived_audio/fleurs_en_us_621925716775998155__babble__heavy.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -8401,7 +8401,7 @@
     "preprocess_ms": 0.006892999408592004,
     "inference_ms": 1927.455775999988,
     "postprocess_ms": 0.0831360002848669,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_7824516157d7471a9dc162f4e22b6ce8.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260425T172928Z_bd7942ba/metrics/traces/trace_7824516157d7471a9dc162f4e22b6ce8.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"

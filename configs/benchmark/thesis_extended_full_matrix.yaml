@@ -1,0 +1,15 @@
+profile_id: benchmark/thesis_extended_full_matrix
+inherits:
+  - thesis_extended_local_matrix
+providers:
+  - providers/whisper_local
+  - providers/vosk_local
+  - providers/huggingface_local
+  - providers/azure_cloud
+  - providers/google_cloud
+  - providers/aws_cloud
+  - providers/huggingface_api
+cloud_cost_control:
+  max_samples_per_dataset: 10
+  clean_required: true
+  noisy_scenarios_optional: true

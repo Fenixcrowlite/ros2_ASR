@@ -3,7 +3,7 @@
     {
       "dataset_id": "fleurs_en_us_test_subset",
       "manifest_ref": "datasets/manifests/fleurs_en_us_test_subset.jsonl",
-      "sample_count": 2,
+      "sample_count": 10,
       "metadata": {
         "source": "external_download",
         "source_ref": "google/fleurs en_us test",
@@ -12,13 +12,19 @@
         "acoustic_profile": "crowdsourced_mobile",
         "license": "CC BY 4.0"
       },
-      "status": "manifest_only_audio_missing",
-      "used_in_final_benchmark": false
+      "status": "validated_available",
+      "used_in_final_benchmark": false,
+      "language": "en-US",
+      "acoustic_profile": "crowdsourced_mobile",
+      "source_ref": "google/fleurs en_us test",
+      "source_url": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC BY 4.0",
+      "used_in_extended_benchmark": true
     },
     {
       "dataset_id": "fleurs_fr_fr_test_subset",
       "manifest_ref": "datasets/manifests/fleurs_fr_fr_test_subset.jsonl",
-      "sample_count": 2,
+      "sample_count": 10,
       "metadata": {
         "source": "external_download",
         "source_ref": "google/fleurs fr_fr test",
@@ -27,13 +33,19 @@
         "acoustic_profile": "crowdsourced_mobile",
         "license": "CC BY 4.0"
       },
-      "status": "manifest_only_audio_missing",
-      "used_in_final_benchmark": false
+      "status": "validated_available",
+      "used_in_final_benchmark": false,
+      "language": "fr-FR",
+      "acoustic_profile": "crowdsourced_mobile",
+      "source_ref": "google/fleurs fr_fr test",
+      "source_url": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC BY 4.0",
+      "used_in_extended_benchmark": true
     },
     {
       "dataset_id": "fleurs_ja_jp_test_subset",
       "manifest_ref": "datasets/manifests/fleurs_ja_jp_test_subset.jsonl",
-      "sample_count": 2,
+      "sample_count": 10,
       "metadata": {
         "source": "external_download",
         "source_ref": "google/fleurs ja_jp test",
@@ -42,28 +54,40 @@
         "acoustic_profile": "crowdsourced_mobile",
         "license": "CC BY 4.0"
       },
-      "status": "manifest_only_audio_missing",
-      "used_in_final_benchmark": false
+      "status": "validated_available",
+      "used_in_final_benchmark": false,
+      "language": "ja-JP",
+      "acoustic_profile": "crowdsourced_mobile",
+      "source_ref": "google/fleurs ja_jp test",
+      "source_url": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC BY 4.0",
+      "used_in_extended_benchmark": true
     },
     {
       "dataset_id": "fleurs_sk_sk_test_subset",
       "manifest_ref": "datasets/manifests/fleurs_sk_sk_test_subset.jsonl",
-      "sample_count": 2,
+      "sample_count": 10,
       "metadata": {
         "source": "external_download",
         "source_ref": "google/fleurs sk_sk test",
-        "language": "sk-SK",
         "source_url": "https://huggingface.co/datasets/google/fleurs",
+        "language": "sk-SK",
         "acoustic_profile": "crowdsourced_mobile",
         "license": "CC BY 4.0"
       },
-      "status": "manifest_only_audio_missing",
-      "used_in_final_benchmark": false
+      "status": "validated_available",
+      "used_in_final_benchmark": false,
+      "language": "sk-SK",
+      "acoustic_profile": "crowdsourced_mobile",
+      "source_ref": "google/fleurs sk_sk test",
+      "source_url": "https://huggingface.co/datasets/google/fleurs",
+      "license": "CC BY 4.0",
+      "used_in_extended_benchmark": true
     },
     {
       "dataset_id": "librispeech_test_other_subset",
       "manifest_ref": "datasets/manifests/librispeech_test_other_subset.jsonl",
-      "sample_count": 2,
+      "sample_count": 10,
       "metadata": {
         "source": "external_download",
         "source_ref": "OpenSLR SLR12 test-other",
@@ -72,28 +96,40 @@
         "acoustic_profile": "harder_read",
         "license": "CC BY 4.0"
       },
-      "status": "manifest_only_audio_missing",
-      "used_in_final_benchmark": false
+      "status": "validated_available",
+      "used_in_final_benchmark": false,
+      "language": "en-US",
+      "acoustic_profile": "harder_read",
+      "source_ref": "OpenSLR SLR12 test-other",
+      "source_url": "https://www.openslr.org/12/",
+      "license": "CC BY 4.0",
+      "used_in_extended_benchmark": true
     },
     {
       "dataset_id": "mini_librispeech_dev_clean_2_subset",
       "manifest_ref": "datasets/manifests/mini_librispeech_dev_clean_2_subset.jsonl",
-      "sample_count": 2,
+      "sample_count": 10,
       "metadata": {
         "source": "external_download",
         "source_ref": "OpenSLR SLR31 dev-clean-2",
-        "language": "en-US",
         "source_url": "https://www.openslr.org/31/",
+        "language": "en-US",
         "acoustic_profile": "clean_read",
         "license": "CC BY 4.0"
       },
-      "status": "manifest_only_audio_missing",
-      "used_in_final_benchmark": false
+      "status": "validated_available",
+      "used_in_final_benchmark": false,
+      "language": "en-US",
+      "acoustic_profile": "clean_read",
+      "source_ref": "OpenSLR SLR31 dev-clean-2",
+      "source_url": "https://www.openslr.org/31/",
+      "license": "CC BY 4.0",
+      "used_in_extended_benchmark": true
     },
     {
       "dataset_id": "mls_german_test_subset",
       "manifest_ref": "datasets/manifests/mls_german_test_subset.jsonl",
-      "sample_count": 2,
+      "sample_count": 10,
       "metadata": {
         "source": "external_download",
         "source_ref": "facebook/multilingual_librispeech mls_german test",
@@ -102,13 +138,19 @@
         "acoustic_profile": "multilingual_audiobook",
         "license": "CC BY 4.0"
       },
-      "status": "manifest_only_audio_missing",
-      "used_in_final_benchmark": false
+      "status": "validated_available",
+      "used_in_final_benchmark": false,
+      "language": "de-DE",
+      "acoustic_profile": "multilingual_audiobook",
+      "source_ref": "facebook/multilingual_librispeech mls_german test",
+      "source_url": "https://huggingface.co/datasets/facebook/multilingual_librispeech",
+      "license": "CC BY 4.0",
+      "used_in_extended_benchmark": true
     },
     {
       "dataset_id": "mls_spanish_test_subset",
       "manifest_ref": "datasets/manifests/mls_spanish_test_subset.jsonl",
-      "sample_count": 2,
+      "sample_count": 10,
       "metadata": {
         "source": "external_download",
         "source_ref": "facebook/multilingual_librispeech mls_spanish test",
@@ -117,13 +159,19 @@
         "acoustic_profile": "multilingual_audiobook",
         "license": "CC BY 4.0"
       },
-      "status": "manifest_only_audio_missing",
-      "used_in_final_benchmark": false
+      "status": "validated_available",
+      "used_in_final_benchmark": false,
+      "language": "es-ES",
+      "acoustic_profile": "multilingual_audiobook",
+      "source_ref": "facebook/multilingual_librispeech mls_spanish test",
+      "source_url": "https://huggingface.co/datasets/facebook/multilingual_librispeech",
+      "license": "CC BY 4.0",
+      "used_in_extended_benchmark": true
     },
     {
       "dataset_id": "voxpopuli_de_test_subset",
       "manifest_ref": "datasets/manifests/voxpopuli_de_test_subset.jsonl",
-      "sample_count": 2,
+      "sample_count": 10,
       "metadata": {
         "source": "external_download",
         "source_ref": "facebook/voxpopuli de test",
@@ -132,13 +180,19 @@
         "acoustic_profile": "far_field_plenary",
         "license": "CC BY-NC 4.0"
       },
-      "status": "manifest_only_audio_missing",
-      "used_in_final_benchmark": false
+      "status": "validated_available",
+      "used_in_final_benchmark": false,
+      "language": "de-DE",
+      "acoustic_profile": "far_field_plenary",
+      "source_ref": "facebook/voxpopuli de test",
+      "source_url": "https://huggingface.co/datasets/facebook/voxpopuli",
+      "license": "CC BY-NC 4.0",
+      "used_in_extended_benchmark": true
     },
     {
       "dataset_id": "voxpopuli_en_test_subset",
       "manifest_ref": "datasets/manifests/voxpopuli_en_test_subset.jsonl",
-      "sample_count": 2,
+      "sample_count": 10,
       "metadata": {
         "source": "external_download",
         "source_ref": "facebook/voxpopuli en test",
@@ -147,13 +201,19 @@
         "acoustic_profile": "far_field_plenary",
         "license": "CC BY-NC 4.0"
       },
-      "status": "manifest_only_audio_missing",
-      "used_in_final_benchmark": false
+      "status": "validated_available",
+      "used_in_final_benchmark": false,
+      "language": "en-US",
+      "acoustic_profile": "far_field_plenary",
+      "source_ref": "facebook/voxpopuli en test",
+      "source_url": "https://huggingface.co/datasets/facebook/voxpopuli",
+      "license": "CC BY-NC 4.0",
+      "used_in_extended_benchmark": true
     },
     {
       "dataset_id": "voxpopuli_es_test_subset",
       "manifest_ref": "datasets/manifests/voxpopuli_es_test_subset.jsonl",
-      "sample_count": 2,
+      "sample_count": 10,
       "metadata": {
         "source": "external_download",
         "source_ref": "facebook/voxpopuli es test",
@@ -162,8 +222,14 @@
         "acoustic_profile": "far_field_plenary",
         "license": "CC BY-NC 4.0"
       },
-      "status": "manifest_only_audio_missing",
-      "used_in_final_benchmark": false
+      "status": "validated_available",
+      "used_in_final_benchmark": false,
+      "language": "es-ES",
+      "acoustic_profile": "far_field_plenary",
+      "source_ref": "facebook/voxpopuli es test",
+      "source_url": "https://huggingface.co/datasets/facebook/voxpopuli",
+      "license": "CC BY-NC 4.0",
+      "used_in_extended_benchmark": true
     }
   ]
 }

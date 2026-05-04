@@ -33,7 +33,7 @@
       "provider_init_cold_start": true,
       "provider_call_cold_start": true,
       "provider_invocation_index": 1,
-      "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/audit_20260331_risk_closure_final/metrics/traces/trace_50a7334b138648c9909cd094b3ae3c19.json"
+      "trace_artifact_ref": "artifacts/benchmark_runs/audit_20260331_risk_closure_final/metrics/traces/trace_50a7334b138648c9909cd094b3ae3c19.json"
     }
   ]
 }

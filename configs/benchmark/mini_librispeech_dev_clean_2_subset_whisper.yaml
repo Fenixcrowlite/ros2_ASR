@@ -2,10 +2,10 @@ profile_id: benchmark/mini_librispeech_dev_clean_2_subset_whisper
 inherits: []
 dataset_profile: datasets/mini_librispeech_dev_clean_2_subset
 providers:
-  - providers/whisper_local
+- providers/whisper_local
 metric_profiles:
-  - metrics/default_quality
-  - metrics/default_timing
+- metrics/default_quality
+- metrics/default_timing
 execution_mode: batch
 batch:
   max_samples: 0
@@ -13,4 +13,4 @@ batch:
 noise:
   mode: white
   levels:
-    - clean
+  - clean

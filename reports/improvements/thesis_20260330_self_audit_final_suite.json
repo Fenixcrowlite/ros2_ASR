@@ -86,13 +86,13 @@
             "noise_mode": "none",
             "noise_snr_db": null,
             "provider_preset": "light",
-            "input_audio_path": "/home/fenix/Desktop/ros2ws/data/sample/vosk_test.wav",
+            "input_audio_path": "data/sample/vosk_test.wav",
             "audio_duration_sec": 8.308,
             "confidence": 0.666260313307349,
             "preprocess_ms": 2435.2582920109853,
             "inference_ms": 619.3613930081483,
             "postprocess_ms": 0.5050879844930023,
-            "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter01_light/metrics/traces/trace_8a6c326106f14719a2604f294c27a64a.json",
+            "trace_artifact_ref": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter01_light/metrics/traces/trace_8a6c326106f14719a2604f294c27a64a.json",
             "trace_corrupted": false,
             "normalized_result": {
               "request_id": "req_908f43860ada4658b23e419588de1fbb",
@@ -172,7 +172,7 @@
             "wer": 0.0
           },
           "metadata": {
-            "run_dir": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter01_light",
+            "run_dir": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter01_light",
             "enabled_metrics": [
               "cer",
               "estimated_cost_usd",
@@ -304,13 +304,13 @@
             "noise_mode": "none",
             "noise_snr_db": null,
             "provider_preset": "balanced",
-            "input_audio_path": "/home/fenix/Desktop/ros2ws/data/sample/vosk_test.wav",
+            "input_audio_path": "data/sample/vosk_test.wav",
             "audio_duration_sec": 8.308,
             "confidence": 0.8086438129491665,
             "preprocess_ms": 913.915459997952,
             "inference_ms": 787.7259140077513,
             "postprocess_ms": 0.08333701407536864,
-            "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter01_balanced/metrics/traces/trace_fcec39a93f4f4ca48ee96582e365c545.json",
+            "trace_artifact_ref": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter01_balanced/metrics/traces/trace_fcec39a93f4f4ca48ee96582e365c545.json",
             "trace_corrupted": false,
             "normalized_result": {
               "request_id": "req_4eb2dbbc02604bce919feb8e42d51600",
@@ -474,7 +474,7 @@
             "wer": 0.0
           },
           "metadata": {
-            "run_dir": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter01_balanced",
+            "run_dir": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter01_balanced",
             "enabled_metrics": [
               "cer",
               "estimated_cost_usd",
@@ -606,13 +606,13 @@
             "noise_mode": "none",
             "noise_snr_db": null,
             "provider_preset": "accurate",
-            "input_audio_path": "/home/fenix/Desktop/ros2ws/data/sample/vosk_test.wav",
+            "input_audio_path": "data/sample/vosk_test.wav",
             "audio_duration_sec": 8.308,
             "confidence": 0.8086618960581042,
             "preprocess_ms": 2080.63967799535,
             "inference_ms": 2300.3903749922756,
             "postprocess_ms": 0.9722450049594045,
-            "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter01_accurate/metrics/traces/trace_87ce603558d140f087cb599ddd2722a2.json",
+            "trace_artifact_ref": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter01_accurate/metrics/traces/trace_87ce603558d140f087cb599ddd2722a2.json",
             "trace_corrupted": false,
             "normalized_result": {
               "request_id": "req_e6015f978a3042469deb6054164c3557",
@@ -692,7 +692,7 @@
             "wer": 0.3333333333333333
           },
           "metadata": {
-            "run_dir": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter01_accurate",
+            "run_dir": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter01_accurate",
             "enabled_metrics": [
               "cer",
               "estimated_cost_usd",
@@ -825,13 +825,13 @@
           "noise_mode": "none",
           "noise_snr_db": null,
           "provider_preset": "balanced",
-          "input_audio_path": "/home/fenix/Desktop/ros2ws/data/sample/vosk_test.wav",
+          "input_audio_path": "data/sample/vosk_test.wav",
           "audio_duration_sec": 8.308,
           "confidence": 0.8086438129491665,
           "preprocess_ms": 843.552221020218,
           "inference_ms": 1041.094800020801,
           "postprocess_ms": 1.6582209791522473,
-          "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/metrics/traces/trace_58c62cba31b441e99726de483b81b842.json",
+          "trace_artifact_ref": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/metrics/traces/trace_58c62cba31b441e99726de483b81b842.json",
           "trace_corrupted": false,
           "normalized_result": {
             "request_id": "req_4f6db865209f47ca9610ad38f3f11941",
@@ -1021,13 +1021,13 @@
           "noise_mode": "white",
           "noise_snr_db": 30.0,
           "provider_preset": "balanced",
-          "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/derived_audio/sample_vosk_numbers__light.wav",
+          "input_audio_path": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/derived_audio/sample_vosk_numbers__light.wav",
           "audio_duration_sec": 8.308,
           "confidence": 0.7381789052980186,
           "preprocess_ms": 0.006811984349042177,
           "inference_ms": 677.275968977483,
           "postprocess_ms": 0.08535000961273909,
-          "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/metrics/traces/trace_1ca690d17e3946e9880bd8d13db4839d.json",
+          "trace_artifact_ref": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/metrics/traces/trace_1ca690d17e3946e9880bd8d13db4839d.json",
           "trace_corrupted": false,
           "normalized_result": {
             "request_id": "req_2ea36b528b464a7cb02ee564774b1552",
@@ -1182,13 +1182,13 @@
           "noise_mode": "white",
           "noise_snr_db": 20.0,
           "provider_preset": "balanced",
-          "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/derived_audio/sample_vosk_numbers__medium.wav",
+          "input_audio_path": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/derived_audio/sample_vosk_numbers__medium.wav",
           "audio_duration_sec": 8.308,
           "confidence": 0.7477221112415708,
           "preprocess_ms": 0.007675000233575702,
           "inference_ms": 778.8653899915516,
           "postprocess_ms": 0.08514997898600996,
-          "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/metrics/traces/trace_1a95797af6374be39f7f67edd16412eb.json",
+          "trace_artifact_ref": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/metrics/traces/trace_1a95797af6374be39f7f67edd16412eb.json",
           "trace_corrupted": false,
           "normalized_result": {
             "request_id": "req_492b4b1b49bc408896a6cf7f54e92ccc",
@@ -1357,13 +1357,13 @@
           "noise_mode": "white",
           "noise_snr_db": 10.0,
           "provider_preset": "balanced",
-          "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/derived_audio/sample_vosk_numbers__heavy.wav",
+          "input_audio_path": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/derived_audio/sample_vosk_numbers__heavy.wav",
           "audio_duration_sec": 8.308,
           "confidence": 0.723194484554586,
           "preprocess_ms": 0.007825001375749707,
           "inference_ms": 832.1164450026117,
           "postprocess_ms": 0.3110139805357903,
-          "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/metrics/traces/trace_6222b279a8974c2990420ace3323d4cb.json",
+          "trace_artifact_ref": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced/metrics/traces/trace_6222b279a8974c2990420ace3323d4cb.json",
           "trace_corrupted": false,
           "normalized_result": {
             "request_id": "req_ddb03107b9bf42d19300cd1300d03a4a",
@@ -1499,7 +1499,7 @@
           "wer": 0.0
         },
         "metadata": {
-          "run_dir": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced",
+          "run_dir": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter02_noise_balanced",
           "enabled_metrics": [
             "cer",
             "estimated_cost_usd",
@@ -1632,13 +1632,13 @@
             "noise_mode": "none",
             "noise_snr_db": null,
             "provider_preset": "balanced",
-            "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_fr_fr_test_subset/fleurs_fr_fr_7105431834829365765.wav",
+            "input_audio_path": "datasets/imported/fleurs_fr_fr_test_subset/fleurs_fr_fr_7105431834829365765.wav",
             "audio_duration_sec": 9.42,
             "confidence": 0.831292513574379,
             "preprocess_ms": 994.4917699904181,
             "inference_ms": 985.9808609762695,
             "postprocess_ms": 0.4989159933757037,
-            "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_fr_balanced/metrics/traces/trace_6c2f4b8d998f478ebbfdf4b6343fbd47.json",
+            "trace_artifact_ref": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_fr_balanced/metrics/traces/trace_6c2f4b8d998f478ebbfdf4b6343fbd47.json",
             "trace_corrupted": false,
             "normalized_result": {
               "request_id": "req_53829b2eb1ee488c901acb5a7b905b5a",
@@ -1926,13 +1926,13 @@
             "noise_mode": "none",
             "noise_snr_db": null,
             "provider_preset": "balanced",
-            "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_fr_fr_test_subset/fleurs_fr_fr_17999210160761730950.wav",
+            "input_audio_path": "datasets/imported/fleurs_fr_fr_test_subset/fleurs_fr_fr_17999210160761730950.wav",
             "audio_duration_sec": 6.0,
             "confidence": 0.6705097311210064,
             "preprocess_ms": 0.004447996616363525,
             "inference_ms": 679.783283994766,
             "postprocess_ms": 0.08920699474401772,
-            "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_fr_balanced/metrics/traces/trace_43c6cbd457b146a4bd1ad26703ec85ab.json",
+            "trace_artifact_ref": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_fr_balanced/metrics/traces/trace_43c6cbd457b146a4bd1ad26703ec85ab.json",
             "trace_corrupted": false,
             "normalized_result": {
               "request_id": "req_9b25ed6c2d284827becb320de9155bc9",
@@ -2082,7 +2082,7 @@
             "wer": 0.25
           },
           "metadata": {
-            "run_dir": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_fr_balanced",
+            "run_dir": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_fr_balanced",
             "enabled_metrics": [
               "cer",
               "estimated_cost_usd",
@@ -2214,13 +2214,13 @@
             "noise_mode": "none",
             "noise_snr_db": null,
             "provider_preset": "balanced",
-            "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_sk_sk_test_subset/8207956000835058817.wav",
+            "input_audio_path": "datasets/imported/fleurs_sk_sk_test_subset/8207956000835058817.wav",
             "audio_duration_sec": 4.26,
             "confidence": 0.4862864863927718,
             "preprocess_ms": 988.7378639832605,
             "inference_ms": 718.7981879978906,
             "postprocess_ms": 0.0920020102057606,
-            "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_sk_balanced/metrics/traces/trace_b7337913eaab45ef903ee9b6b8af412c.json",
+            "trace_artifact_ref": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_sk_balanced/metrics/traces/trace_b7337913eaab45ef903ee9b6b8af412c.json",
             "trace_corrupted": false,
             "normalized_result": {
               "request_id": "req_0870426a40914351b30be351fc8509d8",
@@ -2368,13 +2368,13 @@
             "noise_mode": "none",
             "noise_snr_db": null,
             "provider_preset": "balanced",
-            "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_sk_sk_test_subset/15713138414078615163.wav",
+            "input_audio_path": "datasets/imported/fleurs_sk_sk_test_subset/15713138414078615163.wav",
             "audio_duration_sec": 4.44,
             "confidence": 0.814847261927746,
             "preprocess_ms": 0.00451799132861197,
             "inference_ms": 717.0908650150523,
             "postprocess_ms": 0.09586999658495188,
-            "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_sk_balanced/metrics/traces/trace_ecffb0dc39754f7f8839abc100265801.json",
+            "trace_artifact_ref": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_sk_balanced/metrics/traces/trace_ecffb0dc39754f7f8839abc100265801.json",
             "trace_corrupted": false,
             "normalized_result": {
               "request_id": "req_fa1f5875cabb4a518513acf10890f0f1",
@@ -2489,7 +2489,7 @@
             "wer": 0.7142857142857143
           },
           "metadata": {
-            "run_dir": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_sk_balanced",
+            "run_dir": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_sk_balanced",
             "enabled_metrics": [
               "cer",
               "estimated_cost_usd",
@@ -2621,13 +2621,13 @@
             "noise_mode": "none",
             "noise_snr_db": null,
             "provider_preset": "balanced",
-            "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_ja_jp_test_subset/fleurs_ja_jp_17808260654685775088.wav",
+            "input_audio_path": "datasets/imported/fleurs_ja_jp_test_subset/fleurs_ja_jp_17808260654685775088.wav",
             "audio_duration_sec": 22.62,
             "confidence": 0.8760058787904582,
             "preprocess_ms": 713.6161449889187,
             "inference_ms": 1453.00162199419,
             "postprocess_ms": 0.0781969865784049,
-            "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_ja_balanced/metrics/traces/trace_dd7b198a4aa74a808a22bbae8b9b11fe.json",
+            "trace_artifact_ref": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_ja_balanced/metrics/traces/trace_dd7b198a4aa74a808a22bbae8b9b11fe.json",
             "trace_corrupted": false,
             "normalized_result": {
               "request_id": "req_c46e8b1010ac4b85b5990e69fc4fac4b",
@@ -3363,13 +3363,13 @@
             "noise_mode": "none",
             "noise_snr_db": null,
             "provider_preset": "balanced",
-            "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_ja_jp_test_subset/fleurs_ja_jp_9364520089078562923.wav",
+            "input_audio_path": "datasets/imported/fleurs_ja_jp_test_subset/fleurs_ja_jp_9364520089078562923.wav",
             "audio_duration_sec": 10.74,
             "confidence": 0.8251967177351528,
             "preprocess_ms": 0.004478002665564418,
             "inference_ms": 787.7046980138402,
             "postprocess_ms": 0.08069101022556424,
-            "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_ja_balanced/metrics/traces/trace_a6877a7f90ef4345bb692efb6ed07e76.json",
+            "trace_artifact_ref": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_ja_balanced/metrics/traces/trace_a6877a7f90ef4345bb692efb6ed07e76.json",
             "trace_corrupted": false,
             "normalized_result": {
               "request_id": "req_0129066f07074313bc9d349b20687f35",
@@ -3638,7 +3638,7 @@
             "wer": 1.0
           },
           "metadata": {
-            "run_dir": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_ja_balanced",
+            "run_dir": "artifacts/benchmark_runs/thesis_20260330_self_audit_final_iter03_ja_balanced",
             "enabled_metrics": [
               "cer",
               "estimated_cost_usd",
@@ -4116,7 +4116,7 @@
               "audio_file_path": "data/sample/vosk_test.wav",
               "language": "en-US",
               "success": true,
-              "resolved_config_ref": "/home/fenix/Desktop/ros2ws/configs/resolved/runtime__default_runtime.json"
+              "resolved_config_ref": "configs/resolved/runtime__default_runtime.json"
             }
           },
           {

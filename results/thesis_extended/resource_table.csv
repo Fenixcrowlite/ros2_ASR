@@ -1,0 +1,73 @@
+provider,model,dataset,device,cpu_pct_mean,cpu_pct_peak,ram_mb_peak,gpu_util_pct_mean,gpu_mem_mb_peak,model_size_mb,resource_metrics_available,note_for_cloud_client_side_only
+aws_cloud,standard,fleurs_en_us_test_subset,cloud,7.861820439,68.6,281.1132812,5.667708333,862,,true,cloud rows show client-side benchmark process resources only
+aws_cloud,standard,fleurs_fr_fr_test_subset,cloud,6.324380657,57,280.8398438,7.658741212,757,,true,cloud rows show client-side benchmark process resources only
+aws_cloud,standard,fleurs_ja_jp_test_subset,cloud,2.536914693,39.5,286.0742188,0.9979779412,728,,true,cloud rows show client-side benchmark process resources only
+aws_cloud,standard,fleurs_sk_sk_test_subset,cloud,3.577518955,76.8,279.8164062,1.855269608,716,,true,cloud rows show client-side benchmark process resources only
+aws_cloud,standard,librispeech_test_clean_subset,cloud,5.481710089,50,285.5273438,6.225962395,696,,true,cloud rows show client-side benchmark process resources only
+aws_cloud,standard,librispeech_test_other_subset,cloud,6.278295335,48.4,278.9492188,6.981854839,788,,true,cloud rows show client-side benchmark process resources only
+aws_cloud,standard,mini_librispeech_dev_clean_2_subset,cloud,6.316327487,66.7,278.4492188,7.917848851,750,,true,cloud rows show client-side benchmark process resources only
+aws_cloud,standard,mls_german_test_subset,cloud,5.315387162,36.7,281.6953125,11.34310606,788,,true,cloud rows show client-side benchmark process resources only
+aws_cloud,standard,mls_spanish_test_subset,cloud,5.023274731,53.8,284.1914062,8.08378865,783,,true,cloud rows show client-side benchmark process resources only
+aws_cloud,standard,voxpopuli_de_test_subset,cloud,4.164017295,29.9,280.7421875,7.012063965,826,,true,cloud rows show client-side benchmark process resources only
+aws_cloud,standard,voxpopuli_en_test_subset,cloud,2.699437376,25.3,281.8789062,0.5566069347,682,,true,cloud rows show client-side benchmark process resources only
+aws_cloud,standard,voxpopuli_es_test_subset,cloud,5.743420987,62.9,286.5820312,7.788012821,736,,true,cloud rows show client-side benchmark process resources only
+azure_cloud,standard,fleurs_en_us_test_subset,cloud,6.831582621,100,87.91796875,9.474819625,724,,true,cloud rows show client-side benchmark process resources only
+azure_cloud,standard,fleurs_fr_fr_test_subset,cloud,6.140780854,100,88.625,6.221240981,748,,true,cloud rows show client-side benchmark process resources only
+azure_cloud,standard,fleurs_ja_jp_test_subset,cloud,3.046691955,50,89.21875,1.02107726,705,,true,cloud rows show client-side benchmark process resources only
+azure_cloud,standard,fleurs_sk_sk_test_subset,cloud,4.584348682,51.6,87.68359375,7.40671398,718,,true,cloud rows show client-side benchmark process resources only
+azure_cloud,standard,librispeech_test_clean_subset,cloud,5.956146592,100,88.91796875,3.467568543,697,,true,cloud rows show client-side benchmark process resources only
+azure_cloud,standard,librispeech_test_other_subset,cloud,4.115441123,28.7,87.7734375,3.16452381,644,,true,cloud rows show client-side benchmark process resources only
+azure_cloud,standard,mini_librispeech_dev_clean_2_subset,cloud,5.271978832,36.1,87.390625,2.846190476,757,,true,cloud rows show client-side benchmark process resources only
+azure_cloud,standard,mls_german_test_subset,cloud,5.588261036,100,87.78125,5.439307359,718,,true,cloud rows show client-side benchmark process resources only
+azure_cloud,standard,mls_spanish_test_subset,cloud,4.77441938,57,88.3671875,11.57501598,878,,true,cloud rows show client-side benchmark process resources only
+azure_cloud,standard,voxpopuli_de_test_subset,cloud,2.565838501,50,87.62109375,2.100396825,687,,true,cloud rows show client-side benchmark process resources only
+azure_cloud,standard,voxpopuli_en_test_subset,cloud,3.543252128,100,88.66015625,1.238314052,698,,true,cloud rows show client-side benchmark process resources only
+azure_cloud,standard,voxpopuli_es_test_subset,cloud,4.465562167,100,89.42578125,6.181677019,754,,true,cloud rows show client-side benchmark process resources only
+google_cloud,balanced,fleurs_en_us_test_subset,cloud,7.281495375,50,145.4101562,9.616046062,870,,true,cloud rows show client-side benchmark process resources only
+google_cloud,balanced,fleurs_fr_fr_test_subset,cloud,8.733273338,50,145.046875,12.9442841,773,,true,cloud rows show client-side benchmark process resources only
+google_cloud,balanced,fleurs_ja_jp_test_subset,cloud,2.376049472,50,145.7226562,0.07899159664,688,,true,cloud rows show client-side benchmark process resources only
+google_cloud,balanced,fleurs_sk_sk_test_subset,cloud,5.121484893,50,143.71875,8.06797619,697,,true,cloud rows show client-side benchmark process resources only
+google_cloud,balanced,librispeech_test_clean_subset,cloud,5.622331137,100,145.9921875,4.06265873,692,,true,cloud rows show client-side benchmark process resources only
+google_cloud,balanced,librispeech_test_other_subset,cloud,5.331244631,50,143.2890625,16.41833333,696,,true,cloud rows show client-side benchmark process resources only
+google_cloud,balanced,mini_librispeech_dev_clean_2_subset,cloud,6.083963463,50,141.2109375,3.931428571,746,,true,cloud rows show client-side benchmark process resources only
+google_cloud,balanced,mls_german_test_subset,cloud,7.364112986,66.7,145.859375,9.034329837,770,,true,cloud rows show client-side benchmark process resources only
+google_cloud,balanced,mls_spanish_test_subset,cloud,5.423071838,35.2,143.8554688,5.291538462,731,,true,cloud rows show client-side benchmark process resources only
+google_cloud,balanced,voxpopuli_de_test_subset,cloud,3.225052516,41.5,144.7578125,6.286031746,682,,true,cloud rows show client-side benchmark process resources only
+google_cloud,balanced,voxpopuli_en_test_subset,cloud,2.341587334,50,146.046875,0,674,,true,cloud rows show client-side benchmark process resources only
+google_cloud,balanced,voxpopuli_es_test_subset,cloud,3.920097621,17.9,146.7304688,7.287955182,702,,true,cloud rows show client-side benchmark process resources only
+huggingface_local,balanced,fleurs_en_us_test_subset,local,11.77505247,100,3408.980469,31.86271429,4423,,true,
+huggingface_local,balanced,fleurs_fr_fr_test_subset,local,11.20142933,100,3431.023438,36.56521767,5444,,true,
+huggingface_local,balanced,fleurs_ja_jp_test_subset,local,12.60313613,100,3514.972656,41.17502521,5204,,true,
+huggingface_local,balanced,fleurs_sk_sk_test_subset,local,11.07190446,100,3427.058594,37.37717039,5254,,true,
+huggingface_local,balanced,librispeech_test_clean_subset,local,10.27071842,100,3204.09375,33.51167009,4772,,true,
+huggingface_local,balanced,librispeech_test_other_subset,local,9.016963936,66.7,3323.351562,30.09278571,5021,,true,
+huggingface_local,balanced,mini_librispeech_dev_clean_2_subset,local,10.66983133,100,3362.203125,31.1028,4105,,true,
+huggingface_local,balanced,mls_german_test_subset,local,8.08438344,50,3194.726562,42.19149351,4736,,true,
+huggingface_local,balanced,mls_spanish_test_subset,local,8.259783894,100,3441.460938,43.35232954,7652,,true,
+huggingface_local,balanced,voxpopuli_de_test_subset,local,12.54475675,100,3418.84375,35.04895238,4857,,true,
+huggingface_local,balanced,voxpopuli_en_test_subset,local,11.60476614,100,3425.203125,31.85273793,4940,,true,
+huggingface_local,balanced,voxpopuli_es_test_subset,local,9.363365372,57,4354.390625,39.1717225,5709,,true,
+vosk_local,en_small,fleurs_en_us_test_subset,local,9.127690722,49.4,1046.386719,0.9744047619,734,,true,
+vosk_local,en_small,fleurs_fr_fr_test_subset,local,9.250730045,100,1094.4375,0.4645120686,655,,true,
+vosk_local,en_small,fleurs_ja_jp_test_subset,local,10.70914097,100,1118.359375,4.211349091,775,,true,
+vosk_local,en_small,fleurs_sk_sk_test_subset,local,10.32137993,100,1069.679688,5.089584547,794,,true,
+vosk_local,en_small,librispeech_test_clean_subset,local,9.915822903,100,1033.933594,6.437437053,914,,true,
+vosk_local,en_small,librispeech_test_other_subset,local,8.879449372,100,1035.019531,3.719238095,803,,true,
+vosk_local,en_small,mini_librispeech_dev_clean_2_subset,local,9.387823023,100,1011.929688,4.504833333,776,,true,
+vosk_local,en_small,mls_german_test_subset,local,7.765636717,31,1087.160156,0.01175,877,,true,
+vosk_local,en_small,mls_spanish_test_subset,local,8.094187057,100,1104.039062,0.03266666667,858,,true,
+vosk_local,en_small,voxpopuli_de_test_subset,local,11.38286297,100,1061.476562,7.261397547,854,,true,
+vosk_local,en_small,voxpopuli_en_test_subset,local,11.05565781,100,1059.089844,7.203291209,763,,true,
+vosk_local,en_small,voxpopuli_es_test_subset,local,10.11020122,100,1135.03125,5.88044682,948,,true,
+whisper_local,light,fleurs_en_us_test_subset,local,30.25122419,97.5,988.0898438,0.6222727273,685,,true,
+whisper_local,light,fleurs_fr_fr_test_subset,local,31.22954168,100,1019.742188,5.474638889,690,,true,
+whisper_local,light,fleurs_ja_jp_test_subset,local,32.42121071,95,1031.132812,5.465551378,785,,true,
+whisper_local,light,fleurs_sk_sk_test_subset,local,32.16268746,100,985.0507812,7.161634454,748,,true,
+whisper_local,light,librispeech_test_clean_subset,local,33.27865844,100,991.8164062,1.750416667,722,,true,
+whisper_local,light,librispeech_test_other_subset,local,31.44940638,91.2,987.21875,0.8811111111,756,,true,
+whisper_local,light,mini_librispeech_dev_clean_2_subset,local,30.88224103,100,963.9296875,2.42,680,,true,
+whisper_local,light,mls_german_test_subset,local,28.70433503,91.3,1003.984375,0,891,,true,
+whisper_local,light,mls_spanish_test_subset,local,28.91267659,100,1006.074219,0,858,,true,
+whisper_local,light,voxpopuli_de_test_subset,local,33.58302007,100,992.6445312,7.9567507,756,,true,
+whisper_local,light,voxpopuli_en_test_subset,local,30.6817754,100,1003.179688,3.853214286,738,,true,
+whisper_local,light,voxpopuli_es_test_subset,local,33.96952835,100,1025.730469,7.572529412,760,,true,

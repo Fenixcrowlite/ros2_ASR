@@ -1,0 +1,44 @@
+profile_id: benchmark/thesis_extended_local_matrix
+inherits:
+  - default_benchmark
+dataset_registry: datasets/registry/datasets_extended.json
+dataset_profiles:
+  - datasets/librispeech_test_clean_subset
+  - datasets/librispeech_test_other_subset
+  - datasets/mini_librispeech_dev_clean_2_subset
+  - datasets/fleurs_en_us_test_subset
+  - datasets/fleurs_fr_fr_test_subset
+  - datasets/fleurs_ja_jp_test_subset
+  - datasets/fleurs_sk_sk_test_subset
+  - datasets/voxpopuli_en_test_subset
+  - datasets/voxpopuli_de_test_subset
+  - datasets/voxpopuli_es_test_subset
+  - datasets/mls_german_test_subset
+  - datasets/mls_spanish_test_subset
+providers:
+  - providers/whisper_local
+  - providers/vosk_local
+  - providers/huggingface_local
+scenarios:
+  - clean
+  - snr_20
+  - snr_10
+  - snr_5
+  - snr_0
+metric_profiles:
+  - metrics/default_quality
+  - metrics/default_timing
+execution_mode: batch
+batch:
+  max_samples: 10
+  timeout_sec: 300
+noise:
+  mode: white
+  levels:
+    - clean
+  custom_snr_db:
+    - 20
+    - 10
+    - 5
+    - 0
+  seed: 1337

@@ -1,0 +1,73 @@
+provider,model,language,acoustic_profile,dataset,wer,wer_delta_vs_clean_librispeech,latency_delta_vs_clean_librispeech,rtf_delta_vs_clean_librispeech,domain_robustness_note
+aws_cloud,standard,en-US,crowdsourced_mobile,fleurs_en_us_test_subset,0.09090909091,0.08692502716,-1269.201887,-0.5377903796,positive delta indicates degradation versus clean LibriSpeech
+aws_cloud,standard,fr-FR,crowdsourced_mobile,fleurs_fr_fr_test_subset,0.04237288136,0.03838881761,179.1472619,-0.4170440038,positive delta indicates degradation versus clean LibriSpeech
+aws_cloud,standard,ja-JP,crowdsourced_mobile,fleurs_ja_jp_test_subset,0.9714285714,0.9674445077,186.7357607,-0.8486163271,positive delta indicates degradation versus clean LibriSpeech
+aws_cloud,standard,sk-SK,crowdsourced_mobile,fleurs_sk_sk_test_subset,0.08974358974,0.085759526,-1080.519791,-0.4875499848,positive delta indicates degradation versus clean LibriSpeech
+aws_cloud,standard,en-US,clean_read,librispeech_test_clean_subset,0.003984063745,0,0,0,baseline clean LibriSpeech
+aws_cloud,standard,en-US,harder_read,librispeech_test_other_subset,0.03550295858,0.03151889483,-1340.497996,0.9410720142,positive delta indicates degradation versus clean LibriSpeech
+aws_cloud,standard,en-US,clean_read,mini_librispeech_dev_clean_2_subset,0.01744186047,0.01345779672,-1244.210055,0.5834514619,positive delta indicates degradation versus clean LibriSpeech
+aws_cloud,standard,de-DE,multilingual_audiobook,mls_german_test_subset,0.03367003367,0.02968596993,-59.12064194,-0.9373992045,positive delta indicates degradation versus clean LibriSpeech
+aws_cloud,standard,es-ES,multilingual_audiobook,mls_spanish_test_subset,0.03217158177,0.02818751802,880.6487367,-0.754700186,positive delta indicates degradation versus clean LibriSpeech
+aws_cloud,standard,de-DE,far_field_plenary,voxpopuli_de_test_subset,0.08415841584,0.0801743521,946.1013293,-0.1118141827,positive delta indicates degradation versus clean LibriSpeech
+aws_cloud,standard,en-US,far_field_plenary,voxpopuli_en_test_subset,0.03629032258,0.03230625884,-73.00882305,0.3797370875,positive delta indicates degradation versus clean LibriSpeech
+aws_cloud,standard,es-ES,far_field_plenary,voxpopuli_es_test_subset,0.07331378299,0.06932971925,2193.441968,-0.497512014,positive delta indicates degradation versus clean LibriSpeech
+azure_cloud,standard,en-US,crowdsourced_mobile,fleurs_en_us_test_subset,0.1148325359,0.1108484721,-2236.340601,-0.08975429405,positive delta indicates degradation versus clean LibriSpeech
+azure_cloud,standard,fr-FR,crowdsourced_mobile,fleurs_fr_fr_test_subset,0.05508474576,0.05110068202,-2237.53781,-0.07570255845,positive delta indicates degradation versus clean LibriSpeech
+azure_cloud,standard,ja-JP,crowdsourced_mobile,fleurs_ja_jp_test_subset,0.96875,0.9647659363,843.2400979,-0.09609850438,positive delta indicates degradation versus clean LibriSpeech
+azure_cloud,standard,sk-SK,crowdsourced_mobile,fleurs_sk_sk_test_subset,0.08333333333,0.07934926959,-3265.582135,-0.06791355989,positive delta indicates degradation versus clean LibriSpeech
+azure_cloud,standard,en-US,clean_read,librispeech_test_clean_subset,0.003984063745,0,0,0,baseline clean LibriSpeech
+azure_cloud,standard,en-US,harder_read,librispeech_test_other_subset,0.07692307692,0.07293901318,-3793.525697,0.04365301233,positive delta indicates degradation versus clean LibriSpeech
+azure_cloud,standard,en-US,clean_read,mini_librispeech_dev_clean_2_subset,0.02325581395,0.01927175021,-5603.437518,-0.0197909138,positive delta indicates degradation versus clean LibriSpeech
+azure_cloud,standard,de-DE,multilingual_audiobook,mls_german_test_subset,0.5589225589,0.5549384952,-2977.855104,-0.2067165556,positive delta indicates degradation versus clean LibriSpeech
+azure_cloud,standard,es-ES,multilingual_audiobook,mls_spanish_test_subset,0.1581769437,0.15419288,-1159.142649,-0.04256371758,positive delta indicates degradation versus clean LibriSpeech
+azure_cloud,standard,de-DE,far_field_plenary,voxpopuli_de_test_subset,0.2772277228,0.273243659,-3416.293337,-0.03833354649,positive delta indicates degradation versus clean LibriSpeech
+azure_cloud,standard,en-US,far_field_plenary,voxpopuli_en_test_subset,0.07258064516,0.06859658142,515.4003221,0.05618628208,positive delta indicates degradation versus clean LibriSpeech
+azure_cloud,standard,es-ES,far_field_plenary,voxpopuli_es_test_subset,0.1612903226,0.1573062588,636.9925917,-0.02154020425,positive delta indicates degradation versus clean LibriSpeech
+google_cloud,balanced,en-US,crowdsourced_mobile,fleurs_en_us_test_subset,0.1339712919,0.1140509731,9232.872761,0.1965832981,positive delta indicates degradation versus clean LibriSpeech
+google_cloud,balanced,fr-FR,crowdsourced_mobile,fleurs_fr_fr_test_subset,0.08474576271,0.06482544399,848.7154464,0.06892929793,positive delta indicates degradation versus clean LibriSpeech
+google_cloud,balanced,ja-JP,crowdsourced_mobile,fleurs_ja_jp_test_subset,1.342857143,1.322936824,711.5767135,-0.05271490231,positive delta indicates degradation versus clean LibriSpeech
+google_cloud,balanced,sk-SK,crowdsourced_mobile,fleurs_sk_sk_test_subset,0.1346153846,0.1146950659,-1094.296656,-0.04821711591,positive delta indicates degradation versus clean LibriSpeech
+google_cloud,balanced,en-US,clean_read,librispeech_test_clean_subset,0.01992031873,0,0,0,baseline clean LibriSpeech
+google_cloud,balanced,en-US,harder_read,librispeech_test_other_subset,0.1124260355,0.09250571678,-1086.523969,0.06816808584,positive delta indicates degradation versus clean LibriSpeech
+google_cloud,balanced,en-US,clean_read,mini_librispeech_dev_clean_2_subset,0.02906976744,0.009149448717,-1507.557598,0.05915651339,positive delta indicates degradation versus clean LibriSpeech
+google_cloud,balanced,de-DE,multilingual_audiobook,mls_german_test_subset,0.07744107744,0.05752075872,1805.728707,-0.005960442195,positive delta indicates degradation versus clean LibriSpeech
+google_cloud,balanced,es-ES,multilingual_audiobook,mls_spanish_test_subset,0.04289544236,0.02297512363,318.8226014,-0.02683383837,positive delta indicates degradation versus clean LibriSpeech
+google_cloud,balanced,de-DE,far_field_plenary,voxpopuli_de_test_subset,0.1485148515,0.1285945328,407.275613,0.06324524315,positive delta indicates degradation versus clean LibriSpeech
+google_cloud,balanced,en-US,far_field_plenary,voxpopuli_en_test_subset,0.09677419355,0.07685387482,841.3133293,0.008977592071,positive delta indicates degradation versus clean LibriSpeech
+google_cloud,balanced,es-ES,far_field_plenary,voxpopuli_es_test_subset,0.1348973607,0.114977042,1042.972515,-0.006677792855,positive delta indicates degradation versus clean LibriSpeech
+huggingface_local,balanced,en-US,crowdsourced_mobile,fleurs_en_us_test_subset,0.09090909091,0.08294096342,-2035.17408,-0.1010295573,positive delta indicates degradation versus clean LibriSpeech
+huggingface_local,balanced,fr-FR,crowdsourced_mobile,fleurs_fr_fr_test_subset,0.07203389831,0.06406577082,-842.0866454,-0.05932883343,positive delta indicates degradation versus clean LibriSpeech
+huggingface_local,balanced,ja-JP,crowdsourced_mobile,fleurs_ja_jp_test_subset,0.9428571429,0.9348890154,970.2252993,-0.1032373356,positive delta indicates degradation versus clean LibriSpeech
+huggingface_local,balanced,sk-SK,crowdsourced_mobile,fleurs_sk_sk_test_subset,0.358974359,0.3510062315,-1406.222801,-0.06106790705,positive delta indicates degradation versus clean LibriSpeech
+huggingface_local,balanced,en-US,clean_read,librispeech_test_clean_subset,0.00796812749,0,0,0,baseline clean LibriSpeech
+huggingface_local,balanced,en-US,harder_read,librispeech_test_other_subset,0.04733727811,0.03936915062,-1648.048238,0.1002302567,positive delta indicates degradation versus clean LibriSpeech
+huggingface_local,balanced,en-US,clean_read,mini_librispeech_dev_clean_2_subset,0.02325581395,0.01528768646,-2322.468229,0.026544977,positive delta indicates degradation versus clean LibriSpeech
+huggingface_local,balanced,de-DE,multilingual_audiobook,mls_german_test_subset,0.06060606061,0.05263793312,-1752.128259,-0.1435958222,positive delta indicates degradation versus clean LibriSpeech
+huggingface_local,balanced,es-ES,multilingual_audiobook,mls_spanish_test_subset,0.04142011834,0.03345199085,-1399.574965,-0.1148857237,positive delta indicates degradation versus clean LibriSpeech
+huggingface_local,balanced,de-DE,far_field_plenary,voxpopuli_de_test_subset,0.1584158416,0.1504477141,-1677.29083,-0.04002221737,positive delta indicates degradation versus clean LibriSpeech
+huggingface_local,balanced,en-US,far_field_plenary,voxpopuli_en_test_subset,0.08870967742,0.08074154993,-364.3895641,0.01002629142,positive delta indicates degradation versus clean LibriSpeech
+huggingface_local,balanced,es-ES,far_field_plenary,voxpopuli_es_test_subset,0.1407624633,0.1327943359,328.3732991,-0.08361981451,positive delta indicates degradation versus clean LibriSpeech
+vosk_local,en_small,en-US,crowdsourced_mobile,fleurs_en_us_test_subset,0.2535885167,0.1898434968,434.6743821,-0.0150404192,positive delta indicates degradation versus clean LibriSpeech
+vosk_local,en_small,fr-FR,crowdsourced_mobile,fleurs_fr_fr_test_subset,1.080508475,1.016763455,1814.848573,0.07271145071,positive delta indicates degradation versus clean LibriSpeech
+vosk_local,en_small,ja-JP,crowdsourced_mobile,fleurs_ja_jp_test_subset,10.25714286,10.19339784,2605.109509,0.02911788749,positive delta indicates degradation versus clean LibriSpeech
+vosk_local,en_small,sk-SK,crowdsourced_mobile,fleurs_sk_sk_test_subset,1.512820513,1.449075493,818.9965057,0.06273060229,positive delta indicates degradation versus clean LibriSpeech
+vosk_local,en_small,en-US,clean_read,librispeech_test_clean_subset,0.06374501992,0,0,0,baseline clean LibriSpeech
+vosk_local,en_small,en-US,harder_read,librispeech_test_other_subset,0.1952662722,0.1315212523,-331.989745,0.07101395721,positive delta indicates degradation versus clean LibriSpeech
+vosk_local,en_small,en-US,clean_read,mini_librispeech_dev_clean_2_subset,0.05813953488,-0.005605485037,-584.9723847,0.0664827557,positive delta indicates degradation versus clean LibriSpeech
+vosk_local,en_small,de-DE,multilingual_audiobook,mls_german_test_subset,1.218855219,1.155110199,1705.067539,0.0009534838243,positive delta indicates degradation versus clean LibriSpeech
+vosk_local,en_small,es-ES,multilingual_audiobook,mls_spanish_test_subset,1.36997319,1.30622817,1573.445651,0.05203788786,positive delta indicates degradation versus clean LibriSpeech
+vosk_local,en_small,de-DE,far_field_plenary,voxpopuli_de_test_subset,1.252475248,1.188730228,1178.815708,0.09236540643,positive delta indicates degradation versus clean LibriSpeech
+vosk_local,en_small,en-US,far_field_plenary,voxpopuli_en_test_subset,0.185483871,0.121738851,1280.697327,0.0429029102,positive delta indicates degradation versus clean LibriSpeech
+vosk_local,en_small,es-ES,far_field_plenary,voxpopuli_es_test_subset,1.410557185,1.346812165,3033.51733,0.1177891355,positive delta indicates degradation versus clean LibriSpeech
+whisper_local,light,en-US,crowdsourced_mobile,fleurs_en_us_test_subset,0.1770334928,0.1371928554,429.1429625,-0.03942719262,positive delta indicates degradation versus clean LibriSpeech
+whisper_local,light,fr-FR,crowdsourced_mobile,fleurs_fr_fr_test_subset,0.2711864407,0.2313458032,1685.817418,-0.007734652282,positive delta indicates degradation versus clean LibriSpeech
+whisper_local,light,ja-JP,crowdsourced_mobile,fleurs_ja_jp_test_subset,1.114285714,1.074445077,1321.266987,-0.04760769955,positive delta indicates degradation versus clean LibriSpeech
+whisper_local,light,sk-SK,crowdsourced_mobile,fleurs_sk_sk_test_subset,0.7692307692,0.7293901318,932.4178759,-0.0158831941,positive delta indicates degradation versus clean LibriSpeech
+whisper_local,light,en-US,clean_read,librispeech_test_clean_subset,0.03984063745,0,0,0,baseline clean LibriSpeech
+whisper_local,light,en-US,harder_read,librispeech_test_other_subset,0.1479289941,0.1080883566,-245.074669,0.06636514932,positive delta indicates degradation versus clean LibriSpeech
+whisper_local,light,en-US,clean_read,mini_librispeech_dev_clean_2_subset,0.05813953488,0.01829889743,-415.641119,0.008091665816,positive delta indicates degradation versus clean LibriSpeech
+whisper_local,light,de-DE,multilingual_audiobook,mls_german_test_subset,0.1548821549,0.1150415174,-175.592602,-0.06378207836,positive delta indicates degradation versus clean LibriSpeech
+whisper_local,light,es-ES,multilingual_audiobook,mls_spanish_test_subset,0.1260053619,0.08616472448,-144.1605452,-0.05306917321,positive delta indicates degradation versus clean LibriSpeech
+whisper_local,light,de-DE,far_field_plenary,voxpopuli_de_test_subset,0.2871287129,0.2472880754,-155.7551634,-0.02325341077,positive delta indicates degradation versus clean LibriSpeech
+whisper_local,light,en-US,far_field_plenary,voxpopuli_en_test_subset,0.1209677419,0.08112710449,-120.7334112,-0.001228972487,positive delta indicates degradation versus clean LibriSpeech
+whisper_local,light,es-ES,far_field_plenary,voxpopuli_es_test_subset,0.2375366569,0.1976960194,1073.847968,-0.03330020307,positive delta indicates degradation versus clean LibriSpeech

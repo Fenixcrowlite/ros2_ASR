@@ -2,10 +2,10 @@ profile_id: benchmark/fleurs_sk_sk_test_subset_whisper
 inherits: []
 dataset_profile: datasets/fleurs_sk_sk_test_subset
 providers:
-  - providers/whisper_local
+- providers/whisper_local
 metric_profiles:
-  - metrics/default_quality
-  - metrics/default_timing
+- metrics/default_quality
+- metrics/default_timing
 execution_mode: batch
 batch:
   max_samples: 0
@@ -13,4 +13,4 @@ batch:
 noise:
   mode: white
   levels:
-    - clean
+  - clean

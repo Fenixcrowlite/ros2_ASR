@@ -1,0 +1,14 @@
+{
+  "run_id": "thesis_cloud_20260503T223116Z",
+  "benchmark_profile": "benchmark/thesis_cloud_matrix",
+  "dataset_id": "librispeech_test_clean_subset",
+  "providers": [
+    "providers/azure_cloud",
+    "providers/google_cloud",
+    "providers/aws_cloud"
+  ],
+  "summary_json": "results/latest_benchmark_summary.json",
+  "compat_results_json": "results/benchmark_results.json",
+  "compat_results_csv": "results/benchmark_results.csv",
+  "plots_dir": "results/plots"
+}

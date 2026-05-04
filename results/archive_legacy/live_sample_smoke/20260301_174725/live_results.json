@@ -1,0 +1,31 @@
+[
+  {
+    "request_id": "4bd677bc-4ef4-4887-8b25-ab832a6dc11e",
+    "audio_id": "en_hello",
+    "backend": "mock",
+    "scenario": "live_core",
+    "snr_db": null,
+    "wav_path": "data/sample/en_hello.wav",
+    "language": "en-US",
+    "duration_sec": 1.1,
+    "text": "hello world",
+    "transcript_ref": "",
+    "transcript_hyp": "hello world",
+    "wer": -1.0,
+    "cer": -1.0,
+    "latency_ms": 27.272618000599323,
+    "preprocess_ms": 1.0,
+    "inference_ms": 25.272618000599323,
+    "postprocess_ms": 1.0,
+    "audio_duration_sec": 1.1,
+    "rtf": 0.024793289091453927,
+    "cpu_percent": 5.0,
+    "ram_mb": 65.375,
+    "gpu_util_percent": 33.0,
+    "gpu_mem_mb": 588.0,
+    "success": true,
+    "error_code": "",
+    "error_message": "",
+    "cost_estimate": 0.0
+  }
+]

@@ -8,11 +8,11 @@ This log records the changes made in this remediation pass only.
 
 Changed files:
 
-- [Makefile](/home/fenix/Desktop/ros2ws/Makefile)
-- [scripts/source_runtime_env.sh](/home/fenix/Desktop/ros2ws/scripts/source_runtime_env.sh)
-- [tests/integration/test_source_runtime_env.py](/home/fenix/Desktop/ros2ws/tests/integration/test_source_runtime_env.py)
-- [tests/integration/test_cli_flows.py](/home/fenix/Desktop/ros2ws/tests/integration/test_cli_flows.py)
-- [README.md](/home/fenix/Desktop/ros2ws/README.md)
+- [Makefile](Makefile)
+- [scripts/source_runtime_env.sh](scripts/source_runtime_env.sh)
+- [tests/integration/test_source_runtime_env.py](tests/integration/test_source_runtime_env.py)
+- [tests/integration/test_cli_flows.py](tests/integration/test_cli_flows.py)
+- [README.md](README.md)
 
 Reason:
 
@@ -27,13 +27,13 @@ Validation:
 
 Changed files:
 
-- [audio_preprocess_node.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py)
-- [vad_segmenter_node.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py)
-- [runtime.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_metrics/asr_observability/validators/runtime.py)
-- [dataset.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark/asr_benchmark/dataset.py)
-- [tests/unit/test_runtime_audio_pipeline.py](/home/fenix/Desktop/ros2ws/tests/unit/test_runtime_audio_pipeline.py)
-- [tests/unit/test_runtime_trace_validator.py](/home/fenix/Desktop/ros2ws/tests/unit/test_runtime_trace_validator.py)
-- [tests/unit/test_dataset.py](/home/fenix/Desktop/ros2ws/tests/unit/test_dataset.py)
+- [audio_preprocess_node.py](ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py)
+- [vad_segmenter_node.py](ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py)
+- [runtime.py](ros2_ws/src/asr_metrics/asr_observability/validators/runtime.py)
+- [dataset.py](ros2_ws/src/asr_benchmark/asr_benchmark/dataset.py)
+- [tests/unit/test_runtime_audio_pipeline.py](tests/unit/test_runtime_audio_pipeline.py)
+- [tests/unit/test_runtime_trace_validator.py](tests/unit/test_runtime_trace_validator.py)
+- [tests/unit/test_dataset.py](tests/unit/test_dataset.py)
 
 Reason:
 
@@ -48,10 +48,10 @@ Validation:
 
 Changed files:
 
-- [ros_client.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_gateway/asr_gateway/ros_client.py)
-- [api.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_gateway/asr_gateway/api.py)
-- [tests/unit/test_gateway_ros_client.py](/home/fenix/Desktop/ros2ws/tests/unit/test_gateway_ros_client.py)
-- [tests/api/test_gateway_api.py](/home/fenix/Desktop/ros2ws/tests/api/test_gateway_api.py)
+- [ros_client.py](ros2_ws/src/asr_gateway/asr_gateway/ros_client.py)
+- [api.py](ros2_ws/src/asr_gateway/asr_gateway/api.py)
+- [tests/unit/test_gateway_ros_client.py](tests/unit/test_gateway_ros_client.py)
+- [tests/api/test_gateway_api.py](tests/api/test_gateway_api.py)
 
 Reason:
 
@@ -66,12 +66,12 @@ Validation:
 
 Changed files:
 
-- [transport.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/transport.py)
-- [audio_input_node.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py)
-- [audio_preprocess_node.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py)
-- [vad_segmenter_node.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py)
-- [asr_orchestrator_node.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py)
-- [tests/unit/test_runtime_observability_export.py](/home/fenix/Desktop/ros2ws/tests/unit/test_runtime_observability_export.py)
+- [transport.py](ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/transport.py)
+- [audio_input_node.py](ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_input_node.py)
+- [audio_preprocess_node.py](ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/audio_preprocess_node.py)
+- [vad_segmenter_node.py](ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/vad_segmenter_node.py)
+- [asr_orchestrator_node.py](ros2_ws/src/asr_runtime_nodes/asr_runtime_nodes/asr_orchestrator_node.py)
+- [tests/unit/test_runtime_observability_export.py](tests/unit/test_runtime_observability_export.py)
 
 Reason:
 
@@ -86,16 +86,16 @@ Validation:
 
 Changed files:
 
-- [manager.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_provider_base/asr_provider_base/manager.py)
-- [__init__.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_provider_base/asr_provider_base/__init__.py)
-- [runtime.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_metrics/asr_observability/analyzers/runtime.py)
-- [files.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_metrics/asr_observability/exporters/files.py)
-- [executor.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark_core/asr_benchmark_core/executor.py)
-- [orchestrator.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark_core/asr_benchmark_core/orchestrator.py)
-- [noise.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark_core/asr_benchmark_core/noise.py)
-- [requirements.txt](/home/fenix/Desktop/ros2ws/requirements.txt)
-- [requirements/](/home/fenix/Desktop/ros2ws/requirements)
-- [.github/workflows/ci.yml](/home/fenix/Desktop/ros2ws/.github/workflows/ci.yml)
+- [manager.py](ros2_ws/src/asr_provider_base/asr_provider_base/manager.py)
+- [__init__.py](ros2_ws/src/asr_provider_base/asr_provider_base/__init__.py)
+- [runtime.py](ros2_ws/src/asr_metrics/asr_observability/analyzers/runtime.py)
+- [files.py](ros2_ws/src/asr_metrics/asr_observability/exporters/files.py)
+- [executor.py](ros2_ws/src/asr_benchmark_core/asr_benchmark_core/executor.py)
+- [orchestrator.py](ros2_ws/src/asr_benchmark_core/asr_benchmark_core/orchestrator.py)
+- [noise.py](ros2_ws/src/asr_benchmark_core/asr_benchmark_core/noise.py)
+- [requirements.txt](requirements.txt)
+- [requirements/](requirements)
+- [.github/workflows/ci.yml](.github/workflows/ci.yml)
 
 Reason:
 
@@ -114,12 +114,12 @@ Validation:
 
 Changed files:
 
-- [summary.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_metrics/asr_metrics/summary.py)
-- [orchestrator.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_benchmark_core/asr_benchmark_core/orchestrator.py)
-- [ros_client.py](/home/fenix/Desktop/ros2ws/ros2_ws/src/asr_gateway/asr_gateway/ros_client.py)
-- [test_metric_summary.py](/home/fenix/Desktop/ros2ws/tests/unit/test_metric_summary.py)
-- [test_gateway_ros_client.py](/home/fenix/Desktop/ros2ws/tests/unit/test_gateway_ros_client.py)
-- [test_benchmark_orchestrator.py](/home/fenix/Desktop/ros2ws/tests/component/test_benchmark_orchestrator.py)
+- [summary.py](ros2_ws/src/asr_metrics/asr_metrics/summary.py)
+- [orchestrator.py](ros2_ws/src/asr_benchmark_core/asr_benchmark_core/orchestrator.py)
+- [ros_client.py](ros2_ws/src/asr_gateway/asr_gateway/ros_client.py)
+- [test_metric_summary.py](tests/unit/test_metric_summary.py)
+- [test_gateway_ros_client.py](tests/unit/test_gateway_ros_client.py)
+- [test_benchmark_orchestrator.py](tests/component/test_benchmark_orchestrator.py)
 
 Reason:
 

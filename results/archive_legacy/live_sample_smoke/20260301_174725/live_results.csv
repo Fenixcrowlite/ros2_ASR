@@ -1,0 +1,2 @@
+request_id,audio_id,backend,scenario,snr_db,wav_path,language,duration_sec,text,transcript_ref,transcript_hyp,wer,cer,latency_ms,preprocess_ms,inference_ms,postprocess_ms,audio_duration_sec,rtf,cpu_percent,ram_mb,gpu_util_percent,gpu_mem_mb,success,error_code,error_message,cost_estimate
+4bd677bc-4ef4-4887-8b25-ab832a6dc11e,en_hello,mock,live_core,,data/sample/en_hello.wav,en-US,1.1,hello world,,hello world,-1.0,-1.0,27.272618000599323,1.0,25.272618000599323,1.0,1.1,0.024793289091453927,5.0,65.375,33.0,588.0,True,,,0.0

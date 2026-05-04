@@ -712,13 +712,13 @@ It protects the core from turning into GUI-owned business logic.
 
 ## What To Open Next If You Want More Detail
 
-- Runtime details: [runtime_architecture.md](/home/fenix/Desktop/ros2ws/docs/architecture/runtime_architecture.md)
-- Benchmark details: [benchmark_architecture.md](/home/fenix/Desktop/ros2ws/docs/architecture/benchmark_architecture.md)
-- Provider layer: [provider_model.md](/home/fenix/Desktop/ros2ws/docs/architecture/provider_model.md)
-- Config resolution: [config_model.md](/home/fenix/Desktop/ros2ws/docs/architecture/config_model.md)
-- GUI/gateway boundary: [gui_gateway_model.md](/home/fenix/Desktop/ros2ws/docs/architecture/gui_gateway_model.md)
-- Storage layout: [storage_artifacts.md](/home/fenix/Desktop/ros2ws/docs/architecture/storage_artifacts.md)
-- Beginner route: [newbie_guide.md](/home/fenix/Desktop/ros2ws/docs/newbie_guide.md)
+- Runtime details: [runtime_architecture.md](docs/architecture/runtime_architecture.md)
+- Benchmark details: [benchmark_architecture.md](docs/architecture/benchmark_architecture.md)
+- Provider layer: [provider_model.md](docs/architecture/provider_model.md)
+- Config resolution: [config_model.md](docs/architecture/config_model.md)
+- GUI/gateway boundary: [gui_gateway_model.md](docs/architecture/gui_gateway_model.md)
+- Storage layout: [storage_artifacts.md](docs/architecture/storage_artifacts.md)
+- Beginner route: [newbie_guide.md](docs/newbie_guide.md)
 
 ## Best Use Cases For These Diagrams
 

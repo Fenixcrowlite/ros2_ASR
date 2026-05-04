@@ -1,0 +1,10 @@
+profile_id: benchmark/thesis_extended_domain_matrix
+inherits:
+  - thesis_extended_full_matrix
+focus: dataset/domain generalization
+acoustic_profiles:
+  - clean_read
+  - harder_read
+  - crowdsourced_mobile
+  - far_field_plenary
+  - multilingual_audiobook

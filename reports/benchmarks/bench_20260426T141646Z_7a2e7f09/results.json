@@ -80,7 +80,7 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
+    "input_audio_path": "datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_12741024238657315067.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -90,7 +90,7 @@
     "preprocess_ms": 0.0,
     "inference_ms": 0.0,
     "postprocess_ms": 0.0,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260426T141646Z_7a2e7f09/metrics/traces/trace_a1cf5918fe264988aa00d450912dd2e8.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260426T141646Z_7a2e7f09/metrics/traces/trace_a1cf5918fe264988aa00d450912dd2e8.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -210,7 +210,7 @@
     "noise_mode": "white",
     "noise_snr_db": 0.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260426T141646Z_7a2e7f09/derived_audio/fleurs_en_us_12741024238657315067__white__custom_0db.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260426T141646Z_7a2e7f09/derived_audio/fleurs_en_us_12741024238657315067__white__custom_0db.wav",
     "audio_duration_sec": 12.64,
     "measured_audio_duration_sec": 12.64,
     "declared_audio_duration_sec": 12.64,
@@ -220,7 +220,7 @@
     "preprocess_ms": 0.0,
     "inference_ms": 0.0,
     "postprocess_ms": 0.0,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260426T141646Z_7a2e7f09/metrics/traces/trace_b5a66a01d6b04498b1d056ed1818e9dc.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260426T141646Z_7a2e7f09/metrics/traces/trace_b5a66a01d6b04498b1d056ed1818e9dc.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -340,7 +340,7 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
+    "input_audio_path": "datasets/imported/fleurs_en_us_test_subset/fleurs_en_us_621925716775998155.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -350,7 +350,7 @@
     "preprocess_ms": 0.0,
     "inference_ms": 0.0,
     "postprocess_ms": 0.0,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260426T141646Z_7a2e7f09/metrics/traces/trace_bae3ca8f3f1d4ab3905be1761bea17ce.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260426T141646Z_7a2e7f09/metrics/traces/trace_bae3ca8f3f1d4ab3905be1761bea17ce.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"
@@ -470,7 +470,7 @@
     "noise_mode": "white",
     "noise_snr_db": 0.0,
     "provider_preset": "standard",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260426T141646Z_7a2e7f09/derived_audio/fleurs_en_us_621925716775998155__white__custom_0db.wav",
+    "input_audio_path": "artifacts/benchmark_runs/bench_20260426T141646Z_7a2e7f09/derived_audio/fleurs_en_us_621925716775998155__white__custom_0db.wav",
     "audio_duration_sec": 5.88,
     "measured_audio_duration_sec": 5.88,
     "declared_audio_duration_sec": 5.88,
@@ -480,7 +480,7 @@
     "preprocess_ms": 0.0,
     "inference_ms": 0.0,
     "postprocess_ms": 0.0,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260426T141646Z_7a2e7f09/metrics/traces/trace_2cdd50fdaa734e22b9b16d88aacabbf7.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260426T141646Z_7a2e7f09/metrics/traces/trace_2cdd50fdaa734e22b9b16d88aacabbf7.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"

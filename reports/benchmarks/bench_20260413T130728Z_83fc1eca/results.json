@@ -80,7 +80,7 @@
     "noise_mode": "none",
     "noise_snr_db": null,
     "provider_preset": "light",
-    "input_audio_path": "/home/fenix/Desktop/ros2ws/data/sample/vosk_test.wav",
+    "input_audio_path": "data/sample/vosk_test.wav",
     "audio_duration_sec": 8.308,
     "measured_audio_duration_sec": 8.308,
     "declared_audio_duration_sec": 8.308,
@@ -90,7 +90,7 @@
     "preprocess_ms": 7403.274833981413,
     "inference_ms": 872.2279969952069,
     "postprocess_ms": 0.10525801917538047,
-    "trace_artifact_ref": "/home/fenix/Desktop/ros2ws/artifacts/benchmark_runs/bench_20260413T130728Z_83fc1eca/metrics/traces/trace_53f7ed4e544e457085adf05284c40623.json",
+    "trace_artifact_ref": "artifacts/benchmark_runs/bench_20260413T130728Z_83fc1eca/metrics/traces/trace_53f7ed4e544e457085adf05284c40623.json",
     "trace_corrupted": false,
     "trace_warnings": [
       "Optional metric `finalization_latency_ms` unavailable"

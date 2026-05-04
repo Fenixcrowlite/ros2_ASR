@@ -1,0 +1,14 @@
+{
+  "run_id": "thesis_ext_20260504T115425Z_cloud_mls_spanish_test_subset",
+  "benchmark_profile": "benchmark/thesis_extended_cloud_matrix",
+  "dataset_id": "mls_spanish_test_subset",
+  "providers": [
+    "providers/azure_cloud",
+    "providers/google_cloud",
+    "providers/aws_cloud"
+  ],
+  "summary_json": "/home/fenix/Desktop/ros2ws/results/archive_legacy/extended_compat/latest_benchmark_summary.json",
+  "compat_results_json": "/home/fenix/Desktop/ros2ws/results/archive_legacy/extended_compat/benchmark_results.json",
+  "compat_results_csv": "/home/fenix/Desktop/ros2ws/results/archive_legacy/extended_compat/benchmark_results.csv",
+  "plots_dir": "/home/fenix/Desktop/ros2ws/results/archive_legacy/extended_compat/plots"
+}

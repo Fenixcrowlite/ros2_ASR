@@ -183,3 +183,4 @@ For offline ROS2 laboratory experiments, Whisper local should be used as the pri
 For cloud-assisted ASR, Azure Speech, Google Speech-to-Text and AWS Transcribe are suitable only when external connectivity, credentials, latency and cost are acceptable. AWS Transcribe achieved strong recognition quality in the balanced tier, but its measured end-to-end RTF and latency make it less suitable for interactive embedded-style ROS2 control in this prototype.
 
 The recommended thesis conclusion is therefore a hybrid architecture: local ASR providers for reproducible offline robot experiments, and cloud ASR providers for optional high-quality transcription or comparative benchmarking.
+    
