@@ -298,6 +298,10 @@ SECRETS_REFS_ROOT = PROJECT_ROOT / "secrets" / "refs"
 ARTIFACTS_ROOT = PROJECT_ROOT / "artifacts"
 LOGS_ROOT = PROJECT_ROOT / "logs"
 DATASET_REGISTRY_PATH = PROJECT_ROOT / "datasets" / "registry" / "datasets.json"
+DATASET_BUNDLED_REGISTRY_PATHS = (
+    PROJECT_ROOT / "datasets" / "registry" / "datasets_catalog.json",
+    PROJECT_ROOT / "datasets" / "registry" / "datasets_extended.json",
+)
 RUNTIME_SAMPLES_ROOT = PROJECT_ROOT / "data" / "sample"
 RUNTIME_SAMPLE_UPLOADS_ROOT = RUNTIME_SAMPLES_ROOT / "uploads"
 RUNTIME_NOISE_ROOT = RUNTIME_SAMPLES_ROOT / "generated_noise"
@@ -2160,13 +2164,35 @@ def _dataset_stats(samples: list[Any]) -> dict[str, Any]:
     }
 
 
+def _resolve_dataset_manifest_ref(manifest_ref: str) -> str:
+    path = Path(str(manifest_ref or "")).expanduser()
+    if path.is_absolute():
+        return str(path)
+    return str((PROJECT_ROOT / path).resolve())
+
+
+def _dataset_registry_entries() -> list[Any]:
+    # Primary registry contains user/imported datasets and wins on duplicate
+    # ids. Bundled registries expose thesis/demo datasets to read-only UI flows.
+    entries_by_id: dict[str, Any] = {}
+    for registry_path in (*DATASET_BUNDLED_REGISTRY_PATHS, DATASET_REGISTRY_PATH):
+        if not registry_path.exists():
+            continue
+        registry = DatasetRegistry(str(registry_path))
+        for entry in registry.list():
+            if not entry.dataset_id:
+                continue
+            entries_by_id[entry.dataset_id] = entry
+    return sorted(entries_by_id.values(), key=lambda item: item.dataset_id)
+
+
 def _dataset_entries() -> list[dict[str, Any]]:
-    registry = DatasetRegistry(str(DATASET_REGISTRY_PATH))
     entries: list[dict[str, Any]] = []
-    for entry in registry.list():
+    for entry in _dataset_registry_entries():
+        manifest_ref = _resolve_dataset_manifest_ref(entry.manifest_ref)
         detail = {
             "dataset_id": entry.dataset_id,
-            "manifest_ref": entry.manifest_ref,
+            "manifest_ref": manifest_ref,
             "sample_count": int(entry.sample_count),
             "metadata": entry.metadata,
             "valid": True,
@@ -2176,7 +2202,7 @@ def _dataset_entries() -> list[dict[str, Any]]:
             "duration_sec": 0.0,
         }
         try:
-            samples = load_manifest(entry.manifest_ref)
+            samples = load_manifest(manifest_ref)
             stats = _dataset_stats(samples)
             detail.update(stats)
             detail["sample_count"] = int(stats["sample_count"])

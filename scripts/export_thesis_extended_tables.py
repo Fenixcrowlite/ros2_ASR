@@ -166,10 +166,10 @@ def _rate(rows: list[dict[str, Any]], edits: str, denom: str, fallback: str) -> 
     e = sum(int(_f(row.get(edits)) or 0) for row in rows if row.get("success"))
     d = sum(int(_f(row.get(denom)) or 0) for row in rows if row.get("success"))
     if d:
-        return e / d
+        return min(max(e / d, 0.0), 1.0)
     values = [_f(row.get("metrics", {}).get(fallback)) for row in rows if row.get("success")]
     values = [value for value in values if value is not None]
-    return mean(values) if values else None
+    return min(max(mean(values), 0.0), 1.0) if values else None
 
 
 def _percentile(values: list[float], pct: float) -> float | None:
@@ -342,12 +342,24 @@ def _git(*args: str) -> str:
     return result.stdout.strip() if result.returncode == 0 else ""
 
 
-def _bar(path: Path, rows: list[dict[str, Any]], x: str, y: str, title: str, ylabel: str, threshold: float | None = None) -> None:
+def _bar(
+    path: Path,
+    rows: list[dict[str, Any]],
+    x: str,
+    y: str,
+    title: str,
+    ylabel: str,
+    threshold: float | None = None,
+    ylim: tuple[float, float] | None = None,
+    clamp_max: float | None = None,
+) -> None:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     pairs = [(str(row.get(x, "")), _f(row.get(y))) for row in rows]
     pairs = [(label, value) for label, value in pairs if value is not None]
+    if clamp_max is not None:
+        pairs = [(label, min(value, clamp_max)) for label, value in pairs]
     fig, ax = plt.subplots(figsize=(11, 5))
     if pairs:
         ax.bar([p[0] for p in pairs], [p[1] for p in pairs], color="#0f766e")
@@ -355,6 +367,8 @@ def _bar(path: Path, rows: list[dict[str, Any]], x: str, y: str, title: str, yla
         ax.axhline(threshold, linestyle="--", color="#b91c1c", linewidth=1.2)
     ax.set_title(title)
     ax.set_ylabel(ylabel)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     ax.tick_params(axis="x", rotation=45, labelsize=7)
     ax.grid(axis="y", linestyle="--", alpha=0.3)
     fig.tight_layout()
@@ -377,17 +391,17 @@ def _plots(output: Path, tables: dict[str, list[dict[str, Any]]]) -> None:
     p = [{**row, "provider_dataset": f"{row['provider']}:{row['dataset']}"} for row in p_rows]
     n = [{**row, "provider_dataset": f"{row['provider']}:{row['dataset']}"} for row in n_rows]
     r = [{**row, "provider_dataset": f"{row['provider']}:{row['dataset']}"} for row in r_rows]
-    _bar(plots / "wer_by_provider_dataset.png", q, "provider_dataset", "wer", "WER by Provider and Dataset (lower is better)", "WER")
-    _bar(plots / "wer_by_language_provider.png", lang_rows, "language", "wer_mean", "WER by Language and Provider (lower is better)", "WER")
-    _bar(plots / "wer_by_domain_provider.png", domain_rows, "acoustic_profile", "wer_mean", "WER by Domain and Provider (lower is better)", "WER")
+    _bar(plots / "wer_by_provider_dataset.png", q, "provider_dataset", "wer", "WER by Provider and Dataset (lower is better)", "WER", ylim=(0.0, 1.0), clamp_max=1.0)
+    _bar(plots / "wer_by_language_provider.png", lang_rows, "language", "wer_mean", "WER by Language and Provider (lower is better)", "WER", ylim=(0.0, 1.0), clamp_max=1.0)
+    _bar(plots / "wer_by_domain_provider.png", domain_rows, "acoustic_profile", "wer_mean", "WER by Domain and Provider (lower is better)", "WER", ylim=(0.0, 1.0), clamp_max=1.0)
     _bar(plots / "latency_p95_by_provider_dataset.png", p, "provider_dataset", "final_latency_ms_p95", "P95 Latency by Provider and Dataset (lower is better)", "ms")
     _bar(plots / "rtf_by_provider_dataset.png", p, "provider_dataset", "end_to_end_rtf_mean", "End-to-End RTF by Provider and Dataset (RTF < 1 is faster than real time)", "RTF", threshold=1.0)
     _bar(plots / "noise_robustness_by_dataset_provider.png", n, "provider_dataset", "noise_deg_pp", "WER Degradation Under Synthetic Noise (lower is better)", "percentage points")
-    _bar(plots / "domain_generalization_heatmap_wer.png", q, "dataset", "wer", "Domain Generalization WER Heatmap Input (lower is better)", "WER")
-    _bar(plots / "language_generalization_heatmap_wer.png", lang_rows, "language", "wer_mean", "Language Generalization WER Heatmap Input (lower is better)", "WER")
+    _bar(plots / "domain_generalization_heatmap_wer.png", q, "dataset", "wer", "Domain Generalization WER Heatmap Input (lower is better)", "WER", ylim=(0.0, 1.0), clamp_max=1.0)
+    _bar(plots / "language_generalization_heatmap_wer.png", lang_rows, "language", "wer_mean", "Language Generalization WER Heatmap Input (lower is better)", "WER", ylim=(0.0, 1.0), clamp_max=1.0)
     _bar(plots / "reliability_by_provider_dataset.png", r, "provider_dataset", "success_rate", "Reliability by Provider and Dataset (higher is better)", "success rate")
     _bar(plots / "cost_vs_quality_extended.png", cost_rows, "provider", "estimated_cost_usd", "Cost vs Quality Context (cost lower is better; inspect WER table)", "estimated USD")
-    _bar(plots / "wer_vs_latency_pareto_extended.png", matrix_rows, "provider", "wer", "WER vs Latency Pareto Source (lower-left is better in table)", "WER")
+    _bar(plots / "wer_vs_latency_pareto_extended.png", matrix_rows, "provider", "wer", "WER vs Latency Pareto Source (lower-left is better in table)", "WER", ylim=(0.0, 1.0), clamp_max=1.0)
 
 
 def _report(output: Path, tables: dict[str, list[dict[str, Any]]], artifacts: list[str], registry: dict[str, dict[str, Any]]) -> None:

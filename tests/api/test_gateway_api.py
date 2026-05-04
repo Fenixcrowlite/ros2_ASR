@@ -266,6 +266,19 @@ def test_benchmark_preview_audio_supports_clean_and_noise_variants(
     assert custom.headers["x-asr-benchmark-preview-snr-db"] == "17.5"
     assert custom.content != clean.content
 
+    fleurs = client.get(
+        "/api/benchmark/preview_audio",
+        params={
+            "dataset_profile": "fleurs_en_us_test_subset",
+            "sample_id": "fleurs_en_us_12741024238657315067",
+            "start_sec": 0.0,
+            "duration_sec": 0.2,
+            "noise_level": "clean",
+        },
+    )
+    assert fleurs.status_code == 200
+    assert fleurs.headers["content-type"].startswith("audio/wav")
+
 
 def test_runtime_api_rejects_double_start(repo_root: Path, tmp_path: Path, monkeypatch) -> None:
     _gateway_api, _fake_ros, client, _project_root = _make_client(repo_root, tmp_path, monkeypatch)
@@ -621,6 +634,14 @@ def test_datasets_secrets_logs_and_results_endpoints(
     datasets = client.get("/api/datasets")
     assert datasets.status_code == 200
     assert "sample_dataset" in datasets.json()["dataset_ids"]
+    assert "fleurs_en_us_test_subset" in datasets.json()["dataset_ids"]
+
+    extended_detail = client.get("/api/datasets/fleurs_en_us_test_subset")
+    assert extended_detail.status_code == 200
+    extended_payload = extended_detail.json()
+    assert extended_payload["dataset_id"] == "fleurs_en_us_test_subset"
+    assert extended_payload["sample_count"] >= 1
+    assert extended_payload["preview"][0]["sample_id"].startswith("fleurs_en_us_")
 
     manifest_check = client.post(
         "/api/datasets/validate_manifest",

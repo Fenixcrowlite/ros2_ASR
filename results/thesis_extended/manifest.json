@@ -1,5 +1,5 @@
 {
-  "created_at": "2026-05-04T12:26:56.421537+00:00",
+  "created_at": "2026-05-04T13:39:26.698208+00:00",
   "input": "artifacts/benchmark_runs",
   "output": "results/thesis_extended",
   "canonical_artifacts": [
@@ -43,6 +43,6 @@
   },
   "plots_dir": "results/thesis_extended/plots",
   "final_report": "results/thesis_extended/final_report.md",
-  "git_commit": "f1b0bb50a3abc4feaa310ced6cc1b44141698f1f",
+  "git_commit": "13af88c61b9067222c4a86611428b047c86814aa",
   "python": "3.12.3"
 }

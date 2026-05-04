@@ -1,7 +1,7 @@
 provider,model,dataset_scope,embedded_score,batch_score,analytics_score,dialog_score,best_use_case,final_recommendation
 aws_cloud,standard,extended_multi_dataset,87.40844039,95.40844039,92.40844039,87.40844039,batch,heuristic decision-support score; inspect metric-family tables before selecting a provider
 azure_cloud,standard,extended_multi_dataset,93.71365198,86.71365198,83.71365198,93.71365198,embedded,heuristic decision-support score; inspect metric-family tables before selecting a provider
-google_cloud,balanced,extended_multi_dataset,95.34892809,88.34892809,85.34892809,95.34892809,embedded,heuristic decision-support score; inspect metric-family tables before selecting a provider
+google_cloud,balanced,extended_multi_dataset,98.20607095,91.20607095,88.20607095,98.20607095,embedded,heuristic decision-support score; inspect metric-family tables before selecting a provider
 huggingface_local,balanced,extended_multi_dataset,100,91.05625107,88.05625107,98.05625107,embedded,heuristic decision-support score; inspect metric-family tables before selecting a provider
-vosk_local,en_small,extended_multi_dataset,25,8,5,15,embedded,heuristic decision-support score; inspect metric-family tables before selecting a provider
-whisper_local,light,extended_multi_dataset,95.7986149,78.7986149,75.7986149,85.7986149,embedded,heuristic decision-support score; inspect metric-family tables before selecting a provider
+vosk_local,en_small,extended_multi_dataset,60.36480654,43.36480654,40.36480654,50.36480654,embedded,heuristic decision-support score; inspect metric-family tables before selecting a provider
+whisper_local,light,extended_multi_dataset,96.75099585,79.75099585,76.75099585,86.75099585,embedded,heuristic decision-support score; inspect metric-family tables before selecting a provider

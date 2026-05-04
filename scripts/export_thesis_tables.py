@@ -22,6 +22,7 @@ TIER_LABELS = {
     "balanced": "balanced",
     "accurate": "accurate_or_high_quality",
 }
+PLOT_EXCLUDED_PROVIDERS = {"huggingface_local", "huggingface_api"}
 
 
 def _repo_relative_path(value: str | Path) -> str:
@@ -795,20 +796,20 @@ def _wer_for_rows(rows: list[dict[str, Any]]) -> float | None:
     word_edits = sum(int(float(row.get("word_edits") or 0)) for row in rows)
     ref_words = sum(int(float(row.get("ref_words") or 0)) for row in rows)
     if ref_words > 0:
-        return word_edits / ref_words
+        return min(max(word_edits / ref_words, 0.0), 1.0)
     values = [_as_float(row.get("wer")) for row in rows]
     usable = [value for value in values if value is not None]
-    return mean(usable) if usable else None
+    return min(max(mean(usable), 0.0), 1.0) if usable else None
 
 
 def _sum_rate(rows: list[dict[str, Any]], edits_key: str, denom_key: str, fallback_key: str) -> float | None:
     numerator = sum(int(float(row.get(edits_key) or 0)) for row in rows)
     denominator = sum(int(float(row.get(denom_key) or 0)) for row in rows)
     if denominator > 0:
-        return numerator / denominator
+        return min(max(numerator / denominator, 0.0), 1.0)
     values = [_as_float(row.get(fallback_key)) for row in rows]
     usable = [value for value in values if value is not None]
-    return mean(usable) if usable else None
+    return min(max(mean(usable), 0.0), 1.0) if usable else None
 
 
 def _snr_key(row: dict[str, Any]) -> str:
@@ -974,6 +975,8 @@ def _bar_plot(
     *,
     threshold: float | None = None,
     threshold_label: str = "",
+    ylim: tuple[float, float] | None = None,
+    clamp_max: float | None = None,
 ) -> None:
     import matplotlib
 
@@ -985,6 +988,8 @@ def _bar_plot(
         for row in rows
     ]
     pairs = [(label, value) for label, value in pairs if value is not None]
+    if clamp_max is not None:
+        pairs = [(label, min(value, clamp_max)) for label, value in pairs]
     if not pairs:
         _plot_message(path, title, "Data unavailable")
         return
@@ -994,6 +999,8 @@ def _bar_plot(
     ax.bar(labels, values, color="#0f766e")
     ax.set_title(title)
     ax.set_ylabel(ylabel)
+    if ylim is not None:
+        ax.set_ylim(*ylim)
     if threshold is not None:
         ax.axhline(threshold, color="#b91c1c", linestyle="--", linewidth=1.2)
         if threshold_label:
@@ -1061,7 +1068,7 @@ def _pareto_plot(path: Path, rows: list[dict[str, Any]]) -> None:
         points.append(
             {
                 "label": f"{row.get('provider', '')}:{row.get('model', '')}",
-                "wer": wer,
+                "wer": min(wer, 1.0),
                 "latency": latency,
                 "local_or_cloud": str(row.get("local_or_cloud", "") or ""),
             }
@@ -1088,6 +1095,7 @@ def _pareto_plot(path: Path, rows: list[dict[str, Any]]) -> None:
     ax.set_title("WER vs P95 Latency Trade-off")
     ax.set_xlabel("P95 final latency (ms)")
     ax.set_ylabel("Clean WER")
+    ax.set_ylim(0.0, 1.0)
     ax.grid(True, linestyle="--", alpha=0.35)
     ax.legend()
     fig.tight_layout()
@@ -1111,7 +1119,7 @@ def _cost_quality_plot(path: Path, rows: list[dict[str, Any]]) -> None:
         points.append(
             {
                 "label": f"{row.get('provider', '')}:{row.get('model', '')}",
-                "wer": wer,
+                "wer": min(wer, 1.0),
                 "cost": cost,
                 "local_or_cloud": str(row.get("local_or_cloud", "") or ""),
             }
@@ -1138,6 +1146,7 @@ def _cost_quality_plot(path: Path, rows: list[dict[str, Any]]) -> None:
     ax.set_title("Cost vs Recognition Quality")
     ax.set_xlabel("Direct API cost (USD/audio hour)")
     ax.set_ylabel("Clean WER")
+    ax.set_ylim(0.0, 1.0)
     ax.grid(True, linestyle="--", alpha=0.35)
     ax.legend()
     fig.tight_layout()
@@ -1149,26 +1158,31 @@ def _cost_quality_plot(path: Path, rows: list[dict[str, Any]]) -> None:
 def _generate_plots(output_dir: Path, tables: dict[str, list[dict[str, Any]]]) -> None:
     plots_dir = output_dir / "plots"
     try:
+        quality_rows = [row for row in tables["quality_table.csv"] if row.get("provider") not in PLOT_EXCLUDED_PROVIDERS]
+        performance_rows = [row for row in tables["performance_table.csv"] if row.get("provider") not in PLOT_EXCLUDED_PROVIDERS]
+        noise_rows = [row for row in tables["noise_robustness_table.csv"] if row.get("provider") not in PLOT_EXCLUDED_PROVIDERS]
+        scenario_rows = [row for row in tables["scenario_scores.csv"] if row.get("provider") not in PLOT_EXCLUDED_PROVIDERS]
+        cost_rows = [row for row in tables["cost_deployment_table.csv"] if row.get("provider") not in PLOT_EXCLUDED_PROVIDERS]
         joined_rows = _join_metric_rows(
-            tables["quality_table.csv"],
-            tables["performance_table.csv"],
-            tables["cost_deployment_table.csv"],
+            quality_rows,
+            performance_rows,
+            cost_rows,
         )
-        _bar_plot(plots_dir / "wer_by_provider.png", "Clean WER by Provider Preset", "WER", tables["quality_table.csv"], "wer")
-        _bar_plot(plots_dir / "cer_by_provider.png", "Clean CER by Provider Preset", "CER", tables["quality_table.csv"], "cer")
-        _bar_plot(plots_dir / "latency_p95_by_provider.png", "P95 Final Latency by Provider Preset", "ms", tables["performance_table.csv"], "final_latency_ms_p95")
+        _bar_plot(plots_dir / "wer_by_provider.png", "Clean WER by Provider Preset", "WER", quality_rows, "wer", ylim=(0.0, 1.0), clamp_max=1.0)
+        _bar_plot(plots_dir / "cer_by_provider.png", "Clean CER by Provider Preset", "CER", quality_rows, "cer", ylim=(0.0, 1.0), clamp_max=1.0)
+        _bar_plot(plots_dir / "latency_p95_by_provider.png", "P95 Final Latency by Provider Preset", "ms", performance_rows, "final_latency_ms_p95")
         _bar_plot(
             plots_dir / "rtf_by_provider.png",
             "End-to-End RTF by Provider Preset",
             "RTF",
-            tables["performance_table.csv"],
+            performance_rows,
             "end_to_end_rtf_mean",
             threshold=1.0,
             threshold_label="RTF = 1",
         )
         _pareto_plot(plots_dir / "wer_vs_latency_pareto.png", joined_rows)
-        _bar_plot(plots_dir / "noise_robustness_by_provider.png", "WER Degradation Under Synthetic Noise", "percentage points", tables["noise_robustness_table.csv"], "noise_deg_pp")
-        _bar_plot(plots_dir / "scenario_scores.png", "Scenario Suitability Scores", "embedded score", tables["scenario_scores.csv"], "embedded_score")
+        _bar_plot(plots_dir / "noise_robustness_by_provider.png", "WER Degradation Under Synthetic Noise", "percentage points", noise_rows, "noise_deg_pp")
+        _bar_plot(plots_dir / "scenario_scores.png", "Scenario Suitability Scores", "embedded score", scenario_rows, "embedded_score")
         _cost_quality_plot(plots_dir / "cost_vs_quality.png", joined_rows)
     except ImportError:
         plots_dir.mkdir(parents=True, exist_ok=True)
