@@ -23,6 +23,9 @@ aws:
   session_token: ""
   # S3 bucket used to upload input WAV for Transcribe jobs.
   s3_bucket: your-transcribe-bucket
+  # S3 prefixes used for uploaded media and optional transcript output.
+  input_prefix: asr-input/
+  output_prefix: asr-output/
   # Delete job and uploaded object after recognition.
   cleanup: true
 

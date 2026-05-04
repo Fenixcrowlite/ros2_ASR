@@ -10,6 +10,8 @@ AWS Transcribe через job + временный S3 upload.
 
 - `region`
 - `s3_bucket`
+- `input_prefix`
+- `output_prefix`
 - `media_format`
 - `cleanup` (по умолчанию true)
 

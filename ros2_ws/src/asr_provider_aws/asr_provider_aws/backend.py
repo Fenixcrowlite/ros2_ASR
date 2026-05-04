@@ -287,7 +287,13 @@ class AwsAsrBackend(AsrBackend):
             ).strip()
             or "us-east-1"
         )
-        self.s3_bucket = env_or(self.config, "s3_bucket", "ASR_AWS_S3_BUCKET", "")
+        self.s3_bucket = (
+            env_or(self.config, "s3_bucket", "AWS_S3_BUCKET", "")
+            or os.getenv("ASR_AWS_S3_BUCKET", "").strip()
+            or os.getenv("AWS_TRANSCRIBE_BUCKET", "").strip()
+        )
+        self.input_prefix = env_or(self.config, "input_prefix", "ASR_AWS_INPUT_PREFIX", "asr-input/")
+        self.output_prefix = env_or(self.config, "output_prefix", "ASR_AWS_OUTPUT_PREFIX", "")
         self.media_format = env_or(self.config, "media_format", "ASR_AWS_MEDIA_FORMAT", "wav")
         self.profile = env_or(self.config, "profile", "AWS_PROFILE", "")
         self.access_key_id = env_or(self.config, "access_key_id", "AWS_ACCESS_KEY_ID", "")
@@ -844,7 +850,10 @@ class AwsAsrBackend(AsrBackend):
             return AsrResponse(
                 success=False,
                 error_code="config_missing",
-                error_message="Missing S3 bucket. Set ASR_AWS_S3_BUCKET or backends.aws.s3_bucket.",
+                error_message=(
+                    "Missing S3 bucket. Set AWS_S3_BUCKET, ASR_AWS_S3_BUCKET, "
+                    "or provider settings.s3_bucket."
+                ),
                 backend_info={"provider": "aws", "model": "transcribe", "region": self.region},
                 language=language,
             )
@@ -854,6 +863,7 @@ class AwsAsrBackend(AsrBackend):
         transcribe_client: Any | None = None
         object_key: str | None = None
         job_name: str | None = None
+        transcript_object_key: str | None = None
         object_uploaded = False
 
         try:
@@ -863,7 +873,9 @@ class AwsAsrBackend(AsrBackend):
             preprocess_ms = (time.perf_counter() - preprocess_start) * 1000.0
 
             s3_client, transcribe_client = self._clients()
-            object_key = f"asr-input/{uuid.uuid4()}.wav"
+            input_prefix = str(self.input_prefix or "").strip().strip("/")
+            object_name = f"{uuid.uuid4()}.wav"
+            object_key = f"{input_prefix}/{object_name}" if input_prefix else object_name
             s3_client.upload_file(wav_path, self.s3_bucket, object_key)
             object_uploaded = True
             media_uri = f"s3://{self.s3_bucket}/{object_key}"
@@ -871,12 +883,18 @@ class AwsAsrBackend(AsrBackend):
             language_code = language or "en-US"
 
             inf_start = time.perf_counter()
-            transcribe_client.start_transcription_job(
-                TranscriptionJobName=job_name,
-                LanguageCode=language_code,
-                MediaFormat=self.media_format,
-                Media={"MediaFileUri": media_uri},
-            )
+            job_args: dict[str, Any] = {
+                "TranscriptionJobName": job_name,
+                "LanguageCode": language_code,
+                "MediaFormat": self.media_format,
+                "Media": {"MediaFileUri": media_uri},
+            }
+            output_prefix = str(self.output_prefix or "").strip().strip("/")
+            if output_prefix:
+                job_args["OutputBucketName"] = self.s3_bucket
+                transcript_object_key = f"{output_prefix}/{job_name}.json"
+                job_args["OutputKey"] = transcript_object_key
+            transcribe_client.start_transcription_job(**job_args)
 
             status = "QUEUED"
             transcript_uri = ""
@@ -923,7 +941,16 @@ class AwsAsrBackend(AsrBackend):
                     language=language_code,
                 )
 
-            payload = requests.get(transcript_uri, timeout=20).json()
+            if transcript_object_key and s3_client is not None:
+                s3_object = s3_client.get_object(
+                    Bucket=self.s3_bucket,
+                    Key=transcript_object_key,
+                )
+                payload = json.loads(s3_object["Body"].read().decode("utf-8"))
+            else:
+                response = requests.get(transcript_uri, timeout=20)
+                response.raise_for_status()
+                payload = response.json()
             results = payload.get("results", {})
             text = ""
             transcripts = results.get("transcripts", [])

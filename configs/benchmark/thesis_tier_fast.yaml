@@ -1,0 +1,18 @@
+profile_id: benchmark/thesis_tier_fast
+inherits:
+  - thesis_local_matrix
+dataset_profile: datasets/librispeech_test_clean_subset
+providers:
+  - providers/whisper_local
+  - providers/huggingface_local
+  - providers/google_cloud
+  - providers/vosk_local
+provider_overrides:
+  providers/whisper_local:
+    preset_id: light
+  providers/huggingface_local:
+    preset_id: light
+  providers/google_cloud:
+    preset_id: light
+  providers/vosk_local:
+    preset_id: en_small

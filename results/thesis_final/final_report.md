@@ -8,24 +8,36 @@ This report summarizes a bachelor thesis prototype for ROS2 ASR integration and 
 
 Implemented providers: whisper_local, vosk_local, huggingface_local, huggingface_api, azure_cloud, google_cloud, aws_cloud
 Smoke-tested providers: aws_cloud, azure_cloud, google_cloud, huggingface_api, huggingface_local, vosk_local, whisper_local
-Benchmarked providers: huggingface_local, vosk_local, whisper_local
+Benchmarked providers: aws_cloud, azure_cloud, google_cloud, huggingface_local, vosk_local, whisper_local
+Local providers benchmarked: whisper_local, vosk_local, huggingface_local
+Cloud providers benchmarked or attempted: huggingface_api, azure_cloud, google_cloud, aws_cloud
+
+## Cloud Provider Outcomes
+
+| Provider | Credentials Detected | Auth Probe | Benchmark | Safe Failure Reason |
+|---|---|---|---|---|
+| huggingface_api | no | failure | failure | token |
+| azure_cloud | yes | success | success | none |
+| google_cloud | yes | success | success | none |
+| aws_cloud | yes | success | success | none |
 
 ## Skipped Providers
 
 | Provider | Reason |
 |---|---|
-| huggingface_api | missing_credentials: HF_TOKEN |
-| azure_cloud | missing_credentials: AZURE_SPEECH_KEY,AZURE_SPEECH_REGION |
-| google_cloud | missing_credentials: GOOGLE_APPLICATION_CREDENTIALS,GOOGLE_CLOUD_PROJECT |
-| aws_cloud | missing_credentials: AWS_TRANSCRIBE_BUCKET |
+| huggingface_api | missing_credentials: token |
 
 ## Dataset Description
 
-Selected schema-first runs: 4
+Selected schema-first runs: 12
 Dataset used: librispeech_test_clean_subset
+Active validated dataset: librispeech_test_clean_subset
 Clean source utterances in quality table: 10
-Utterance-variant rows in performance and robustness tables: 150
+Utterance-variant rows in performance and robustness tables: 550
 Dataset validation status: passed
+Local run id: none
+Cloud run id: none
+Tiered run id: thesis_accurate_20260503T225907Z, thesis_balanced_20260503T232650Z, thesis_fast_20260503T225907Z
 Dataset validation report: `reports/datasets/dataset_asset_validation.md`
 Credential availability report: `reports/thesis_test/credential_availability.md`
 
@@ -34,23 +46,42 @@ Credential availability report: `reports/thesis_test/credential_availability.md`
 OS: Linux-6.17.0-22-generic-x86_64-with-glibc2.39
 Python: 3.12.3
 Git branch: main
-Git commit: e4a8eedfb3e1449ca83d33cbb1ce95e27ceadba4
+Git commit: 42736d0031075030833e22d1692820303b6ac402
 
 ## Methodology
 
 Canonical benchmark artifacts are collected into schema-first run directories under `results/runs/<run_id>/`, then exported into thesis tables under `results/thesis_final/`.
-Mock and fake providers are excluded from final thesis tables.
+Synthetic test providers are excluded from final thesis tables.
 Quality results are computed from clean source utterances. Noise robustness is reported separately from clean/noisy utterance variants.
+Fair comparison is reported by preset tier, not by mixing light, balanced and accurate models in one ranking.
+
+## Fair Preset Tiers
+
+| Tier | Included provider presets |
+|---|---|
+| fast_or_low_resource | huggingface_local:light, whisper_local:light, google_cloud:light, vosk_local:en_small |
+| balanced | huggingface_local:balanced, azure_cloud:standard, aws_cloud:standard, google_cloud:balanced, whisper_local:balanced |
+| accurate_or_high_quality | whisper_local:accurate, google_cloud:accurate |
+
+## Failed Preset Attempts
+
+| Tier | Provider | Model | Failed Variants | Sanitized Reason |
+|---|---|---:|---:|---|
+| accurate_or_high_quality | huggingface_local | accurate | 50 | hf_local_runtime_error: CUDA out of memory during local HuggingFace accurate preset; high-memory preset excluded from metric tables to preserve workstation stability. |
 
 ## Canonical Benchmark Artifacts
 
-- `artifacts/benchmark_runs/thesis_local_20260503T184131Z`
+- `artifacts/benchmark_runs/thesis_accurate_20260503T225907Z`
+- `artifacts/benchmark_runs/thesis_balanced_20260503T232650Z`
+- `artifacts/benchmark_runs/thesis_fast_20260503T225907Z`
 
 ## Run Completion
 
 | Run | Total Rows | Successful | Failed |
 |---|---:|---:|---:|
-| thesis_local_20260503T184131Z | 150 | 149 | 1 |
+| thesis_accurate_20260503T225907Z | 150 | 100 | 50 |
+| thesis_balanced_20260503T232650Z | 250 | 250 | 0 |
+| thesis_fast_20260503T225907Z | 200 | 199 | 1 |
 
 ## Metric Definitions
 
@@ -61,12 +92,12 @@ Primary RTF = `end_to_end_rtf`. `provider_compute_rtf` is secondary. `real_time_
 
 - `provider_comparison.csv`: 7 rows
 - `provider_smoke_tests.csv`: 7 rows
-- `quality_table.csv`: 3 rows
-- `performance_table.csv`: 3 rows
-- `resource_table.csv`: 3 rows
-- `noise_robustness_table.csv`: 3 rows
-- `cost_deployment_table.csv`: 3 rows
-- `scenario_scores.csv`: 3 rows
+- `quality_table.csv`: 11 rows
+- `performance_table.csv`: 11 rows
+- `resource_table.csv`: 11 rows
+- `noise_robustness_table.csv`: 11 rows
+- `cost_deployment_table.csv`: 11 rows
+- `scenario_scores.csv`: 11 rows
 
 ## Main Findings
 
@@ -75,8 +106,7 @@ The generated CSV tables contain the provider-level quality, performance, resour
 ## Limitations
 
 The results are indicative and suitable for bachelor-thesis prototype evaluation, but not a large-scale ASR benchmark.
-Cloud providers were configured but not benchmarked because credentials were missing or validation failed.
-The canonical benchmark contains 1 failed utterance-variant row(s); failures remain represented in aggregate quality/error metrics.
+The canonical benchmark contains 51 failed utterance-variant row(s). Completely failed presets are reported as failed attempts and excluded from quality/performance ranking tables.
 
 ## Recommendation For ROS2/COCOHRIP
 

@@ -20,15 +20,21 @@ for candidate in reversed([PROJECT_ROOT, *[path for path in SRC_ROOT.iterdir() i
     if text not in os.sys.path:
         os.sys.path.insert(0, text)
 
-from asr_provider_base import ProviderAudio, ProviderManager  # noqa: E402
 from asr_core.ids import make_request_id, make_session_id  # noqa: E402
-
+from asr_provider_base import ProviderAudio, ProviderManager  # noqa: E402
+from scripts.credential_discovery import (  # noqa: E402
+    apply_discovered_environment,
+    discover_credentials,
+    write_credential_reports,
+)
 
 FIELDS = [
     "provider",
     "model_or_preset",
     "available",
-    "success",
+    "credential_detected",
+    "auth_probe_success",
+    "smoke_recognition_success",
     "latency_ms",
     "end_to_end_rtf",
     "text_preview",
@@ -71,48 +77,18 @@ def _sanitize_error(message: str) -> str:
 
 
 def _credential_problem(provider: str) -> tuple[bool, str]:
-    required: dict[str, str] = {
-        "huggingface_api": "HF_TOKEN",
-        "azure_cloud": "AZURE_SPEECH_KEY,AZURE_SPEECH_REGION",
-        "google_cloud": "GOOGLE_APPLICATION_CREDENTIALS,GOOGLE_CLOUD_PROJECT",
-        "aws_cloud": "AWS_TRANSCRIBE_BUCKET,AWS_REGION,AWS_PROFILE or AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY",
-    }
-    if provider not in required:
+    discovery = discover_credentials()
+    by_provider = {item["provider"]: item for item in discovery.get("providers", [])}
+    state = by_provider.get(provider)
+    if state is None:
         return False, ""
-    if provider == "huggingface_api":
-        return (not bool(os.getenv("HF_TOKEN", "").strip()), "HF_TOKEN")
-    if provider == "azure_cloud":
-        missing = [
-            key
-            for key in ("AZURE_SPEECH_KEY", "AZURE_SPEECH_REGION")
-            if not os.getenv(key, "").strip()
-        ]
-        return (bool(missing), ",".join(missing))
-    if provider == "google_cloud":
-        missing = [
-            key
-            for key in ("GOOGLE_APPLICATION_CREDENTIALS", "GOOGLE_CLOUD_PROJECT")
-            if not os.getenv(key, "").strip()
-        ]
-        credentials_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "").strip()
-        if credentials_path and not Path(credentials_path).expanduser().exists():
-            missing.append("GOOGLE_APPLICATION_CREDENTIALS:invalid")
-        return (bool(missing), ",".join(missing))
-    if provider == "aws_cloud":
-        missing = [
-            key
-            for key in ("AWS_TRANSCRIBE_BUCKET", "AWS_REGION")
-            if not os.getenv(key, "").strip()
-        ]
-        has_profile = bool(os.getenv("AWS_PROFILE", "").strip())
-        has_keys = bool(
-            os.getenv("AWS_ACCESS_KEY_ID", "").strip()
-            and os.getenv("AWS_SECRET_ACCESS_KEY", "").strip()
-        )
-        if not has_profile and not has_keys:
-            missing.append("AWS_AUTH")
-        return (bool(missing), ",".join(missing))
-    return False, ""
+    if state.get("config_complete"):
+        return False, ""
+    requirements = state.get("requirements", {})
+    missing = [key for key, status in requirements.items() if status != "available"]
+    if state.get("credential_detected"):
+        return True, "found_but_config_incomplete: missing " + ",".join(missing)
+    return True, "missing_credentials: " + ",".join(missing)
 
 
 def _sample_rate_hz(wav_path: Path) -> int:
@@ -152,7 +128,9 @@ def _provider_worker(
         "provider": provider,
         "model_or_preset": preset,
         "available": True,
-        "success": False,
+        "credential_detected": True,
+        "auth_probe_success": False,
+        "smoke_recognition_success": False,
         "latency_ms": "",
         "end_to_end_rtf": "",
         "text_preview": "",
@@ -178,7 +156,8 @@ def _provider_worker(
         duration_sec = float(sample.get("duration_sec") or 0.0)
         row.update(
             {
-                "success": not result.degraded and not result.error_code,
+                "auth_probe_success": not result.degraded and not result.error_code,
+                "smoke_recognition_success": not result.degraded and not result.error_code,
                 "latency_ms": latency_ms,
                 "end_to_end_rtf": (latency_ms / 1000.0 / duration_sec)
                 if duration_sec > 0.0
@@ -188,12 +167,13 @@ def _provider_worker(
                 "error_message_sanitized": _sanitize_error(result.error_message),
             }
         )
-        if not row["success"] and not row["error_type"]:
+        if not row["smoke_recognition_success"] and not row["error_type"]:
             row["error_type"] = "provider_error"
     except Exception as exc:  # noqa: BLE001 - smoke table must capture all provider failures.
         row.update(
             {
-                "success": False,
+                "auth_probe_success": False,
+                "smoke_recognition_success": False,
                 "latency_ms": max((time.perf_counter() - started) * 1000.0, 0.0),
                 "error_type": type(exc).__name__,
                 "error_message_sanitized": _sanitize_error(str(exc)),
@@ -219,16 +199,21 @@ def _csv_value(value: Any) -> str:
 def _run_smoke(provider_spec: dict[str, str], sample: dict[str, Any], timeout_sec: int) -> dict[str, Any]:
     missing, detail = _credential_problem(provider_spec["provider"])
     if missing:
+        credential_detected = not detail.startswith("missing_credentials:")
         return {
             "provider": provider_spec["provider"],
             "model_or_preset": provider_spec["preset"],
-            "available": False,
-            "success": False,
+            "available": True,
+            "credential_detected": credential_detected,
+            "auth_probe_success": False,
+            "smoke_recognition_success": False,
             "latency_ms": "",
             "end_to_end_rtf": "",
             "text_preview": "",
-            "error_type": "missing_credentials",
-            "error_message_sanitized": detail,
+            "error_type": "found_but_config_incomplete"
+            if credential_detected
+            else "missing_credentials",
+            "error_message_sanitized": detail.split(":", 1)[-1].strip(),
         }
 
     queue: mp.Queue = mp.Queue()
@@ -242,7 +227,9 @@ def _run_smoke(provider_spec: dict[str, str], sample: dict[str, Any], timeout_se
             "provider": provider_spec["provider"],
             "model_or_preset": provider_spec["preset"],
             "available": True,
-            "success": False,
+            "credential_detected": True,
+            "auth_probe_success": False,
+            "smoke_recognition_success": False,
             "latency_ms": timeout_sec * 1000,
             "end_to_end_rtf": "",
             "text_preview": "",
@@ -255,7 +242,9 @@ def _run_smoke(provider_spec: dict[str, str], sample: dict[str, Any], timeout_se
         "provider": provider_spec["provider"],
         "model_or_preset": provider_spec["preset"],
         "available": True,
-        "success": False,
+        "credential_detected": True,
+        "auth_probe_success": False,
+        "smoke_recognition_success": False,
         "latency_ms": "",
         "end_to_end_rtf": "",
         "text_preview": "",
@@ -275,9 +264,11 @@ def main() -> None:
     parser.add_argument("--timeout-sec", type=int, default=120)
     args = parser.parse_args()
 
+    apply_discovered_environment()
     manifest_path = PROJECT_ROOT / args.dataset_manifest
     sample = _load_sample(manifest_path, args.sample_index)
     rows = [_run_smoke(provider, sample, args.timeout_sec) for provider in PROVIDERS]
+    write_credential_reports(smoke_rows=rows)
 
     output_path = PROJECT_ROOT / args.output
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -292,7 +283,9 @@ def main() -> None:
             {
                 "output": _repo_relative_path(output_path),
                 "providers": len(rows),
-                "success": sum(1 for row in rows if row.get("success") is True),
+                "success": sum(
+                    1 for row in rows if row.get("smoke_recognition_success") is True
+                ),
             },
             indent=2,
         )

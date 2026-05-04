@@ -30,6 +30,8 @@ backends:
   aws:
     region: us-east-1
     s3_bucket: ""
+    input_prefix: asr-input/
+    output_prefix: asr-output/
     media_format: wav
     cleanup: true
   azure:

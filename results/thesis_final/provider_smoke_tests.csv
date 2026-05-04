@@ -1,8 +1,8 @@
-provider,model_or_preset,available,success,latency_ms,end_to_end_rtf,text_preview,error_type,error_message_sanitized
-whisper_local,light,true,true,4040.955605,1.152911728,Concord return to its place amidst the tents.,,
-vosk_local,en_small,true,true,1123.554345,0.3205575877,concord return to it's place amidst the tents,,
-huggingface_local,light,true,true,17450.34149,4.978699426,Concord returned to its place amidst the tents.,,
-huggingface_api,,false,false,,,,missing_credentials,HF_TOKEN
-azure_cloud,standard,false,false,,,,missing_credentials,"AZURE_SPEECH_KEY,AZURE_SPEECH_REGION"
-google_cloud,,false,false,,,,missing_credentials,"GOOGLE_APPLICATION_CREDENTIALS,GOOGLE_CLOUD_PROJECT"
-aws_cloud,standard,false,false,,,,missing_credentials,AWS_TRANSCRIBE_BUCKET
+provider,model_or_preset,available,credential_detected,auth_probe_success,smoke_recognition_success,latency_ms,end_to_end_rtf,text_preview,error_type,error_message_sanitized
+whisper_local,light,true,true,true,true,2673.383979,0.7627343735,Concord return to its place amidst the tents.,,
+vosk_local,en_small,true,true,true,true,921.37786,0.262875281,concord return to it's place amidst the tents,,
+huggingface_local,light,true,true,true,true,5450.842683,1.555161964,Concord returned to its place amidst the tents.,,
+huggingface_api,,true,false,false,false,,,,missing_credentials,token
+azure_cloud,standard,true,true,true,true,1994.07471,0.5689228845,Concord returned to its place amidst the tents.,,
+google_cloud,,true,true,true,true,1772.625181,0.5057418491,Concord returned to its place amidst the tents,,
+aws_cloud,standard,true,true,true,true,10190.18585,2.907328346,Concord returned to its place amidst the tents.,,

@@ -71,6 +71,41 @@ def test_source_runtime_env_without_ros_adds_all_source_packages(repo_root: Path
     assert source_dirs.issubset(entries)
 
 
+def test_source_runtime_env_exports_local_runtime_env_file(repo_root: Path, tmp_path: Path) -> None:
+    runtime_env = tmp_path / "runtime.env"
+    runtime_env.write_text(
+        "AWS_S3_BUCKET=unit-test-bucket\nAWS_REGION=eu-north-1\n",
+        encoding="utf-8",
+    )
+    env = os.environ.copy()
+    env["HOME"] = str(tmp_path / "home")
+    env["ASR_LOCAL_ENV_FILE"] = str(runtime_env)
+    env.pop("AWS_S3_BUCKET", None)
+    env.pop("AWS_REGION", None)
+    (tmp_path / "home").mkdir(parents=True, exist_ok=True)
+
+    result = subprocess.run(
+        [
+            "bash",
+            "-lc",
+            (
+                f'cd "{repo_root}" && '
+                'source scripts/source_runtime_env.sh --without-ros && '
+                'printf "%s\\n%s\\n" "$AWS_S3_BUCKET" "$AWS_REGION"'
+            ),
+        ],
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert result.returncode == 0, result.stderr
+    bucket, region = result.stdout.strip().splitlines()[-2:]
+    assert bucket == "unit-test-bucket"
+    assert region == "eu-north-1"
+
+
 def test_run_rqt_check_env_reports_workspace_interfaces(repo_root: Path, tmp_path: Path) -> None:
     if not Path("/opt/ros/jazzy/setup.bash").exists():
         pytest.skip("ROS2 Jazzy is not installed")

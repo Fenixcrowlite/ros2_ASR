@@ -1,0 +1,45 @@
+{
+  "run_id": "thesis_local_20260503T220622Z_embedded",
+  "created_at": "2026-05-03T22:09:40.036562+00:00",
+  "scenario": "embedded",
+  "normalization_profile": "normalized-v1",
+  "repo": {
+    "name": "ros2_ASR",
+    "commit_sha": "42736d0031075030833e22d1692820303b6ac402",
+    "branch": "main"
+  },
+  "environment": {
+    "os": "Linux-6.17.0-22-generic-x86_64-with-glibc2.39",
+    "ros_distro": "",
+    "python": "3.12.3",
+    "cpu": "x86_64",
+    "ram_gb": 15.44,
+    "gpu": "NVIDIA GeForce RTX 4060 Laptop GPU, 590.48.01"
+  },
+  "dataset": {
+    "name": "librispeech_test_clean_subset",
+    "normalization_profile": "normalized-v1",
+    "num_utterances": 150
+  },
+  "metrics": {
+    "best_backend": "providers/huggingface_local:balanced",
+    "best_model": "balanced",
+    "best_scenario_score": 87.7287039051475,
+    "best_wer": 0.034262948207171316,
+    "providers": 3
+  },
+  "source": {
+    "kind": "canonical",
+    "input_path": "artifacts/benchmark_runs/thesis_local_20260503T220622Z",
+    "summary_json": "artifacts/benchmark_runs/thesis_local_20260503T220622Z/reports/summary.json",
+    "results_json": "artifacts/benchmark_runs/thesis_local_20260503T220622Z/metrics/results.json"
+  },
+  "artifacts": {
+    "manifest": "results/runs/thesis_local_20260503T220622Z_embedded/manifest.json",
+    "utterance_csv": "results/runs/thesis_local_20260503T220622Z_embedded/utterance_metrics.csv",
+    "summary_csv": "results/runs/thesis_local_20260503T220622Z_embedded/summary.csv",
+    "summary_json": "results/runs/thesis_local_20260503T220622Z_embedded/summary.json",
+    "report_md": "results/runs/thesis_local_20260503T220622Z_embedded/report.md",
+    "plots_dir": "results/runs/thesis_local_20260503T220622Z_embedded/plots"
+  }
+}

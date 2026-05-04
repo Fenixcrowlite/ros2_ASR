@@ -22,8 +22,12 @@ def test_aws_cloud_integration_or_skip(sample_wav: str) -> None:
         os.getenv("AWS_ACCESS_KEY_ID") and os.getenv("AWS_SECRET_ACCESS_KEY")
     ) and not os.getenv("AWS_PROFILE"):
         pytest.skip("AWS credentials/profile are not configured")
-    if not os.getenv("ASR_AWS_S3_BUCKET"):
-        pytest.skip("ASR_AWS_S3_BUCKET is required")
+    if not (
+        os.getenv("AWS_S3_BUCKET")
+        or os.getenv("ASR_AWS_S3_BUCKET")
+        or os.getenv("AWS_TRANSCRIBE_BUCKET")
+    ):
+        pytest.skip("AWS_S3_BUCKET is required")
     backend = AwsAsrBackend(config={"region": os.getenv("AWS_REGION", "us-east-1")})
     response = backend.recognize_once(AsrRequest(wav_path=sample_wav, language="sk-SK"))
     assert response.error_code not in {"credential_missing", "config_missing"}

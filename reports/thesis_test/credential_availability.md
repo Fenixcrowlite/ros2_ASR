@@ -1,14 +1,10 @@
 # Credential Availability
 
-Created: `2026-05-03T18:48:46.649943+00:00`
+Created: `2026-05-04T00:07:33.190832+00:00`
 
-| Provider | Requirement | State |
-|---|---|---|
-| providers/aws_cloud | AWS_AUTH | available |
-| providers/aws_cloud | AWS_REGION | available |
-| providers/aws_cloud | AWS_TRANSCRIBE_BUCKET | missing |
-| providers/azure_cloud | AZURE_SPEECH_KEY | missing |
-| providers/azure_cloud | AZURE_SPEECH_REGION | missing |
-| providers/google_cloud | GOOGLE_APPLICATION_CREDENTIALS | missing |
-| providers/google_cloud | GOOGLE_CLOUD_PROJECT | missing |
-| providers/huggingface_api | HF_TOKEN | missing |
+| Provider | Required Secrets | Sources Checked/Detected | Auth Probe | Status | Safe Error Summary |
+|---|---|---|---|---|---|
+| huggingface_api | HF_TOKEN or HUGGINGFACEHUB_API_TOKEN | configs/providers/aws_cloud.yaml, configs/providers/azure_cloud.yaml, configs/providers/google_cloud.yaml, configs/providers/huggingface_api.yaml, process_env, secrets/local/runtime.env, secrets/refs/aws_profile.yaml, secrets/refs/azure_speech_key.yaml, secrets/refs/google_service_account.yaml, secrets/refs/huggingface_api_token.yaml, secrets/refs/huggingface_local_token.yaml | failure | missing | token |
+| azure_cloud | AZURE_SPEECH_KEY or SPEECH_KEY, AZURE_SPEECH_REGION or SPEECH_REGION | configs/providers/aws_cloud.yaml, configs/providers/azure_cloud.yaml, configs/providers/google_cloud.yaml, configs/providers/huggingface_api.yaml, process_env, secrets/local/runtime.env, secrets/refs/aws_profile.yaml, secrets/refs/azure_speech_key.yaml, secrets/refs/google_service_account.yaml, secrets/refs/huggingface_api_token.yaml, secrets/refs/huggingface_local_token.yaml | success | available |  |
+| google_cloud | GOOGLE_APPLICATION_CREDENTIALS or ADC, GOOGLE_CLOUD_PROJECT or GCP_PROJECT | configs/providers/aws_cloud.yaml, configs/providers/azure_cloud.yaml, configs/providers/google_cloud.yaml, configs/providers/huggingface_api.yaml, process_env, secrets/local/runtime.env, secrets/refs/aws_profile.yaml, secrets/refs/azure_speech_key.yaml, secrets/refs/google_service_account.yaml, secrets/refs/huggingface_api_token.yaml, secrets/refs/huggingface_local_token.yaml | success | available |  |
+| aws_cloud | AWS_PROFILE or AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY, AWS_REGION or AWS_DEFAULT_REGION, AWS_TRANSCRIBE_BUCKET or AWS_S3_BUCKET or ASR_AWS_S3_BUCKET | configs/providers/aws_cloud.yaml, configs/providers/azure_cloud.yaml, configs/providers/google_cloud.yaml, configs/providers/huggingface_api.yaml, process_env, secrets/local/runtime.env, secrets/refs/aws_profile.yaml, secrets/refs/azure_speech_key.yaml, secrets/refs/google_service_account.yaml, secrets/refs/huggingface_api_token.yaml, secrets/refs/huggingface_local_token.yaml | success | available |  |

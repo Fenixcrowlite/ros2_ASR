@@ -55,6 +55,123 @@ def test_provider_manager_creates_provider_from_profile_with_secret_ref(
     assert provider.get_status().state == "initialized"
 
 
+def test_provider_manager_resolves_aws_s3_bucket_from_local_env_file(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import asr_provider_aws.aws_provider as aws_module
+
+    class FakeAwsBackend:
+        def __init__(self, config: dict, client: object | None = None) -> None:
+            del client
+            self.config = config
+            self.region = str(config.get("region", "") or "")
+            self.s3_bucket = str(config.get("s3_bucket", "") or "")
+
+        def has_credentials(self) -> bool:
+            return bool(self.config.get("profile"))
+
+        def auth_validation_errors(self) -> list[str]:
+            return []
+
+    monkeypatch.setattr(aws_module, "AwsAsrBackend", FakeAwsBackend)
+    for key in ("AWS_PROFILE", "AWS_REGION", "AWS_S3_BUCKET"):
+        monkeypatch.delenv(key, raising=False)
+
+    configs = tmp_path / "configs"
+    refs_dir = tmp_path / "secrets" / "refs"
+    local_env = tmp_path / "secrets" / "local" / "runtime.env"
+    _write_yaml(
+        configs / "providers" / "aws_cloud.yaml",
+        {
+            "provider_id": "aws",
+            "adapter": "asr_provider_aws.aws_provider.AwsProvider",
+            "settings": {
+                "region": "${AWS_REGION}",
+                "s3_bucket": "${AWS_S3_BUCKET}",
+                "input_prefix": "asr-input/",
+                "output_prefix": "asr-output/",
+            },
+            "credentials_ref": "secrets/refs/aws_profile.yaml",
+        },
+    )
+    _write_yaml(
+        refs_dir / "aws_profile.yaml",
+        {
+            "ref_id": "secrets/aws_profile",
+            "provider": "aws",
+            "kind": "env",
+            "optional": ["AWS_PROFILE", "AWS_REGION", "AWS_S3_BUCKET"],
+        },
+    )
+    local_env.parent.mkdir(parents=True)
+    local_env.write_text(
+        "AWS_PROFILE=ros2ws\nAWS_REGION=eu-north-1\nAWS_S3_BUCKET=unit-test-bucket\n",
+        encoding="utf-8",
+    )
+
+    manager = ProviderManager(configs_root=str(configs))
+    provider = manager.create_from_profile("providers/aws_cloud")
+
+    assert provider.validate_config() == []
+    assert provider._backend is not None
+    assert provider._backend.s3_bucket == "unit-test-bucket"
+
+
+def test_provider_manager_allows_aws_streaming_without_s3_bucket(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    import asr_provider_aws.aws_provider as aws_module
+
+    class FakeAwsBackend:
+        def __init__(self, config: dict, client: object | None = None) -> None:
+            del client
+            self.config = config
+            self.region = str(config.get("region", "") or "")
+            self.s3_bucket = str(config.get("s3_bucket", "") or "")
+
+        def has_credentials(self) -> bool:
+            return bool(self.config.get("profile"))
+
+        def auth_validation_errors(self) -> list[str]:
+            return []
+
+    monkeypatch.setattr(aws_module, "AwsAsrBackend", FakeAwsBackend)
+
+    configs = tmp_path / "configs"
+    refs_dir = tmp_path / "secrets" / "refs"
+    _write_yaml(
+        configs / "providers" / "aws_cloud.yaml",
+        {
+            "provider_id": "aws",
+            "adapter": "asr_provider_aws.aws_provider.AwsProvider",
+            "settings": {
+                "region": "eu-north-1",
+                "s3_bucket": "",
+            },
+            "credentials_ref": "secrets/refs/aws_profile.yaml",
+        },
+    )
+    _write_yaml(
+        refs_dir / "aws_profile.yaml",
+        {
+            "ref_id": "secrets/aws_profile",
+            "provider": "aws",
+            "kind": "env",
+            "optional": ["AWS_PROFILE"],
+        },
+    )
+    monkeypatch.setenv("AWS_PROFILE", "ros2ws")
+
+    manager = ProviderManager(configs_root=str(configs))
+    provider = manager.create_from_profile("providers/aws_cloud")
+
+    assert provider.validate_config() == []
+    assert provider._backend is not None
+    assert provider._backend.s3_bucket == ""
+
+
 def test_provider_manager_raises_for_invalid_provider_config(tmp_path: Path) -> None:
     class FakeInvalidComponentProvider(FakeProviderAdapter):
         provider_id = "fake_invalid_component"

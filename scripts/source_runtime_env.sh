@@ -45,6 +45,44 @@ export ASR_COLCON_BUILD_BASE="${ASR_COLCON_BUILD_BASE:-$_root_dir/ros2_ws/build}
 export ASR_COLCON_INSTALL_PREFIX="$_preferred_install_prefix"
 export ASR_COLCON_LOG_BASE="${ASR_COLCON_LOG_BASE:-$_root_dir/ros2_ws/log}"
 
+_runtime_env_file="${ASR_LOCAL_ENV_FILE:-$_root_dir/secrets/local/runtime.env}"
+if [ -f "$_runtime_env_file" ]; then
+  while IFS= read -r _env_line || [ -n "$_env_line" ]; do
+    _env_line="${_env_line#"${_env_line%%[![:space:]]*}"}"
+    _env_line="${_env_line%"${_env_line##*[![:space:]]}"}"
+    [ -n "$_env_line" ] || continue
+    case "$_env_line" in
+      \#*)
+        continue
+        ;;
+      export\ *)
+        _env_line="${_env_line#export }"
+        ;;
+    esac
+    case "$_env_line" in
+      [A-Za-z_]*=*)
+        _env_key="${_env_line%%=*}"
+        _env_value="${_env_line#*=}"
+        case "$_env_key" in
+          *[!A-Za-z0-9_]*)
+            continue
+            ;;
+        esac
+        if [ "${#_env_value}" -ge 2 ]; then
+          _first_char="${_env_value:0:1}"
+          _last_char="${_env_value: -1}"
+          if { [ "$_first_char" = "\"" ] && [ "$_last_char" = "\"" ]; } ||
+             { [ "$_first_char" = "'" ] && [ "$_last_char" = "'" ]; }; then
+            _env_value="${_env_value:1:${#_env_value}-2}"
+          fi
+        fi
+        [ -n "$_env_value" ] || continue
+        export "${_env_key}=${_env_value}"
+        ;;
+    esac
+  done < "$_runtime_env_file"
+fi
+
 _prepend_unique_path() {
   local _candidate="$1"
   local _current="${2:-}"

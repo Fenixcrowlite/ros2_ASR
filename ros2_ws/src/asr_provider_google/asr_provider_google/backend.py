@@ -226,7 +226,15 @@ class GoogleAsrBackend(AsrBackend):
         self._client_error = ""
 
     def has_credentials(self) -> bool:
-        return bool(self.credentials) and Path(self.credentials).exists()
+        if self.credentials:
+            return Path(self.credentials).exists()
+        try:
+            import google.auth  # type: ignore[import-not-found]
+
+            google.auth.default(scopes=["https://www.googleapis.com/auth/cloud-platform"])
+            return True
+        except Exception:
+            return False
 
     def _load_client(self) -> bool:
         if self._client is not None:
@@ -359,18 +367,7 @@ class GoogleAsrBackend(AsrBackend):
     def recognize_once(self, request: AsrRequest) -> AsrResponse:
         preprocess_start = time.perf_counter()
         language = normalize_language_code(request.language, fallback="en-US")
-        if not self.credentials:
-            return AsrResponse(
-                success=False,
-                error_code="credential_missing",
-                error_message=(
-                    "Missing Google credentials. Set GOOGLE_APPLICATION_CREDENTIALS or "
-                    "backends.google.credentials_json."
-                ),
-                backend_info={"provider": "google", "model": self.model, "region": self.region},
-                language=language,
-            )
-        if not Path(self.credentials).exists():
+        if self.credentials and not Path(self.credentials).exists():
             return AsrResponse(
                 success=False,
                 error_code="config_missing",
@@ -463,7 +460,7 @@ class GoogleAsrBackend(AsrBackend):
                 error_code=error_code,
                 error_message=error_message,
                 backend_info={"provider": "google", "model": self.model, "region": self.region},
-                anguage=language,
+                language=language,
             )
 
     def streaming_recognize(

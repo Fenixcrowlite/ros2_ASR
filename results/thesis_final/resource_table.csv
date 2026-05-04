@@ -1,4 +1,12 @@
-provider,model,device,cpu_pct_mean,cpu_pct_peak,ram_mb_peak,gpu_util_pct_mean,gpu_mem_mb_peak,model_size_mb
-huggingface_local,balanced,local,12.82168878,100,3414.132812,33.12420635,4559,
-whisper_local,light,local,31.65700772,93.1,1000.007812,7.521666666,614,
-vosk_local,en_small,local,10.05607219,100,1042.117188,8.719005772,561,
+comparison_tier,provider,model,device,cpu_pct_mean,cpu_pct_peak,ram_mb_peak,gpu_util_pct_mean,gpu_mem_mb_peak,model_size_mb
+accurate_or_high_quality,google_cloud,accurate,cloud,4.20314492,50,2376.414062,6.798051282,783,
+accurate_or_high_quality,whisper_local,accurate,local,35.16408355,100,2852.316406,9.652625985,983,
+balanced,huggingface_local,balanced,local,10.4605594,50,3347.15625,33.77484615,4654,
+balanced,whisper_local,balanced,local,30.72951632,91.2,1084.660156,5.564190476,669,
+balanced,azure_cloud,standard,cloud,16.12443378,100,2170.546875,27.84523812,4842,
+balanced,google_cloud,balanced,cloud,6.879522987,66.5,2139.773438,8.598812576,807,
+balanced,aws_cloud,standard,cloud,6.597893714,100,2271.699219,11.45774597,4798,
+fast_or_low_resource,whisper_local,light,local,32.41085599,100,992.7148438,9.955,669,
+fast_or_low_resource,huggingface_local,light,local,10.66544872,50,2316.742188,17.89880952,1607,
+fast_or_low_resource,google_cloud,light,cloud,5.232556403,50,1907.617188,9.656999695,805,
+fast_or_low_resource,vosk_local,en_small,local,12.40209358,100,2089.046875,11.61965873,869,

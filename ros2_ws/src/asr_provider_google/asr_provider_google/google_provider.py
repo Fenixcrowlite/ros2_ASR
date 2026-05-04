@@ -101,8 +101,15 @@ class GoogleProvider(AsrProviderAdapter):
     def validate_config(self) -> list[str]:
         if self._backend is None:
             return ["Provider is not initialized"]
-        if not self._backend.credentials:
-            return ["Google credentials_json is missing"]
+        has_credentials = getattr(self._backend, "has_credentials", None)
+        credentials_available = (
+            bool(has_credentials()) if callable(has_credentials) else bool(self._backend.credentials)
+        )
+        if not credentials_available:
+            return [
+                "Google credentials are missing. Provide GOOGLE_APPLICATION_CREDENTIALS "
+                "or application default credentials."
+            ]
         return []
 
     def discover_capabilities(self) -> ProviderCapabilities:

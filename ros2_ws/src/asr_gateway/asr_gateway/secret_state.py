@@ -43,6 +43,11 @@ def aws_backend_from_current_env(
         config={
             "profile": resolve_env_value("AWS_PROFILE", secret_ref_source)[0],
             "region": resolve_env_value("AWS_REGION", secret_ref_source)[0],
+            "s3_bucket": (
+                resolve_env_value("AWS_S3_BUCKET", secret_ref_source)[0]
+                or resolve_env_value("ASR_AWS_S3_BUCKET", secret_ref_source)[0]
+                or resolve_env_value("AWS_TRANSCRIBE_BUCKET", secret_ref_source)[0]
+            ),
             "access_key_id": resolve_env_value("AWS_ACCESS_KEY_ID", secret_ref_source)[0],
             "secret_access_key": resolve_env_value("AWS_SECRET_ACCESS_KEY", secret_ref_source)[0],
             "session_token": resolve_env_value("AWS_SESSION_TOKEN", secret_ref_source)[0],

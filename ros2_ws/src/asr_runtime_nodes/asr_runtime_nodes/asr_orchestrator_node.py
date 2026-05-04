@@ -485,6 +485,12 @@ class AsrOrchestratorNode(Node):
             preset_id=requested_provider_preset,
             settings_overrides=requested_provider_settings,
         )
+        if target_processing_mode == "segmented" and provider.provider_id == "aws":
+            caps = provider.discover_capabilities()
+            backend = getattr(provider, "_backend", None)
+            aws_s3_bucket = str(getattr(backend, "s3_bucket", "") or "").strip()
+            if caps.supports_streaming and not aws_s3_bucket:
+                target_processing_mode = "provider_stream"
         if target_processing_mode == "provider_stream":
             caps = provider.discover_capabilities()
             if not caps.supports_streaming:

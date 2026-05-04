@@ -1,4 +1,12 @@
-provider,model,execution_mode,samples,final_latency_ms_p50,final_latency_ms_p95,end_to_end_rtf_mean,end_to_end_rtf_p95,provider_compute_rtf_mean,throughput_audio_sec_per_sec,admissible,admissibility_flags
-huggingface_local,balanced,batch,50,1431.393503,3976.012523,0.258026219,0.3460917745,0.2579903549,4.998967457,true,
-whisper_local,light,batch,50,488.8105955,949.0913489,0.09473022586,0.1307145283,0.09468251797,15.08442264,true,
-vosk_local,en_small,batch,50,972.2917825,2222.424114,0.1471882126,0.2234232317,0.1455963153,7.644242177,true,
+comparison_tier,provider,model,execution_mode,samples,final_latency_ms_p50,final_latency_ms_p95,end_to_end_rtf_mean,end_to_end_rtf_p95,provider_compute_rtf_mean,throughput_audio_sec_per_sec,admissible,admissibility_flags
+accurate_or_high_quality,google_cloud,accurate,batch,50,1341.050295,3459.973583,0.1930650076,0.2330295061,0.1929140326,5.626346016,true,
+accurate_or_high_quality,whisper_local,accurate,batch,50,2317.101673,3494.021452,0.3720004931,0.6430449319,0.3719498687,3.614128121,true,
+balanced,huggingface_local,balanced,batch,50,1371.925974,3796.141131,0.2495673996,0.3286703014,0.249529394,5.219690307,true,
+balanced,whisper_local,balanced,batch,50,831.00738,1619.795614,0.1491969518,0.2198336116,0.1491493811,9.33126102,true,
+balanced,azure_cloud,standard,batch,50,1831.759673,9754.289883,0.3430428755,0.4186803997,0.3027089378,2.800087016,true,
+balanced,google_cloud,balanced,batch,50,1462.998323,3624.154219,0.2095655669,0.254900577,0.2094393154,5.242091447,true,
+balanced,aws_cloud,standard,batch,50,10068.65958,11535.9706,1.614654712,3.013246911,1.397708739,0.889088167,false,embedded_rtf_gt_1
+fast_or_low_resource,whisper_local,light,batch,50,518.9042935,926.2279926,0.0923386079,0.1348707809,0.09228945107,15.18551725,true,
+fast_or_low_resource,huggingface_local,light,batch,50,351.3645425,1394.960945,0.07624736666,0.07493407151,0.07620993603,16.9754098,true,
+fast_or_low_resource,google_cloud,light,batch,50,1645.407329,4526.148678,0.2466073437,0.4315821919,0.2464567381,4.618131251,true,
+fast_or_low_resource,vosk_local,en_small,batch,50,995.2295705,2422.736262,0.1533455158,0.2277158439,0.1514862498,7.271339405,true,

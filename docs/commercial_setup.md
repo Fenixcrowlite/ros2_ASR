@@ -38,8 +38,11 @@ Use native AWS auth:
 - or `AWS_ACCESS_KEY_ID` + `AWS_SECRET_ACCESS_KEY`
 - optional `AWS_SESSION_TOKEN`
 - optional `AWS_CONFIG_FILE`, `AWS_SHARED_CREDENTIALS_FILE`
+- required `AWS_S3_BUCKET` for Amazon Transcribe batch media upload
 
-Provider settings such as bucket stay in `configs/providers/aws_cloud.yaml`.
+Provider settings such as `region`, `s3_bucket`, `input_prefix`, and `output_prefix`
+stay in `configs/providers/aws_cloud.yaml`. `AWS_S3_BUCKET` can also be stored in
+the ignored local env file `secrets/local/runtime.env`.
 
 If you use AWS SSO, you still need a live login token:
 

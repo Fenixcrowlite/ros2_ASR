@@ -1,0 +1,21 @@
+profile_id: benchmark/thesis_tier_balanced
+inherits:
+  - thesis_local_matrix
+dataset_profile: datasets/librispeech_test_clean_subset
+providers:
+  - providers/whisper_local
+  - providers/huggingface_local
+  - providers/google_cloud
+  - providers/azure_cloud
+  - providers/aws_cloud
+provider_overrides:
+  providers/whisper_local:
+    preset_id: balanced
+  providers/huggingface_local:
+    preset_id: balanced
+  providers/google_cloud:
+    preset_id: balanced
+  providers/azure_cloud:
+    preset_id: standard
+  providers/aws_cloud:
+    preset_id: standard

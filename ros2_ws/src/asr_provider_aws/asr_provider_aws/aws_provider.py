@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from typing import Any
 
-from asr_provider_aws.backend import AwsAsrBackend, AwsStreamingSession
 from asr_core.models import AsrRequest, AsrResponse
 from asr_core.normalized import LatencyMetadata, NormalizedAsrResult, NormalizedWord
 from asr_provider_base.adapter import AsrProviderAdapter
 from asr_provider_base.capabilities import ProviderCapabilities
 from asr_provider_base.models import ProviderAudio, ProviderStatus
+
+from asr_provider_aws.backend import AwsAsrBackend, AwsStreamingSession
 
 
 def _metadata_float(response: AsrResponse, key: str) -> float:
@@ -92,18 +93,21 @@ class AwsProvider(AsrProviderAdapter):
 
     def initialize(self, config: dict[str, Any], credentials_ref: dict[str, str]) -> None:
         merged = dict(config)
-        for key in (
-            "AWS_PROFILE",
-            "AWS_REGION",
-            "AWS_ACCESS_KEY_ID",
-            "AWS_SECRET_ACCESS_KEY",
-            "AWS_SESSION_TOKEN",
-            "AWS_CONFIG_FILE",
-            "AWS_SHARED_CREDENTIALS_FILE",
-        ):
+        credential_config_keys = {
+            "AWS_PROFILE": "profile",
+            "AWS_REGION": "region",
+            "AWS_S3_BUCKET": "s3_bucket",
+            "ASR_AWS_S3_BUCKET": "s3_bucket",
+            "AWS_TRANSCRIBE_BUCKET": "s3_bucket",
+            "AWS_ACCESS_KEY_ID": "access_key_id",
+            "AWS_SECRET_ACCESS_KEY": "secret_access_key",
+            "AWS_SESSION_TOKEN": "session_token",
+            "AWS_CONFIG_FILE": "config_file",
+            "AWS_SHARED_CREDENTIALS_FILE": "shared_credentials_file",
+        }
+        for key, config_key in credential_config_keys.items():
             if credentials_ref.get(key):
-                lowered = key.lower().replace("aws_", "")
-                merged[lowered] = credentials_ref[key]
+                merged[config_key] = credentials_ref[key]
         self._backend = AwsAsrBackend(config=merged)
         self._status = ProviderStatus(provider_id=self.provider_id, state="initialized")
 
@@ -113,8 +117,6 @@ class AwsProvider(AsrProviderAdapter):
         errors: list[str] = []
         if not self._backend.region:
             errors.append("AWS region is missing")
-        if not self._backend.s3_bucket:
-            errors.append("AWS s3_bucket is missing")
         if not self._backend.has_credentials():
             errors.append("AWS credentials are missing. Provide AWS_PROFILE or AWS access keys.")
         errors.extend(self._backend.auth_validation_errors())

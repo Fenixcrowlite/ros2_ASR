@@ -1651,6 +1651,10 @@ def _provider_execution_payload(
     )
     try:
         capabilities = _capabilities_to_dict(adapter.discover_capabilities())
+        aws_s3_bucket = ""
+        if adapter.provider_id == "aws":
+            backend = getattr(adapter, "_backend", None)
+            aws_s3_bucket = str(getattr(backend, "s3_bucket", "") or "").strip()
     finally:
         adapter.teardown()
     return {
@@ -1658,6 +1662,7 @@ def _provider_execution_payload(
         "payload": payload,
         "execution": execution,
         "capabilities": capabilities,
+        "aws_s3_bucket": aws_s3_bucket,
     }
 
 
@@ -1779,6 +1784,14 @@ def _preflight_runtime_request(
     effective_processing_mode = str(
         orchestrator_cfg.get("processing_mode", "segmented") or "segmented"
     ).strip()
+    if (
+        effective_processing_mode == "segmented"
+        and provider_exec["payload"].get("provider_id") == "aws"
+        and bool(provider_exec["capabilities"].get("supports_streaming", False))
+        and not str(provider_exec.get("aws_s3_bucket", "") or "").strip()
+    ):
+        effective_processing_mode = "provider_stream"
+        orchestrator_cfg["processing_mode"] = effective_processing_mode
     if effective_processing_mode == "provider_stream" and not bool(
         provider_exec["capabilities"].get("supports_streaming", False)
     ):

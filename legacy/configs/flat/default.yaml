@@ -53,6 +53,8 @@ backends:
     region: us-east-1
     # S3 bucket required for job media upload.
     s3_bucket: ""
+    input_prefix: asr-input/
+    output_prefix: asr-output/
     media_format: wav
     # Cleanup uploaded S3 object and transcription job after completion.
     cleanup: true

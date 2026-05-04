@@ -1,4 +1,12 @@
-provider,model,embedded_score,batch_score,analytics_score,dialog_score,best_use_case,final_recommendation
-huggingface_local,balanced,86.7656723,91.97208645,90.90856752,87.69358223,batch,best suited for batch throughput in this result set
-vosk_local,en_small,64.50275687,65.31890638,42.95263479,53.67344931,batch,best suited for batch throughput in this result set
-whisper_local,light,81.80567663,81.33361988,68.01132596,71.42854939,embedded,best suited for local/embedded ROS2 use in this result set
+comparison_tier,provider,model,embedded_score,batch_score,analytics_score,dialog_score,best_use_case,final_recommendation
+accurate_or_high_quality,google_cloud,accurate,80.05354893,83.73028509,74.95176054,70.91777677,batch,best suited for batch throughput in this result set
+accurate_or_high_quality,whisper_local,accurate,77.76928249,84.46775809,81.33628274,69.30213074,batch,best suited for batch throughput in this result set
+balanced,aws_cloud,standard,66.18386549,72.061502,85.20671374,63.90737895,analytics,best suited for offline analysis in this result set
+balanced,azure_cloud,standard,83.64200446,85.31320238,87.49597009,80.54054825,analytics,best suited for offline analysis in this result set
+balanced,google_cloud,balanced,82.27099657,86.56646986,79.65944814,73.27202269,batch,best suited for batch throughput in this result set
+balanced,huggingface_local,balanced,87.20815442,92.14204247,91.00105849,88.13594116,batch,best suited for batch throughput in this result set
+balanced,whisper_local,balanced,86.29410138,87.5973726,79.10377477,76.48428852,batch,best suited for batch throughput in this result set
+fast_or_low_resource,google_cloud,light,74.170235,78.74881006,67.68723168,64.74864323,batch,best suited for batch throughput in this result set
+fast_or_low_resource,huggingface_local,light,81.36316696,81.19647055,68.40925142,79.36245287,embedded,best suited for local/embedded ROS2 use in this result set
+fast_or_low_resource,vosk_local,en_small,63.55731398,64.78664724,42.60720574,53.21509576,batch,best suited for batch throughput in this result set
+fast_or_low_resource,whisper_local,light,81.67280413,81.28274724,67.98516648,71.30932261,embedded,best suited for local/embedded ROS2 use in this result set

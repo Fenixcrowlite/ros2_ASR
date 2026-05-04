@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import os
 import platform
 import subprocess
 from collections import defaultdict
@@ -15,6 +16,12 @@ from statistics import mean
 from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+TIER_KINDS = {"fast", "balanced", "accurate"}
+TIER_LABELS = {
+    "fast": "fast_or_low_resource",
+    "balanced": "balanced",
+    "accurate": "accurate_or_high_quality",
+}
 
 
 def _repo_relative_path(value: str | Path) -> str:
@@ -181,15 +188,21 @@ TABLE_FIELDS: dict[str, list[str]] = {
         "estimated_cost_model",
         "notes",
         "implementation_status",
+        "credential_detected",
         "smoke_tested",
+        "auth_probe_success",
+        "smoke_recognition_success",
         "benchmarked",
+        "failed",
         "skip_reason",
     ],
     "provider_smoke_tests.csv": [
         "provider",
         "model_or_preset",
         "available",
-        "success",
+        "credential_detected",
+        "auth_probe_success",
+        "smoke_recognition_success",
         "latency_ms",
         "end_to_end_rtf",
         "text_preview",
@@ -197,6 +210,7 @@ TABLE_FIELDS: dict[str, list[str]] = {
         "error_message_sanitized",
     ],
     "quality_table.csv": [
+        "comparison_tier",
         "provider",
         "model",
         "dataset",
@@ -210,6 +224,7 @@ TABLE_FIELDS: dict[str, list[str]] = {
         "normalization_profile",
     ],
     "performance_table.csv": [
+        "comparison_tier",
         "provider",
         "model",
         "execution_mode",
@@ -224,6 +239,7 @@ TABLE_FIELDS: dict[str, list[str]] = {
         "admissibility_flags",
     ],
     "resource_table.csv": [
+        "comparison_tier",
         "provider",
         "model",
         "device",
@@ -235,6 +251,7 @@ TABLE_FIELDS: dict[str, list[str]] = {
         "model_size_mb",
     ],
     "noise_robustness_table.csv": [
+        "comparison_tier",
         "provider",
         "model",
         "clean_wer",
@@ -245,6 +262,7 @@ TABLE_FIELDS: dict[str, list[str]] = {
         "noise_deg_pp",
     ],
     "cost_deployment_table.csv": [
+        "comparison_tier",
         "provider",
         "model",
         "local_or_cloud",
@@ -256,6 +274,7 @@ TABLE_FIELDS: dict[str, list[str]] = {
         "cocohrip_suitability",
     ],
     "scenario_scores.csv": [
+        "comparison_tier",
         "provider",
         "model",
         "embedded_score",
@@ -335,6 +354,66 @@ def _is_mock_provider(provider: str, backend: str = "") -> bool:
     return any(token in label for token in ("mock", "fake", "dummy"))
 
 
+def _safe_error_summary(message: str) -> str:
+    sanitized = str(message or "").replace("\n", " ").replace("\r", " ")
+    if "CUDA out of memory" in sanitized:
+        return "CUDA out of memory during local HuggingFace accurate preset; high-memory preset excluded from metric tables to preserve workstation stability."
+    for key, value in os.environ.items():
+        if not value or len(value) < 8:
+            continue
+        if any(token in key.upper() for token in ("KEY", "TOKEN", "SECRET", "PASSWORD")):
+            sanitized = sanitized.replace(value, "<redacted>")
+    sanitized = sanitized.replace(str(PROJECT_ROOT), ".")
+    home = str(Path.home())
+    if home:
+        sanitized = sanitized.replace(home, "~")
+    return " ".join(sanitized.split())[:400]
+
+
+def _canonical_model_status(manifest: dict[str, Any]) -> dict[tuple[str, str], dict[str, Any]]:
+    source = manifest.get("source", {})
+    if not isinstance(source, dict):
+        return {}
+    results_path = PROJECT_ROOT / str(source.get("results_json", "") or "")
+    if not results_path.exists():
+        return {}
+    payload = _load_json(results_path)
+    if not isinstance(payload, list):
+        return {}
+    status: dict[tuple[str, str], dict[str, Any]] = defaultdict(
+        lambda: {"total": 0, "success": 0, "errors": defaultdict(int)}
+    )
+    for item in payload:
+        if not isinstance(item, dict):
+            continue
+        provider = _provider_from_backend(str(item.get("provider_profile", "") or ""))
+        preset = str(item.get("provider_preset", "") or item.get("model", "") or "")
+        key = (provider, preset)
+        bucket = status[key]
+        bucket["total"] += 1
+        if _as_bool(item.get("success")):
+            bucket["success"] += 1
+        else:
+            error_code = str(item.get("error_code", "") or "provider_error")
+            error_message = _safe_error_summary(str(item.get("error_message", "") or ""))
+            bucket["errors"][(error_code, error_message)] += 1
+    output: dict[tuple[str, str], dict[str, Any]] = {}
+    for key, value in status.items():
+        errors = value["errors"]
+        top_error = ("", "")
+        if errors:
+            top_error = max(errors, key=errors.get)
+        output[key] = {
+            "total": int(value["total"]),
+            "success": int(value["success"]),
+            "failed": int(value["total"]) - int(value["success"]),
+            "all_failed": int(value["total"]) > 0 and int(value["success"]) == 0,
+            "error_code": top_error[0],
+            "error_message_sanitized": top_error[1],
+        }
+    return output
+
+
 def _discover_runs(input_root: Path, *, include_all_runs: bool = False) -> list[dict[str, Any]]:
     if not input_root.exists():
         return []
@@ -350,11 +429,13 @@ def _discover_runs(input_root: Path, *, include_all_runs: bool = False) -> list[
         if not isinstance(payload, dict) or "manifest" not in payload or "models" not in payload:
             continue
         manifest = payload.get("manifest", {})
+        model_status = _canonical_model_status(manifest if isinstance(manifest, dict) else {})
         runs.append(
             {
                 "run_dir": run_dir,
                 "summary": payload,
                 "manifest": manifest if isinstance(manifest, dict) else {},
+                "model_status": model_status,
                 "models": [
                     item for item in payload.get("models", []) if isinstance(item, dict)
                 ],
@@ -369,16 +450,43 @@ def _discover_runs(input_root: Path, *, include_all_runs: bool = False) -> list[
             or run["run_dir"].name.startswith("thesis_")
         ]
         if thesis_runs:
-            timestamps = {
-                _thesis_timestamp(run)
-                for run in thesis_runs
-                if _thesis_timestamp(run)
-            }
-            if timestamps:
-                latest = max(timestamps)
-                return [run for run in thesis_runs if _thesis_timestamp(run) == latest]
+            tier_runs = [run for run in thesis_runs if _thesis_kind(run) in TIER_KINDS]
+            if tier_runs:
+                latest_by_kind: dict[str, str] = {}
+                for run in tier_runs:
+                    kind = _thesis_kind(run)
+                    timestamp = _thesis_timestamp(run)
+                    if timestamp > latest_by_kind.get(kind, ""):
+                        latest_by_kind[kind] = timestamp
+                return [
+                    run
+                    for run in tier_runs
+                    if latest_by_kind.get(_thesis_kind(run), "") == _thesis_timestamp(run)
+                ]
+            latest_by_kind: dict[str, str] = {}
+            for run in thesis_runs:
+                kind = _thesis_kind(run)
+                timestamp = _thesis_timestamp(run)
+                if not kind or not timestamp:
+                    continue
+                if timestamp > latest_by_kind.get(kind, ""):
+                    latest_by_kind[kind] = timestamp
+            if latest_by_kind:
+                return [
+                    run
+                    for run in thesis_runs
+                    if latest_by_kind.get(_thesis_kind(run), "") == _thesis_timestamp(run)
+                ]
             return thesis_runs
     return runs
+
+
+def _thesis_kind(run: dict[str, Any]) -> str:
+    run_id = str(run["manifest"].get("run_id", run["run_dir"].name) or "")
+    parts = run_id.split("_")
+    if len(parts) >= 3 and parts[0] == "thesis":
+        return parts[1]
+    return ""
 
 
 def _thesis_timestamp(run: dict[str, Any]) -> str:
@@ -387,6 +495,13 @@ def _thesis_timestamp(run: dict[str, Any]) -> str:
     if len(parts) >= 3 and parts[0] == "thesis":
         return parts[2]
     return ""
+
+
+def _comparison_tier_from_run_id(run_id: str) -> str:
+    parts = str(run_id or "").split("_")
+    if len(parts) >= 3 and parts[0] == "thesis" and parts[1] in TIER_LABELS:
+        return TIER_LABELS[parts[1]]
+    return "untiered"
 
 
 def _primary_runs(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -403,17 +518,29 @@ def _selected_summary_rows(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     for run in runs:
         manifest = run["manifest"]
         normalization_profile = str(manifest.get("normalization_profile", "") or "")
+        run_id = str(manifest.get("run_id", run["run_dir"].name) or "")
+        comparison_tier = _comparison_tier_from_run_id(run_id)
         for row in run["models"]:
             backend = str(row.get("backend", "") or "")
             provider = _provider_from_backend(backend)
             if _is_mock_provider(provider, backend):
                 continue
+            model = str(row.get("model", "") or "")
+            status = run.get("model_status", {}).get((provider, model), {})
             rows.append(
                 {
                     **row,
                     "provider": provider,
                     "normalization_profile": normalization_profile,
-                    "run_id": str(row.get("run_id") or manifest.get("run_id") or ""),
+                    "run_id": str(row.get("run_id") or run_id or ""),
+                    "comparison_tier": comparison_tier,
+                    "successful_utterance_variants": status.get("success", ""),
+                    "failed_utterance_variants": status.get("failed", ""),
+                    "all_samples_failed": status.get("all_failed", False),
+                    "failure_error_code": status.get("error_code", ""),
+                    "failure_error_message_sanitized": status.get(
+                        "error_message_sanitized", ""
+                    ),
                 }
             )
     return rows
@@ -422,13 +549,24 @@ def _selected_summary_rows(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
 def _selected_utterance_rows(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
     rows: list[dict[str, Any]] = []
     for run in runs:
+        manifest = run["manifest"]
+        run_id = str(manifest.get("run_id", run["run_dir"].name) or "")
+        comparison_tier = _comparison_tier_from_run_id(run_id)
         for row in run["utterances"]:
             backend = str(row.get("backend", "") or "")
             provider = _provider_from_backend(backend)
             if _is_mock_provider(provider, backend):
                 continue
-            rows.append({**row, "provider": provider})
+            model = str(row.get("model", "") or "")
+            status = run.get("model_status", {}).get((provider, model), {})
+            if status.get("all_failed"):
+                continue
+            rows.append({**row, "provider": provider, "comparison_tier": comparison_tier})
     return rows
+
+
+def _metric_summary_rows(summary_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    return [row for row in summary_rows if not _as_bool(row.get("all_samples_failed"))]
 
 
 def _provider_comparison_rows(
@@ -448,12 +586,19 @@ def _provider_comparison_rows(
         skip_reason = ""
         if provider not in benchmarked:
             skip_reason = str(smoke.get("error_type") or "no benchmark artifact")
+        failed = False
+        if smoke and not _as_bool(smoke.get("smoke_recognition_success")):
+            failed = True
         rows.append(
             {
                 **{field: meta.get(field, "") for field in TABLE_FIELDS["provider_comparison.csv"]},
                 "implementation_status": "implemented",
+                "credential_detected": _as_bool(smoke.get("credential_detected")) if smoke else "",
                 "smoke_tested": provider in smoked,
+                "auth_probe_success": _as_bool(smoke.get("auth_probe_success")) if smoke else "",
+                "smoke_recognition_success": _as_bool(smoke.get("smoke_recognition_success")) if smoke else "",
                 "benchmarked": provider in benchmarked,
+                "failed": failed,
                 "skip_reason": skip_reason,
             }
         )
@@ -470,21 +615,32 @@ def _quality_rows(
     utterance_rows: list[dict[str, Any]],
 ) -> list[dict[str, Any]]:
     normalization_by_key = {
-        (str(row.get("provider", "") or ""), str(row.get("model", "") or "")): row.get(
+        (
+            str(row.get("comparison_tier", "") or "untiered"),
+            str(row.get("provider", "") or ""),
+            str(row.get("model", "") or ""),
+        ): row.get(
             "normalization_profile", ""
         )
         for row in summary_rows
     }
-    grouped: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    grouped: dict[tuple[str, str, str], list[dict[str, Any]]] = defaultdict(list)
     for row in utterance_rows:
         if not _is_clean_utterance(row):
             continue
-        grouped[(str(row.get("provider", "") or ""), str(row.get("model", "") or ""))].append(row)
+        grouped[
+            (
+                str(row.get("comparison_tier", "") or "untiered"),
+                str(row.get("provider", "") or ""),
+                str(row.get("model", "") or ""),
+            )
+        ].append(row)
 
     output: list[dict[str, Any]] = []
-    for (provider, model), rows in sorted(grouped.items()):
+    for (comparison_tier, provider, model), rows in sorted(grouped.items()):
         output.append(
             {
+                "comparison_tier": comparison_tier,
                 "provider": provider,
                 "model": model,
                 "dataset": rows[0].get("dataset", "") if rows else "",
@@ -509,7 +665,7 @@ def _quality_rows(
                 else "",
                 "ci_95_low": "",
                 "ci_95_high": "",
-                "normalization_profile": normalization_by_key.get((provider, model), ""),
+                "normalization_profile": normalization_by_key.get((comparison_tier, provider, model), ""),
             }
         )
     return output
@@ -518,6 +674,7 @@ def _quality_rows(
 def _performance_rows(summary_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return [
         {
+            "comparison_tier": row.get("comparison_tier", "untiered"),
             "provider": row.get("provider", ""),
             "model": row.get("model", ""),
             "execution_mode": row.get("execution_mode", "batch"),
@@ -536,14 +693,24 @@ def _performance_rows(summary_rows: list[dict[str, Any]]) -> list[dict[str, Any]
 
 
 def _resource_rows(summary_rows: list[dict[str, Any]], utterance_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    by_key: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    by_key: dict[tuple[str, str, str], list[dict[str, Any]]] = defaultdict(list)
     for row in utterance_rows:
-        by_key[(str(row.get("provider", "") or ""), str(row.get("model", "") or ""))].append(row)
+        by_key[
+            (
+                str(row.get("comparison_tier", "") or "untiered"),
+                str(row.get("provider", "") or ""),
+                str(row.get("model", "") or ""),
+            )
+        ].append(row)
 
     output: list[dict[str, Any]] = []
-    seen: set[tuple[str, str]] = set()
+    seen: set[tuple[str, str, str]] = set()
     for summary in summary_rows:
-        key = (str(summary.get("provider", "") or ""), str(summary.get("model", "") or ""))
+        key = (
+            str(summary.get("comparison_tier", "") or "untiered"),
+            str(summary.get("provider", "") or ""),
+            str(summary.get("model", "") or ""),
+        )
         if key in seen:
             continue
         seen.add(key)
@@ -552,9 +719,10 @@ def _resource_rows(summary_rows: list[dict[str, Any]], utterance_rows: list[dict
         gpu_utils = [_as_float(row.get("gpu_util_pct_mean")) for row in rows]
         output.append(
             {
-                "provider": key[0],
-                "model": key[1],
-                "device": "cloud" if PROVIDER_CATALOG.get(key[0], {}).get("local_or_cloud") == "cloud" else "local",
+                "comparison_tier": key[0],
+                "provider": key[1],
+                "model": key[2],
+                "device": "cloud" if PROVIDER_CATALOG.get(key[1], {}).get("local_or_cloud") == "cloud" else "local",
                 "cpu_pct_mean": summary.get("cpu_pct_mean", ""),
                 "cpu_pct_peak": max([value for value in cpu_peaks if value is not None], default=""),
                 "ram_mb_peak": summary.get("ram_mb_peak", ""),
@@ -602,12 +770,18 @@ def _snr_key(row: dict[str, Any]) -> str:
 
 
 def _noise_rows(utterance_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    grouped: dict[tuple[str, str], dict[str, list[dict[str, Any]]]] = defaultdict(lambda: defaultdict(list))
+    grouped: dict[tuple[str, str, str], dict[str, list[dict[str, Any]]]] = defaultdict(lambda: defaultdict(list))
     for row in utterance_rows:
-        grouped[(str(row.get("provider", "") or ""), str(row.get("model", "") or ""))][_snr_key(row)].append(row)
+        grouped[
+            (
+                str(row.get("comparison_tier", "") or "untiered"),
+                str(row.get("provider", "") or ""),
+                str(row.get("model", "") or ""),
+            )
+        ][_snr_key(row)].append(row)
 
     output: list[dict[str, Any]] = []
-    for (provider, model), by_snr in sorted(grouped.items()):
+    for (comparison_tier, provider, model), by_snr in sorted(grouped.items()):
         clean_wer = _wer_for_rows(by_snr.get("clean", []))
         snr_wers = {key: _wer_for_rows(by_snr.get(key, [])) for key in ("snr_20", "snr_10", "snr_5", "snr_0")}
         noisy_values = [value for value in snr_wers.values() if value is not None]
@@ -617,6 +791,7 @@ def _noise_rows(utterance_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         output.append(
             {
                 "provider": provider,
+                "comparison_tier": comparison_tier,
                 "model": model,
                 "clean_wer": clean_wer,
                 "snr_20_wer": snr_wers["snr_20"],
@@ -630,12 +805,13 @@ def _noise_rows(utterance_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _cost_rows(summary_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    seen: set[tuple[str, str]] = set()
+    seen: set[tuple[str, str, str]] = set()
     output: list[dict[str, Any]] = []
     for row in summary_rows:
         provider = str(row.get("provider", "") or "")
         model = str(row.get("model", "") or "")
-        key = (provider, model)
+        comparison_tier = str(row.get("comparison_tier", "") or "untiered")
+        key = (comparison_tier, provider, model)
         if key in seen:
             continue
         seen.add(key)
@@ -643,6 +819,7 @@ def _cost_rows(summary_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         output.append(
             {
                 "provider": provider,
+                "comparison_tier": comparison_tier,
                 "model": model,
                 "local_or_cloud": meta.get("local_or_cloud", ""),
                 "cost_per_audio_hour_usd": row.get("cost_per_audio_hour_usd") or meta.get("cost_per_audio_hour_usd", ""),
@@ -657,15 +834,21 @@ def _cost_rows(summary_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def _scenario_rows(summary_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
-    grouped: dict[tuple[str, str], dict[str, float]] = defaultdict(dict)
+    grouped: dict[tuple[str, str, str], dict[str, float]] = defaultdict(dict)
     for row in summary_rows:
         score = _as_float(row.get("scenario_score"))
         if score is None:
             continue
-        grouped[(str(row.get("provider", "") or ""), str(row.get("model", "") or ""))][str(row.get("scenario", "") or "")] = score
+        grouped[
+            (
+                str(row.get("comparison_tier", "") or "untiered"),
+                str(row.get("provider", "") or ""),
+                str(row.get("model", "") or ""),
+            )
+        ][str(row.get("scenario", "") or "")] = score
 
     output: list[dict[str, Any]] = []
-    for (provider, model), scores in sorted(grouped.items()):
+    for (comparison_tier, provider, model), scores in sorted(grouped.items()):
         best_scenario = max(scores, key=scores.get) if scores else ""
         recommendation = "indicative only; run a larger sample set before final claims"
         if best_scenario == "embedded":
@@ -679,6 +862,7 @@ def _scenario_rows(summary_rows: list[dict[str, Any]]) -> list[dict[str, Any]]:
         output.append(
             {
                 "provider": provider,
+                "comparison_tier": comparison_tier,
                 "model": model,
                 "embedded_score": scores.get("embedded", ""),
                 "batch_score": scores.get("batch", ""),
@@ -776,6 +960,7 @@ def _write_final_report(
     tables: dict[str, list[dict[str, Any]]],
 ) -> None:
     benchmarked = sorted({str(row.get("provider", "") or "") for row in summary_rows})
+    valid_metric_rows = _metric_summary_rows(summary_rows)
     smoke_tested = sorted({str(row.get("provider", "") or "") for row in smoke_rows})
     smoke_by_provider = {str(row.get("provider", "") or ""): row for row in smoke_rows}
     skipped = [provider for provider in PROVIDER_CATALOG if provider not in benchmarked]
@@ -787,10 +972,24 @@ def _write_final_report(
     has_cloud = any(PROVIDER_CATALOG.get(provider, {}).get("local_or_cloud") == "cloud" for provider in benchmarked)
     validation_json = PROJECT_ROOT / "reports" / "datasets" / "dataset_asset_validation.json"
     validation_passed = "unknown"
+    active_dataset = "unknown"
     if validation_json.exists():
         payload = _load_json(validation_json)
         if isinstance(payload, dict):
             validation_passed = "passed" if _as_bool(payload.get("passed")) else "failed"
+            dataset_items = payload.get("datasets", [])
+            if isinstance(dataset_items, list) and dataset_items:
+                first = dataset_items[0]
+                if isinstance(first, dict):
+                    active_dataset = str(first.get("dataset_id", "") or active_dataset)
+    credential_json = PROJECT_ROOT / "reports" / "thesis_test" / "credential_availability.json"
+    credential_by_provider: dict[str, dict[str, Any]] = {}
+    if credential_json.exists():
+        payload = _load_json(credential_json)
+        if isinstance(payload, dict):
+            for item in payload.get("providers", []):
+                if isinstance(item, dict):
+                    credential_by_provider[str(item.get("provider", "") or "")] = item
     canonical_artifacts = sorted(
         {
             str(run.get("manifest", {}).get("source", {}).get("input_path", "") or "")
@@ -814,6 +1013,49 @@ def _write_final_report(
                 }
             )
 
+    local_providers = ["whisper_local", "vosk_local", "huggingface_local"]
+    cloud_providers = ["huggingface_api", "azure_cloud", "google_cloud", "aws_cloud"]
+    local_benchmarked = [provider for provider in local_providers if provider in benchmarked]
+    cloud_attempted = [
+        provider
+        for provider in cloud_providers
+        if provider in smoke_by_provider or provider in benchmarked
+    ]
+    local_run_ids = [
+        str(item.get("run_id", ""))
+        for item in canonical_status
+        if str(item.get("run_id", "")).startswith("thesis_local_")
+    ]
+    cloud_run_ids = [
+        str(item.get("run_id", ""))
+        for item in canonical_status
+        if str(item.get("run_id", "")).startswith("thesis_cloud_")
+    ]
+    tier_run_ids = [
+        str(item.get("run_id", ""))
+        for item in canonical_status
+        if _comparison_tier_from_run_id(str(item.get("run_id", ""))) != "untiered"
+    ]
+    failed_presets_by_key: dict[tuple[str, str, str], dict[str, Any]] = {}
+    for row in summary_rows:
+        if not _as_bool(row.get("all_samples_failed")):
+            continue
+        failed_presets_by_key.setdefault(
+            (
+                str(row.get("comparison_tier", "") or ""),
+                str(row.get("provider", "") or ""),
+                str(row.get("model", "") or ""),
+            ),
+            row,
+        )
+    failed_presets = list(failed_presets_by_key.values())
+    metric_providers_by_tier: dict[str, list[str]] = defaultdict(list)
+    for row in valid_metric_rows:
+        label = str(row.get("comparison_tier", "") or "untiered")
+        item = f"{row.get('provider', '')}:{row.get('model', '')}"
+        if item not in metric_providers_by_tier[label]:
+            metric_providers_by_tier[label].append(item)
+
     lines = [
         "# Final Thesis ASR Benchmark Report",
         "",
@@ -826,12 +1068,52 @@ def _write_final_report(
         f"Implemented providers: {', '.join(PROVIDER_CATALOG) if PROVIDER_CATALOG else 'none'}",
         f"Smoke-tested providers: {', '.join(smoke_tested) if smoke_tested else 'none'}",
         f"Benchmarked providers: {', '.join(benchmarked) if benchmarked else 'none'}",
+        f"Local providers benchmarked: {', '.join(local_benchmarked) if local_benchmarked else 'none'}",
+        f"Cloud providers benchmarked or attempted: {', '.join(cloud_attempted) if cloud_attempted else 'none'}",
+        "",
+        "## Cloud Provider Outcomes",
+        "",
+        "| Provider | Credentials Detected | Auth Probe | Benchmark | Safe Failure Reason |",
+        "|---|---|---|---|---|",
+    ]
+    for provider in cloud_providers:
+        smoke = smoke_by_provider.get(provider, {})
+        credential = credential_by_provider.get(provider, {})
+        credentials_detected = _as_bool(
+            smoke.get("credential_detected", credential.get("credential_detected", False))
+        )
+        if provider in smoke_by_provider:
+            auth_probe = "success" if _as_bool(smoke.get("auth_probe_success")) else "failure"
+        else:
+            auth_probe = str(credential.get("auth_probe_status") or "not_run")
+        benchmark_status = "success" if provider in benchmarked else "failure"
+        reason = str(smoke.get("error_message_sanitized") or "").strip()
+        if not reason:
+            reason = str(credential.get("safe_error_summary") or "").strip()
+        if provider == "aws_cloud" and credentials_detected and "bucket" in reason.lower():
+            reason = (
+                "AWS credentials detected, benchmark blocked by missing "
+                "AWS_TRANSCRIBE_BUCKET or inaccessible bucket."
+            )
+        elif provider == "google_cloud" and credentials_detected and "project" in reason.lower():
+            reason = "Google credentials detected, benchmark blocked by missing project id."
+        elif provider == "azure_cloud" and credentials_detected and "region" in reason.lower():
+            reason = "Azure credentials detected, benchmark blocked by missing region."
+        elif credentials_detected and provider not in benchmarked and reason:
+            reason = f"credentials detected, provider configuration failed: {reason}"
+        lines.append(
+            f"| {provider} | {'yes' if credentials_detected else 'no'} | "
+            f"{auth_probe} | {benchmark_status} | {reason or 'none'} |"
+        )
+    lines.extend(
+        [
         "",
         "## Skipped Providers",
         "",
         "| Provider | Reason |",
         "|---|---|",
-    ]
+        ]
+    )
     if skipped:
         for provider in skipped:
             smoke = smoke_by_provider.get(provider, {})
@@ -849,9 +1131,13 @@ def _write_final_report(
             "",
             f"Selected schema-first runs: {len(runs)}",
             f"Dataset used: {', '.join(datasets) if datasets else 'unknown'}",
+            f"Active validated dataset: {active_dataset}",
             f"Clean source utterances in quality table: {clean_sample_count}",
             f"Utterance-variant rows in performance and robustness tables: {variant_sample_count}",
             f"Dataset validation status: {validation_passed}",
+            f"Local run id: {', '.join(local_run_ids) if local_run_ids else 'none'}",
+            f"Cloud run id: {', '.join(cloud_run_ids) if cloud_run_ids else 'none'}",
+            f"Tiered run id: {', '.join(tier_run_ids) if tier_run_ids else 'none'}",
             "Dataset validation report: `reports/datasets/dataset_asset_validation.md`",
             "Credential availability report: `reports/thesis_test/credential_availability.md`",
             "",
@@ -865,8 +1151,38 @@ def _write_final_report(
             "## Methodology",
             "",
             "Canonical benchmark artifacts are collected into schema-first run directories under `results/runs/<run_id>/`, then exported into thesis tables under `results/thesis_final/`.",
-            "Mock and fake providers are excluded from final thesis tables.",
+            "Synthetic test providers are excluded from final thesis tables.",
             "Quality results are computed from clean source utterances. Noise robustness is reported separately from clean/noisy utterance variants.",
+            "Fair comparison is reported by preset tier, not by mixing light, balanced and accurate models in one ranking.",
+            "",
+            "## Fair Preset Tiers",
+            "",
+            "| Tier | Included provider presets |",
+            "|---|---|",
+        ]
+    )
+    for tier in ("fast_or_low_resource", "balanced", "accurate_or_high_quality"):
+        lines.append(
+            f"| {tier} | {', '.join(metric_providers_by_tier.get(tier, [])) or 'none'} |"
+        )
+    if failed_presets:
+        lines.extend(
+            [
+                "",
+                "## Failed Preset Attempts",
+                "",
+                "| Tier | Provider | Model | Failed Variants | Sanitized Reason |",
+                "|---|---|---:|---:|---|",
+            ]
+        )
+        for row in failed_presets:
+            lines.append(
+                f"| {row.get('comparison_tier', '')} | {row.get('provider', '')} | "
+                f"{row.get('model', '')} | {row.get('failed_utterance_variants', '')} | "
+                f"{row.get('failure_error_code', '')}: {row.get('failure_error_message_sanitized', '')} |"
+            )
+    lines.extend(
+        [
             "",
             "## Canonical Benchmark Artifacts",
             "",
@@ -921,7 +1237,7 @@ def _write_final_report(
     if not calibration_valid:
         lines.append("Confidence calibration is diagnostic only unless at least 30 confidence-bearing utterances are available.")
     if not has_cloud:
-        lines.append("Cloud providers were configured but not benchmarked because credentials were missing or validation failed.")
+        lines.append("Cloud providers without benchmark rows are listed in Cloud Provider Outcomes with sanitized provider-specific reasons.")
     failed_counts = [
         int(item.get("failed_samples") or 0)
         for item in canonical_status
@@ -929,7 +1245,7 @@ def _write_final_report(
     ]
     if sum(failed_counts) > 0:
         lines.append(
-            f"The canonical benchmark contains {sum(failed_counts)} failed utterance-variant row(s); failures remain represented in aggregate quality/error metrics."
+            f"The canonical benchmark contains {sum(failed_counts)} failed utterance-variant row(s). Completely failed presets are reported as failed attempts and excluded from quality/performance ranking tables."
         )
     lines.extend(
         [
@@ -956,7 +1272,8 @@ def main() -> None:
     runs = _discover_runs(Path(args.input), include_all_runs=args.include_all_runs)
     primary_runs = _primary_runs(runs)
     summary_rows = _selected_summary_rows(runs)
-    primary_summary_rows = _selected_summary_rows(primary_runs)
+    metric_summary_rows = _metric_summary_rows(summary_rows)
+    primary_summary_rows = _metric_summary_rows(_selected_summary_rows(primary_runs))
     primary_utterance_rows = _selected_utterance_rows(primary_runs)
 
     output_dir = Path(args.output)
@@ -970,7 +1287,7 @@ def main() -> None:
         "resource_table.csv": _resource_rows(primary_summary_rows, primary_utterance_rows),
         "noise_robustness_table.csv": _noise_rows(primary_utterance_rows),
         "cost_deployment_table.csv": _cost_rows(primary_summary_rows),
-        "scenario_scores.csv": _scenario_rows(summary_rows),
+        "scenario_scores.csv": _scenario_rows(metric_summary_rows),
     }
     for table_name, rows in tables.items():
         _write_csv(output_dir / table_name, rows, TABLE_FIELDS[table_name])
@@ -985,7 +1302,7 @@ def main() -> None:
         "summary_row_count": len(summary_rows),
         "primary_summary_row_count": len(primary_summary_rows),
         "primary_utterance_row_count": len(primary_utterance_rows),
-        "excluded_providers": "mock/fake providers",
+        "excluded_providers": "synthetic test providers",
         "tables": {name: _repo_relative_path(output_dir / name) for name in tables},
         "plots_dir": _repo_relative_path(output_dir / "plots"),
         "final_report": _repo_relative_path(output_dir / "final_report.md"),

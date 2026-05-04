@@ -537,9 +537,15 @@ class BenchmarkOrchestrator:
             profile_scenarios=[str(item) for item in benchmark_cfg.data.get("scenarios", [])],
         )
         scenario = str(noise_plan[0].get("scenario", scenario) if noise_plan else scenario)
+        cfg_provider_overrides = benchmark_cfg.data.get("provider_overrides", {})
+        provider_overrides = (
+            cfg_provider_overrides if isinstance(cfg_provider_overrides, dict) else {}
+        )
+        if request.provider_overrides:
+            provider_overrides = _deep_merge(provider_overrides, request.provider_overrides)
         provider_snapshots, provider_execution = self._resolve_provider_execution_plan(
             provider_profiles=provider_profiles,
-            provider_overrides=request.provider_overrides,
+            provider_overrides=provider_overrides,
         )
 
         return ResolvedBenchmarkPlan(

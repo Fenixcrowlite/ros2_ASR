@@ -13,6 +13,15 @@ from pathlib import Path
 from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from scripts.credential_discovery import (
+    apply_discovered_environment,
+    discover_credentials,
+    write_credential_reports,
+)
+
 PYTHON = PROJECT_ROOT / ".venv" / "bin" / "python"
 PYTHON_CMD = str(PYTHON) if PYTHON.exists() else sys.executable
 SCENARIOS = ("embedded", "batch", "analytics", "dialog")
@@ -22,10 +31,20 @@ LOCAL_PROVIDERS = (
     "providers/huggingface_local",
 )
 CLOUD_PROVIDER_ENV = {
-    "providers/huggingface_api": ("HF_TOKEN",),
-    "providers/azure_cloud": ("AZURE_SPEECH_KEY", "AZURE_SPEECH_REGION"),
-    "providers/google_cloud": ("GOOGLE_APPLICATION_CREDENTIALS", "GOOGLE_CLOUD_PROJECT"),
-    "providers/aws_cloud": ("AWS_TRANSCRIBE_BUCKET",),
+    "providers/huggingface_api": ("HF_TOKEN or HUGGINGFACEHUB_API_TOKEN",),
+    "providers/azure_cloud": (
+        "AZURE_SPEECH_KEY or SPEECH_KEY",
+        "AZURE_SPEECH_REGION or SPEECH_REGION",
+    ),
+    "providers/google_cloud": (
+        "GOOGLE_APPLICATION_CREDENTIALS or ADC",
+        "GOOGLE_CLOUD_PROJECT or GCP_PROJECT",
+    ),
+    "providers/aws_cloud": (
+        "AWS_PROFILE or AWS_ACCESS_KEY_ID/AWS_SECRET_ACCESS_KEY",
+        "AWS_REGION or AWS_DEFAULT_REGION",
+        "AWS_TRANSCRIBE_BUCKET or AWS_S3_BUCKET or ASR_AWS_S3_BUCKET",
+    ),
 }
 
 
@@ -64,52 +83,34 @@ def _run_checked(command: list[str]) -> str:
 
 
 def _credential_state() -> dict[str, dict[str, str]]:
+    discovery = discover_credentials()
     states: dict[str, dict[str, str]] = {}
-    for provider, required_env in CLOUD_PROVIDER_ENV.items():
-        provider_states: dict[str, str] = {}
-        for key in required_env:
-            value = os.getenv(key, "").strip()
-            if key == "GOOGLE_APPLICATION_CREDENTIALS" and value:
-                provider_states[key] = "available" if Path(value).expanduser().exists() else "invalid"
-            else:
-                provider_states[key] = "available" if value else "missing"
-        if provider == "providers/aws_cloud":
-            has_profile = bool(os.getenv("AWS_PROFILE", "").strip())
-            has_keys = bool(os.getenv("AWS_ACCESS_KEY_ID", "").strip() and os.getenv("AWS_SECRET_ACCESS_KEY", "").strip())
-            provider_states["AWS_AUTH"] = "available" if has_profile or has_keys else "missing"
-            provider_states["AWS_REGION"] = "available" if os.getenv("AWS_REGION", "").strip() else "missing"
-        states[provider] = provider_states
+    for item in discovery.get("providers", []):
+        provider_ref = f"providers/{item['provider']}"
+        requirements = item.get("requirements", {})
+        states[provider_ref] = dict(requirements) if isinstance(requirements, dict) else {}
+        states[provider_ref]["credential_detected"] = (
+            "available" if item.get("credential_detected") else "missing"
+        )
+        states[provider_ref]["config_complete"] = (
+            "available" if item.get("config_complete") else "missing"
+        )
     return states
 
 
 def _available_cloud_providers() -> list[str]:
-    states = _credential_state()
+    discovery = discover_credentials()
     available: list[str] = []
-    for provider, provider_states in states.items():
-        if provider == "providers/aws_cloud":
-            required = ("AWS_TRANSCRIBE_BUCKET", "AWS_AUTH", "AWS_REGION")
-        else:
-            required = CLOUD_PROVIDER_ENV[provider]
-        if all(provider_states.get(key) == "available" for key in required):
-            available.append(provider)
+    for item in discovery.get("providers", []):
+        provider = str(item.get("provider", "") or "")
+        if item.get("config_complete"):
+            available.append(f"providers/{provider}")
     return available
 
 
 def _write_credential_report(path: Path) -> None:
-    states = _credential_state()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    lines = [
-        "# Credential Availability",
-        "",
-        f"Created: `{datetime.now(UTC).isoformat()}`",
-        "",
-        "| Provider | Requirement | State |",
-        "|---|---|---|",
-    ]
-    for provider, provider_states in sorted(states.items()):
-        for key, state in sorted(provider_states.items()):
-            lines.append(f"| {provider} | {key} | {state} |")
-    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    del path
+    write_credential_reports()
 
 
 def _parse_run_payload(stdout: str) -> dict[str, Any]:
@@ -215,6 +216,7 @@ def main() -> None:
     parser.add_argument("--skip-export", action="store_true")
     args = parser.parse_args()
 
+    apply_discovered_environment()
     _run_dataset_validation()
     _write_credential_report(PROJECT_ROOT / "reports" / "thesis_test" / "credential_availability.md")
 
