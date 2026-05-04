@@ -37,6 +37,39 @@ def _repo_relative_path(value: str | Path) -> str:
         return text
 
 
+def _final_canonical_artifacts(runs: list[dict[str, Any]]) -> list[str]:
+    canonical_artifacts = sorted(
+        {
+            str(run.get("manifest", {}).get("source", {}).get("input_path", "") or "")
+            for run in runs
+            if str(run.get("manifest", {}).get("source", {}).get("input_path", "") or "").startswith("artifacts/")
+        }
+    )
+    for prefix in ("thesis_cloud_", "thesis_local_"):
+        supporting = sorted((PROJECT_ROOT / "artifacts" / "benchmark_runs").glob(f"{prefix}*"))
+        if supporting:
+            rel = _repo_relative_path(supporting[-1])
+            if rel not in canonical_artifacts:
+                canonical_artifacts.append(rel)
+    return sorted(canonical_artifacts)
+
+
+def _schema_run_dirs_for_artifacts(input_root: Path, canonical_artifacts: list[str]) -> list[str]:
+    artifacts = set(canonical_artifacts)
+    schema_dirs: list[str] = []
+    for manifest_path in sorted(input_root.glob("*/manifest.json")):
+        try:
+            payload = _load_json(manifest_path)
+        except (OSError, json.JSONDecodeError):
+            continue
+        source = payload.get("source", {}) if isinstance(payload, dict) else {}
+        if not isinstance(source, dict):
+            continue
+        if str(source.get("input_path", "") or "") in artifacts:
+            schema_dirs.append(_repo_relative_path(manifest_path.parent))
+    return schema_dirs
+
+
 PROVIDER_CATALOG: dict[str, dict[str, Any]] = {
     "whisper_local": {
         "provider": "whisper_local",
@@ -990,20 +1023,7 @@ def _write_final_report(
             for item in payload.get("providers", []):
                 if isinstance(item, dict):
                     credential_by_provider[str(item.get("provider", "") or "")] = item
-    canonical_artifacts = sorted(
-        {
-            str(run.get("manifest", {}).get("source", {}).get("input_path", "") or "")
-            for run in runs
-            if str(run.get("manifest", {}).get("source", {}).get("input_path", "") or "").startswith("artifacts/")
-        }
-    )
-    for prefix in ("thesis_cloud_", "thesis_local_"):
-        supporting = sorted((PROJECT_ROOT / "artifacts" / "benchmark_runs").glob(f"{prefix}*"))
-        if supporting:
-            rel = _repo_relative_path(supporting[-1])
-            if rel not in canonical_artifacts:
-                canonical_artifacts.append(rel)
-    canonical_artifacts = sorted(canonical_artifacts)
+    canonical_artifacts = _final_canonical_artifacts(runs)
     canonical_status: list[dict[str, Any]] = []
     for artifact in canonical_artifacts:
         summary_path = PROJECT_ROOT / artifact / "reports" / "summary.json"
@@ -1178,6 +1198,7 @@ def _write_final_report(
             "## Methodology",
             "",
             "Canonical benchmark artifacts are collected into schema-first run directories under `results/runs/<run_id>/`, then exported into thesis tables under `results/thesis_final/`.",
+            "Default thesis evidence validation reads `results/thesis_final/manifest.json` and validates only the final thesis evidence package; historical schema-first runs are excluded unless `--all` is requested.",
             "Synthetic test providers are excluded from final thesis tables.",
             "Quality results are computed from clean source utterances. Noise robustness is reported separately from clean/noisy utterance variants.",
             "Fair comparison is reported by preset tier, not by mixing light, balanced and accurate models in one ranking.",
@@ -1320,10 +1341,16 @@ def main() -> None:
         _write_csv(output_dir / table_name, rows, TABLE_FIELDS[table_name])
 
     _generate_plots(output_dir, tables)
+    canonical_artifacts = _final_canonical_artifacts(runs)
+    schema_run_dirs = _schema_run_dirs_for_artifacts(Path(args.input), canonical_artifacts)
     manifest = {
         "created_at": datetime.now(UTC).isoformat(),
         "input": _repo_relative_path(Path(args.input)),
         "output": _repo_relative_path(output_dir),
+        "validation_scope": "final_thesis_evidence",
+        "canonical_artifacts": canonical_artifacts,
+        "run_ids": [Path(path).name for path in canonical_artifacts],
+        "schema_run_dirs": schema_run_dirs,
         "run_count": len(runs),
         "primary_run_count": len(primary_runs),
         "summary_row_count": len(summary_rows),

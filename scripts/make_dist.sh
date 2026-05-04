@@ -19,6 +19,27 @@ fi
 mkdir -p dist
 TIMESTAMP="$(date +%Y%m%d_%H%M%S)"
 ARCHIVE="dist/ros2_asr_release_${TIMESTAMP}.tar.gz"
+FINAL_BENCHMARK_ARTIFACTS=(
+  artifacts/benchmark_runs/thesis_fast_20260503T225907Z
+  artifacts/benchmark_runs/thesis_balanced_20260503T232650Z
+  artifacts/benchmark_runs/thesis_accurate_20260503T225907Z
+  artifacts/benchmark_runs/thesis_cloud_20260503T223116Z
+  artifacts/benchmark_runs/thesis_local_20260503T222647Z
+)
+
+for artifact_dir in "${FINAL_BENCHMARK_ARTIFACTS[@]}"; do
+  for required_file in \
+    metrics/results.json \
+    metrics/results.csv \
+    reports/summary.json \
+    reports/summary.md \
+    manifest/run_manifest.json; do
+    if [ ! -f "$artifact_dir/$required_file" ]; then
+      echo "ERROR: missing final benchmark artifact file: $artifact_dir/$required_file"
+      exit 1
+    fi
+  done
+done
 
 tar -czf "$ARCHIVE" \
   --exclude='.git' \
@@ -49,11 +70,16 @@ tar -czf "$ARCHIVE" \
   docs \
   ros2_ws/src \
   scripts \
+  .ai/reports/current_task_report.md \
   data/sample \
   data/transcripts \
+  datasets \
   configs \
   tests \
-  results
+  reports/datasets \
+  reports/thesis_test \
+  results \
+  "${FINAL_BENCHMARK_ARTIFACTS[@]}"
 
 echo "Archive: $ARCHIVE"
 echo "Size: $(du -h "$ARCHIVE" | awk '{print $1}')"

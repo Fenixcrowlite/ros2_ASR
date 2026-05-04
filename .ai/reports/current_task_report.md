@@ -4,7 +4,7 @@ Status: completed
 
 ## Archive Evidence Finalization 2026-05-04
 
-Finalization fixed the archive reproducibility trace from canonical benchmark artifacts to schema-first metrics, final CSV tables, and `final_report.md`.
+Finalization fixed the archive reproducibility trace from canonical benchmark artifacts to schema-first metrics, final CSV tables, and `final_report.md`. A previous archive omitted the final canonical benchmark artifact directories even though the local workspace contained them; `scripts/make_dist.sh` now includes the final canonical directories explicitly.
 
 Canonical artifact directories verified with required `metrics/results.json`, `metrics/results.csv`, `reports/summary.json`, `reports/summary.md`, and `manifest/run_manifest.json` files:
 
@@ -17,18 +17,30 @@ Canonical artifact directories verified with required `metrics/results.json`, `m
 Changes made in this finalization:
 
 - Added `scripts/validate_thesis_evidence.py`, writing `reports/thesis_test/thesis_evidence_validation.md` and `.json`.
+- Updated `scripts/validate_thesis_evidence.py` so default validation reads `results/thesis_final/manifest.json` and checks only the final thesis evidence package. Historical `results/runs` entries are excluded by default and can be checked with `--all`.
+- Updated `results/thesis_final/manifest.json` to list final canonical artifact paths, run IDs, and schema-first run directories.
 - Updated `results/thesis_final/final_report.md` generation to remove stale none-valued local/cloud run-id lines, list tiered primary run ids, and mark local/cloud matrix runs as supporting evidence.
 - Updated AWS credential reporting so successful AWS smoke/benchmark evidence reports `bucket=available` with `bucket_mode=aws_list_buckets` instead of `bucket=missing`.
 - Updated `scripts/secret_scan.sh` for ZIP-extracted archives: scans text evidence roots only, excludes audio/image/model binaries and generated derived audio, skips `secrets/`, prints scanned file count, and exits 0 when clean.
+- Updated `scripts/make_dist.sh` to package `.ai/reports/current_task_report.md`, `datasets/`, `reports/datasets/`, `reports/thesis_test/`, and the five final `artifacts/benchmark_runs/thesis_*` canonical directories.
 
 Final required command outcomes:
 
 - `python3 scripts/validate_dataset_assets.py --registry datasets/registry/datasets.json --root .` -> PASS, `passed=true`, `dataset_count=1`
-- `python3 scripts/validate_thesis_evidence.py --root .` -> PASS, `passed=true`, `checks=155`
+- `python3 scripts/validate_thesis_evidence.py --root .` -> PASS, `passed=true`, `checks=86`
 - `python3 -m compileall -q scripts ros2_ws/src tests` -> PASS
 - `bash scripts/secret_scan.sh` -> PASS, `Scanned files: 825`, no findings
 - `python3 scripts/export_thesis_tables.py --input results/runs --output results/thesis_final` -> PASS, `run_count=12`
-- rerun `python3 scripts/validate_thesis_evidence.py --root .` -> PASS, `passed=true`, `checks=155`
+- rerun `python3 scripts/validate_thesis_evidence.py --root .` -> PASS, `passed=true`, `checks=86`
+
+Archive extraction validation:
+
+- Built archive with `bash scripts/make_dist.sh`; output archive included top-level `.ai`, `artifacts`, `datasets`, `reports`, `results`, `scripts`, `ros2_ws`, and tests.
+- Extracted into a temporary directory and confirmed `artifacts/benchmark_runs/` contains exactly the final canonical artifact directories listed above.
+- Extracted archive `python3 scripts/validate_dataset_assets.py --registry datasets/registry/datasets.json --root .` -> PASS, `passed=true`, `dataset_count=1`
+- Extracted archive `python3 scripts/validate_thesis_evidence.py --root .` -> PASS, `passed=true`, `checks=86`
+- Extracted archive `python3 -m compileall -q scripts ros2_ws/src tests` -> PASS
+- Extracted archive `bash scripts/secret_scan.sh` -> PASS, `Scanned files: 481`, no findings
 
 Final table provider coverage remains:
 

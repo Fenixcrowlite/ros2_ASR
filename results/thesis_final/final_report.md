@@ -61,11 +61,12 @@ Credential availability report: `reports/thesis_test/credential_availability.md`
 OS: Linux-6.17.0-22-generic-x86_64-with-glibc2.39
 Python: 3.12.3
 Git branch: main
-Git commit: 7e5b44962c9640d2ca8bb8229bc6d35f46e23fa0
+Git commit: d67aabb3dfb2b8fbdbf459de4377bade9adf6d11
 
 ## Methodology
 
 Canonical benchmark artifacts are collected into schema-first run directories under `results/runs/<run_id>/`, then exported into thesis tables under `results/thesis_final/`.
+Default thesis evidence validation reads `results/thesis_final/manifest.json` and validates only the final thesis evidence package; historical schema-first runs are excluded unless `--all` is requested.
 Synthetic test providers are excluded from final thesis tables.
 Quality results are computed from clean source utterances. Noise robustness is reported separately from clean/noisy utterance variants.
 Fair comparison is reported by preset tier, not by mixing light, balanced and accurate models in one ranking.

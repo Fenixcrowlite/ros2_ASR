@@ -1,7 +1,68 @@
 {
-  "created_at": "2026-05-04T00:32:06.175375+00:00",
+  "created_at": "2026-05-04T00:42:45.951837+00:00",
   "root": ".",
   "passed": true,
+  "mode": "final",
+  "manifest_scope": {
+    "created_at": "2026-05-04T00:40:57.740480+00:00",
+    "input": "results/runs",
+    "output": "results/thesis_final",
+    "validation_scope": "final_thesis_evidence",
+    "canonical_artifacts": [
+      "artifacts/benchmark_runs/thesis_accurate_20260503T225907Z",
+      "artifacts/benchmark_runs/thesis_balanced_20260503T232650Z",
+      "artifacts/benchmark_runs/thesis_cloud_20260503T223116Z",
+      "artifacts/benchmark_runs/thesis_fast_20260503T225907Z",
+      "artifacts/benchmark_runs/thesis_local_20260503T222647Z"
+    ],
+    "run_ids": [
+      "thesis_accurate_20260503T225907Z",
+      "thesis_balanced_20260503T232650Z",
+      "thesis_cloud_20260503T223116Z",
+      "thesis_fast_20260503T225907Z",
+      "thesis_local_20260503T222647Z"
+    ],
+    "schema_run_dirs": [
+      "results/runs/thesis_accurate_20260503T225907Z_analytics",
+      "results/runs/thesis_accurate_20260503T225907Z_batch",
+      "results/runs/thesis_accurate_20260503T225907Z_dialog",
+      "results/runs/thesis_accurate_20260503T225907Z_embedded",
+      "results/runs/thesis_balanced_20260503T232650Z_analytics",
+      "results/runs/thesis_balanced_20260503T232650Z_batch",
+      "results/runs/thesis_balanced_20260503T232650Z_dialog",
+      "results/runs/thesis_balanced_20260503T232650Z_embedded",
+      "results/runs/thesis_cloud_20260503T223116Z_analytics",
+      "results/runs/thesis_cloud_20260503T223116Z_batch",
+      "results/runs/thesis_cloud_20260503T223116Z_dialog",
+      "results/runs/thesis_cloud_20260503T223116Z_embedded",
+      "results/runs/thesis_fast_20260503T225907Z_analytics",
+      "results/runs/thesis_fast_20260503T225907Z_batch",
+      "results/runs/thesis_fast_20260503T225907Z_dialog",
+      "results/runs/thesis_fast_20260503T225907Z_embedded",
+      "results/runs/thesis_local_20260503T222647Z_analytics",
+      "results/runs/thesis_local_20260503T222647Z_batch",
+      "results/runs/thesis_local_20260503T222647Z_dialog",
+      "results/runs/thesis_local_20260503T222647Z_embedded"
+    ],
+    "run_count": 12,
+    "primary_run_count": 3,
+    "summary_row_count": 48,
+    "primary_summary_row_count": 11,
+    "primary_utterance_row_count": 550,
+    "excluded_providers": "synthetic test providers",
+    "tables": {
+      "provider_comparison.csv": "results/thesis_final/provider_comparison.csv",
+      "provider_smoke_tests.csv": "results/thesis_final/provider_smoke_tests.csv",
+      "quality_table.csv": "results/thesis_final/quality_table.csv",
+      "performance_table.csv": "results/thesis_final/performance_table.csv",
+      "resource_table.csv": "results/thesis_final/resource_table.csv",
+      "noise_robustness_table.csv": "results/thesis_final/noise_robustness_table.csv",
+      "cost_deployment_table.csv": "results/thesis_final/cost_deployment_table.csv",
+      "scenario_scores.csv": "results/thesis_final/scenario_scores.csv"
+    },
+    "plots_dir": "results/thesis_final/plots",
+    "final_report": "results/thesis_final/final_report.md"
+  },
   "checks": [
     {
       "name": "dataset validation report passed",
@@ -9,64 +70,14 @@
       "detail": "reports/datasets/dataset_asset_validation.json"
     },
     {
-      "name": "results/runs/bench_20260427T141016Z_2555b592/manifest.json source.input_path exists",
+      "name": "final thesis manifest exists",
       "passed": true,
-      "detail": "results/latest_benchmark_summary.json"
+      "detail": "results/thesis_final/manifest.json"
     },
     {
-      "name": "results/runs/bench_20260427T141016Z_2555b592/manifest.json source.summary_json exists",
+      "name": "final thesis manifest selects schema runs",
       "passed": true,
-      "detail": "results/latest_benchmark_summary.json"
-    },
-    {
-      "name": "results/runs/bench_20260427T141016Z_2555b592/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/bench_20260427T141016Z_2555b592/metrics/results.json"
-    },
-    {
-      "name": "results/runs/bench_20260427T141029Z_d6c1b1da/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "results/latest_benchmark_summary.json"
-    },
-    {
-      "name": "results/runs/bench_20260427T141029Z_d6c1b1da/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "results/latest_benchmark_summary.json"
-    },
-    {
-      "name": "results/runs/bench_20260427T141029Z_d6c1b1da/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/bench_20260427T141029Z_d6c1b1da/metrics/results.json"
-    },
-    {
-      "name": "results/runs/bench_20260427T141037Z_b687b3bf/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "results/latest_benchmark_summary.json"
-    },
-    {
-      "name": "results/runs/bench_20260427T141037Z_b687b3bf/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "results/latest_benchmark_summary.json"
-    },
-    {
-      "name": "results/runs/bench_20260427T141037Z_b687b3bf/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/bench_20260427T141037Z_b687b3bf/metrics/results.json"
-    },
-    {
-      "name": "results/runs/bench_20260427T141048Z_d1922b62/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "results/latest_benchmark_summary.json"
-    },
-    {
-      "name": "results/runs/bench_20260427T141048Z_d1922b62/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "results/latest_benchmark_summary.json"
-    },
-    {
-      "name": "results/runs/bench_20260427T141048Z_d1922b62/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/bench_20260427T141048Z_d1922b62/metrics/results.json"
+      "detail": "20 manifests"
     },
     {
       "name": "results/runs/thesis_accurate_20260503T225907Z_analytics/manifest.json source.input_path exists",
@@ -129,66 +140,6 @@
       "detail": "artifacts/benchmark_runs/thesis_accurate_20260503T225907Z/metrics/results.json"
     },
     {
-      "name": "results/runs/thesis_balanced_20260503T225907Z_analytics/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T225907Z"
-    },
-    {
-      "name": "results/runs/thesis_balanced_20260503T225907Z_analytics/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_balanced_20260503T225907Z_analytics/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_balanced_20260503T225907Z_batch/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T225907Z"
-    },
-    {
-      "name": "results/runs/thesis_balanced_20260503T225907Z_batch/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_balanced_20260503T225907Z_batch/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_balanced_20260503T225907Z_dialog/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T225907Z"
-    },
-    {
-      "name": "results/runs/thesis_balanced_20260503T225907Z_dialog/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_balanced_20260503T225907Z_dialog/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_balanced_20260503T225907Z_embedded/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T225907Z"
-    },
-    {
-      "name": "results/runs/thesis_balanced_20260503T225907Z_embedded/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_balanced_20260503T225907Z_embedded/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/metrics/results.json"
-    },
-    {
       "name": "results/runs/thesis_balanced_20260503T232650Z_analytics/manifest.json source.input_path exists",
       "passed": true,
       "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T232650Z"
@@ -247,66 +198,6 @@
       "name": "results/runs/thesis_balanced_20260503T232650Z_embedded/manifest.json source.results_json exists",
       "passed": true,
       "detail": "artifacts/benchmark_runs/thesis_balanced_20260503T232650Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_cloud_20260503T221001Z_analytics/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_cloud_20260503T221001Z"
-    },
-    {
-      "name": "results/runs/thesis_cloud_20260503T221001Z_analytics/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_cloud_20260503T221001Z_analytics/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_cloud_20260503T221001Z_batch/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_cloud_20260503T221001Z"
-    },
-    {
-      "name": "results/runs/thesis_cloud_20260503T221001Z_batch/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_cloud_20260503T221001Z_batch/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_cloud_20260503T221001Z_dialog/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_cloud_20260503T221001Z"
-    },
-    {
-      "name": "results/runs/thesis_cloud_20260503T221001Z_dialog/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_cloud_20260503T221001Z_dialog/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_cloud_20260503T221001Z_embedded/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_cloud_20260503T221001Z"
-    },
-    {
-      "name": "results/runs/thesis_cloud_20260503T221001Z_embedded/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_cloud_20260503T221001Z_embedded/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/metrics/results.json"
     },
     {
       "name": "results/runs/thesis_cloud_20260503T223116Z_analytics/manifest.json source.input_path exists",
@@ -429,186 +320,6 @@
       "detail": "artifacts/benchmark_runs/thesis_fast_20260503T225907Z/metrics/results.json"
     },
     {
-      "name": "results/runs/thesis_local_20260503T181036Z_analytics/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T181036Z"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T181036Z_analytics/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T181036Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T181036Z_analytics/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T181036Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T181036Z_batch/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T181036Z"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T181036Z_batch/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T181036Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T181036Z_batch/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T181036Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T181036Z_dialog/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T181036Z"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T181036Z_dialog/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T181036Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T181036Z_dialog/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T181036Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T181036Z_embedded/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T181036Z"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T181036Z_embedded/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T181036Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T181036Z_embedded/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T181036Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T184131Z_analytics/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T184131Z"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T184131Z_analytics/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T184131Z_analytics/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T184131Z_batch/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T184131Z"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T184131Z_batch/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T184131Z_batch/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T184131Z_dialog/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T184131Z"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T184131Z_dialog/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T184131Z_dialog/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T184131Z_embedded/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T184131Z"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T184131Z_embedded/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T184131Z_embedded/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T220622Z_analytics/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T220622Z"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T220622Z_analytics/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T220622Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T220622Z_analytics/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T220622Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T220622Z_batch/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T220622Z"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T220622Z_batch/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T220622Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T220622Z_batch/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T220622Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T220622Z_dialog/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T220622Z"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T220622Z_dialog/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T220622Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T220622Z_dialog/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T220622Z/metrics/results.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T220622Z_embedded/manifest.json source.input_path exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T220622Z"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T220622Z_embedded/manifest.json source.summary_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T220622Z/reports/summary.json"
-    },
-    {
-      "name": "results/runs/thesis_local_20260503T220622Z_embedded/manifest.json source.results_json exists",
-      "passed": true,
-      "detail": "artifacts/benchmark_runs/thesis_local_20260503T220622Z/metrics/results.json"
-    },
-    {
       "name": "results/runs/thesis_local_20260503T222647Z_analytics/manifest.json source.input_path exists",
       "passed": true,
       "detail": "artifacts/benchmark_runs/thesis_local_20260503T222647Z"
@@ -672,6 +383,11 @@
       "name": "final_report canonical artifact list present",
       "passed": true,
       "detail": "results/thesis_final/final_report.md"
+    },
+    {
+      "name": "final manifest canonical artifacts match final_report",
+      "passed": true,
+      "detail": "manifest=5 report=5"
     },
     {
       "name": "final_report artifact exists: artifacts/benchmark_runs/thesis_accurate_20260503T225907Z",

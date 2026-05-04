@@ -77,7 +77,45 @@ def _canonical_paths_from_report(path: Path) -> list[str]:
     return paths
 
 
-def validate(root: Path) -> dict[str, Any]:
+def _manifest_final_scope(root: Path, final_manifest: Path, final_report: Path) -> tuple[list[Path], list[str], dict[str, Any]]:
+    if not final_manifest.exists():
+        return sorted((root / "results/runs").glob("*/manifest.json")), [], {}
+    payload = _load_json(final_manifest)
+    if not isinstance(payload, dict):
+        return [], [], {}
+
+    canonical_paths = [
+        str(item)
+        for item in payload.get("canonical_artifacts", [])
+        if str(item)
+    ]
+    if not canonical_paths:
+        canonical_paths = _canonical_paths_from_report(final_report)
+    canonical_set = set(canonical_paths)
+
+    schema_dirs = [
+        _repo_path(root, str(item))
+        for item in payload.get("schema_run_dirs", [])
+        if str(item)
+    ]
+    manifest_paths = [path / "manifest.json" for path in schema_dirs if (path / "manifest.json").exists()]
+    if manifest_paths:
+        return sorted(manifest_paths), canonical_paths, payload
+
+    selected: list[Path] = []
+    for manifest in sorted((root / "results/runs").glob("*/manifest.json")):
+        try:
+            run_payload = _load_json(manifest)
+        except json.JSONDecodeError:
+            selected.append(manifest)
+            continue
+        source = run_payload.get("source", {}) if isinstance(run_payload, dict) else {}
+        if isinstance(source, dict) and str(source.get("input_path", "") or "") in canonical_set:
+            selected.append(manifest)
+    return selected, canonical_paths, payload
+
+
+def validate(root: Path, *, include_all: bool = False) -> dict[str, Any]:
     root = root.resolve()
     checks: list[dict[str, Any]] = []
 
@@ -95,8 +133,18 @@ def validate(root: Path) -> dict[str, Any]:
     else:
         add("dataset validation report exists", False, str(dataset_report.relative_to(root)))
 
-    runs_dir = root / "results/runs"
-    for manifest in sorted(runs_dir.glob("*/manifest.json")):
+    final_report = root / "results/thesis_final/final_report.md"
+    final_manifest = root / "results/thesis_final/manifest.json"
+    if include_all:
+        run_manifests = sorted((root / "results/runs").glob("*/manifest.json"))
+        manifest_scope: dict[str, Any] = {"validation_scope": "all_results_runs"}
+        canonical_paths = _canonical_paths_from_report(final_report)
+    else:
+        run_manifests, canonical_paths, manifest_scope = _manifest_final_scope(root, final_manifest, final_report)
+        add("final thesis manifest exists", final_manifest.exists(), str(final_manifest.relative_to(root)))
+        add("final thesis manifest selects schema runs", bool(run_manifests), f"{len(run_manifests)} manifests")
+
+    for manifest in run_manifests:
         try:
             payload = _load_json(manifest)
         except json.JSONDecodeError as exc:
@@ -114,9 +162,15 @@ def validate(root: Path) -> dict[str, Any]:
                 value or "missing",
             )
 
-    final_report = root / "results/thesis_final/final_report.md"
-    canonical_paths = _canonical_paths_from_report(final_report)
+    report_canonical_paths = _canonical_paths_from_report(final_report)
+    if not canonical_paths:
+        canonical_paths = report_canonical_paths
     add("final_report canonical artifact list present", bool(canonical_paths), str(final_report.relative_to(root)))
+    add(
+        "final manifest canonical artifacts match final_report",
+        include_all or set(canonical_paths) == set(report_canonical_paths),
+        f"manifest={len(canonical_paths)} report={len(report_canonical_paths)}",
+    )
     for value in canonical_paths:
         add(f"final_report artifact exists: {value}", _repo_path(root, value).exists(), value)
 
@@ -163,6 +217,8 @@ def validate(root: Path) -> dict[str, Any]:
         "created_at": datetime.now(UTC).isoformat(),
         "root": ".",
         "passed": all(check["passed"] for check in checks),
+        "mode": "all" if include_all else "final",
+        "manifest_scope": manifest_scope,
         "checks": checks,
         "canonical_artifacts": canonical_paths,
     }
@@ -193,9 +249,10 @@ def write_reports(root: Path, payload: dict[str, Any]) -> None:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--root", default=".", help="Repository root")
+    parser.add_argument("--all", action="store_true", help="Validate historical results/runs in addition to the final thesis package")
     args = parser.parse_args()
     root = Path(args.root).resolve()
-    payload = validate(root)
+    payload = validate(root, include_all=args.all)
     write_reports(root, payload)
     print(json.dumps({"passed": payload["passed"], "checks": len(payload["checks"])}, indent=2))
     return 0 if payload["passed"] else 1

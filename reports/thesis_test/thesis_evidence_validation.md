@@ -1,23 +1,13 @@
 # Thesis Evidence Validation
 
-Created: `2026-05-04T00:32:06.175375+00:00`
+Created: `2026-05-04T00:42:45.951837+00:00`
 passed: true
 
 | Check | Status | Detail |
 |---|---|---|
 | dataset validation report passed | PASS | reports/datasets/dataset_asset_validation.json |
-| results/runs/bench_20260427T141016Z_2555b592/manifest.json source.input_path exists | PASS | results/latest_benchmark_summary.json |
-| results/runs/bench_20260427T141016Z_2555b592/manifest.json source.summary_json exists | PASS | results/latest_benchmark_summary.json |
-| results/runs/bench_20260427T141016Z_2555b592/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/bench_20260427T141016Z_2555b592/metrics/results.json |
-| results/runs/bench_20260427T141029Z_d6c1b1da/manifest.json source.input_path exists | PASS | results/latest_benchmark_summary.json |
-| results/runs/bench_20260427T141029Z_d6c1b1da/manifest.json source.summary_json exists | PASS | results/latest_benchmark_summary.json |
-| results/runs/bench_20260427T141029Z_d6c1b1da/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/bench_20260427T141029Z_d6c1b1da/metrics/results.json |
-| results/runs/bench_20260427T141037Z_b687b3bf/manifest.json source.input_path exists | PASS | results/latest_benchmark_summary.json |
-| results/runs/bench_20260427T141037Z_b687b3bf/manifest.json source.summary_json exists | PASS | results/latest_benchmark_summary.json |
-| results/runs/bench_20260427T141037Z_b687b3bf/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/bench_20260427T141037Z_b687b3bf/metrics/results.json |
-| results/runs/bench_20260427T141048Z_d1922b62/manifest.json source.input_path exists | PASS | results/latest_benchmark_summary.json |
-| results/runs/bench_20260427T141048Z_d1922b62/manifest.json source.summary_json exists | PASS | results/latest_benchmark_summary.json |
-| results/runs/bench_20260427T141048Z_d1922b62/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/bench_20260427T141048Z_d1922b62/metrics/results.json |
+| final thesis manifest exists | PASS | results/thesis_final/manifest.json |
+| final thesis manifest selects schema runs | PASS | 20 manifests |
 | results/runs/thesis_accurate_20260503T225907Z_analytics/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_accurate_20260503T225907Z |
 | results/runs/thesis_accurate_20260503T225907Z_analytics/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_accurate_20260503T225907Z/reports/summary.json |
 | results/runs/thesis_accurate_20260503T225907Z_analytics/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_accurate_20260503T225907Z/metrics/results.json |
@@ -30,18 +20,6 @@ passed: true
 | results/runs/thesis_accurate_20260503T225907Z_embedded/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_accurate_20260503T225907Z |
 | results/runs/thesis_accurate_20260503T225907Z_embedded/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_accurate_20260503T225907Z/reports/summary.json |
 | results/runs/thesis_accurate_20260503T225907Z_embedded/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_accurate_20260503T225907Z/metrics/results.json |
-| results/runs/thesis_balanced_20260503T225907Z_analytics/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T225907Z |
-| results/runs/thesis_balanced_20260503T225907Z_analytics/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/reports/summary.json |
-| results/runs/thesis_balanced_20260503T225907Z_analytics/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/metrics/results.json |
-| results/runs/thesis_balanced_20260503T225907Z_batch/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T225907Z |
-| results/runs/thesis_balanced_20260503T225907Z_batch/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/reports/summary.json |
-| results/runs/thesis_balanced_20260503T225907Z_batch/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/metrics/results.json |
-| results/runs/thesis_balanced_20260503T225907Z_dialog/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T225907Z |
-| results/runs/thesis_balanced_20260503T225907Z_dialog/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/reports/summary.json |
-| results/runs/thesis_balanced_20260503T225907Z_dialog/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/metrics/results.json |
-| results/runs/thesis_balanced_20260503T225907Z_embedded/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T225907Z |
-| results/runs/thesis_balanced_20260503T225907Z_embedded/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/reports/summary.json |
-| results/runs/thesis_balanced_20260503T225907Z_embedded/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T225907Z/metrics/results.json |
 | results/runs/thesis_balanced_20260503T232650Z_analytics/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T232650Z |
 | results/runs/thesis_balanced_20260503T232650Z_analytics/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T232650Z/reports/summary.json |
 | results/runs/thesis_balanced_20260503T232650Z_analytics/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T232650Z/metrics/results.json |
@@ -54,18 +32,6 @@ passed: true
 | results/runs/thesis_balanced_20260503T232650Z_embedded/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T232650Z |
 | results/runs/thesis_balanced_20260503T232650Z_embedded/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T232650Z/reports/summary.json |
 | results/runs/thesis_balanced_20260503T232650Z_embedded/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T232650Z/metrics/results.json |
-| results/runs/thesis_cloud_20260503T221001Z_analytics/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T221001Z |
-| results/runs/thesis_cloud_20260503T221001Z_analytics/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/reports/summary.json |
-| results/runs/thesis_cloud_20260503T221001Z_analytics/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/metrics/results.json |
-| results/runs/thesis_cloud_20260503T221001Z_batch/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T221001Z |
-| results/runs/thesis_cloud_20260503T221001Z_batch/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/reports/summary.json |
-| results/runs/thesis_cloud_20260503T221001Z_batch/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/metrics/results.json |
-| results/runs/thesis_cloud_20260503T221001Z_dialog/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T221001Z |
-| results/runs/thesis_cloud_20260503T221001Z_dialog/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/reports/summary.json |
-| results/runs/thesis_cloud_20260503T221001Z_dialog/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/metrics/results.json |
-| results/runs/thesis_cloud_20260503T221001Z_embedded/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T221001Z |
-| results/runs/thesis_cloud_20260503T221001Z_embedded/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/reports/summary.json |
-| results/runs/thesis_cloud_20260503T221001Z_embedded/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T221001Z/metrics/results.json |
 | results/runs/thesis_cloud_20260503T223116Z_analytics/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T223116Z |
 | results/runs/thesis_cloud_20260503T223116Z_analytics/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T223116Z/reports/summary.json |
 | results/runs/thesis_cloud_20260503T223116Z_analytics/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T223116Z/metrics/results.json |
@@ -90,42 +56,6 @@ passed: true
 | results/runs/thesis_fast_20260503T225907Z_embedded/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_fast_20260503T225907Z |
 | results/runs/thesis_fast_20260503T225907Z_embedded/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_fast_20260503T225907Z/reports/summary.json |
 | results/runs/thesis_fast_20260503T225907Z_embedded/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_fast_20260503T225907Z/metrics/results.json |
-| results/runs/thesis_local_20260503T181036Z_analytics/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T181036Z |
-| results/runs/thesis_local_20260503T181036Z_analytics/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T181036Z/reports/summary.json |
-| results/runs/thesis_local_20260503T181036Z_analytics/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T181036Z/metrics/results.json |
-| results/runs/thesis_local_20260503T181036Z_batch/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T181036Z |
-| results/runs/thesis_local_20260503T181036Z_batch/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T181036Z/reports/summary.json |
-| results/runs/thesis_local_20260503T181036Z_batch/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T181036Z/metrics/results.json |
-| results/runs/thesis_local_20260503T181036Z_dialog/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T181036Z |
-| results/runs/thesis_local_20260503T181036Z_dialog/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T181036Z/reports/summary.json |
-| results/runs/thesis_local_20260503T181036Z_dialog/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T181036Z/metrics/results.json |
-| results/runs/thesis_local_20260503T181036Z_embedded/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T181036Z |
-| results/runs/thesis_local_20260503T181036Z_embedded/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T181036Z/reports/summary.json |
-| results/runs/thesis_local_20260503T181036Z_embedded/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T181036Z/metrics/results.json |
-| results/runs/thesis_local_20260503T184131Z_analytics/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T184131Z |
-| results/runs/thesis_local_20260503T184131Z_analytics/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T184131Z/reports/summary.json |
-| results/runs/thesis_local_20260503T184131Z_analytics/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/results.json |
-| results/runs/thesis_local_20260503T184131Z_batch/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T184131Z |
-| results/runs/thesis_local_20260503T184131Z_batch/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T184131Z/reports/summary.json |
-| results/runs/thesis_local_20260503T184131Z_batch/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/results.json |
-| results/runs/thesis_local_20260503T184131Z_dialog/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T184131Z |
-| results/runs/thesis_local_20260503T184131Z_dialog/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T184131Z/reports/summary.json |
-| results/runs/thesis_local_20260503T184131Z_dialog/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/results.json |
-| results/runs/thesis_local_20260503T184131Z_embedded/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T184131Z |
-| results/runs/thesis_local_20260503T184131Z_embedded/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T184131Z/reports/summary.json |
-| results/runs/thesis_local_20260503T184131Z_embedded/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T184131Z/metrics/results.json |
-| results/runs/thesis_local_20260503T220622Z_analytics/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T220622Z |
-| results/runs/thesis_local_20260503T220622Z_analytics/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T220622Z/reports/summary.json |
-| results/runs/thesis_local_20260503T220622Z_analytics/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T220622Z/metrics/results.json |
-| results/runs/thesis_local_20260503T220622Z_batch/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T220622Z |
-| results/runs/thesis_local_20260503T220622Z_batch/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T220622Z/reports/summary.json |
-| results/runs/thesis_local_20260503T220622Z_batch/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T220622Z/metrics/results.json |
-| results/runs/thesis_local_20260503T220622Z_dialog/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T220622Z |
-| results/runs/thesis_local_20260503T220622Z_dialog/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T220622Z/reports/summary.json |
-| results/runs/thesis_local_20260503T220622Z_dialog/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T220622Z/metrics/results.json |
-| results/runs/thesis_local_20260503T220622Z_embedded/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T220622Z |
-| results/runs/thesis_local_20260503T220622Z_embedded/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T220622Z/reports/summary.json |
-| results/runs/thesis_local_20260503T220622Z_embedded/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T220622Z/metrics/results.json |
 | results/runs/thesis_local_20260503T222647Z_analytics/manifest.json source.input_path exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T222647Z |
 | results/runs/thesis_local_20260503T222647Z_analytics/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T222647Z/reports/summary.json |
 | results/runs/thesis_local_20260503T222647Z_analytics/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T222647Z/metrics/results.json |
@@ -139,6 +69,7 @@ passed: true
 | results/runs/thesis_local_20260503T222647Z_embedded/manifest.json source.summary_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T222647Z/reports/summary.json |
 | results/runs/thesis_local_20260503T222647Z_embedded/manifest.json source.results_json exists | PASS | artifacts/benchmark_runs/thesis_local_20260503T222647Z/metrics/results.json |
 | final_report canonical artifact list present | PASS | results/thesis_final/final_report.md |
+| final manifest canonical artifacts match final_report | PASS | manifest=5 report=5 |
 | final_report artifact exists: artifacts/benchmark_runs/thesis_accurate_20260503T225907Z | PASS | artifacts/benchmark_runs/thesis_accurate_20260503T225907Z |
 | final_report artifact exists: artifacts/benchmark_runs/thesis_balanced_20260503T232650Z | PASS | artifacts/benchmark_runs/thesis_balanced_20260503T232650Z |
 | final_report artifact exists: artifacts/benchmark_runs/thesis_cloud_20260503T223116Z | PASS | artifacts/benchmark_runs/thesis_cloud_20260503T223116Z |
