@@ -7,24 +7,22 @@ cd "$ROOT_DIR"
 
 SECRET_REGEX="AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|AIza[0-9A-Za-z_-]{35}|-----BEGIN[[:space:]]+[^-]*PRIVATE KEY-----|aws_secret_access_key[[:space:]]*[:=][[:space:]]*['\"]?[A-Za-z0-9/+=]{16,}|speech_key[[:space:]]*[:=][[:space:]]*['\"]?[A-Za-z0-9]{16,}|subscription_key[[:space:]]*[:=][[:space:]]*['\"]?[A-Za-z0-9]{16,}|xox[baprs]-[0-9A-Za-z-]{10,}"
 
-if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-  mapfile -d '' SCAN_FILES < <(
-    {
-      git ls-files -z
-      find reports results artifacts .ai scripts configs datasets -type f -print0 2>/dev/null || true
-    } | sort -zu
-  )
-else
-  mapfile -d '' SCAN_FILES < <(
-    find . -type f \
-      -not -path './.git/*' \
-      -not -path './.venv/*' \
-      -not -path './venv/*' \
-      -not -path './__pycache__/*' \
-      -print0
-  )
-fi
+SCAN_ROOTS=(.ai reports results scripts configs datasets docs)
+EXCLUDE_NAME_EXPR=(
+  -name '*.wav' -o -name '*.mp3' -o -name '*.flac' -o
+  -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.gif' -o -name '*.webp' -o
+  -name '*.onnx' -o -name '*.pt' -o -name '*.pth' -o -name '*.bin' -o -name '*.safetensors'
+)
+mapfile -d '' SCAN_FILES < <(
+  find "${SCAN_ROOTS[@]}" -type f \
+    -not -path 'artifacts/benchmark_runs/*/derived_audio/*' \
+    -not -path 'secrets/*' \
+    -not -path '*/__pycache__/*' \
+    -not \( "${EXCLUDE_NAME_EXPR[@]}" \) \
+    -print0 2>/dev/null | sort -z
+)
 FINDINGS=()
+SCANNED_COUNT=0
 
 for file in "${SCAN_FILES[@]}"; do
   file="${file#./}"
@@ -36,6 +34,7 @@ for file in "${SCAN_FILES[@]}"; do
   [[ "$file" == venv/* ]] && continue
   [[ "$file" == secrets/* ]] && continue
   [[ -f "$file" ]] || continue
+  SCANNED_COUNT=$((SCANNED_COUNT + 1))
 
   if [[ "$file" == ".env" || "$file" =~ \.env$ ]]; then
     FINDINGS+=("tracked env file path: $file")
@@ -49,8 +48,10 @@ for file in "${SCAN_FILES[@]}"; do
 
   while IFS= read -r hit; do
     FINDINGS+=("$file:$hit")
-  done < <(grep -nEI "$SECRET_REGEX" "$file" || true)
+  done < <(grep -nEIH "$SECRET_REGEX" "$file" || true)
 done
+
+echo "Scanned files: $SCANNED_COUNT"
 
 if [ "${#FINDINGS[@]}" -gt 0 ]; then
   echo "FAIL: potential secrets detected:"

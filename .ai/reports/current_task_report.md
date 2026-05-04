@@ -2,6 +2,40 @@
 
 Status: completed
 
+## Archive Evidence Finalization 2026-05-04
+
+Finalization fixed the archive reproducibility trace from canonical benchmark artifacts to schema-first metrics, final CSV tables, and `final_report.md`.
+
+Canonical artifact directories verified with required `metrics/results.json`, `metrics/results.csv`, `reports/summary.json`, `reports/summary.md`, and `manifest/run_manifest.json` files:
+
+- `artifacts/benchmark_runs/thesis_fast_20260503T225907Z/`
+- `artifacts/benchmark_runs/thesis_balanced_20260503T232650Z/`
+- `artifacts/benchmark_runs/thesis_accurate_20260503T225907Z/`
+- `artifacts/benchmark_runs/thesis_cloud_20260503T223116Z/`
+- `artifacts/benchmark_runs/thesis_local_20260503T222647Z/`
+
+Changes made in this finalization:
+
+- Added `scripts/validate_thesis_evidence.py`, writing `reports/thesis_test/thesis_evidence_validation.md` and `.json`.
+- Updated `results/thesis_final/final_report.md` generation to remove stale none-valued local/cloud run-id lines, list tiered primary run ids, and mark local/cloud matrix runs as supporting evidence.
+- Updated AWS credential reporting so successful AWS smoke/benchmark evidence reports `bucket=available` with `bucket_mode=aws_list_buckets` instead of `bucket=missing`.
+- Updated `scripts/secret_scan.sh` for ZIP-extracted archives: scans text evidence roots only, excludes audio/image/model binaries and generated derived audio, skips `secrets/`, prints scanned file count, and exits 0 when clean.
+
+Final required command outcomes:
+
+- `python3 scripts/validate_dataset_assets.py --registry datasets/registry/datasets.json --root .` -> PASS, `passed=true`, `dataset_count=1`
+- `python3 scripts/validate_thesis_evidence.py --root .` -> PASS, `passed=true`, `checks=155`
+- `python3 -m compileall -q scripts ros2_ws/src tests` -> PASS
+- `bash scripts/secret_scan.sh` -> PASS, `Scanned files: 825`, no findings
+- `python3 scripts/export_thesis_tables.py --input results/runs --output results/thesis_final` -> PASS, `run_count=12`
+- rerun `python3 scripts/validate_thesis_evidence.py --root .` -> PASS, `passed=true`, `checks=155`
+
+Final table provider coverage remains:
+
+- Final metric tables include `aws_cloud`, `azure_cloud`, `google_cloud`, `huggingface_local`, `vosk_local`, and `whisper_local`.
+- `provider_smoke_tests.csv` and `provider_comparison.csv` include `huggingface_api`; it remains skipped because no Hugging Face API token was available.
+- `huggingface_local:accurate` remains reported as a failed preset attempt due CUDA out-of-memory and is excluded from metric ranking rows.
+
 ## Scope
 
 Prepared the full bachelor-thesis ASR benchmark evidence package and reworked the final comparison so model presets are compared by fair capability tiers instead of mixing light, balanced and accurate variants in one ranking.

@@ -418,6 +418,14 @@ def write_credential_reports(
                 provider["credential_detected"] = True
                 provider["config_complete"] = True
                 provider["safe_error_summary"] = ""
+                if provider["provider"] == "aws_cloud":
+                    requirements = provider.setdefault("requirements", {})
+                    if requirements.get("bucket") == "missing":
+                        if provider.get("bucket_mode") == "aws_list_buckets":
+                            requirements["bucket"] = "available"
+                        else:
+                            requirements["bucket"] = "not_required_for_this_mode"
+                            provider["bucket_mode"] = "not_required_for_this_mode"
             elif str(smoke.get("error_type", "") or ""):
                 provider["auth_probe_status"] = "failure"
                 provider["safe_error_summary"] = str(

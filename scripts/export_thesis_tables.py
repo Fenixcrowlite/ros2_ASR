@@ -997,6 +997,13 @@ def _write_final_report(
             if str(run.get("manifest", {}).get("source", {}).get("input_path", "") or "").startswith("artifacts/")
         }
     )
+    for prefix in ("thesis_cloud_", "thesis_local_"):
+        supporting = sorted((PROJECT_ROOT / "artifacts" / "benchmark_runs").glob(f"{prefix}*"))
+        if supporting:
+            rel = _repo_relative_path(supporting[-1])
+            if rel not in canonical_artifacts:
+                canonical_artifacts.append(rel)
+    canonical_artifacts = sorted(canonical_artifacts)
     canonical_status: list[dict[str, Any]] = []
     for artifact in canonical_artifacts:
         summary_path = PROJECT_ROOT / artifact / "reports" / "summary.json"
@@ -1036,6 +1043,11 @@ def _write_final_report(
         for item in canonical_status
         if _comparison_tier_from_run_id(str(item.get("run_id", ""))) != "untiered"
     ]
+    tier_by_kind: dict[str, str] = {}
+    for run_id in tier_run_ids:
+        parts = run_id.split("_")
+        if len(parts) >= 3:
+            tier_by_kind[parts[1]] = run_id
     failed_presets_by_key: dict[tuple[str, str, str], dict[str, Any]] = {}
     for row in summary_rows:
         if not _as_bool(row.get("all_samples_failed")):
@@ -1135,9 +1147,24 @@ def _write_final_report(
             f"Clean source utterances in quality table: {clean_sample_count}",
             f"Utterance-variant rows in performance and robustness tables: {variant_sample_count}",
             f"Dataset validation status: {validation_passed}",
-            f"Local run id: {', '.join(local_run_ids) if local_run_ids else 'none'}",
-            f"Cloud run id: {', '.join(cloud_run_ids) if cloud_run_ids else 'none'}",
-            f"Tiered run id: {', '.join(tier_run_ids) if tier_run_ids else 'none'}",
+            "Primary benchmark mode: tiered local/cloud comparison",
+            "",
+            "Fast tier run id:",
+            tier_by_kind.get("fast", "none"),
+            "",
+            "Balanced tier run id:",
+            tier_by_kind.get("balanced", "none"),
+            "",
+            "Accurate tier run id:",
+            tier_by_kind.get("accurate", "none"),
+            "",
+            "Cloud matrix run id:",
+            ", ".join(cloud_run_ids) if cloud_run_ids else "none",
+            "",
+            "Local matrix run id:",
+            ", ".join(local_run_ids) if local_run_ids else "none",
+            "",
+            "The local and cloud matrix runs are supporting evidence for provider coverage and credentialed cloud execution; final provider ranking uses the tiered benchmark artifacts.",
             "Dataset validation report: `reports/datasets/dataset_asset_validation.md`",
             "Credential availability report: `reports/thesis_test/credential_availability.md`",
             "",

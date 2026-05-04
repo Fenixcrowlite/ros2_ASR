@@ -35,9 +35,24 @@ Active validated dataset: librispeech_test_clean_subset
 Clean source utterances in quality table: 10
 Utterance-variant rows in performance and robustness tables: 550
 Dataset validation status: passed
-Local run id: none
-Cloud run id: none
-Tiered run id: thesis_accurate_20260503T225907Z, thesis_balanced_20260503T232650Z, thesis_fast_20260503T225907Z
+Primary benchmark mode: tiered local/cloud comparison
+
+Fast tier run id:
+thesis_fast_20260503T225907Z
+
+Balanced tier run id:
+thesis_balanced_20260503T232650Z
+
+Accurate tier run id:
+thesis_accurate_20260503T225907Z
+
+Cloud matrix run id:
+thesis_cloud_20260503T223116Z
+
+Local matrix run id:
+thesis_local_20260503T222647Z
+
+The local and cloud matrix runs are supporting evidence for provider coverage and credentialed cloud execution; final provider ranking uses the tiered benchmark artifacts.
 Dataset validation report: `reports/datasets/dataset_asset_validation.md`
 Credential availability report: `reports/thesis_test/credential_availability.md`
 
@@ -46,7 +61,7 @@ Credential availability report: `reports/thesis_test/credential_availability.md`
 OS: Linux-6.17.0-22-generic-x86_64-with-glibc2.39
 Python: 3.12.3
 Git branch: main
-Git commit: 42736d0031075030833e22d1692820303b6ac402
+Git commit: 7e5b44962c9640d2ca8bb8229bc6d35f46e23fa0
 
 ## Methodology
 
@@ -73,7 +88,9 @@ Fair comparison is reported by preset tier, not by mixing light, balanced and ac
 
 - `artifacts/benchmark_runs/thesis_accurate_20260503T225907Z`
 - `artifacts/benchmark_runs/thesis_balanced_20260503T232650Z`
+- `artifacts/benchmark_runs/thesis_cloud_20260503T223116Z`
 - `artifacts/benchmark_runs/thesis_fast_20260503T225907Z`
+- `artifacts/benchmark_runs/thesis_local_20260503T222647Z`
 
 ## Run Completion
 
@@ -81,7 +98,9 @@ Fair comparison is reported by preset tier, not by mixing light, balanced and ac
 |---|---:|---:|---:|
 | thesis_accurate_20260503T225907Z | 150 | 100 | 50 |
 | thesis_balanced_20260503T232650Z | 250 | 250 | 0 |
+| thesis_cloud_20260503T223116Z | 150 | 150 | 0 |
 | thesis_fast_20260503T225907Z | 200 | 199 | 1 |
+| thesis_local_20260503T222647Z | 150 | 149 | 1 |
 
 ## Metric Definitions
 
@@ -106,7 +125,7 @@ The generated CSV tables contain the provider-level quality, performance, resour
 ## Limitations
 
 The results are indicative and suitable for bachelor-thesis prototype evaluation, but not a large-scale ASR benchmark.
-The canonical benchmark contains 51 failed utterance-variant row(s). Completely failed presets are reported as failed attempts and excluded from quality/performance ranking tables.
+The canonical benchmark contains 52 failed utterance-variant row(s). Completely failed presets are reported as failed attempts and excluded from quality/performance ranking tables.
 
 ## Recommendation For ROS2/COCOHRIP
 

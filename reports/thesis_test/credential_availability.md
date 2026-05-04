@@ -1,6 +1,6 @@
 # Credential Availability
 
-Created: `2026-05-04T00:07:33.190832+00:00`
+Created: `2026-05-04T00:29:51.731419+00:00`
 
 | Provider | Required Secrets | Sources Checked/Detected | Auth Probe | Status | Safe Error Summary |
 |---|---|---|---|---|---|
