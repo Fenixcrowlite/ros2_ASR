@@ -4,7 +4,7 @@ PROVIDER_LANGUAGE ?= en-US
 PROVIDER_SETTINGS_JSON ?= {}
 PROVIDER_CHECK_ARGS ?=
 
-.PHONY: public-help init-provider-env configure-providers configure-provider provider-validate provider-test public-release-check prepare-ui-assets prepare-runtime-assets
+.PHONY: public-help init-provider-env configure-providers configure-provider preflight-provider provider-validate provider-test public-release-check prepare-ui-assets prepare-runtime-assets
 
 configure-providers:
 	bash scripts/init_provider_env.sh --prompt-all
@@ -12,28 +12,27 @@ configure-providers:
 configure-provider:
 	bash scripts/init_provider_env.sh --prompt-provider "$(PROVIDER_PROFILE)"
 
-prepare-ui-assets: setup-vosk
-	bash scripts/init_provider_env.sh --prompt-missing-once
+preflight-provider:
+	bash scripts/run_provider_preflight.sh "$(PROVIDER_PROFILE)"
+
+prepare-ui-assets:
+	bash scripts/prepare_provider_startup.sh ui "$(PROVIDER_PROFILE)"
 
 prepare-runtime-assets:
-	@if [[ "$(PROVIDER_PROFILE)" == "providers/vosk_local" ]]; then \
-		$(MAKE) setup-vosk; \
-	else \
-		printf '%s\n' 'No additional local runtime assets required for $(PROVIDER_PROFILE).'; \
-	fi
-	@bash scripts/init_provider_env.sh --prompt-provider "$(PROVIDER_PROFILE)"
+	bash scripts/prepare_provider_startup.sh runtime "$(PROVIDER_PROFILE)"
 
 up web-gui web-gui-lan: prepare-ui-assets
-up-runtime: prepare-runtime-assets
+up-runtime run: prepare-runtime-assets
 
 public-help:
 	@printf '%s\n' \
 		'Public setup and provider commands:' \
-		'  make up                                        Start UI and offer skippable provider setup' \
-		'  make up-runtime PROVIDER_PROFILE=...            Start selected runtime and ask for missing values' \
-		'  make init-provider-env                         Create secrets/local/runtime.env safely' \
+		'  make up                                        Prepare local assets, guide optional setup, preflight, then start UI' \
+		'  make up-runtime PROVIDER_PROFILE=...            Prepare and preflight the selected provider before runtime start' \
 		'  make configure-providers                       Reopen optional provider setup' \
 		'  make configure-provider PROVIDER_PROFILE=...    Configure one provider interactively' \
+		'  make preflight-provider PROVIDER_PROFILE=...    Check whether one provider is launch-ready' \
+		'  make init-provider-env                         Create secrets/local/runtime.env safely' \
 		'  make provider-validate PROVIDER_PROFILE=...    Validate the selected backend through the gateway' \
 		'  make provider-test PROVIDER_PROFILE=...        Run a real WAV transcription with the selected backend' \
 		'  make public-release-check                      Run static checks before sharing the repository' \
