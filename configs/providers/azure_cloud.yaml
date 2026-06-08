@@ -1,0 +1,23 @@
+profile_id: providers/azure_cloud
+inherits: []
+provider_id: azure
+adapter: asr_provider_azure.azure_provider.AzureProvider
+settings:
+  region: ""
+  endpoint: ""
+ui:
+  default_model_preset: standard
+  model_presets:
+    standard:
+      label: Standard
+      description: Native Azure Speech baseline with resource key, region, and optional endpoint override.
+      quality_tier: high
+      resource_tier: high
+      estimated_cost_tier: high
+      estimated_cost_usd_per_min: 0.018
+      settings: {}
+  advanced_fields:
+    - region
+    - endpoint
+    - streaming_partial_stability_threshold
+credentials_ref: secrets/refs/azure_speech_key.yaml

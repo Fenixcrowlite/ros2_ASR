@@ -1,0 +1,91 @@
+profile_id: providers/whisper_local
+inherits: []
+provider_id: whisper
+adapter: asr_provider_whisper.whisper_provider.WhisperProvider
+settings:
+  model_size: tiny
+  device: cpu
+  compute_type: int8
+  condition_on_previous_text: false
+  no_speech_threshold: 0.6
+  temperature: 0.0
+  empty_transcript_rms_threshold: 100
+ui:
+  default_model_preset: light
+  model_presets:
+    light:
+      label: Light
+      description: CPU-safe tiny model for fresh clones, containers, and quick endpoint checks.
+      quality_tier: medium
+      resource_tier: low
+      estimated_cost_tier: local
+      settings:
+        model_size: tiny
+        device: cpu
+        compute_type: int8
+    balanced:
+      label: Balanced
+      description: CPU-safe base model for better quality without requiring an NVIDIA driver.
+      quality_tier: high
+      resource_tier: medium
+      estimated_cost_tier: local
+      settings:
+        model_size: base
+        device: cpu
+        compute_type: int8
+    accurate:
+      label: Accurate
+      description: CPU-safe small model for higher quality when slower local inference is acceptable.
+      quality_tier: very_high
+      resource_tier: high
+      estimated_cost_tier: local
+      settings:
+        model_size: small
+        device: cpu
+        compute_type: int8
+    cuda_light:
+      label: CUDA Light
+      description: Fast tiny model for hosts with a working NVIDIA driver and CUDA runtime.
+      quality_tier: medium
+      resource_tier: medium
+      estimated_cost_tier: local
+      settings:
+        model_size: tiny
+        device: cuda
+        compute_type: float16
+      tags:
+        - cuda
+        - gpu
+    cuda_balanced:
+      label: CUDA Balanced
+      description: Better quality on local NVIDIA GPU hardware.
+      quality_tier: high
+      resource_tier: medium
+      estimated_cost_tier: local
+      settings:
+        model_size: base
+        device: cuda
+        compute_type: float16
+      tags:
+        - cuda
+        - gpu
+    cuda_accurate:
+      label: CUDA Accurate
+      description: Highest local GPU quality baseline for benchmark runs.
+      quality_tier: very_high
+      resource_tier: high
+      estimated_cost_tier: local
+      settings:
+        model_size: small
+        device: cuda
+        compute_type: float16
+      tags:
+        - cuda
+        - gpu
+  advanced_fields:
+    - model_size
+    - device
+    - compute_type
+    - temperature
+    - no_speech_threshold
+credentials_ref: secrets/refs/local_none.yaml

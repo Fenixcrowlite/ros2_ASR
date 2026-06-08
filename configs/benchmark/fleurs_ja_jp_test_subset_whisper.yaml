@@ -1,0 +1,16 @@
+profile_id: benchmark/fleurs_ja_jp_test_subset_whisper
+inherits: []
+dataset_profile: datasets/fleurs_ja_jp_test_subset
+providers:
+- providers/whisper_local
+metric_profiles:
+- metrics/default_quality
+- metrics/default_timing
+execution_mode: batch
+batch:
+  max_samples: 0
+  timeout_sec: 240
+noise:
+  mode: white
+  levels:
+  - clean

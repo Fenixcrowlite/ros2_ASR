@@ -1,0 +1,7 @@
+string manifest_path
+string dataset_id
+string dataset_profile
+---
+bool success
+string dataset_id
+string message

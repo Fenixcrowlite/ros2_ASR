@@ -1,0 +1,7 @@
+string profile_type
+string profile_id
+string config_path
+---
+bool valid
+string message
+string resolved_config_ref

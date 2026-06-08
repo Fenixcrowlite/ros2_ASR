@@ -1,0 +1,45 @@
+profile_id: providers/huggingface_api
+inherits: []
+provider_id: huggingface_api
+adapter: asr_provider_huggingface.api_provider.HuggingFaceAPIProvider
+settings:
+  model_id: openai/whisper-large-v3
+  endpoint_url: ""
+  base_url: https://api-inference.huggingface.co/models/{model}
+  timeout_sec: 90.0
+  return_timestamps: true
+  generation_parameters: {}
+ui:
+  default_model_preset: balanced
+  model_presets:
+    light:
+      label: Light
+      description: Smaller hosted Whisper model for quick tests.
+      quality_tier: medium
+      resource_tier: low
+      estimated_cost_tier: medium
+      settings:
+        model_id: openai/whisper-small
+    balanced:
+      label: Balanced
+      description: Hosted Whisper large-v3 default for production-grade ASR quality.
+      quality_tier: very_high
+      resource_tier: medium
+      estimated_cost_tier: medium
+      settings:
+        model_id: openai/whisper-large-v3
+    accurate:
+      label: Endpoint
+      description: Use a dedicated endpoint or alternate ASR model through endpoint_url and model_id overrides.
+      quality_tier: custom
+      resource_tier: medium
+      estimated_cost_tier: custom
+      settings:
+        model_id: openai/whisper-large-v3
+  advanced_fields:
+    - model_id
+    - endpoint_url
+    - timeout_sec
+    - return_timestamps
+    - generation_parameters
+credentials_ref: secrets/refs/huggingface_api_token.yaml

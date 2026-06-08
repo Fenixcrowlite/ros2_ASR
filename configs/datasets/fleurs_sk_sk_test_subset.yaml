@@ -1,0 +1,5 @@
+profile_id: datasets/fleurs_sk_sk_test_subset
+inherits: []
+dataset_id: fleurs_sk_sk_test_subset
+manifest_path: datasets/manifests/fleurs_sk_sk_test_subset.jsonl
+default_language: sk-SK

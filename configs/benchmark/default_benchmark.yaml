@@ -1,0 +1,24 @@
+profile_id: benchmark/default_benchmark
+inherits: []
+dataset_profile: datasets/sample_dataset
+providers:
+  - providers/whisper_local
+scenarios:
+  - clean_baseline
+  - noise_robustness
+  - provider_comparison
+  - latency_profile
+metric_profiles:
+  - metrics/default_quality
+  - metrics/default_timing
+execution_mode: batch
+batch:
+  max_samples: 0
+  timeout_sec: 180
+streaming:
+  chunk_ms: 500
+  replay_rate: 1.0
+noise:
+  mode: white
+  levels:
+    - clean

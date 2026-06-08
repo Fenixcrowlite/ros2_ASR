@@ -1,0 +1,5 @@
+profile_id: datasets/voxpopuli_de_test_subset
+inherits: []
+dataset_id: voxpopuli_de_test_subset
+manifest_path: datasets/manifests/voxpopuli_de_test_subset.jsonl
+default_language: de-DE

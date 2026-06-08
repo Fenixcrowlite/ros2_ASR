@@ -1,0 +1,21 @@
+"""Setuptools entrypoint for the `asr_datasets` package."""
+
+from setuptools import find_packages, setup
+
+package_name = "asr_datasets"
+
+setup(
+    name=package_name,
+    version="0.1.0",
+    packages=find_packages(exclude=["test"]),
+    data_files=[
+        ("share/ament_index/resource_index/packages", [f"resource/{package_name}"]),
+        (f"share/{package_name}", ["package.xml", "README.md"]),
+    ],
+    install_requires=["setuptools"],
+    zip_safe=True,
+    maintainer="ASR Team",
+    maintainer_email="asr-team@ros2-asr.localdomain",
+    description="Dataset registry, manifest model, and dataset import utilities",
+    license="MIT",
+)

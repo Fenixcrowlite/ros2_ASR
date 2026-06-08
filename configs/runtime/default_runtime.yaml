@@ -1,0 +1,34 @@
+profile_id: runtime/default
+inherits: []
+namespace: /asr/runtime
+audio:
+  source: file
+  file_path: data/sample/vosk_test.wav
+  sample_rate_hz: 16000
+  channels: 1
+  chunk_ms: 500
+  file_replay_rate: 1.0
+  mic_device: ""
+preprocess:
+  target_sample_rate_hz: 16000
+  mono: true
+  normalize: true
+vad:
+  energy_threshold: 100
+  pre_roll_ms: 250
+  max_silence_ms: 700
+  min_segment_ms: 400
+  max_segment_ms: 2500
+orchestrator:
+  provider_profile: providers/whisper_local
+  language: en-US
+  processing_mode: segmented
+  enable_partials: true
+  publish_debug_events: true
+providers:
+  active: providers/whisper_local
+  preset: light
+  settings: {}
+session:
+  auto_start: false
+  max_concurrent_sessions: 1

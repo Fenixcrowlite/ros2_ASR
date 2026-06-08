@@ -1,0 +1,14 @@
+profile_id: runtime/huggingface_api_runtime
+inherits:
+  - default_runtime
+audio:
+  source: file
+  file_path: data/sample/vosk_test.wav
+orchestrator:
+  provider_profile: providers/huggingface_api
+  language: en-US
+  processing_mode: segmented
+providers:
+  active: providers/huggingface_api
+  preset: balanced
+  settings: {}

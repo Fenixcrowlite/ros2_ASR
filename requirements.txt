@@ -1,0 +1,7 @@
+# Compatibility umbrella install. Prefer targeted groups in requirements/.
+-r requirements/base.txt
+-r requirements/runtime.txt
+-r requirements/providers-local.txt
+-r requirements/providers-cloud.txt
+-r requirements/web.txt
+-r requirements/dev.txt

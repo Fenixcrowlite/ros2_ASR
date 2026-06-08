@@ -1,0 +1,15 @@
+profile_id: metrics/default_quality
+inherits: []
+metrics:
+  - wer
+  - cer
+  - sample_accuracy
+  - ser
+  - mer
+  - wil
+  - wip
+  - micro_wer
+  - macro_wer
+  - micro_cer
+  - macro_cer
+  - hallucination_on_silence

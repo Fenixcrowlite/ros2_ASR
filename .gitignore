@@ -1,0 +1,80 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv*/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.cache/
+.coverage
+coverage.xml
+*.egg-info/
+
+# ROS2 / colcon
+build/
+install/
+log/
+ros2_ws/build/
+ros2_ws/install/
+ros2_ws/log/
+.colcon.lock
+
+# Generated benchmark outputs
+artifacts/
+results/
+reports/
+logs/
+dist/
+
+# Local credentials and resolved secrets
+.env
+*.env
+secrets/*
+!secrets/README.md
+!secrets/refs/
+secrets/refs/*
+!secrets/refs/*.yaml
+ros2_ws/secrets/
+configs/commercial.yaml
+configs/*.secret.yaml
+configs/resolved/*.json
+*.pem
+*.key
+*.p12
+*service-account*.json
+*credentials*.json
+!configs/commercial.example.yaml
+
+# Model and dataset payloads
+*.pt
+*.pth
+*.onnx
+*.bin
+*.safetensors
+models/cache/
+models/whisper/*
+models/vosk/*
+!models/cache/.gitkeep
+!models/whisper/.gitkeep
+!models/vosk/.gitkeep
+datasets/raw/
+datasets/imported/
+datasets/processed/
+datasets/noise_assets/
+datasets/manifests/speaker_*.jsonl
+configs/datasets/speaker_*.yaml
+
+# Local UI/runtime files
+data/sample/uploads/
+data/sample/generated_noise/
+
+# Local archive trees
+legacy/
+[t]hesis/
+[t]hesis_ru/
+
+# IDE
+.vscode/
+.idea/

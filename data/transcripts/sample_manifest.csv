@@ -1,0 +1,2 @@
+wav_path,transcript,language
+data/sample/vosk_test.wav,10001 90210 01803,en-US

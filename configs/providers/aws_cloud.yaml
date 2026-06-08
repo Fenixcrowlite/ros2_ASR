@@ -1,0 +1,35 @@
+profile_id: providers/aws_cloud
+inherits: []
+provider_id: aws
+adapter: asr_provider_aws.aws_provider.AwsProvider
+settings:
+  region: "${AWS_REGION}"
+  streaming_region: eu-central-1
+  s3_bucket: "${AWS_S3_BUCKET}"
+  input_prefix: asr-input/
+  output_prefix: asr-output/
+  media_format: wav
+  cleanup: true
+ui:
+  default_model_preset: standard
+  model_presets:
+    standard:
+      label: Standard
+      description: Native Amazon Transcribe baseline using current region and bucket.
+      quality_tier: high
+      resource_tier: high
+      estimated_cost_tier: high
+      estimated_cost_usd_per_min: 0.024
+      settings: {}
+  advanced_fields:
+    - region
+    - streaming_region
+    - s3_bucket
+    - input_prefix
+    - output_prefix
+    - language_model_name
+    - enable_partial_results_stabilization
+    - partial_results_stability
+    - timeout_sec
+    - cleanup
+credentials_ref: secrets/refs/aws_profile.yaml

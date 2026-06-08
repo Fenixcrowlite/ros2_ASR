@@ -1,0 +1,49 @@
+name: Documentation check
+
+on:
+  push:
+    paths:
+      - README.md
+      - docs/**
+      - secrets/README.md
+      - secrets/refs/**
+      - configs/providers/**
+      - configs/runtime.env.example
+      - scripts/check_docs.py
+      - scripts/provider_gateway_check.py
+      - scripts/init_provider_env.sh
+      - scripts/setup_env.sh
+      - scripts/public_release_check.sh
+      - GNUmakefile
+      - Makefile
+      - mk/**
+      - .github/workflows/docs-check.yml
+  pull_request:
+    paths:
+      - README.md
+      - docs/**
+      - secrets/README.md
+      - secrets/refs/**
+      - configs/providers/**
+      - configs/runtime.env.example
+      - scripts/check_docs.py
+      - scripts/provider_gateway_check.py
+      - scripts/init_provider_env.sh
+      - scripts/setup_env.sh
+      - scripts/public_release_check.sh
+      - GNUmakefile
+      - Makefile
+      - mk/**
+      - .github/workflows/docs-check.yml
+  workflow_dispatch:
+
+jobs:
+  docs-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Run documentation consistency check
+        run: make docs-check
+      - name: Run static public release check
+        run: make public-release-check

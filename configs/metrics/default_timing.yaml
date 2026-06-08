@@ -1,0 +1,15 @@
+profile_id: metrics/default_timing
+inherits: []
+metrics:
+  - provider_compute_latency_ms
+  - end_to_end_latency_ms
+  - provider_compute_rtf
+  - end_to_end_rtf
+  - time_to_first_result_ms
+  - time_to_final_result_ms
+  - estimated_cost_usd
+  - finalization_latency_ms
+  - partial_count
+  - success_rate
+  - failure_rate
+  - timeout_rate

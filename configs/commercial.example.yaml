@@ -1,0 +1,20 @@
+# Copy to configs/commercial.yaml for local cloud-provider experiments.
+# Keep real project IDs, buckets, keys, and tokens out of Git.
+
+backends:
+  google:
+    credentials_json: "${GOOGLE_APPLICATION_CREDENTIALS}"
+    project_id: "${GOOGLE_CLOUD_PROJECT}"
+    model: default
+    region: global
+  aws:
+    region: "${AWS_REGION}"
+    profile: "${AWS_PROFILE}"
+    s3_bucket: "${AWS_S3_BUCKET}"
+    input_prefix: asr-input/
+    output_prefix: asr-output/
+    cleanup: true
+  azure:
+    speech_key: "${AZURE_SPEECH_KEY}"
+    speech_region: "${AZURE_SPEECH_REGION}"
+    endpoint: "${ASR_AZURE_ENDPOINT}"

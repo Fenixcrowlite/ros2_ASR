@@ -1,0 +1,95 @@
+scenario_weights:
+  embedded:
+    quality: 0.25
+    performance: 0.30
+    robustness: 0.15
+    reliability: 0.15
+    deployment: 0.10
+    cost: 0.05
+  dialog:
+    quality: 0.30
+    performance: 0.30
+    robustness: 0.10
+    reliability: 0.20
+    deployment: 0.05
+    cost: 0.05
+  batch:
+    quality: 0.35
+    performance: 0.20
+    robustness: 0.10
+    reliability: 0.15
+    deployment: 0.05
+    cost: 0.15
+  analytics:
+    quality: 0.45
+    performance: 0.10
+    robustness: 0.20
+    reliability: 0.15
+    deployment: 0.05
+    cost: 0.05
+
+component_weights:
+  quality:
+    wer: 0.60
+    cer: 0.25
+    ser: 0.15
+  performance:
+    end_to_end_rtf_mean: 0.45
+    end_to_end_rtf_p95: 0.25
+    final_latency_ms_p95: 0.30
+  robustness:
+    noise_deg_pp: 1.00
+  reliability:
+    success_rate: 0.70
+    error_penalty: 0.30
+  deployment:
+    offline_capable: 0.40
+    internet_not_required: 0.30
+    credentials_not_required: 0.30
+  cost:
+    cost_available: 0.40
+    cost_per_audio_hour_usd: 0.60
+
+normalization_bounds:
+  wer:
+    direction: lower
+    target: 0.05
+    worst: 0.60
+  cer:
+    direction: lower
+    target: 0.02
+    worst: 0.35
+  ser:
+    direction: lower
+    target: 0.05
+    worst: 0.90
+  end_to_end_rtf_mean:
+    direction: lower
+    target: 0.50
+    worst: 2.00
+  end_to_end_rtf_p95:
+    direction: lower
+    target: 0.80
+    worst: 3.00
+  final_latency_ms_p95:
+    direction: lower
+    target: 1500.0
+    worst: 15000.0
+  noise_deg_pp:
+    direction: lower
+    target: 0.0
+    worst: 80.0
+  success_rate:
+    direction: higher
+    target: 1.0
+    worst: 0.80
+  error_penalty:
+    direction: lower
+    target: 0.0
+    worst: 0.20
+  cost_per_audio_hour_usd:
+    direction: lower
+    target: 0.0
+    worst: 5.0
+
+sensitivity_delta: 0.10

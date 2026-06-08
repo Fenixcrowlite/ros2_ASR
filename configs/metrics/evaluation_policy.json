@@ -1,0 +1,9 @@
+{
+  "unicode_form": "NFKC",
+  "casefold": true,
+  "remove_punctuation": true,
+  "normalize_whitespace": true,
+  "cer_ignore_whitespace": true,
+  "language": "und",
+  "keep_empty_references": true
+}

@@ -1,0 +1,10 @@
+std_msgs/Header header
+string session_id
+string request_id
+string provider_id
+string text
+float32 confidence
+bool confidence_available
+float32 partial_latency_ms
+string language
+string raw_metadata_ref

@@ -1,0 +1,16 @@
+{
+  "datasets": [
+    {
+      "dataset_id": "sample_dataset",
+      "manifest_ref": "datasets/manifests/sample_dataset.jsonl",
+      "sample_count": 1,
+      "metadata": {
+        "source": "bundled_sample",
+        "source_ref": "Vosk public spoken-number sample",
+        "language": "en-US",
+        "acoustic_profile": "clean_spoken_numbers",
+        "license": "sample"
+      }
+    }
+  ]
+}

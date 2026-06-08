@@ -1,0 +1,14 @@
+# Goal
+string provider_id
+string model_id
+string target_dir
+---
+# Result
+bool success
+string model_path
+string message
+---
+# Feedback
+string state
+float32 progress
+string detail

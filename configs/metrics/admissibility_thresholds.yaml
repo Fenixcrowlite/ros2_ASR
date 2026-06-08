@@ -1,0 +1,21 @@
+scenarios:
+  embedded:
+    end_to_end_rtf_mean_max: 0.8
+    end_to_end_rtf_p95_max: 1.0
+    final_latency_ms_p95_max: 2000.0
+    success_rate_min: 0.95
+  dialog:
+    end_to_end_rtf_mean_max: 0.8
+    end_to_end_rtf_p95_max: 1.0
+    final_latency_ms_p95_max: 1500.0
+    success_rate_min: 0.98
+  batch:
+    end_to_end_rtf_mean_max: 2.0
+    end_to_end_rtf_p95_max: 3.0
+    final_latency_ms_p95_max: 15000.0
+    success_rate_min: 0.90
+  analytics:
+    end_to_end_rtf_mean_max: 2.5
+    end_to_end_rtf_p95_max: 4.0
+    final_latency_ms_p95_max: 30000.0
+    success_rate_min: 0.90

@@ -1,0 +1,13 @@
+# Goal
+string dataset_profile
+string source_path
+string dataset_id
+---
+# Result
+bool success
+string dataset_id
+string manifest_ref
+string message
+---
+# Feedback
+asr_interfaces/DatasetStatus status

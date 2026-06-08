@@ -1,0 +1,44 @@
+profile_id: metrics/default_observability
+inherits: []
+metrics:
+  - wer
+  - cer
+  - sample_accuracy
+  - ser
+  - mer
+  - wil
+  - wip
+  - micro_wer
+  - macro_wer
+  - micro_cer
+  - macro_cer
+  - hallucination_on_silence
+  - provider_compute_latency_ms
+  - end_to_end_latency_ms
+  - provider_compute_rtf
+  - end_to_end_rtf
+  - time_to_first_result_ms
+  - time_to_final_result_ms
+  - finalization_latency_ms
+  - partial_count
+  - success_rate
+  - failure_rate
+  - timeout_rate
+collectors:
+  pipeline:
+    enabled: true
+  system:
+    enabled: true
+    include_gpu: true
+  ros:
+    enabled: true
+validators:
+  warn_only: true
+  require_ordered_timestamps: true
+exporters:
+  artifact_root: artifacts
+  reports_root: reports
+  json: true
+  csv: true
+  runtime_index_filename: trace_index.csv
+  benchmark_index_filename: trace_index.csv
