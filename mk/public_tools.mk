@@ -4,9 +4,16 @@ PROVIDER_LANGUAGE ?= en-US
 PROVIDER_SETTINGS_JSON ?= {}
 PROVIDER_CHECK_ARGS ?=
 
-.PHONY: public-help init-provider-env provider-validate provider-test public-release-check prepare-ui-assets prepare-runtime-assets
+.PHONY: public-help init-provider-env configure-providers configure-provider provider-validate provider-test public-release-check prepare-ui-assets prepare-runtime-assets
+
+configure-providers:
+	bash scripts/init_provider_env.sh --prompt-all
+
+configure-provider:
+	bash scripts/init_provider_env.sh --prompt-provider "$(PROVIDER_PROFILE)"
 
 prepare-ui-assets: setup-vosk
+	bash scripts/init_provider_env.sh --prompt-missing-once
 
 prepare-runtime-assets:
 	@if [[ "$(PROVIDER_PROFILE)" == "providers/vosk_local" ]]; then \
@@ -14,6 +21,7 @@ prepare-runtime-assets:
 	else \
 		printf '%s\n' 'No additional local runtime assets required for $(PROVIDER_PROFILE).'; \
 	fi
+	@bash scripts/init_provider_env.sh --prompt-provider "$(PROVIDER_PROFILE)"
 
 up web-gui web-gui-lan: prepare-ui-assets
 up-runtime: prepare-runtime-assets
@@ -21,9 +29,11 @@ up-runtime: prepare-runtime-assets
 public-help:
 	@printf '%s\n' \
 		'Public setup and provider commands:' \
-		'  make up                                        Start the UI stack and prepare selectable local assets automatically' \
-		'  make up-runtime PROVIDER_PROFILE=...            Start minimal runtime and prepare required local assets automatically' \
+		'  make up                                        Start UI and offer skippable provider setup' \
+		'  make up-runtime PROVIDER_PROFILE=...            Start selected runtime and ask for missing values' \
 		'  make init-provider-env                         Create secrets/local/runtime.env safely' \
+		'  make configure-providers                       Reopen optional provider setup' \
+		'  make configure-provider PROVIDER_PROFILE=...    Configure one provider interactively' \
 		'  make provider-validate PROVIDER_PROFILE=...    Validate the selected backend through the gateway' \
 		'  make provider-test PROVIDER_PROFILE=...        Run a real WAV transcription with the selected backend' \
 		'  make public-release-check                      Run static checks before sharing the repository' \
