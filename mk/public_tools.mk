@@ -3,8 +3,9 @@ PROVIDER_WAV ?= data/sample/vosk_test.wav
 PROVIDER_LANGUAGE ?= en-US
 PROVIDER_SETTINGS_JSON ?= {}
 PROVIDER_CHECK_ARGS ?=
+export BENCHMARK_PROFILE
 
-.PHONY: public-help init-provider-env configure-providers configure-provider preflight-provider provider-validate provider-test public-release-check prepare-ui-assets prepare-runtime-assets prepare-benchmark-assets prepare-hf-benchmark-assets prepare-hf-local-assets prepare-hf-api-assets
+.PHONY: public-help init-provider-env configure-providers configure-provider preflight-provider provider-startup-syntax-check provider-validate provider-test public-release-check prepare-ui-assets prepare-runtime-assets prepare-benchmark-assets prepare-hf-benchmark-assets prepare-hf-local-assets prepare-hf-api-assets
 
 configure-providers:
 	bash scripts/init_provider_env.sh --prompt-all
@@ -14,6 +15,15 @@ configure-provider:
 
 preflight-provider:
 	bash scripts/run_provider_preflight.sh "$(PROVIDER_PROFILE)"
+
+provider-startup-syntax-check:
+	bash -n scripts/init_provider_env.sh
+	bash -n scripts/run_provider_preflight.sh
+	bash -n scripts/prepare_provider_startup.sh
+	bash -n scripts/prepare_benchmark_startup.sh
+	python3 -m py_compile scripts/provider_preflight.py scripts/list_benchmark_providers.py
+
+docs-check: provider-startup-syntax-check
 
 prepare-ui-assets:
 	bash scripts/prepare_provider_startup.sh ui "$(PROVIDER_PROFILE)"
