@@ -76,6 +76,7 @@ prompt_value() {
   local existing=""
   local answer=""
   local value=""
+  local normalized_value=""
 
   existing="$(get_value "$key")"
   if [[ -n "$existing" ]]; then
@@ -90,34 +91,43 @@ prompt_value() {
     return 0
   fi
 
-  answer="$(ask_choice "  $label is missing. Configure it now? [y/N/s=skip]: ")"
-  case "$answer" in
-    y|yes)
-      ;;
-    s|skip|n|no|"")
-      echo "  skipped: $key"
-      return 0
-      ;;
-    *)
-      echo "  skipped: $key (unrecognized answer)"
-      return 0
-      ;;
-  esac
+  while true; do
+    answer="$(ask_choice "  $label is missing. Configure it now? [y/N/s=skip]: ")"
+    case "$answer" in
+      y|yes)
+        ;;
+      s|skip|n|no|"")
+        echo "  skipped: $key"
+        return 0
+        ;;
+      *)
+        echo "  skipped: $key (unrecognized answer)"
+        return 0
+        ;;
+    esac
 
-  if [[ "$secret" == "1" ]]; then
-    read -r -s -p "  Enter $label: " value
-    echo
-  else
-    read -r -p "  Enter $label: " value
-  fi
+    if [[ "$secret" == "1" ]]; then
+      read -r -s -p "  Enter $label ([b] back): " value
+      echo
+    else
+      read -r -p "  Enter $label ([b] back): " value
+    fi
 
-  if [[ -z "$value" ]]; then
-    echo "  skipped: $key (empty value)"
+    normalized_value="${value,,}"
+    if [[ "$normalized_value" == "b" || "$normalized_value" == "back" ]]; then
+      echo "  back: returning to the previous choice for $key"
+      continue
+    fi
+
+    if [[ -z "$value" ]]; then
+      echo "  skipped: $key (empty value)"
+      return 0
+    fi
+
+    set_value "$key" "$value"
+    echo "  saved locally: $key"
     return 0
-  fi
-
-  set_value "$key" "$value"
-  echo "  saved locally: $key"
+  done
 }
 
 prompt_huggingface_api() {
@@ -210,6 +220,7 @@ prompt_all() {
   echo
   echo "Optional provider configuration walkthrough"
   echo "You can skip any provider and configure it later with: make configure-providers"
+  echo "After choosing configure, enter b to go back without saving a value."
   prompt_huggingface_local
   prompt_huggingface_api
   prompt_azure
