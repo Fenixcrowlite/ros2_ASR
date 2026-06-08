@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import sys
 from pathlib import Path
+from typing import Any
 
 
 def add_workspace_sources(root: Path) -> None:
@@ -15,6 +16,25 @@ def add_workspace_sources(root: Path) -> None:
             sys.path.insert(0, str(package_dir))
 
 
+def materialize_local_provider(profile: str, provider: Any) -> None:
+    if profile == "providers/whisper_local":
+        backend = getattr(provider, "_backend", None)
+        loader = getattr(backend, "_load_model", None)
+        if callable(loader) and not loader():
+            detail = str(getattr(backend, "_load_error", "") or "unknown error")
+            raise RuntimeError(f"Whisper model preparation failed: {detail}")
+    elif profile == "providers/vosk_local":
+        backend = getattr(provider, "_backend", None)
+        loader = getattr(backend, "_load_vosk", None)
+        if callable(loader) and not loader():
+            detail = str(getattr(backend, "_last_load_error", "") or "unknown error")
+            raise RuntimeError(f"Vosk model preparation failed: {detail}")
+    elif profile == "providers/huggingface_local":
+        loader = getattr(provider, "_load_pipeline", None)
+        if callable(loader):
+            loader()
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", required=True)
@@ -23,18 +43,24 @@ def main() -> int:
 
     root = Path(__file__).resolve().parents[1]
     add_workspace_sources(root)
-
+    provider: Any | None = None
     try:
         from asr_provider_base.manager import ProviderManager
 
         manager = ProviderManager(configs_root=str(root / args.configs_root))
         provider = manager.create_from_profile(args.profile)
-        provider.teardown()
+        materialize_local_provider(args.profile, provider)
     except Exception as exc:
         print(f"ERROR: selected provider is not ready: {args.profile}", file=sys.stderr)
         print(f"DETAIL: {exc}", file=sys.stderr)
         print("Fix the reported setup issue or choose another provider.", file=sys.stderr)
         return 1
+    finally:
+        if provider is not None:
+            try:
+                provider.teardown()
+            except Exception:
+                pass
 
     print(f"PASS: selected provider is ready: {args.profile}")
     return 0
