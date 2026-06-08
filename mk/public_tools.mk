@@ -4,7 +4,7 @@ PROVIDER_LANGUAGE ?= en-US
 PROVIDER_SETTINGS_JSON ?= {}
 PROVIDER_CHECK_ARGS ?=
 
-.PHONY: public-help init-provider-env configure-providers configure-provider preflight-provider provider-validate provider-test public-release-check prepare-ui-assets prepare-runtime-assets
+.PHONY: public-help init-provider-env configure-providers configure-provider preflight-provider provider-validate provider-test public-release-check prepare-ui-assets prepare-runtime-assets prepare-benchmark-assets prepare-hf-benchmark-assets prepare-hf-local-assets prepare-hf-api-assets
 
 configure-providers:
 	bash scripts/init_provider_env.sh --prompt-all
@@ -21,14 +21,32 @@ prepare-ui-assets:
 prepare-runtime-assets:
 	bash scripts/prepare_provider_startup.sh runtime "$(PROVIDER_PROFILE)"
 
+prepare-benchmark-assets:
+	bash scripts/prepare_benchmark_startup.sh "$(BENCHMARK_PROFILE)"
+
+prepare-hf-benchmark-assets:
+	bash scripts/prepare_benchmark_startup.sh huggingface_provider_matrix
+
+prepare-hf-local-assets:
+	bash scripts/prepare_provider_startup.sh runtime providers/huggingface_local
+
+prepare-hf-api-assets:
+	bash scripts/prepare_provider_startup.sh runtime providers/huggingface_api
+
 up web-gui web-gui-lan: prepare-ui-assets
+web-gui web-gui-lan: build
 up-runtime run: prepare-runtime-assets
+bench bench-suite: prepare-benchmark-assets
+bench-hf: prepare-hf-benchmark-assets
+hf-smoke-local: prepare-hf-local-assets
+hf-smoke-api: prepare-hf-api-assets
 
 public-help:
 	@printf '%s\n' \
 		'Public setup and provider commands:' \
 		'  make up                                        Prepare local assets, guide optional setup, preflight, then start UI' \
 		'  make up-runtime PROVIDER_PROFILE=...            Prepare and preflight the selected provider before runtime start' \
+		'  make bench-suite                               Prepare every configured benchmark provider before execution' \
 		'  make configure-providers                       Reopen optional provider setup' \
 		'  make configure-provider PROVIDER_PROFILE=...    Configure one provider interactively' \
 		'  make preflight-provider PROVIDER_PROFILE=...    Check whether one provider is launch-ready' \
