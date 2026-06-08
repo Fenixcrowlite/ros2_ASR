@@ -35,7 +35,7 @@ get_value() {
 set_value() {
   local key="$1"
   local value="$2"
-  printf '%s' "$value" | python3 - "$TARGET" "$key" <<'PY'
+  printf '%s' "$value" | python3 -c '
 from __future__ import annotations
 
 import sys
@@ -53,7 +53,7 @@ for index, line in enumerate(lines):
 else:
     lines.extend(["", replacement])
 path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
-PY
+' "$TARGET" "$key"
   chmod 600 "$TARGET"
 }
 
