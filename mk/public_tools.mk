@@ -6,6 +6,11 @@ PROVIDER_CHECK_ARGS ?=
 
 .PHONY: public-help init-provider-env provider-validate provider-test public-release-check
 
+up: setup-vosk
+up-runtime: setup-vosk
+web-gui: setup-vosk
+web-gui-lan: setup-vosk
+
 public-help:
 	@printf '%s\n' \
 		'Public setup and provider commands:' \
