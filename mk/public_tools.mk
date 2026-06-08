@@ -4,16 +4,25 @@ PROVIDER_LANGUAGE ?= en-US
 PROVIDER_SETTINGS_JSON ?= {}
 PROVIDER_CHECK_ARGS ?=
 
-.PHONY: public-help init-provider-env provider-validate provider-test public-release-check
+.PHONY: public-help init-provider-env provider-validate provider-test public-release-check prepare-ui-assets prepare-runtime-assets
 
-up: setup-vosk
-up-runtime: setup-vosk
-web-gui: setup-vosk
-web-gui-lan: setup-vosk
+prepare-ui-assets: setup-vosk
+
+prepare-runtime-assets:
+	@if [[ "$(PROVIDER_PROFILE)" == "providers/vosk_local" ]]; then \
+		$(MAKE) setup-vosk; \
+	else \
+		printf '%s\n' 'No additional local runtime assets required for $(PROVIDER_PROFILE).'; \
+	fi
+
+up web-gui web-gui-lan: prepare-ui-assets
+up-runtime: prepare-runtime-assets
 
 public-help:
 	@printf '%s\n' \
 		'Public setup and provider commands:' \
+		'  make up                                        Start the UI stack and prepare selectable local assets automatically' \
+		'  make up-runtime PROVIDER_PROFILE=...            Start minimal runtime and prepare required local assets automatically' \
 		'  make init-provider-env                         Create secrets/local/runtime.env safely' \
 		'  make provider-validate PROVIDER_PROFILE=...    Validate the selected backend through the gateway' \
 		'  make provider-test PROVIDER_PROFILE=...        Run a real WAV transcription with the selected backend' \
