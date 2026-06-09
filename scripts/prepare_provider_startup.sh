@@ -14,11 +14,23 @@ prepare_vosk_if_needed() {
   fi
 }
 
-prepare_selected_provider() {
+prompt_selected_provider() {
+  local profile="$1"
+  bash "$ROOT_DIR/scripts/init_provider_env.sh" --prompt-provider "$profile"
+}
+
+prepare_runtime_provider() {
   local profile="$1"
   prepare_vosk_if_needed "$profile"
-  bash "$ROOT_DIR/scripts/init_provider_env.sh" --prompt-provider "$profile"
+  prompt_selected_provider "$profile"
   bash "$ROOT_DIR/scripts/run_provider_preflight.sh" "$profile"
+}
+
+prepare_batch_provider() {
+  local profile="$1"
+  prepare_vosk_if_needed "$profile"
+  prompt_selected_provider "$profile"
+  bash "$ROOT_DIR/scripts/run_provider_batch_preflight.sh" "$profile"
 }
 
 case "$MODE" in
@@ -28,10 +40,13 @@ case "$MODE" in
     # may be skipped during the first-run walkthrough.
     bash "$ROOT_DIR/scripts/maintenance/setup_vosk_models.sh"
     bash "$ROOT_DIR/scripts/init_provider_env.sh" --prompt-missing-once
-    prepare_selected_provider "$PROFILE"
+    prepare_runtime_provider "$PROFILE"
     ;;
   runtime)
-    prepare_selected_provider "$PROFILE"
+    prepare_runtime_provider "$PROFILE"
+    ;;
+  batch)
+    prepare_batch_provider "$PROFILE"
     ;;
   *)
     echo "ERROR: unsupported provider startup mode: $MODE" >&2
