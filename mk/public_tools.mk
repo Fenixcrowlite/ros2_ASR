@@ -23,6 +23,9 @@ provider-startup-syntax-check:
 	bash -n scripts/prepare_provider_startup.sh
 	bash -n scripts/prepare_benchmark_startup.sh
 	bash -n scripts/prepare_benchmark_batch_startup.sh
+	bash -n scripts/run_web_ui_prepared.sh
+	bash -n scripts/run_benchmarks_prepared.sh
+	bash -n scripts/run_benchmark_suite_prepared.sh
 	python3 -m py_compile scripts/provider_preflight.py scripts/list_benchmark_providers.py
 
 docs-check: provider-startup-syntax-check
@@ -47,7 +50,6 @@ prepare-hf-api-assets:
 
 up web-gui web-gui-lan: prepare-ui-assets
 web-gui web-gui-lan: build
-up-runtime run: prepare-runtime-assets
 bench bench-suite: prepare-benchmark-assets
 bench-hf: prepare-hf-benchmark-assets
 hf-smoke-local: prepare-hf-local-assets
