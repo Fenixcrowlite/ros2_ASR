@@ -31,8 +31,10 @@ echo "  make docs-check"
 echo "  make validate-datasets"
 echo "  make public-release-check"
 echo
-echo "For cloud or hosted providers, create the local environment file safely:"
-echo "  make init-provider-env"
+echo "Cloud and hosted providers can be configured later through the skippable walkthrough:"
+echo "  make configure-providers"
+echo "Or configure one selected profile only:"
+echo "  make configure-provider PROVIDER_PROFILE=providers/azure_cloud"
 echo
 echo "Provider activation guide: docs/asr_backends.md"
 echo "Provider environment guide: docs/provider_env.md"
