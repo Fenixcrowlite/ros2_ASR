@@ -18,13 +18,18 @@ preflight-provider:
 
 provider-startup-syntax-check:
 	bash -n scripts/init_provider_env.sh
+	bash -n scripts/source_runtime_env.sh
 	bash -n scripts/run_provider_preflight.sh
 	bash -n scripts/run_provider_batch_preflight.sh
 	bash -n scripts/prepare_provider_startup.sh
 	bash -n scripts/prepare_benchmark_startup.sh
 	bash -n scripts/prepare_benchmark_batch_startup.sh
+	bash -n scripts/run_demo.sh
+	bash -n scripts/run_web_ui.sh
 	bash -n scripts/run_web_ui_prepared.sh
+	bash -n scripts/run_benchmarks.sh
 	bash -n scripts/run_benchmarks_prepared.sh
+	bash -n scripts/run_benchmark_suite.sh
 	bash -n scripts/run_benchmark_suite_prepared.sh
 	python3 -m py_compile scripts/provider_preflight.py scripts/list_benchmark_providers.py scripts/asr_interactive.py
 
