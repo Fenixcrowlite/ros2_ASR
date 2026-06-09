@@ -35,8 +35,13 @@ def materialize_local_provider(profile: str, provider: Any) -> None:
             loader()
 
 
-def validate_operational_requirements(profile: str, provider: Any) -> None:
-    if profile == "providers/aws_cloud":
+def validate_operational_requirements(
+    profile: str,
+    provider: Any,
+    *,
+    require_batch_assets: bool,
+) -> None:
+    if profile == "providers/aws_cloud" and require_batch_assets:
         backend = getattr(provider, "_backend", None)
         bucket = str(getattr(backend, "s3_bucket", "") or "").strip()
         if not bucket:
@@ -49,6 +54,11 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", required=True)
     parser.add_argument("--configs-root", default="configs")
+    parser.add_argument(
+        "--require-batch-assets",
+        action="store_true",
+        help="Require assets needed for batch or bundled-WAV execution, such as an AWS S3 bucket.",
+    )
     args = parser.parse_args()
 
     root = Path(__file__).resolve().parents[1]
@@ -59,7 +69,11 @@ def main() -> int:
 
         manager = ProviderManager(configs_root=str(root / args.configs_root))
         provider = manager.create_from_profile(args.profile)
-        validate_operational_requirements(args.profile, provider)
+        validate_operational_requirements(
+            args.profile,
+            provider,
+            require_batch_assets=bool(args.require_batch_assets),
+        )
         materialize_local_provider(args.profile, provider)
     except Exception as exc:
         print(f"ERROR: selected provider is not ready: {args.profile}", file=sys.stderr)
