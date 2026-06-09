@@ -4,6 +4,8 @@ set -euo pipefail
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
+BENCHMARK_PROFILE="${BENCHMARK_PROFILE:-default_benchmark}"
+
 # Build workspace and run benchmark runner once.
 source "$ROOT_DIR/scripts/source_runtime_env.sh" --with-ros
 
@@ -52,7 +54,7 @@ source "${ASR_COLCON_INSTALL_PREFIX}/setup.bash"
 set -u
 
 python3 scripts/run_benchmark_core.py \
-  --benchmark-profile default_benchmark \
+  --benchmark-profile "$BENCHMARK_PROFILE" \
   --configs-root "$ROOT_DIR/configs" \
   --artifact-root "$ROOT_DIR/artifacts" \
   --registry-path "$ROOT_DIR/datasets/registry/datasets.json"
