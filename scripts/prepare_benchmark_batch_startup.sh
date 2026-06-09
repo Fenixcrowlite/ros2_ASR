@@ -5,7 +5,13 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT_DIR"
 
 PROFILE="${1:-default_benchmark}"
-mapfile -t providers < <(python3 scripts/list_benchmark_providers.py --profile "$PROFILE")
+PROVIDERS_CSV="${2:-}"
+
+if [[ -n "$PROVIDERS_CSV" ]]; then
+  IFS=',' read -r -a providers <<< "$PROVIDERS_CSV"
+else
+  mapfile -t providers < <(python3 scripts/list_benchmark_providers.py --profile "$PROFILE")
+fi
 
 if [[ "${#providers[@]}" -eq 0 ]]; then
   echo "ERROR: benchmark provider list is empty" >&2
