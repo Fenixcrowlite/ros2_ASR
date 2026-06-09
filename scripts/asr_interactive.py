@@ -2,8 +2,6 @@
 """Interactive launcher for the ROS2 ASR thesis demo."""
 from __future__ import annotations
 
-import getpass
-import os
 import subprocess
 from pathlib import Path
 
@@ -13,38 +11,37 @@ PROVIDERS = {
     "1": {
         "name": "Whisper local",
         "profile": "providers/whisper_local",
-        "env": [],
+        "runtime_profile": "default_runtime",
     },
     "2": {
         "name": "Vosk local",
         "profile": "providers/vosk_local",
-        "env": [],
+        "runtime_profile": "default_runtime",
     },
     "3": {
-        "name": "AWS Transcribe",
-        "profile": "providers/aws_cloud",
-        "env": [
-            ("AWS_ACCESS_KEY_ID", "AWS access key ID", False),
-            ("AWS_SECRET_ACCESS_KEY", "AWS secret access key", True),
-            ("AWS_DEFAULT_REGION", "AWS region", False),
-            ("ASR_AWS_S3_BUCKET", "S3 bucket", False),
-        ],
+        "name": "Hugging Face local",
+        "profile": "providers/huggingface_local",
+        "runtime_profile": "huggingface_local_runtime",
     },
     "4": {
-        "name": "Azure Speech",
-        "profile": "providers/azure_cloud",
-        "env": [
-            ("AZURE_SPEECH_KEY", "Azure Speech key", True),
-            ("AZURE_SPEECH_REGION", "Azure Speech region", False),
-        ],
+        "name": "Hugging Face hosted API",
+        "profile": "providers/huggingface_api",
+        "runtime_profile": "huggingface_api_runtime",
     },
     "5": {
+        "name": "Azure Speech",
+        "profile": "providers/azure_cloud",
+        "runtime_profile": "default_runtime",
+    },
+    "6": {
         "name": "Google Cloud Speech-to-Text",
         "profile": "providers/google_cloud",
-        "env": [
-            ("GOOGLE_APPLICATION_CREDENTIALS", "Path to service account JSON", False),
-            ("GOOGLE_CLOUD_PROJECT", "Google Cloud project ID", False),
-        ],
+        "runtime_profile": "default_runtime",
+    },
+    "7": {
+        "name": "Amazon Transcribe",
+        "profile": "providers/aws_cloud",
+        "runtime_profile": "default_runtime",
     },
 }
 
@@ -57,44 +54,23 @@ def ask_choice(title: str, options: dict[str, str]) -> str:
         value = input("> ").strip()
         if value in options:
             return value
-        print("Neplatná voľba. Zadaj číslo zo zoznamu.")
+        print("Invalid choice. Enter one of the listed numbers.")
 
 
-def ask_value(key: str, label: str, secret: bool) -> str | None:
-    current = os.environ.get(key, "")
-    state = "set" if current else "empty"
-    prompt = f"{label} [{key}, current: {state}, Enter = ponechať]: "
-    value = getpass.getpass(prompt) if secret else input(prompt)
-    value = value.strip()
-    return value or current or None
-
-
-def collect_provider_env(provider_keys: list[str]) -> dict[str, str]:
-    env_updates: dict[str, str] = {}
-    for provider_key in provider_keys:
-        provider = PROVIDERS[provider_key]
-        print(f"\nProvider: {provider['name']}")
-        for key, label, secret in provider["env"]:
-            value = ask_value(str(key), str(label), bool(secret))
-            if value:
-                env_updates[str(key)] = value
-    return env_updates
-
-
-def ask_single_provider() -> tuple[str, dict[str, str]]:
+def ask_single_provider() -> dict[str, str]:
     key = ask_choice(
-        "Vyber aktívneho ASR providera:",
+        "Select the active ASR provider:",
         {key: value["name"] for key, value in PROVIDERS.items()},
     )
-    return str(PROVIDERS[key]["profile"]), collect_provider_env([key])
+    return PROVIDERS[key]
 
 
-def ask_benchmark_providers() -> tuple[str, dict[str, str]]:
-    print("\nVyber providerov pre benchmark:")
-    print("  0) všetci provideri")
+def ask_benchmark_providers() -> str:
+    print("\nSelect providers for the benchmark:")
+    print("  0) all providers")
     for key, value in PROVIDERS.items():
         print(f"  {key}) {value['name']}")
-    print("Zadaj jednu alebo viac možností oddelených čiarkou, napr. 1,2,4")
+    print("Enter one or more comma-separated values, for example: 1,2,5")
 
     while True:
         raw = input("> ").replace(" ", "")
@@ -105,46 +81,52 @@ def ask_benchmark_providers() -> tuple[str, dict[str, str]]:
         if keys and all(key in PROVIDERS for key in keys):
             keys = list(dict.fromkeys(keys))
             break
-        print("Neplatná voľba. Použi 0 alebo zoznam, napr. 1,2,4.")
+        print("Invalid choice. Use 0 or a comma-separated list such as 1,2,5.")
 
-    profiles = ",".join(str(PROVIDERS[key]["profile"]) for key in keys)
-    return profiles, collect_provider_env(keys)
+    return ",".join(str(PROVIDERS[key]["profile"]) for key in keys)
 
 
-def run_command(args: list[str], extra_env: dict[str, str] | None = None) -> int:
-    env = os.environ.copy()
-    env.update(extra_env or {})
-    print("\nSpúšťam:", " ".join(args))
-    return subprocess.call(args, cwd=ROOT, env=env)
+def run_command(args: list[str]) -> int:
+    print("\nRunning:", " ".join(args))
+    return subprocess.call(args, cwd=ROOT)
 
 
 def main() -> int:
     print("ROS2 ASR interactive launcher")
     mode = ask_choice(
-        "Čo chceš spustiť?",
+        "Choose an action:",
         {
-            "1": "iba runtime vetvu ROS2",
-            "2": "benchmark z konzoly",
-            "3": "web GUI - spustiť celý systém",
-            "4": "zastaviť web GUI",
-            "5": "koniec",
+            "1": "start only the ROS2 runtime branch",
+            "2": "run a benchmark from the console",
+            "3": "start the complete system with web UI",
+            "4": "stop the web UI stack",
+            "5": "configure optional providers",
+            "6": "exit",
         },
     )
 
-    if mode == "5":
+    if mode == "6":
         return 0
+    if mode == "5":
+        return run_command(["make", "configure-providers"])
     if mode == "4":
         return run_command(["make", "down"])
     if mode == "3":
         return run_command(["make", "up"])
     if mode == "1":
-        profile, env = ask_single_provider()
-        return run_command(["make", "up-runtime", f"PROVIDER_PROFILE={profile}"], env)
+        provider = ask_single_provider()
+        return run_command(
+            [
+                "make",
+                "up-runtime",
+                f"PROVIDER_PROFILE={provider['profile']}",
+                f"RUNTIME_PROFILE={provider['runtime_profile']}",
+            ]
+        )
 
-    profiles, env = ask_benchmark_providers()
+    profiles = ask_benchmark_providers()
     return run_command(
-        ["bash", "scripts/run_benchmark_suite.sh", "--providers", profiles],
-        env,
+        ["bash", "scripts/run_benchmark_suite_prepared.sh", "--providers", profiles]
     )
 
 
