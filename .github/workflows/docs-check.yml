@@ -9,11 +9,7 @@ on:
       - secrets/refs/**
       - configs/providers/**
       - configs/runtime.env.example
-      - scripts/check_docs.py
-      - scripts/provider_gateway_check.py
-      - scripts/init_provider_env.sh
-      - scripts/setup_env.sh
-      - scripts/public_release_check.sh
+      - scripts/**
       - GNUmakefile
       - Makefile
       - mk/**
@@ -26,11 +22,7 @@ on:
       - secrets/refs/**
       - configs/providers/**
       - configs/runtime.env.example
-      - scripts/check_docs.py
-      - scripts/provider_gateway_check.py
-      - scripts/init_provider_env.sh
-      - scripts/setup_env.sh
-      - scripts/public_release_check.sh
+      - scripts/**
       - GNUmakefile
       - Makefile
       - mk/**
