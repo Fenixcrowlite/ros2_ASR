@@ -46,17 +46,17 @@ LINT_MYPY_PATHS := $(LINT_RUFF_PATHS)
 help:
 	@printf '%s\n' \
 		'Main entrypoints:' \
-		'  make up                Build and start the full web UI stack on localhost:8088' \
-		'  make up-lan            Build and start the full web UI stack on 0.0.0.0:8088' \
-		'  make up-runtime        Build and start the minimal ROS2 runtime stack' \
+		'  make up                Build, prepare providers, and start the full web UI stack on localhost:8088' \
+		'  make up-lan            Build, prepare providers, and start the full web UI stack on 0.0.0.0:8088' \
+		'  make up-runtime        Build, prepare the selected provider, and start the minimal ROS2 runtime stack' \
 		'  make down              Stop the managed web UI stack on $$GATEWAY_PORT (default 8088)' \
 		'  make test-gateway-smoke Verify gateway/UI endpoints against $$GATEWAY_URL after make up' \
 		'  make docs-check        Verify public setup guides and provider documentation' \
-		'  make bench-suite       Run benchmark core and export schema-first metrics' \
+		'  make bench-suite       Prepare benchmark providers, run benchmark core, and export schema-first metrics' \
 		'  make collect-metrics   Export schema-first metrics from latest results' \
-		'  make hf-smoke-local    Run direct Hugging Face local provider smoke test' \
-		'  make hf-smoke-api      Run direct Hugging Face API provider smoke test' \
-		'  make bench-hf          Run the Hugging Face provider benchmark matrix' \
+		'  make hf-smoke-local    Prepare and run direct Hugging Face local provider smoke test' \
+		'  make hf-smoke-api      Prepare and run direct Hugging Face API provider smoke test' \
+		'  make bench-hf          Prepare and run the Hugging Face provider benchmark matrix' \
 		'  make rqt               Launch rqt with this workspace environment' \
 		'' \
 		'Common variables:' \
@@ -96,10 +96,10 @@ run:
 	bash scripts/run_demo.sh
 
 bench:
-	bash scripts/run_benchmarks.sh
+	bash scripts/run_benchmarks_prepared.sh
 
 bench-suite:
-	bash scripts/run_benchmark_suite.sh --scenario $(SCENARIO) --normalization-profile $(NORMALIZATION_PROFILE)
+	bash scripts/run_benchmark_suite_prepared.sh --benchmark-profile $(BENCHMARK_PROFILE) --scenario $(SCENARIO) --normalization-profile $(NORMALIZATION_PROFILE)
 
 collect-metrics:
 	bash -lc 'source $(VENV)/bin/activate && latest=$$(find artifacts/benchmark_runs -mindepth 1 -maxdepth 1 -type d -printf "%T@ %p\n" | sort -nr | awk "NR==1{print \$$2}"); if [ -z "$$latest" ]; then echo "No canonical benchmark run found under artifacts/benchmark_runs."; exit 1; fi; PYTHONPATH=$$PYTHONPATH:$(PY_PATH) $(PY) scripts/collect_metrics.py --input "$$latest" --scenario $(SCENARIO) --normalization-profile $(NORMALIZATION_PROFILE)'
@@ -107,8 +107,11 @@ collect-metrics:
 validate-datasets:
 	python3 scripts/validate_dataset_assets.py --registry datasets/registry/datasets.json --root .
 
+report:
+	bash -lc 'source $(VENV)/bin/activate && latest=$$(find artifacts/benchmark_runs -mindepth 2 -maxdepth 2 -path "*/reports" -printf "%T@ %p/summary.json\n" | sort -nr | awk "NR==1{print \$$2}"); if [ -z "$$latest" ] || [ ! -f "$$latest" ]; then echo "No canonical benchmark summary found under artifacts/benchmark_runs."; exit 1; fi; PYTHONPATH=$$PYTHONPATH:$(PY_PATH) $(PY) scripts/generate_report.py --input "$$latest" --output results/report.md'
+
 up: build
-	ASR_RUNTIME_PROFILE=$(RUNTIME_PROFILE) ASR_PROVIDER_PROFILE=$(PROVIDER_PROFILE) bash scripts/run_web_ui.sh --mode $(GATEWAY_MODE) --stack $(GATEWAY_STACK) --port $(GATEWAY_PORT)
+	ASR_RUNTIME_PROFILE=$(RUNTIME_PROFILE) ASR_PROVIDER_PROFILE=$(PROVIDER_PROFILE) bash scripts/run_web_ui_prepared.sh --mode $(GATEWAY_MODE) --stack $(GATEWAY_STACK) --port $(GATEWAY_PORT)
 
 up-runtime: build
 	bash scripts/run_web_ui.sh --stop --port $(GATEWAY_PORT)
@@ -132,14 +135,11 @@ bench-hf:
 rqt:
 	bash scripts/run_rqt.sh $(RQT_ARGS)
 
-report:
-	bash -lc 'source $(VENV)/bin/activate && latest=$$(find artifacts/benchmark_runs -mindepth 2 -maxdepth 2 -path "*/reports" -printf "%T@ %p/summary.json\n" | sort -nr | awk "NR==1{print \$$2}"); if [ -z "$$latest" ] || [ ! -f "$$latest" ]; then echo "No canonical benchmark summary found under artifacts/benchmark_runs."; exit 1; fi; PYTHONPATH=$$PYTHONPATH:$(PY_PATH) $(PY) scripts/generate_report.py --input "$$latest" --output results/report.md'
-
 web-gui:
-	ASR_RUNTIME_PROFILE=$(RUNTIME_PROFILE) ASR_PROVIDER_PROFILE=$(PROVIDER_PROFILE) bash scripts/run_web_ui.sh --mode local --stack full
+	ASR_RUNTIME_PROFILE=$(RUNTIME_PROFILE) ASR_PROVIDER_PROFILE=$(PROVIDER_PROFILE) bash scripts/run_web_ui_prepared.sh --mode local --stack full
 
 web-gui-lan:
-	ASR_RUNTIME_PROFILE=$(RUNTIME_PROFILE) ASR_PROVIDER_PROFILE=$(PROVIDER_PROFILE) bash scripts/run_web_ui.sh --mode lan --stack full
+	ASR_RUNTIME_PROFILE=$(RUNTIME_PROFILE) ASR_PROVIDER_PROFILE=$(PROVIDER_PROFILE) bash scripts/run_web_ui_prepared.sh --mode lan --stack full
 
 web-gui-stop:
 	bash scripts/run_web_ui.sh --stop --port 8088
