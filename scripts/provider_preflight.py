@@ -3,9 +3,20 @@
 from __future__ import annotations
 
 import argparse
+import importlib
 import sys
 from pathlib import Path
 from typing import Any
+
+REQUIRED_MODULES: dict[str, tuple[str, ...]] = {
+    "providers/whisper_local": ("faster_whisper",),
+    "providers/vosk_local": ("vosk",),
+    "providers/huggingface_local": ("torch", "transformers"),
+    "providers/huggingface_api": ("requests",),
+    "providers/azure_cloud": ("azure.cognitiveservices.speech",),
+    "providers/google_cloud": ("google.cloud.speech",),
+    "providers/aws_cloud": ("boto3", "amazon_transcribe"),
+}
 
 
 def add_workspace_sources(root: Path) -> None:
@@ -14,6 +25,17 @@ def add_workspace_sources(root: Path) -> None:
     for package_dir in sorted(src_root.iterdir()):
         if package_dir.is_dir():
             sys.path.insert(0, str(package_dir))
+
+
+def require_provider_modules(profile: str) -> None:
+    failures: list[str] = []
+    for module_name in REQUIRED_MODULES.get(profile, ()):
+        try:
+            importlib.import_module(module_name)
+        except Exception as exc:
+            failures.append(f"{module_name}: {exc}")
+    if failures:
+        raise RuntimeError("Required Python modules are unavailable: " + "; ".join(failures))
 
 
 def materialize_local_provider(profile: str, provider: Any) -> None:
@@ -65,6 +87,7 @@ def main() -> int:
     add_workspace_sources(root)
     provider: Any | None = None
     try:
+        require_provider_modules(args.profile)
         from asr_provider_base.manager import ProviderManager
 
         manager = ProviderManager(configs_root=str(root / args.configs_root))
