@@ -64,7 +64,7 @@ if [ -f "$_runtime_env_file" ]; then
         _env_key="${_env_line%%=*}"
         _env_value="${_env_line#*=}"
         case "$_env_key" in
-          *[!A-Za-z0-9_]*)
+          *[!A-Za-z0-9_]* )
             continue
             ;;
         esac
@@ -77,7 +77,12 @@ if [ -f "$_runtime_env_file" ]; then
           fi
         fi
         [ -n "$_env_value" ] || continue
-        export "${_env_key}=${_env_value}"
+        # Explicit values already present in the launching shell take priority
+        # over the persisted local file. This keeps one-shot session overrides
+        # predictable while still loading missing values from runtime.env.
+        if [ -z "${!_env_key:-}" ]; then
+          export "${_env_key}=${_env_value}"
+        fi
         ;;
     esac
   done < "$_runtime_env_file"
@@ -118,7 +123,7 @@ import site
 paths = [item for item in site.getsitepackages() if "site-packages" in item]
 print(paths[0] if paths else "")
 PY
-)"
+  )"
   if [ -n "$_venv_site_packages" ]; then
     export PYTHONPATH="$(_prepend_unique_path "$_venv_site_packages" "${PYTHONPATH:-}")"
   fi
@@ -138,7 +143,7 @@ for base in site.getsitepackages():
 for item in sorted(set(paths)):
     print(item)
 PY
-)
+  )
 fi
 
 if [ "$_with_ros" -eq 0 ]; then
