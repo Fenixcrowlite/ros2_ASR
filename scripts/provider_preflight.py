@@ -35,6 +35,16 @@ def materialize_local_provider(profile: str, provider: Any) -> None:
             loader()
 
 
+def validate_operational_requirements(profile: str, provider: Any) -> None:
+    if profile == "providers/aws_cloud":
+        backend = getattr(provider, "_backend", None)
+        bucket = str(getattr(backend, "s3_bucket", "") or "").strip()
+        if not bucket:
+            raise RuntimeError(
+                "AWS S3 bucket is missing. Provide AWS_S3_BUCKET for bundled WAV tests and batch jobs."
+            )
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--profile", required=True)
@@ -49,6 +59,7 @@ def main() -> int:
 
         manager = ProviderManager(configs_root=str(root / args.configs_root))
         provider = manager.create_from_profile(args.profile)
+        validate_operational_requirements(args.profile, provider)
         materialize_local_provider(args.profile, provider)
     except Exception as exc:
         print(f"ERROR: selected provider is not ready: {args.profile}", file=sys.stderr)
