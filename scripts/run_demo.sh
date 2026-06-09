@@ -29,6 +29,10 @@ if [ -n "$CONFLICTS" ]; then
   exit 1
 fi
 
+if [[ "${ASR_SKIP_PROVIDER_PREP:-0}" != "1" ]]; then
+  bash "$ROOT_DIR/scripts/prepare_provider_startup.sh" runtime "$PROVIDER_PROFILE"
+fi
+
 source "$ROOT_DIR/scripts/source_runtime_env.sh" --with-ros
 INSTALL_SETUP="${ASR_COLCON_INSTALL_PREFIX}/setup.bash"
 
