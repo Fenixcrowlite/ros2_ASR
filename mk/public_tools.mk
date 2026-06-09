@@ -19,8 +19,10 @@ preflight-provider:
 provider-startup-syntax-check:
 	bash -n scripts/init_provider_env.sh
 	bash -n scripts/run_provider_preflight.sh
+	bash -n scripts/run_provider_batch_preflight.sh
 	bash -n scripts/prepare_provider_startup.sh
 	bash -n scripts/prepare_benchmark_startup.sh
+	bash -n scripts/prepare_benchmark_batch_startup.sh
 	python3 -m py_compile scripts/provider_preflight.py scripts/list_benchmark_providers.py
 
 docs-check: provider-startup-syntax-check
@@ -32,10 +34,10 @@ prepare-runtime-assets:
 	bash scripts/prepare_provider_startup.sh runtime "$(PROVIDER_PROFILE)"
 
 prepare-benchmark-assets:
-	bash scripts/prepare_benchmark_startup.sh "$(BENCHMARK_PROFILE)"
+	bash scripts/prepare_benchmark_batch_startup.sh "$(BENCHMARK_PROFILE)"
 
 prepare-hf-benchmark-assets:
-	bash scripts/prepare_benchmark_startup.sh huggingface_provider_matrix
+	bash scripts/prepare_benchmark_batch_startup.sh huggingface_provider_matrix
 
 prepare-hf-local-assets:
 	bash scripts/prepare_provider_startup.sh runtime providers/huggingface_local
@@ -56,7 +58,7 @@ public-help:
 		'Public setup and provider commands:' \
 		'  make up                                        Prepare local assets, guide optional setup, preflight, then start UI' \
 		'  make up-runtime PROVIDER_PROFILE=...            Prepare and preflight the selected provider before runtime start' \
-		'  make bench-suite                               Prepare every configured benchmark provider before execution' \
+		'  make bench-suite                               Require batch-ready configured providers before execution' \
 		'  make configure-providers                       Reopen optional provider setup' \
 		'  make configure-provider PROVIDER_PROFILE=...    Configure one provider interactively' \
 		'  make preflight-provider PROVIDER_PROFILE=...    Check whether one provider is launch-ready' \
